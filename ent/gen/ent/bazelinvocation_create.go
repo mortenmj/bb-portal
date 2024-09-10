@@ -111,6 +111,34 @@ func (bic *BazelInvocationCreate) SetRelatedFiles(m map[string]string) *BazelInv
 	return bic
 }
 
+// SetUserEmail sets the "user_email" field.
+func (bic *BazelInvocationCreate) SetUserEmail(s string) *BazelInvocationCreate {
+	bic.mutation.SetUserEmail(s)
+	return bic
+}
+
+// SetNillableUserEmail sets the "user_email" field if the given value is not nil.
+func (bic *BazelInvocationCreate) SetNillableUserEmail(s *string) *BazelInvocationCreate {
+	if s != nil {
+		bic.SetUserEmail(*s)
+	}
+	return bic
+}
+
+// SetUserLdap sets the "user_ldap" field.
+func (bic *BazelInvocationCreate) SetUserLdap(s string) *BazelInvocationCreate {
+	bic.mutation.SetUserLdap(s)
+	return bic
+}
+
+// SetNillableUserLdap sets the "user_ldap" field if the given value is not nil.
+func (bic *BazelInvocationCreate) SetNillableUserLdap(s *string) *BazelInvocationCreate {
+	if s != nil {
+		bic.SetUserLdap(*s)
+	}
+	return bic
+}
+
 // SetEventFileID sets the "event_file" edge to the EventFile entity by ID.
 func (bic *BazelInvocationCreate) SetEventFileID(id int) *BazelInvocationCreate {
 	bic.mutation.SetEventFileID(id)
@@ -269,6 +297,14 @@ func (bic *BazelInvocationCreate) createSpec() (*BazelInvocation, *sqlgraph.Crea
 	if value, ok := bic.mutation.RelatedFiles(); ok {
 		_spec.SetField(bazelinvocation.FieldRelatedFiles, field.TypeJSON, value)
 		_node.RelatedFiles = value
+	}
+	if value, ok := bic.mutation.UserEmail(); ok {
+		_spec.SetField(bazelinvocation.FieldUserEmail, field.TypeString, value)
+		_node.UserEmail = value
+	}
+	if value, ok := bic.mutation.UserLdap(); ok {
+		_spec.SetField(bazelinvocation.FieldUserLdap, field.TypeString, value)
+		_node.UserLdap = value
 	}
 	if nodes := bic.mutation.EventFileIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

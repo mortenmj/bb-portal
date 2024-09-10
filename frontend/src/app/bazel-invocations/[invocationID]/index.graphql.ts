@@ -1,4 +1,4 @@
-import {gql} from "@/graphql/__generated__";
+import { gql } from "@/graphql/__generated__";
 
 export const LOAD_FULL_BAZEL_INVOCATION_DETAILS = gql(/* GraphQL */ `
   query LoadFullBazelInvocationDetails($invocationID: String!) {
@@ -26,6 +26,10 @@ fragment BazelInvocationInfo on BazelInvocation {
   relatedFiles {
     name
     url
+  }
+  user {
+    Email
+    LDAP
   }
   startedAt
   endedAt

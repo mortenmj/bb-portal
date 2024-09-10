@@ -174,6 +174,46 @@ func (biu *BazelInvocationUpdate) SetRelatedFiles(m map[string]string) *BazelInv
 	return biu
 }
 
+// SetUserEmail sets the "user_email" field.
+func (biu *BazelInvocationUpdate) SetUserEmail(s string) *BazelInvocationUpdate {
+	biu.mutation.SetUserEmail(s)
+	return biu
+}
+
+// SetNillableUserEmail sets the "user_email" field if the given value is not nil.
+func (biu *BazelInvocationUpdate) SetNillableUserEmail(s *string) *BazelInvocationUpdate {
+	if s != nil {
+		biu.SetUserEmail(*s)
+	}
+	return biu
+}
+
+// ClearUserEmail clears the value of the "user_email" field.
+func (biu *BazelInvocationUpdate) ClearUserEmail() *BazelInvocationUpdate {
+	biu.mutation.ClearUserEmail()
+	return biu
+}
+
+// SetUserLdap sets the "user_ldap" field.
+func (biu *BazelInvocationUpdate) SetUserLdap(s string) *BazelInvocationUpdate {
+	biu.mutation.SetUserLdap(s)
+	return biu
+}
+
+// SetNillableUserLdap sets the "user_ldap" field if the given value is not nil.
+func (biu *BazelInvocationUpdate) SetNillableUserLdap(s *string) *BazelInvocationUpdate {
+	if s != nil {
+		biu.SetUserLdap(*s)
+	}
+	return biu
+}
+
+// ClearUserLdap clears the value of the "user_ldap" field.
+func (biu *BazelInvocationUpdate) ClearUserLdap() *BazelInvocationUpdate {
+	biu.mutation.ClearUserLdap()
+	return biu
+}
+
 // SetEventFileID sets the "event_file" edge to the EventFile entity by ID.
 func (biu *BazelInvocationUpdate) SetEventFileID(id int) *BazelInvocationUpdate {
 	biu.mutation.SetEventFileID(id)
@@ -345,6 +385,18 @@ func (biu *BazelInvocationUpdate) sqlSave(ctx context.Context) (n int, err error
 	}
 	if value, ok := biu.mutation.RelatedFiles(); ok {
 		_spec.SetField(bazelinvocation.FieldRelatedFiles, field.TypeJSON, value)
+	}
+	if value, ok := biu.mutation.UserEmail(); ok {
+		_spec.SetField(bazelinvocation.FieldUserEmail, field.TypeString, value)
+	}
+	if biu.mutation.UserEmailCleared() {
+		_spec.ClearField(bazelinvocation.FieldUserEmail, field.TypeString)
+	}
+	if value, ok := biu.mutation.UserLdap(); ok {
+		_spec.SetField(bazelinvocation.FieldUserLdap, field.TypeString, value)
+	}
+	if biu.mutation.UserLdapCleared() {
+		_spec.ClearField(bazelinvocation.FieldUserLdap, field.TypeString)
 	}
 	if biu.mutation.EventFileCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -611,6 +663,46 @@ func (biuo *BazelInvocationUpdateOne) SetRelatedFiles(m map[string]string) *Baze
 	return biuo
 }
 
+// SetUserEmail sets the "user_email" field.
+func (biuo *BazelInvocationUpdateOne) SetUserEmail(s string) *BazelInvocationUpdateOne {
+	biuo.mutation.SetUserEmail(s)
+	return biuo
+}
+
+// SetNillableUserEmail sets the "user_email" field if the given value is not nil.
+func (biuo *BazelInvocationUpdateOne) SetNillableUserEmail(s *string) *BazelInvocationUpdateOne {
+	if s != nil {
+		biuo.SetUserEmail(*s)
+	}
+	return biuo
+}
+
+// ClearUserEmail clears the value of the "user_email" field.
+func (biuo *BazelInvocationUpdateOne) ClearUserEmail() *BazelInvocationUpdateOne {
+	biuo.mutation.ClearUserEmail()
+	return biuo
+}
+
+// SetUserLdap sets the "user_ldap" field.
+func (biuo *BazelInvocationUpdateOne) SetUserLdap(s string) *BazelInvocationUpdateOne {
+	biuo.mutation.SetUserLdap(s)
+	return biuo
+}
+
+// SetNillableUserLdap sets the "user_ldap" field if the given value is not nil.
+func (biuo *BazelInvocationUpdateOne) SetNillableUserLdap(s *string) *BazelInvocationUpdateOne {
+	if s != nil {
+		biuo.SetUserLdap(*s)
+	}
+	return biuo
+}
+
+// ClearUserLdap clears the value of the "user_ldap" field.
+func (biuo *BazelInvocationUpdateOne) ClearUserLdap() *BazelInvocationUpdateOne {
+	biuo.mutation.ClearUserLdap()
+	return biuo
+}
+
 // SetEventFileID sets the "event_file" edge to the EventFile entity by ID.
 func (biuo *BazelInvocationUpdateOne) SetEventFileID(id int) *BazelInvocationUpdateOne {
 	biuo.mutation.SetEventFileID(id)
@@ -812,6 +904,18 @@ func (biuo *BazelInvocationUpdateOne) sqlSave(ctx context.Context) (_node *Bazel
 	}
 	if value, ok := biuo.mutation.RelatedFiles(); ok {
 		_spec.SetField(bazelinvocation.FieldRelatedFiles, field.TypeJSON, value)
+	}
+	if value, ok := biuo.mutation.UserEmail(); ok {
+		_spec.SetField(bazelinvocation.FieldUserEmail, field.TypeString, value)
+	}
+	if biuo.mutation.UserEmailCleared() {
+		_spec.ClearField(bazelinvocation.FieldUserEmail, field.TypeString)
+	}
+	if value, ok := biuo.mutation.UserLdap(); ok {
+		_spec.SetField(bazelinvocation.FieldUserLdap, field.TypeString, value)
+	}
+	if biuo.mutation.UserLdapCleared() {
+		_spec.ClearField(bazelinvocation.FieldUserLdap, field.TypeString)
 	}
 	if biuo.mutation.EventFileCleared() {
 		edge := &sqlgraph.EdgeSpec{

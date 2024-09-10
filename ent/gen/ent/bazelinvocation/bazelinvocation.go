@@ -30,6 +30,10 @@ const (
 	FieldStepLabel = "step_label"
 	// FieldRelatedFiles holds the string denoting the related_files field in the database.
 	FieldRelatedFiles = "related_files"
+	// FieldUserEmail holds the string denoting the user_email field in the database.
+	FieldUserEmail = "user_email"
+	// FieldUserLdap holds the string denoting the user_ldap field in the database.
+	FieldUserLdap = "user_ldap"
 	// EdgeEventFile holds the string denoting the event_file edge name in mutations.
 	EdgeEventFile = "event_file"
 	// EdgeBuild holds the string denoting the build edge name in mutations.
@@ -73,6 +77,8 @@ var Columns = []string{
 	FieldBepCompleted,
 	FieldStepLabel,
 	FieldRelatedFiles,
+	FieldUserEmail,
+	FieldUserLdap,
 }
 
 // ForeignKeys holds the SQL foreign-keys that are owned by the "bazel_invocations"
@@ -138,6 +144,16 @@ func ByBepCompleted(opts ...sql.OrderTermOption) OrderOption {
 // ByStepLabel orders the results by the step_label field.
 func ByStepLabel(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldStepLabel, opts...).ToFunc()
+}
+
+// ByUserEmail orders the results by the user_email field.
+func ByUserEmail(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldUserEmail, opts...).ToFunc()
+}
+
+// ByUserLdap orders the results by the user_ldap field.
+func ByUserLdap(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldUserLdap, opts...).ToFunc()
 }
 
 // ByEventFileField orders the results by event_file field.

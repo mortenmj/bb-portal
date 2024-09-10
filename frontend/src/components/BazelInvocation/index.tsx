@@ -5,14 +5,14 @@ import {
 import React from "react";
 import PortalDuration from "@/components/PortalDuration";
 import PortalCard from "@/components/PortalCard";
-import {Space} from "antd";
+import { Space } from "antd";
 import CopyTextButton from "@/components/CopyTextButton";
 import PortalAlert from "@/components/PortalAlert";
-import {BuildOutlined} from "@ant-design/icons";
+import { BuildOutlined } from "@ant-design/icons";
 import themeStyles from '@/theme/theme.module.css';
-import {debugMode} from "@/components/Utilities/debugMode";
+import { debugMode } from "@/components/Utilities/debugMode";
 import DebugInfo from "@/components/DebugInfo";
-import BuildStepResultTag, {BuildStepResultEnum} from "@/components/BuildStepResultTag";
+import BuildStepResultTag, { BuildStepResultEnum } from "@/components/BuildStepResultTag";
 import Link from '@/components/Link';
 
 const BazelInvocation: React.FC<{
@@ -21,12 +21,13 @@ const BazelInvocation: React.FC<{
   children?: React.ReactNode;
   isNestedWithinBuildCard?: boolean;
 }> = ({ invocationOverview, problems, children, isNestedWithinBuildCard }) => {
-  const { invocationID, build, state, stepLabel, bazelCommand, relatedFiles } = invocationOverview;
+  const { invocationID, build, state, stepLabel, bazelCommand, relatedFiles, user } = invocationOverview;
   let { exitCode } = state;
 
   exitCode = exitCode ?? null;
 
-  const titleBits: React.ReactNode[] = [<span key="label">Invocation: {invocationID}</span>];
+  const titleBits: React.ReactNode[] = [<span key="label">User: {user?.LDAP}</span>];
+  titleBits.push(<span key="label">Invocation: {invocationID}</span>)
   if (exitCode?.name) {
     titleBits.push(<BuildStepResultTag key="result" result={exitCode?.name as BuildStepResultEnum} />);
   }

@@ -115,6 +115,8 @@ func (act SaveActor) saveBazelInvocation(ctx context.Context, summary *summary.S
 		SetSummary(*summary.InvocationSummary).
 		SetBepCompleted(summary.BEPCompleted).
 		SetStepLabel(summary.StepLabel).
+		SetUserEmail(summary.UserEmail).
+		SetUserLdap(summary.UserLDAP).
 		SetRelatedFiles(summary.RelatedFiles).
 		SetEventFile(eventFile)
 
