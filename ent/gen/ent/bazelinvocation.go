@@ -44,6 +44,8 @@ type BazelInvocation struct {
 	UserEmail string `json:"user_email,omitempty"`
 	// UserLdap holds the value of the "user_ldap" field.
 	UserLdap string `json:"user_ldap,omitempty"`
+	// BuildLogs holds the value of the "build_logs" field.
+	BuildLogs string `json:"build_logs,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the BazelInvocationQuery when eager-loading is set.
 	Edges                       BazelInvocationEdges `json:"edges"`
@@ -111,7 +113,7 @@ func (*BazelInvocation) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case bazelinvocation.FieldID, bazelinvocation.FieldChangeNumber, bazelinvocation.FieldPatchsetNumber:
 			values[i] = new(sql.NullInt64)
-		case bazelinvocation.FieldStepLabel, bazelinvocation.FieldUserEmail, bazelinvocation.FieldUserLdap:
+		case bazelinvocation.FieldStepLabel, bazelinvocation.FieldUserEmail, bazelinvocation.FieldUserLdap, bazelinvocation.FieldBuildLogs:
 			values[i] = new(sql.NullString)
 		case bazelinvocation.FieldStartedAt, bazelinvocation.FieldEndedAt:
 			values[i] = new(sql.NullTime)
@@ -212,6 +214,12 @@ func (bi *BazelInvocation) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				bi.UserLdap = value.String
 			}
+		case bazelinvocation.FieldBuildLogs:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field build_logs", values[i])
+			} else if value.Valid {
+				bi.BuildLogs = value.String
+			}
 		case bazelinvocation.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for edge-field build_invocations", value)
@@ -309,6 +317,9 @@ func (bi *BazelInvocation) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("user_ldap=")
 	builder.WriteString(bi.UserLdap)
+	builder.WriteString(", ")
+	builder.WriteString("build_logs=")
+	builder.WriteString(bi.BuildLogs)
 	builder.WriteByte(')')
 	return builder.String()
 }

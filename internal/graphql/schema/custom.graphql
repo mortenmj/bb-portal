@@ -39,6 +39,7 @@ type User {
   LDAP: String!
 }
 
+
 extend type BazelInvocation {
   user: User
 }

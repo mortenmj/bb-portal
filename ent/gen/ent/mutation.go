@@ -57,6 +57,7 @@ type BazelInvocationMutation struct {
 	related_files      *map[string]string
 	user_email         *string
 	user_ldap          *string
+	build_logs         *string
 	clearedFields      map[string]struct{}
 	event_file         *int
 	clearedevent_file  bool
@@ -684,6 +685,55 @@ func (m *BazelInvocationMutation) ResetUserLdap() {
 	delete(m.clearedFields, bazelinvocation.FieldUserLdap)
 }
 
+// SetBuildLogs sets the "build_logs" field.
+func (m *BazelInvocationMutation) SetBuildLogs(s string) {
+	m.build_logs = &s
+}
+
+// BuildLogs returns the value of the "build_logs" field in the mutation.
+func (m *BazelInvocationMutation) BuildLogs() (r string, exists bool) {
+	v := m.build_logs
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldBuildLogs returns the old "build_logs" field's value of the BazelInvocation entity.
+// If the BazelInvocation object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BazelInvocationMutation) OldBuildLogs(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldBuildLogs is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldBuildLogs requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldBuildLogs: %w", err)
+	}
+	return oldValue.BuildLogs, nil
+}
+
+// ClearBuildLogs clears the value of the "build_logs" field.
+func (m *BazelInvocationMutation) ClearBuildLogs() {
+	m.build_logs = nil
+	m.clearedFields[bazelinvocation.FieldBuildLogs] = struct{}{}
+}
+
+// BuildLogsCleared returns if the "build_logs" field was cleared in this mutation.
+func (m *BazelInvocationMutation) BuildLogsCleared() bool {
+	_, ok := m.clearedFields[bazelinvocation.FieldBuildLogs]
+	return ok
+}
+
+// ResetBuildLogs resets all changes to the "build_logs" field.
+func (m *BazelInvocationMutation) ResetBuildLogs() {
+	m.build_logs = nil
+	delete(m.clearedFields, bazelinvocation.FieldBuildLogs)
+}
+
 // SetEventFileID sets the "event_file" edge to the EventFile entity by id.
 func (m *BazelInvocationMutation) SetEventFileID(id int) {
 	m.event_file = &id
@@ -850,7 +900,7 @@ func (m *BazelInvocationMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *BazelInvocationMutation) Fields() []string {
-	fields := make([]string, 0, 11)
+	fields := make([]string, 0, 12)
 	if m.invocation_id != nil {
 		fields = append(fields, bazelinvocation.FieldInvocationID)
 	}
@@ -884,6 +934,9 @@ func (m *BazelInvocationMutation) Fields() []string {
 	if m.user_ldap != nil {
 		fields = append(fields, bazelinvocation.FieldUserLdap)
 	}
+	if m.build_logs != nil {
+		fields = append(fields, bazelinvocation.FieldBuildLogs)
+	}
 	return fields
 }
 
@@ -914,6 +967,8 @@ func (m *BazelInvocationMutation) Field(name string) (ent.Value, bool) {
 		return m.UserEmail()
 	case bazelinvocation.FieldUserLdap:
 		return m.UserLdap()
+	case bazelinvocation.FieldBuildLogs:
+		return m.BuildLogs()
 	}
 	return nil, false
 }
@@ -945,6 +1000,8 @@ func (m *BazelInvocationMutation) OldField(ctx context.Context, name string) (en
 		return m.OldUserEmail(ctx)
 	case bazelinvocation.FieldUserLdap:
 		return m.OldUserLdap(ctx)
+	case bazelinvocation.FieldBuildLogs:
+		return m.OldBuildLogs(ctx)
 	}
 	return nil, fmt.Errorf("unknown BazelInvocation field %s", name)
 }
@@ -1031,6 +1088,13 @@ func (m *BazelInvocationMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetUserLdap(v)
 		return nil
+	case bazelinvocation.FieldBuildLogs:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetBuildLogs(v)
+		return nil
 	}
 	return fmt.Errorf("unknown BazelInvocation field %s", name)
 }
@@ -1106,6 +1170,9 @@ func (m *BazelInvocationMutation) ClearedFields() []string {
 	if m.FieldCleared(bazelinvocation.FieldUserLdap) {
 		fields = append(fields, bazelinvocation.FieldUserLdap)
 	}
+	if m.FieldCleared(bazelinvocation.FieldBuildLogs) {
+		fields = append(fields, bazelinvocation.FieldBuildLogs)
+	}
 	return fields
 }
 
@@ -1137,6 +1204,9 @@ func (m *BazelInvocationMutation) ClearField(name string) error {
 		return nil
 	case bazelinvocation.FieldUserLdap:
 		m.ClearUserLdap()
+		return nil
+	case bazelinvocation.FieldBuildLogs:
+		m.ClearBuildLogs()
 		return nil
 	}
 	return fmt.Errorf("unknown BazelInvocation nullable field %s", name)
@@ -1178,6 +1248,9 @@ func (m *BazelInvocationMutation) ResetField(name string) error {
 		return nil
 	case bazelinvocation.FieldUserLdap:
 		m.ResetUserLdap()
+		return nil
+	case bazelinvocation.FieldBuildLogs:
+		m.ResetBuildLogs()
 		return nil
 	}
 	return fmt.Errorf("unknown BazelInvocation field %s", name)

@@ -34,6 +34,8 @@ const (
 	FieldUserEmail = "user_email"
 	// FieldUserLdap holds the string denoting the user_ldap field in the database.
 	FieldUserLdap = "user_ldap"
+	// FieldBuildLogs holds the string denoting the build_logs field in the database.
+	FieldBuildLogs = "build_logs"
 	// EdgeEventFile holds the string denoting the event_file edge name in mutations.
 	EdgeEventFile = "event_file"
 	// EdgeBuild holds the string denoting the build edge name in mutations.
@@ -79,6 +81,7 @@ var Columns = []string{
 	FieldRelatedFiles,
 	FieldUserEmail,
 	FieldUserLdap,
+	FieldBuildLogs,
 }
 
 // ForeignKeys holds the SQL foreign-keys that are owned by the "bazel_invocations"
@@ -154,6 +157,11 @@ func ByUserEmail(opts ...sql.OrderTermOption) OrderOption {
 // ByUserLdap orders the results by the user_ldap field.
 func ByUserLdap(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUserLdap, opts...).ToFunc()
+}
+
+// ByBuildLogs orders the results by the build_logs field.
+func ByBuildLogs(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldBuildLogs, opts...).ToFunc()
 }
 
 // ByEventFileField orders the results by event_file field.

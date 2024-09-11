@@ -139,6 +139,20 @@ func (bic *BazelInvocationCreate) SetNillableUserLdap(s *string) *BazelInvocatio
 	return bic
 }
 
+// SetBuildLogs sets the "build_logs" field.
+func (bic *BazelInvocationCreate) SetBuildLogs(s string) *BazelInvocationCreate {
+	bic.mutation.SetBuildLogs(s)
+	return bic
+}
+
+// SetNillableBuildLogs sets the "build_logs" field if the given value is not nil.
+func (bic *BazelInvocationCreate) SetNillableBuildLogs(s *string) *BazelInvocationCreate {
+	if s != nil {
+		bic.SetBuildLogs(*s)
+	}
+	return bic
+}
+
 // SetEventFileID sets the "event_file" edge to the EventFile entity by ID.
 func (bic *BazelInvocationCreate) SetEventFileID(id int) *BazelInvocationCreate {
 	bic.mutation.SetEventFileID(id)
@@ -305,6 +319,10 @@ func (bic *BazelInvocationCreate) createSpec() (*BazelInvocation, *sqlgraph.Crea
 	if value, ok := bic.mutation.UserLdap(); ok {
 		_spec.SetField(bazelinvocation.FieldUserLdap, field.TypeString, value)
 		_node.UserLdap = value
+	}
+	if value, ok := bic.mutation.BuildLogs(); ok {
+		_spec.SetField(bazelinvocation.FieldBuildLogs, field.TypeString, value)
+		_node.BuildLogs = value
 	}
 	if nodes := bic.mutation.EventFileIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

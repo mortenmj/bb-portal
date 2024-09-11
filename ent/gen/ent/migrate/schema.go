@@ -22,6 +22,7 @@ var (
 		{Name: "related_files", Type: field.TypeJSON},
 		{Name: "user_email", Type: field.TypeString, Nullable: true},
 		{Name: "user_ldap", Type: field.TypeString, Nullable: true},
+		{Name: "build_logs", Type: field.TypeString, Nullable: true},
 		{Name: "build_invocations", Type: field.TypeInt, Nullable: true},
 		{Name: "event_file_bazel_invocation", Type: field.TypeInt, Unique: true},
 	}
@@ -33,13 +34,13 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "bazel_invocations_builds_invocations",
-				Columns:    []*schema.Column{BazelInvocationsColumns[12]},
+				Columns:    []*schema.Column{BazelInvocationsColumns[13]},
 				RefColumns: []*schema.Column{BuildsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "bazel_invocations_event_files_bazel_invocation",
-				Columns:    []*schema.Column{BazelInvocationsColumns[13]},
+				Columns:    []*schema.Column{BazelInvocationsColumns[14]},
 				RefColumns: []*schema.Column{EventFilesColumns[0]},
 				OnDelete:   schema.NoAction,
 			},

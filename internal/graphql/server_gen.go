@@ -85,6 +85,7 @@ type ComplexityRoot struct {
 		BazelCommand   func(childComplexity int) int
 		BepCompleted   func(childComplexity int) int
 		Build          func(childComplexity int) int
+		BuildLogs      func(childComplexity int) int
 		ChangeNumber   func(childComplexity int) int
 		EndedAt        func(childComplexity int) int
 		EventFile      func(childComplexity int) int
@@ -445,6 +446,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.BazelInvocation.Build(childComplexity), true
+
+	case "BazelInvocation.buildLogs":
+		if e.complexity.BazelInvocation.BuildLogs == nil {
+			break
+		}
+
+		return e.complexity.BazelInvocation.BuildLogs(childComplexity), true
 
 	case "BazelInvocation.changeNumber":
 		if e.complexity.BazelInvocation.ChangeNumber == nil {
@@ -2336,6 +2344,47 @@ func (ec *executionContext) fieldContext_BazelInvocation_userLdap(_ context.Cont
 	return fc, nil
 }
 
+func (ec *executionContext) _BazelInvocation_buildLogs(ctx context.Context, field graphql.CollectedField, obj *ent.BazelInvocation) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BazelInvocation_buildLogs(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.BuildLogs, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalOString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BazelInvocation_buildLogs(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BazelInvocation",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _BazelInvocation_eventFile(ctx context.Context, field graphql.CollectedField, obj *ent.BazelInvocation) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_BazelInvocation_eventFile(ctx, field)
 	if err != nil {
@@ -2907,6 +2956,8 @@ func (ec *executionContext) fieldContext_BazelInvocationEdge_node(_ context.Cont
 				return ec.fieldContext_BazelInvocation_userEmail(ctx, field)
 			case "userLdap":
 				return ec.fieldContext_BazelInvocation_userLdap(ctx, field)
+			case "buildLogs":
+				return ec.fieldContext_BazelInvocation_buildLogs(ctx, field)
 			case "eventFile":
 				return ec.fieldContext_BazelInvocation_eventFile(ctx, field)
 			case "build":
@@ -3160,6 +3211,8 @@ func (ec *executionContext) fieldContext_BazelInvocationProblem_bazelInvocation(
 				return ec.fieldContext_BazelInvocation_userEmail(ctx, field)
 			case "userLdap":
 				return ec.fieldContext_BazelInvocation_userLdap(ctx, field)
+			case "buildLogs":
+				return ec.fieldContext_BazelInvocation_buildLogs(ctx, field)
 			case "eventFile":
 				return ec.fieldContext_BazelInvocation_eventFile(ctx, field)
 			case "build":
@@ -4022,6 +4075,8 @@ func (ec *executionContext) fieldContext_Build_invocations(_ context.Context, fi
 				return ec.fieldContext_BazelInvocation_userEmail(ctx, field)
 			case "userLdap":
 				return ec.fieldContext_BazelInvocation_userLdap(ctx, field)
+			case "buildLogs":
+				return ec.fieldContext_BazelInvocation_buildLogs(ctx, field)
 			case "eventFile":
 				return ec.fieldContext_BazelInvocation_eventFile(ctx, field)
 			case "build":
@@ -4784,6 +4839,8 @@ func (ec *executionContext) fieldContext_EventFile_bazelInvocation(_ context.Con
 				return ec.fieldContext_BazelInvocation_userEmail(ctx, field)
 			case "userLdap":
 				return ec.fieldContext_BazelInvocation_userLdap(ctx, field)
+			case "buildLogs":
+				return ec.fieldContext_BazelInvocation_buildLogs(ctx, field)
 			case "eventFile":
 				return ec.fieldContext_BazelInvocation_eventFile(ctx, field)
 			case "build":
@@ -5619,6 +5676,8 @@ func (ec *executionContext) fieldContext_Query_bazelInvocation(ctx context.Conte
 				return ec.fieldContext_BazelInvocation_userEmail(ctx, field)
 			case "userLdap":
 				return ec.fieldContext_BazelInvocation_userLdap(ctx, field)
+			case "buildLogs":
+				return ec.fieldContext_BazelInvocation_buildLogs(ctx, field)
 			case "eventFile":
 				return ec.fieldContext_BazelInvocation_eventFile(ctx, field)
 			case "build":
@@ -8670,7 +8729,7 @@ func (ec *executionContext) unmarshalInputBazelInvocationWhereInput(ctx context.
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"not", "and", "or", "id", "idNEQ", "idIn", "idNotIn", "idGT", "idGTE", "idLT", "idLTE", "invocationID", "invocationIDNEQ", "invocationIDIn", "invocationIDNotIn", "invocationIDGT", "invocationIDGTE", "invocationIDLT", "invocationIDLTE", "startedAt", "startedAtNEQ", "startedAtIn", "startedAtNotIn", "startedAtGT", "startedAtGTE", "startedAtLT", "startedAtLTE", "endedAt", "endedAtNEQ", "endedAtIn", "endedAtNotIn", "endedAtGT", "endedAtGTE", "endedAtLT", "endedAtLTE", "endedAtIsNil", "endedAtNotNil", "changeNumber", "changeNumberNEQ", "changeNumberIn", "changeNumberNotIn", "changeNumberGT", "changeNumberGTE", "changeNumberLT", "changeNumberLTE", "changeNumberIsNil", "changeNumberNotNil", "patchsetNumber", "patchsetNumberNEQ", "patchsetNumberIn", "patchsetNumberNotIn", "patchsetNumberGT", "patchsetNumberGTE", "patchsetNumberLT", "patchsetNumberLTE", "patchsetNumberIsNil", "patchsetNumberNotNil", "bepCompleted", "bepCompletedNEQ", "bepCompletedIsNil", "bepCompletedNotNil", "stepLabel", "stepLabelNEQ", "stepLabelIn", "stepLabelNotIn", "stepLabelGT", "stepLabelGTE", "stepLabelLT", "stepLabelLTE", "stepLabelContains", "stepLabelHasPrefix", "stepLabelHasSuffix", "stepLabelEqualFold", "stepLabelContainsFold", "userEmail", "userEmailNEQ", "userEmailIn", "userEmailNotIn", "userEmailGT", "userEmailGTE", "userEmailLT", "userEmailLTE", "userEmailContains", "userEmailHasPrefix", "userEmailHasSuffix", "userEmailIsNil", "userEmailNotNil", "userEmailEqualFold", "userEmailContainsFold", "userLdap", "userLdapNEQ", "userLdapIn", "userLdapNotIn", "userLdapGT", "userLdapGTE", "userLdapLT", "userLdapLTE", "userLdapContains", "userLdapHasPrefix", "userLdapHasSuffix", "userLdapIsNil", "userLdapNotNil", "userLdapEqualFold", "userLdapContainsFold", "hasEventFile", "hasEventFileWith", "hasBuild", "hasBuildWith", "hasProblems", "hasProblemsWith"}
+	fieldsInOrder := [...]string{"not", "and", "or", "id", "idNEQ", "idIn", "idNotIn", "idGT", "idGTE", "idLT", "idLTE", "invocationID", "invocationIDNEQ", "invocationIDIn", "invocationIDNotIn", "invocationIDGT", "invocationIDGTE", "invocationIDLT", "invocationIDLTE", "startedAt", "startedAtNEQ", "startedAtIn", "startedAtNotIn", "startedAtGT", "startedAtGTE", "startedAtLT", "startedAtLTE", "endedAt", "endedAtNEQ", "endedAtIn", "endedAtNotIn", "endedAtGT", "endedAtGTE", "endedAtLT", "endedAtLTE", "endedAtIsNil", "endedAtNotNil", "changeNumber", "changeNumberNEQ", "changeNumberIn", "changeNumberNotIn", "changeNumberGT", "changeNumberGTE", "changeNumberLT", "changeNumberLTE", "changeNumberIsNil", "changeNumberNotNil", "patchsetNumber", "patchsetNumberNEQ", "patchsetNumberIn", "patchsetNumberNotIn", "patchsetNumberGT", "patchsetNumberGTE", "patchsetNumberLT", "patchsetNumberLTE", "patchsetNumberIsNil", "patchsetNumberNotNil", "bepCompleted", "bepCompletedNEQ", "bepCompletedIsNil", "bepCompletedNotNil", "stepLabel", "stepLabelNEQ", "stepLabelIn", "stepLabelNotIn", "stepLabelGT", "stepLabelGTE", "stepLabelLT", "stepLabelLTE", "stepLabelContains", "stepLabelHasPrefix", "stepLabelHasSuffix", "stepLabelEqualFold", "stepLabelContainsFold", "userEmail", "userEmailNEQ", "userEmailIn", "userEmailNotIn", "userEmailGT", "userEmailGTE", "userEmailLT", "userEmailLTE", "userEmailContains", "userEmailHasPrefix", "userEmailHasSuffix", "userEmailIsNil", "userEmailNotNil", "userEmailEqualFold", "userEmailContainsFold", "userLdap", "userLdapNEQ", "userLdapIn", "userLdapNotIn", "userLdapGT", "userLdapGTE", "userLdapLT", "userLdapLTE", "userLdapContains", "userLdapHasPrefix", "userLdapHasSuffix", "userLdapIsNil", "userLdapNotNil", "userLdapEqualFold", "userLdapContainsFold", "buildLogs", "buildLogsNEQ", "buildLogsIn", "buildLogsNotIn", "buildLogsGT", "buildLogsGTE", "buildLogsLT", "buildLogsLTE", "buildLogsContains", "buildLogsHasPrefix", "buildLogsHasSuffix", "buildLogsIsNil", "buildLogsNotNil", "buildLogsEqualFold", "buildLogsContainsFold", "hasEventFile", "hasEventFileWith", "hasBuild", "hasBuildWith", "hasProblems", "hasProblemsWith"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -9421,6 +9480,111 @@ func (ec *executionContext) unmarshalInputBazelInvocationWhereInput(ctx context.
 				return it, err
 			}
 			it.UserLdapContainsFold = data
+		case "buildLogs":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("buildLogs"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.BuildLogs = data
+		case "buildLogsNEQ":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("buildLogsNEQ"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.BuildLogsNEQ = data
+		case "buildLogsIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("buildLogsIn"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.BuildLogsIn = data
+		case "buildLogsNotIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("buildLogsNotIn"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.BuildLogsNotIn = data
+		case "buildLogsGT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("buildLogsGT"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.BuildLogsGT = data
+		case "buildLogsGTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("buildLogsGTE"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.BuildLogsGTE = data
+		case "buildLogsLT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("buildLogsLT"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.BuildLogsLT = data
+		case "buildLogsLTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("buildLogsLTE"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.BuildLogsLTE = data
+		case "buildLogsContains":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("buildLogsContains"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.BuildLogsContains = data
+		case "buildLogsHasPrefix":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("buildLogsHasPrefix"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.BuildLogsHasPrefix = data
+		case "buildLogsHasSuffix":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("buildLogsHasSuffix"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.BuildLogsHasSuffix = data
+		case "buildLogsIsNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("buildLogsIsNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.BuildLogsIsNil = data
+		case "buildLogsNotNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("buildLogsNotNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.BuildLogsNotNil = data
+		case "buildLogsEqualFold":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("buildLogsEqualFold"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.BuildLogsEqualFold = data
+		case "buildLogsContainsFold":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("buildLogsContainsFold"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.BuildLogsContainsFold = data
 		case "hasEventFile":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasEventFile"))
 			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
@@ -11283,6 +11447,8 @@ func (ec *executionContext) _BazelInvocation(ctx context.Context, sel ast.Select
 			out.Values[i] = ec._BazelInvocation_userEmail(ctx, field, obj)
 		case "userLdap":
 			out.Values[i] = ec._BazelInvocation_userLdap(ctx, field, obj)
+		case "buildLogs":
+			out.Values[i] = ec._BazelInvocation_buildLogs(ctx, field, obj)
 		case "eventFile":
 			field := field
 

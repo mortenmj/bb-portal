@@ -2,6 +2,7 @@ package summary
 
 import (
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -37,6 +38,7 @@ type Summary struct {
 	BuildUUID      uuid.UUID
 	UserLDAP       string
 	UserEmail      string
+	BuildLogs      strings.Builder
 }
 
 type InvocationSummary struct {

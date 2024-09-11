@@ -117,6 +117,8 @@ func (s Summarizer) ProcessEvent(buildEvent *events.BuildEvent) error {
 		if err != nil {
 			return err
 		}
+	case *bes.BuildEventId_Progress:
+		s.handleProgress(buildEvent.GetProgress())
 	}
 
 	s.summary.BEPCompleted = buildEvent.GetLastMessage()
@@ -219,6 +221,11 @@ func (s Summarizer) handleStructuredCommandLine(structuredCommandLine *bescore.C
 
 func (s Summarizer) handleOptionsParsed(optionsParsed *bes.OptionsParsed) {
 	s.summary.InvocationSummary.BazelCommandLine.Options = optionsParsed.GetExplicitCmdLine()
+}
+
+func (s Summarizer) handleProgress(progressMsg *bes.Progress) {
+	s.summary.BuildLogs.WriteString(progressMsg.GetStderr())
+	s.summary.BuildLogs.WriteString(progressMsg.GetStdout())
 }
 
 func (s Summarizer) handleBuildToolLogs(buildToolLogs *bes.BuildToolLogs) error {

@@ -53,6 +53,7 @@ export type BazelInvocation = Node & {
   bazelCommand: BazelCommand;
   bepCompleted?: Maybe<Scalars['Boolean']['output']>;
   build?: Maybe<Build>;
+  buildLogs?: Maybe<Scalars['String']['output']>;
   changeNumber?: Maybe<Scalars['Int']['output']>;
   endedAt?: Maybe<Scalars['Time']['output']>;
   eventFile: EventFile;
@@ -167,6 +168,22 @@ export type BazelInvocationWhereInput = {
   bepCompletedIsNil?: InputMaybe<Scalars['Boolean']['input']>;
   bepCompletedNEQ?: InputMaybe<Scalars['Boolean']['input']>;
   bepCompletedNotNil?: InputMaybe<Scalars['Boolean']['input']>;
+  /** build_logs field predicates */
+  buildLogs?: InputMaybe<Scalars['String']['input']>;
+  buildLogsContains?: InputMaybe<Scalars['String']['input']>;
+  buildLogsContainsFold?: InputMaybe<Scalars['String']['input']>;
+  buildLogsEqualFold?: InputMaybe<Scalars['String']['input']>;
+  buildLogsGT?: InputMaybe<Scalars['String']['input']>;
+  buildLogsGTE?: InputMaybe<Scalars['String']['input']>;
+  buildLogsHasPrefix?: InputMaybe<Scalars['String']['input']>;
+  buildLogsHasSuffix?: InputMaybe<Scalars['String']['input']>;
+  buildLogsIn?: InputMaybe<Array<Scalars['String']['input']>>;
+  buildLogsIsNil?: InputMaybe<Scalars['Boolean']['input']>;
+  buildLogsLT?: InputMaybe<Scalars['String']['input']>;
+  buildLogsLTE?: InputMaybe<Scalars['String']['input']>;
+  buildLogsNEQ?: InputMaybe<Scalars['String']['input']>;
+  buildLogsNotIn?: InputMaybe<Array<Scalars['String']['input']>>;
+  buildLogsNotNil?: InputMaybe<Scalars['Boolean']['input']>;
   /** change_number field predicates */
   changeNumber?: InputMaybe<Scalars['Int']['input']>;
   changeNumberGT?: InputMaybe<Scalars['Int']['input']>;

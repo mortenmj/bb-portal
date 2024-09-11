@@ -214,6 +214,26 @@ func (biu *BazelInvocationUpdate) ClearUserLdap() *BazelInvocationUpdate {
 	return biu
 }
 
+// SetBuildLogs sets the "build_logs" field.
+func (biu *BazelInvocationUpdate) SetBuildLogs(s string) *BazelInvocationUpdate {
+	biu.mutation.SetBuildLogs(s)
+	return biu
+}
+
+// SetNillableBuildLogs sets the "build_logs" field if the given value is not nil.
+func (biu *BazelInvocationUpdate) SetNillableBuildLogs(s *string) *BazelInvocationUpdate {
+	if s != nil {
+		biu.SetBuildLogs(*s)
+	}
+	return biu
+}
+
+// ClearBuildLogs clears the value of the "build_logs" field.
+func (biu *BazelInvocationUpdate) ClearBuildLogs() *BazelInvocationUpdate {
+	biu.mutation.ClearBuildLogs()
+	return biu
+}
+
 // SetEventFileID sets the "event_file" edge to the EventFile entity by ID.
 func (biu *BazelInvocationUpdate) SetEventFileID(id int) *BazelInvocationUpdate {
 	biu.mutation.SetEventFileID(id)
@@ -397,6 +417,12 @@ func (biu *BazelInvocationUpdate) sqlSave(ctx context.Context) (n int, err error
 	}
 	if biu.mutation.UserLdapCleared() {
 		_spec.ClearField(bazelinvocation.FieldUserLdap, field.TypeString)
+	}
+	if value, ok := biu.mutation.BuildLogs(); ok {
+		_spec.SetField(bazelinvocation.FieldBuildLogs, field.TypeString, value)
+	}
+	if biu.mutation.BuildLogsCleared() {
+		_spec.ClearField(bazelinvocation.FieldBuildLogs, field.TypeString)
 	}
 	if biu.mutation.EventFileCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -703,6 +729,26 @@ func (biuo *BazelInvocationUpdateOne) ClearUserLdap() *BazelInvocationUpdateOne 
 	return biuo
 }
 
+// SetBuildLogs sets the "build_logs" field.
+func (biuo *BazelInvocationUpdateOne) SetBuildLogs(s string) *BazelInvocationUpdateOne {
+	biuo.mutation.SetBuildLogs(s)
+	return biuo
+}
+
+// SetNillableBuildLogs sets the "build_logs" field if the given value is not nil.
+func (biuo *BazelInvocationUpdateOne) SetNillableBuildLogs(s *string) *BazelInvocationUpdateOne {
+	if s != nil {
+		biuo.SetBuildLogs(*s)
+	}
+	return biuo
+}
+
+// ClearBuildLogs clears the value of the "build_logs" field.
+func (biuo *BazelInvocationUpdateOne) ClearBuildLogs() *BazelInvocationUpdateOne {
+	biuo.mutation.ClearBuildLogs()
+	return biuo
+}
+
 // SetEventFileID sets the "event_file" edge to the EventFile entity by ID.
 func (biuo *BazelInvocationUpdateOne) SetEventFileID(id int) *BazelInvocationUpdateOne {
 	biuo.mutation.SetEventFileID(id)
@@ -916,6 +962,12 @@ func (biuo *BazelInvocationUpdateOne) sqlSave(ctx context.Context) (_node *Bazel
 	}
 	if biuo.mutation.UserLdapCleared() {
 		_spec.ClearField(bazelinvocation.FieldUserLdap, field.TypeString)
+	}
+	if value, ok := biuo.mutation.BuildLogs(); ok {
+		_spec.SetField(bazelinvocation.FieldBuildLogs, field.TypeString, value)
+	}
+	if biuo.mutation.BuildLogsCleared() {
+		_spec.ClearField(bazelinvocation.FieldBuildLogs, field.TypeString)
 	}
 	if biuo.mutation.EventFileCleared() {
 		edge := &sqlgraph.EdgeSpec{

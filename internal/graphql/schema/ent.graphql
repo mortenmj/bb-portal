@@ -11,6 +11,7 @@ type BazelInvocation implements Node {
   stepLabel: String!
   userEmail: String
   userLdap: String
+  buildLogs: String
   eventFile: EventFile!
   build: Build
 }
@@ -246,6 +247,24 @@ input BazelInvocationWhereInput {
   userLdapNotNil: Boolean
   userLdapEqualFold: String
   userLdapContainsFold: String
+  """
+  build_logs field predicates
+  """
+  buildLogs: String
+  buildLogsNEQ: String
+  buildLogsIn: [String!]
+  buildLogsNotIn: [String!]
+  buildLogsGT: String
+  buildLogsGTE: String
+  buildLogsLT: String
+  buildLogsLTE: String
+  buildLogsContains: String
+  buildLogsHasPrefix: String
+  buildLogsHasSuffix: String
+  buildLogsIsNil: Boolean
+  buildLogsNotNil: Boolean
+  buildLogsEqualFold: String
+  buildLogsContainsFold: String
   """
   event_file edge predicates
   """

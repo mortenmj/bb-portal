@@ -32,6 +32,7 @@ func (BazelInvocation) Fields() []ent.Field {
 		field.JSON("related_files", map[string]string{}).Annotations(entgql.Skip()), // NOTE: Uses custom resolver.
 		field.String("user_email").Optional(),
 		field.String("user_ldap").Optional(),
+		field.String("build_logs").Optional(),
 	}
 }
 
