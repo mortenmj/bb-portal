@@ -1,2 +1,4 @@
 build --bes_backend=grpc://localhost:8082
 build --bes_results_url=http://localhost:8081/bazel-invocations/
+build --build_metadata=user_ldap=TREY
+build --build_metadata=user_email=trey@stack.com

@@ -12,6 +12,8 @@ import (
 const (
 	// stepLabelKey is used in buildMetadata events to provide a human-readable label for build steps.
 	stepLabelKey = "BUILD_STEP_LABEL"
+	userEmailKey = "user_email"
+	userLdapKey  = "user_ldap"
 )
 
 const (
@@ -33,6 +35,8 @@ type Summary struct {
 	PatchsetNumber int
 	BuildURL       string
 	BuildUUID      uuid.UUID
+	UserLDAP       string
+	UserEmail      string
 }
 
 type InvocationSummary struct {

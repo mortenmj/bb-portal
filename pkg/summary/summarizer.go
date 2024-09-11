@@ -138,14 +138,25 @@ func (s Summarizer) handleStarted(started *bes.BuildStarted) {
 
 func (s Summarizer) handleBuildMetadata(metadataProto *bes.BuildMetadata) {
 	metadataMap := metadataProto.GetMetadata()
+	//extract user data
 	if metadataMap == nil {
 		return
 	}
-	stepLabel, ok := metadataMap[stepLabelKey]
-	if !ok {
-		return
+	stepLabel, stepLabelOk := metadataMap[stepLabelKey]
+	if !stepLabelOk {
+		slog.Debug("No step label found in build metadata")
+	}
+	userEmail, userEmailOk := metadataMap[userEmailKey]
+	if !userEmailOk {
+		slog.Debug("No user email found in build metadata")
+	}
+	userLdap, userLdapOk := metadataMap[userLdapKey]
+	if !userLdapOk {
+		slog.Debug("No user ldap information found in build metadata")
 	}
 	s.summary.StepLabel = stepLabel
+	s.summary.UserEmail = userEmail
+	s.summary.UserLDAP = userLdap
 }
 
 func (s Summarizer) handleBuildFinished(finished *bes.BuildFinished) {
