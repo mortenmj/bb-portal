@@ -22,7 +22,7 @@ const documents = {
     "\nfragment TestResultInfo on TestResult {\n      actionLogOutput {\n  ...BlobReferenceInfo\n  }\n  attempt\n  run\n  shard\n  status\n  undeclaredTestOutputs {\n    ...BlobReferenceInfo\n  }\n}": types.TestResultInfoFragmentDoc,
     "\n  query FindBuildByUUID($url: String, $uuid: UUID) {\n    getBuild(buildURL: $url, buildUUID: $uuid) {\n      id\n      buildURL\n      buildUUID\n      invocations {\n        ...FullBazelInvocationDetails\n      }\n      env {\n        key\n        value\n      }\n    }\n  }\n": types.FindBuildByUuidDocument,
     "\n  query FindBazelInvocations(\n    $first: Int!\n    $where: BazelInvocationWhereInput\n  ) {\n    findBazelInvocations(first: $first, where: $where) {\n      edges {\n        node {\n          ...BazelInvocationNode\n        }\n      }\n    }\n  }\n": types.FindBazelInvocationsDocument,
-    "\n  fragment BazelInvocationNode on BazelInvocation {\n    id\n    invocationID\n    startedAt\n    endedAt\n    state {\n      bepCompleted\n      exitCode {\n        code\n        name\n      }\n    }\n    build {\n      buildUUID\n    }\n  }\n": types.BazelInvocationNodeFragmentDoc,
+    "\n  fragment BazelInvocationNode on BazelInvocation {\n    id\n    invocationID\n    startedAt\n    user {\n      Email\n      LDAP\n    }\n    endedAt\n    state {\n      bepCompleted\n      exitCode {\n        code\n        name\n      }\n    }\n    build {\n      buildUUID\n    }\n  }\n": types.BazelInvocationNodeFragmentDoc,
     "\n  query FindBuilds(\n    $first: Int!\n    $where: BuildWhereInput\n  ) {\n    findBuilds(first: $first, where: $where) {\n      edges {\n        node {\n          ...BuildNode\n        }\n      }\n    }\n  }\n": types.FindBuildsDocument,
     "\n  fragment BuildNode on Build {\n    id\n    buildUUID\n    buildURL\n  }\n": types.BuildNodeFragmentDoc,
 };
@@ -80,7 +80,7 @@ export function gql(source: "\n  query FindBazelInvocations(\n    $first: Int!\n
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n  fragment BazelInvocationNode on BazelInvocation {\n    id\n    invocationID\n    startedAt\n    endedAt\n    state {\n      bepCompleted\n      exitCode {\n        code\n        name\n      }\n    }\n    build {\n      buildUUID\n    }\n  }\n"): (typeof documents)["\n  fragment BazelInvocationNode on BazelInvocation {\n    id\n    invocationID\n    startedAt\n    endedAt\n    state {\n      bepCompleted\n      exitCode {\n        code\n        name\n      }\n    }\n    build {\n      buildUUID\n    }\n  }\n"];
+export function gql(source: "\n  fragment BazelInvocationNode on BazelInvocation {\n    id\n    invocationID\n    startedAt\n    user {\n      Email\n      LDAP\n    }\n    endedAt\n    state {\n      bepCompleted\n      exitCode {\n        code\n        name\n      }\n    }\n    build {\n      buildUUID\n    }\n  }\n"): (typeof documents)["\n  fragment BazelInvocationNode on BazelInvocation {\n    id\n    invocationID\n    startedAt\n    user {\n      Email\n      LDAP\n    }\n    endedAt\n    state {\n      bepCompleted\n      exitCode {\n        code\n        name\n      }\n    }\n    build {\n      buildUUID\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
