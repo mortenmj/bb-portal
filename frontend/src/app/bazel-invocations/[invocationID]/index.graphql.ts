@@ -23,6 +23,7 @@ fragment BazelInvocationInfo on BazelInvocation {
     id
     buildUUID
   }
+  buildLogs
   relatedFiles {
     name
     url
