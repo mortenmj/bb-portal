@@ -110,6 +110,57 @@ type BazelInvocationWhereInput struct {
 	StepLabelEqualFold    *string  `json:"stepLabelEqualFold,omitempty"`
 	StepLabelContainsFold *string  `json:"stepLabelContainsFold,omitempty"`
 
+	// "user_email" field predicates.
+	UserEmail             *string  `json:"userEmail,omitempty"`
+	UserEmailNEQ          *string  `json:"userEmailNEQ,omitempty"`
+	UserEmailIn           []string `json:"userEmailIn,omitempty"`
+	UserEmailNotIn        []string `json:"userEmailNotIn,omitempty"`
+	UserEmailGT           *string  `json:"userEmailGT,omitempty"`
+	UserEmailGTE          *string  `json:"userEmailGTE,omitempty"`
+	UserEmailLT           *string  `json:"userEmailLT,omitempty"`
+	UserEmailLTE          *string  `json:"userEmailLTE,omitempty"`
+	UserEmailContains     *string  `json:"userEmailContains,omitempty"`
+	UserEmailHasPrefix    *string  `json:"userEmailHasPrefix,omitempty"`
+	UserEmailHasSuffix    *string  `json:"userEmailHasSuffix,omitempty"`
+	UserEmailIsNil        bool     `json:"userEmailIsNil,omitempty"`
+	UserEmailNotNil       bool     `json:"userEmailNotNil,omitempty"`
+	UserEmailEqualFold    *string  `json:"userEmailEqualFold,omitempty"`
+	UserEmailContainsFold *string  `json:"userEmailContainsFold,omitempty"`
+
+	// "user_ldap" field predicates.
+	UserLdap             *string  `json:"userLdap,omitempty"`
+	UserLdapNEQ          *string  `json:"userLdapNEQ,omitempty"`
+	UserLdapIn           []string `json:"userLdapIn,omitempty"`
+	UserLdapNotIn        []string `json:"userLdapNotIn,omitempty"`
+	UserLdapGT           *string  `json:"userLdapGT,omitempty"`
+	UserLdapGTE          *string  `json:"userLdapGTE,omitempty"`
+	UserLdapLT           *string  `json:"userLdapLT,omitempty"`
+	UserLdapLTE          *string  `json:"userLdapLTE,omitempty"`
+	UserLdapContains     *string  `json:"userLdapContains,omitempty"`
+	UserLdapHasPrefix    *string  `json:"userLdapHasPrefix,omitempty"`
+	UserLdapHasSuffix    *string  `json:"userLdapHasSuffix,omitempty"`
+	UserLdapIsNil        bool     `json:"userLdapIsNil,omitempty"`
+	UserLdapNotNil       bool     `json:"userLdapNotNil,omitempty"`
+	UserLdapEqualFold    *string  `json:"userLdapEqualFold,omitempty"`
+	UserLdapContainsFold *string  `json:"userLdapContainsFold,omitempty"`
+
+	// "build_logs" field predicates.
+	BuildLogs             *string  `json:"buildLogs,omitempty"`
+	BuildLogsNEQ          *string  `json:"buildLogsNEQ,omitempty"`
+	BuildLogsIn           []string `json:"buildLogsIn,omitempty"`
+	BuildLogsNotIn        []string `json:"buildLogsNotIn,omitempty"`
+	BuildLogsGT           *string  `json:"buildLogsGT,omitempty"`
+	BuildLogsGTE          *string  `json:"buildLogsGTE,omitempty"`
+	BuildLogsLT           *string  `json:"buildLogsLT,omitempty"`
+	BuildLogsLTE          *string  `json:"buildLogsLTE,omitempty"`
+	BuildLogsContains     *string  `json:"buildLogsContains,omitempty"`
+	BuildLogsHasPrefix    *string  `json:"buildLogsHasPrefix,omitempty"`
+	BuildLogsHasSuffix    *string  `json:"buildLogsHasSuffix,omitempty"`
+	BuildLogsIsNil        bool     `json:"buildLogsIsNil,omitempty"`
+	BuildLogsNotNil       bool     `json:"buildLogsNotNil,omitempty"`
+	BuildLogsEqualFold    *string  `json:"buildLogsEqualFold,omitempty"`
+	BuildLogsContainsFold *string  `json:"buildLogsContainsFold,omitempty"`
+
 	// "event_file" edge predicates.
 	HasEventFile     *bool                  `json:"hasEventFile,omitempty"`
 	HasEventFileWith []*EventFileWhereInput `json:"hasEventFileWith,omitempty"`
@@ -406,6 +457,141 @@ func (i *BazelInvocationWhereInput) P() (predicate.BazelInvocation, error) {
 	}
 	if i.StepLabelContainsFold != nil {
 		predicates = append(predicates, bazelinvocation.StepLabelContainsFold(*i.StepLabelContainsFold))
+	}
+	if i.UserEmail != nil {
+		predicates = append(predicates, bazelinvocation.UserEmailEQ(*i.UserEmail))
+	}
+	if i.UserEmailNEQ != nil {
+		predicates = append(predicates, bazelinvocation.UserEmailNEQ(*i.UserEmailNEQ))
+	}
+	if len(i.UserEmailIn) > 0 {
+		predicates = append(predicates, bazelinvocation.UserEmailIn(i.UserEmailIn...))
+	}
+	if len(i.UserEmailNotIn) > 0 {
+		predicates = append(predicates, bazelinvocation.UserEmailNotIn(i.UserEmailNotIn...))
+	}
+	if i.UserEmailGT != nil {
+		predicates = append(predicates, bazelinvocation.UserEmailGT(*i.UserEmailGT))
+	}
+	if i.UserEmailGTE != nil {
+		predicates = append(predicates, bazelinvocation.UserEmailGTE(*i.UserEmailGTE))
+	}
+	if i.UserEmailLT != nil {
+		predicates = append(predicates, bazelinvocation.UserEmailLT(*i.UserEmailLT))
+	}
+	if i.UserEmailLTE != nil {
+		predicates = append(predicates, bazelinvocation.UserEmailLTE(*i.UserEmailLTE))
+	}
+	if i.UserEmailContains != nil {
+		predicates = append(predicates, bazelinvocation.UserEmailContains(*i.UserEmailContains))
+	}
+	if i.UserEmailHasPrefix != nil {
+		predicates = append(predicates, bazelinvocation.UserEmailHasPrefix(*i.UserEmailHasPrefix))
+	}
+	if i.UserEmailHasSuffix != nil {
+		predicates = append(predicates, bazelinvocation.UserEmailHasSuffix(*i.UserEmailHasSuffix))
+	}
+	if i.UserEmailIsNil {
+		predicates = append(predicates, bazelinvocation.UserEmailIsNil())
+	}
+	if i.UserEmailNotNil {
+		predicates = append(predicates, bazelinvocation.UserEmailNotNil())
+	}
+	if i.UserEmailEqualFold != nil {
+		predicates = append(predicates, bazelinvocation.UserEmailEqualFold(*i.UserEmailEqualFold))
+	}
+	if i.UserEmailContainsFold != nil {
+		predicates = append(predicates, bazelinvocation.UserEmailContainsFold(*i.UserEmailContainsFold))
+	}
+	if i.UserLdap != nil {
+		predicates = append(predicates, bazelinvocation.UserLdapEQ(*i.UserLdap))
+	}
+	if i.UserLdapNEQ != nil {
+		predicates = append(predicates, bazelinvocation.UserLdapNEQ(*i.UserLdapNEQ))
+	}
+	if len(i.UserLdapIn) > 0 {
+		predicates = append(predicates, bazelinvocation.UserLdapIn(i.UserLdapIn...))
+	}
+	if len(i.UserLdapNotIn) > 0 {
+		predicates = append(predicates, bazelinvocation.UserLdapNotIn(i.UserLdapNotIn...))
+	}
+	if i.UserLdapGT != nil {
+		predicates = append(predicates, bazelinvocation.UserLdapGT(*i.UserLdapGT))
+	}
+	if i.UserLdapGTE != nil {
+		predicates = append(predicates, bazelinvocation.UserLdapGTE(*i.UserLdapGTE))
+	}
+	if i.UserLdapLT != nil {
+		predicates = append(predicates, bazelinvocation.UserLdapLT(*i.UserLdapLT))
+	}
+	if i.UserLdapLTE != nil {
+		predicates = append(predicates, bazelinvocation.UserLdapLTE(*i.UserLdapLTE))
+	}
+	if i.UserLdapContains != nil {
+		predicates = append(predicates, bazelinvocation.UserLdapContains(*i.UserLdapContains))
+	}
+	if i.UserLdapHasPrefix != nil {
+		predicates = append(predicates, bazelinvocation.UserLdapHasPrefix(*i.UserLdapHasPrefix))
+	}
+	if i.UserLdapHasSuffix != nil {
+		predicates = append(predicates, bazelinvocation.UserLdapHasSuffix(*i.UserLdapHasSuffix))
+	}
+	if i.UserLdapIsNil {
+		predicates = append(predicates, bazelinvocation.UserLdapIsNil())
+	}
+	if i.UserLdapNotNil {
+		predicates = append(predicates, bazelinvocation.UserLdapNotNil())
+	}
+	if i.UserLdapEqualFold != nil {
+		predicates = append(predicates, bazelinvocation.UserLdapEqualFold(*i.UserLdapEqualFold))
+	}
+	if i.UserLdapContainsFold != nil {
+		predicates = append(predicates, bazelinvocation.UserLdapContainsFold(*i.UserLdapContainsFold))
+	}
+	if i.BuildLogs != nil {
+		predicates = append(predicates, bazelinvocation.BuildLogsEQ(*i.BuildLogs))
+	}
+	if i.BuildLogsNEQ != nil {
+		predicates = append(predicates, bazelinvocation.BuildLogsNEQ(*i.BuildLogsNEQ))
+	}
+	if len(i.BuildLogsIn) > 0 {
+		predicates = append(predicates, bazelinvocation.BuildLogsIn(i.BuildLogsIn...))
+	}
+	if len(i.BuildLogsNotIn) > 0 {
+		predicates = append(predicates, bazelinvocation.BuildLogsNotIn(i.BuildLogsNotIn...))
+	}
+	if i.BuildLogsGT != nil {
+		predicates = append(predicates, bazelinvocation.BuildLogsGT(*i.BuildLogsGT))
+	}
+	if i.BuildLogsGTE != nil {
+		predicates = append(predicates, bazelinvocation.BuildLogsGTE(*i.BuildLogsGTE))
+	}
+	if i.BuildLogsLT != nil {
+		predicates = append(predicates, bazelinvocation.BuildLogsLT(*i.BuildLogsLT))
+	}
+	if i.BuildLogsLTE != nil {
+		predicates = append(predicates, bazelinvocation.BuildLogsLTE(*i.BuildLogsLTE))
+	}
+	if i.BuildLogsContains != nil {
+		predicates = append(predicates, bazelinvocation.BuildLogsContains(*i.BuildLogsContains))
+	}
+	if i.BuildLogsHasPrefix != nil {
+		predicates = append(predicates, bazelinvocation.BuildLogsHasPrefix(*i.BuildLogsHasPrefix))
+	}
+	if i.BuildLogsHasSuffix != nil {
+		predicates = append(predicates, bazelinvocation.BuildLogsHasSuffix(*i.BuildLogsHasSuffix))
+	}
+	if i.BuildLogsIsNil {
+		predicates = append(predicates, bazelinvocation.BuildLogsIsNil())
+	}
+	if i.BuildLogsNotNil {
+		predicates = append(predicates, bazelinvocation.BuildLogsNotNil())
+	}
+	if i.BuildLogsEqualFold != nil {
+		predicates = append(predicates, bazelinvocation.BuildLogsEqualFold(*i.BuildLogsEqualFold))
+	}
+	if i.BuildLogsContainsFold != nil {
+		predicates = append(predicates, bazelinvocation.BuildLogsContainsFold(*i.BuildLogsContainsFold))
 	}
 
 	if i.HasEventFile != nil {

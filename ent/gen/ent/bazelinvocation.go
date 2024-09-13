@@ -40,6 +40,12 @@ type BazelInvocation struct {
 	StepLabel string `json:"step_label,omitempty"`
 	// RelatedFiles holds the value of the "related_files" field.
 	RelatedFiles map[string]string `json:"related_files,omitempty"`
+	// UserEmail holds the value of the "user_email" field.
+	UserEmail string `json:"user_email,omitempty"`
+	// UserLdap holds the value of the "user_ldap" field.
+	UserLdap string `json:"user_ldap,omitempty"`
+	// BuildLogs holds the value of the "build_logs" field.
+	BuildLogs string `json:"build_logs,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the BazelInvocationQuery when eager-loading is set.
 	Edges                       BazelInvocationEdges `json:"edges"`
@@ -107,7 +113,7 @@ func (*BazelInvocation) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case bazelinvocation.FieldID, bazelinvocation.FieldChangeNumber, bazelinvocation.FieldPatchsetNumber:
 			values[i] = new(sql.NullInt64)
-		case bazelinvocation.FieldStepLabel:
+		case bazelinvocation.FieldStepLabel, bazelinvocation.FieldUserEmail, bazelinvocation.FieldUserLdap, bazelinvocation.FieldBuildLogs:
 			values[i] = new(sql.NullString)
 		case bazelinvocation.FieldStartedAt, bazelinvocation.FieldEndedAt:
 			values[i] = new(sql.NullTime)
@@ -195,6 +201,24 @@ func (bi *BazelInvocation) assignValues(columns []string, values []any) error {
 				if err := json.Unmarshal(*value, &bi.RelatedFiles); err != nil {
 					return fmt.Errorf("unmarshal field related_files: %w", err)
 				}
+			}
+		case bazelinvocation.FieldUserEmail:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field user_email", values[i])
+			} else if value.Valid {
+				bi.UserEmail = value.String
+			}
+		case bazelinvocation.FieldUserLdap:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field user_ldap", values[i])
+			} else if value.Valid {
+				bi.UserLdap = value.String
+			}
+		case bazelinvocation.FieldBuildLogs:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field build_logs", values[i])
+			} else if value.Valid {
+				bi.BuildLogs = value.String
 			}
 		case bazelinvocation.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -287,6 +311,15 @@ func (bi *BazelInvocation) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("related_files=")
 	builder.WriteString(fmt.Sprintf("%v", bi.RelatedFiles))
+	builder.WriteString(", ")
+	builder.WriteString("user_email=")
+	builder.WriteString(bi.UserEmail)
+	builder.WriteString(", ")
+	builder.WriteString("user_ldap=")
+	builder.WriteString(bi.UserLdap)
+	builder.WriteString(", ")
+	builder.WriteString("build_logs=")
+	builder.WriteString(bi.BuildLogs)
 	builder.WriteByte(')')
 	return builder.String()
 }

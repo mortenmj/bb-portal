@@ -9,6 +9,9 @@ type BazelInvocation implements Node {
   patchsetNumber: Int
   bepCompleted: Boolean
   stepLabel: String!
+  userEmail: String
+  userLdap: String
+  buildLogs: String
   eventFile: EventFile!
   build: Build
 }
@@ -208,6 +211,60 @@ input BazelInvocationWhereInput {
   stepLabelHasSuffix: String
   stepLabelEqualFold: String
   stepLabelContainsFold: String
+  """
+  user_email field predicates
+  """
+  userEmail: String
+  userEmailNEQ: String
+  userEmailIn: [String!]
+  userEmailNotIn: [String!]
+  userEmailGT: String
+  userEmailGTE: String
+  userEmailLT: String
+  userEmailLTE: String
+  userEmailContains: String
+  userEmailHasPrefix: String
+  userEmailHasSuffix: String
+  userEmailIsNil: Boolean
+  userEmailNotNil: Boolean
+  userEmailEqualFold: String
+  userEmailContainsFold: String
+  """
+  user_ldap field predicates
+  """
+  userLdap: String
+  userLdapNEQ: String
+  userLdapIn: [String!]
+  userLdapNotIn: [String!]
+  userLdapGT: String
+  userLdapGTE: String
+  userLdapLT: String
+  userLdapLTE: String
+  userLdapContains: String
+  userLdapHasPrefix: String
+  userLdapHasSuffix: String
+  userLdapIsNil: Boolean
+  userLdapNotNil: Boolean
+  userLdapEqualFold: String
+  userLdapContainsFold: String
+  """
+  build_logs field predicates
+  """
+  buildLogs: String
+  buildLogsNEQ: String
+  buildLogsIn: [String!]
+  buildLogsNotIn: [String!]
+  buildLogsGT: String
+  buildLogsGTE: String
+  buildLogsLT: String
+  buildLogsLTE: String
+  buildLogsContains: String
+  buildLogsHasPrefix: String
+  buildLogsHasSuffix: String
+  buildLogsIsNil: Boolean
+  buildLogsNotNil: Boolean
+  buildLogsEqualFold: String
+  buildLogsContainsFold: String
   """
   event_file edge predicates
   """

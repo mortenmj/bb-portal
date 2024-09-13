@@ -54,3 +54,7 @@ func GetAction(ctx context.Context, problem *ent.BazelInvocationProblem) (*bes.A
 	}
 	return nil, errActionNotFound
 }
+
+// func GetUser(ctx context.Context, obj *ent.BazelInvocation) (*model.User, error) {
+
+// }

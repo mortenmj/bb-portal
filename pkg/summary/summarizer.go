@@ -117,6 +117,8 @@ func (s Summarizer) ProcessEvent(buildEvent *events.BuildEvent) error {
 		if err != nil {
 			return err
 		}
+	case *bes.BuildEventId_Progress:
+		s.handleProgress(buildEvent.GetProgress())
 	}
 
 	s.summary.BEPCompleted = buildEvent.GetLastMessage()
@@ -138,14 +140,25 @@ func (s Summarizer) handleStarted(started *bes.BuildStarted) {
 
 func (s Summarizer) handleBuildMetadata(metadataProto *bes.BuildMetadata) {
 	metadataMap := metadataProto.GetMetadata()
+	//extract user data
 	if metadataMap == nil {
 		return
 	}
-	stepLabel, ok := metadataMap[stepLabelKey]
-	if !ok {
-		return
+	stepLabel, stepLabelOk := metadataMap[stepLabelKey]
+	if !stepLabelOk {
+		slog.Debug("No step label found in build metadata")
+	}
+	userEmail, userEmailOk := metadataMap[userEmailKey]
+	if !userEmailOk {
+		slog.Debug("No user email found in build metadata")
+	}
+	userLdap, userLdapOk := metadataMap[userLdapKey]
+	if !userLdapOk {
+		slog.Debug("No user ldap information found in build metadata")
 	}
 	s.summary.StepLabel = stepLabel
+	s.summary.UserEmail = userEmail
+	s.summary.UserLDAP = userLdap
 }
 
 func (s Summarizer) handleBuildFinished(finished *bes.BuildFinished) {
@@ -208,6 +221,11 @@ func (s Summarizer) handleStructuredCommandLine(structuredCommandLine *bescore.C
 
 func (s Summarizer) handleOptionsParsed(optionsParsed *bes.OptionsParsed) {
 	s.summary.InvocationSummary.BazelCommandLine.Options = optionsParsed.GetExplicitCmdLine()
+}
+
+func (s Summarizer) handleProgress(progressMsg *bes.Progress) {
+	s.summary.BuildLogs.WriteString(progressMsg.GetStderr())
+	s.summary.BuildLogs.WriteString(progressMsg.GetStdout())
 }
 
 func (s Summarizer) handleBuildToolLogs(buildToolLogs *bes.BuildToolLogs) error {
