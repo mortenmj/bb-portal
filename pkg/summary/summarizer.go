@@ -288,15 +288,20 @@ func (s Summarizer) handleBuildMetrics(metrics *bes.BuildMetrics) {
 
 	//network metrics
 
-	system_network_stats := SystemNetworkStats{
-		BytesSent:             metrics.NetworkMetrics.SystemNetworkStats.BytesSent,
-		BytesRecv:             metrics.NetworkMetrics.SystemNetworkStats.BytesRecv,
-		PacketsSent:           metrics.NetworkMetrics.SystemNetworkStats.PacketsSent,
-		PacketsRecv:           metrics.NetworkMetrics.SystemNetworkStats.PacketsRecv,
-		PeakBytesSentPerSec:   metrics.NetworkMetrics.SystemNetworkStats.PeakBytesSentPerSec,
-		PeakBytesRecvPerSec:   metrics.NetworkMetrics.SystemNetworkStats.PeakBytesRecvPerSec,
-		PeakPacketsSentPerSec: metrics.NetworkMetrics.SystemNetworkStats.PeakPacketsSentPerSec,
-		PeakPacketsRecvPerSec: metrics.NetworkMetrics.SystemNetworkStats.PeakPacketsRecvPerSec,
+	var system_network_stats SystemNetworkStats
+
+	if metrics.NetworkMetrics != nil {
+
+		system_network_stats = SystemNetworkStats{
+			BytesSent:             metrics.NetworkMetrics.SystemNetworkStats.BytesSent,
+			BytesRecv:             metrics.NetworkMetrics.SystemNetworkStats.BytesRecv,
+			PacketsSent:           metrics.NetworkMetrics.SystemNetworkStats.PacketsSent,
+			PacketsRecv:           metrics.NetworkMetrics.SystemNetworkStats.PacketsRecv,
+			PeakBytesSentPerSec:   metrics.NetworkMetrics.SystemNetworkStats.PeakBytesSentPerSec,
+			PeakBytesRecvPerSec:   metrics.NetworkMetrics.SystemNetworkStats.PeakBytesRecvPerSec,
+			PeakPacketsSentPerSec: metrics.NetworkMetrics.SystemNetworkStats.PeakPacketsSentPerSec,
+			PeakPacketsRecvPerSec: metrics.NetworkMetrics.SystemNetworkStats.PeakPacketsRecvPerSec,
+		}
 	}
 
 	network_metrics := NetworkMetrics{
