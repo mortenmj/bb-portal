@@ -646,6 +646,16 @@ func BuildLogsContainsFold(v string) predicate.BazelInvocation {
 	return predicate.BazelInvocation(sql.FieldContainsFold(FieldBuildLogs, v))
 }
 
+// MetricsIsNil applies the IsNil predicate on the "metrics" field.
+func MetricsIsNil() predicate.BazelInvocation {
+	return predicate.BazelInvocation(sql.FieldIsNull(FieldMetrics))
+}
+
+// MetricsNotNil applies the NotNil predicate on the "metrics" field.
+func MetricsNotNil() predicate.BazelInvocation {
+	return predicate.BazelInvocation(sql.FieldNotNull(FieldMetrics))
+}
+
 // HasEventFile applies the HasEdge predicate on the "event_file" edge.
 func HasEventFile() predicate.BazelInvocation {
 	return predicate.BazelInvocation(func(s *sql.Selector) {

@@ -103,6 +103,9 @@ func (s Summarizer) ProcessEvent(buildEvent *events.BuildEvent) error {
 	case *bes.BuildEventId_BuildFinished:
 		s.handleBuildFinished(buildEvent.GetFinished())
 
+	case *bes.BuildEventId_BuildMetrics:
+		s.handleBuildMetrics(buildEvent.GetBuildMetrics())
+
 	case *bes.BuildEventId_StructuredCommandLine:
 		err := s.handleStructuredCommandLine(buildEvent.GetStructuredCommandLine())
 		if err != nil {
@@ -159,6 +162,159 @@ func (s Summarizer) handleBuildMetadata(metadataProto *bes.BuildMetadata) {
 	s.summary.StepLabel = stepLabel
 	s.summary.UserEmail = userEmail
 	s.summary.UserLDAP = userLdap
+}
+
+func (s Summarizer) handleBuildMetrics(metrics *bes.BuildMetrics) {
+
+	//action metrics
+
+	var miss_details []MissDetail = make([]MissDetail, 0)
+
+	for _, md := range metrics.ActionSummary.ActionCacheStatistics.MissDetails {
+		miss_detail := MissDetail{
+			Count:  md.Count,
+			Reason: MissReason(*md.Reason.Enum()),
+		}
+		miss_details = append(miss_details, miss_detail)
+	}
+
+	action_cache_statistics := ActionCacheStatistics{
+		SizeInBytes:  metrics.ActionSummary.ActionCacheStatistics.SizeInBytes,
+		SaveTimeInMs: metrics.ActionSummary.ActionCacheStatistics.SaveTimeInMs,
+		Hits:         metrics.ActionSummary.ActionCacheStatistics.Hits,
+		Misses:       metrics.ActionSummary.ActionCacheStatistics.Misses,
+		MissDetails:  miss_details,
+	}
+
+	action_summary := ActionSummary{
+		ActionsCreated:                    metrics.ActionSummary.ActionsCreated,
+		ActionsExecuted:                   metrics.ActionSummary.ActionsExecuted,
+		ActionsCreatedNotIncludingAspects: metrics.ActionSummary.ActionsCreatedNotIncludingAspects,
+		ActionCacheStatistics:             action_cache_statistics,
+	}
+
+	//memory metrics
+
+	var garbage_metrics []GarbageMetrics = make([]GarbageMetrics, 0)
+
+	for _, gm := range metrics.MemoryMetrics.GarbageMetrics {
+		garbage_metric := GarbageMetrics{
+			Type:             gm.Type,
+			GarbageCollected: gm.GarbageCollected,
+		}
+		garbage_metrics = append(garbage_metrics, garbage_metric)
+	}
+
+	memory_metrics := MemoryMetrics{
+		PeakPostGcHeapSize:             metrics.MemoryMetrics.PeakPostGcHeapSize,
+		PeakPostGcTenuredSpaceHeapSize: metrics.MemoryMetrics.PeakPostGcTenuredSpaceHeapSize,
+		UsedHeapSizePostBuild:          metrics.MemoryMetrics.UsedHeapSizePostBuild,
+		GarbageMetrics:                 garbage_metrics,
+	}
+
+	//target metrics
+
+	target_metrics := TargetMetrics{
+		TargetsConfigured:                    metrics.TargetMetrics.TargetsConfigured,
+		TargetsConfiguredNotIncludingAspects: metrics.TargetMetrics.TargetsConfiguredNotIncludingAspects,
+		TargetsLoaded:                        metrics.TargetMetrics.TargetsLoaded,
+	}
+
+	//package metrics
+
+	var package_load_metrics []PackageLoadMetrics = make([]PackageLoadMetrics, 0)
+
+	for _, plm := range metrics.PackageMetrics.PackageLoadMetrics {
+		package_load_metric := PackageLoadMetrics{
+			Name:               *plm.Name,
+			NumTargets:         *plm.NumTargets,
+			LoadDuration:       plm.LoadDuration.AsDuration(),
+			ComputationSteps:   *plm.ComputationSteps,
+			NumTransitiveLoads: *plm.NumTransitiveLoads,
+			PackageOverhead:    *plm.PackageOverhead,
+		}
+		package_load_metrics = append(package_load_metrics, package_load_metric)
+	}
+
+	package_metrics := PackageMetrics{
+		PackagesLoaded:     metrics.PackageMetrics.PackagesLoaded,
+		PackageLoadMetrics: package_load_metrics,
+	}
+
+	//timing metrics
+
+	timing_metrics := TimingMetrics{
+		CpuTimeInMs:            metrics.TimingMetrics.CpuTimeInMs,
+		WallTimeInMs:           metrics.TimingMetrics.WallTimeInMs,
+		ExecutionPhaseTimeInMs: metrics.TimingMetrics.ExecutionPhaseTimeInMs,
+		AnalysisPhaseTimeInMs:  metrics.TimingMetrics.AnalysisPhaseTimeInMs,
+	}
+
+	//artifact metrics
+
+	source_artifacts_read := FilesMetric{
+		SizeInBytes: metrics.ArtifactMetrics.SourceArtifactsRead.SizeInBytes,
+		Count:       metrics.ArtifactMetrics.SourceArtifactsRead.Count,
+	}
+
+	output_artifacts_seen := FilesMetric{
+		SizeInBytes: metrics.ArtifactMetrics.OutputArtifactsSeen.SizeInBytes,
+		Count:       metrics.ArtifactMetrics.OutputArtifactsSeen.Count,
+	}
+
+	output_artifacts_from_action_cache := FilesMetric{
+		SizeInBytes: metrics.ArtifactMetrics.OutputArtifactsFromActionCache.SizeInBytes,
+		Count:       metrics.ArtifactMetrics.OutputArtifactsFromActionCache.Count,
+	}
+
+	top_level_artifacts := FilesMetric{
+		SizeInBytes: metrics.ArtifactMetrics.TopLevelArtifacts.SizeInBytes,
+		Count:       metrics.ArtifactMetrics.TopLevelArtifacts.Count,
+	}
+
+	artifact_metrics := ArtifactMetrics{
+		SourceArtifactsRead:            source_artifacts_read,
+		OutputArtifactsSeen:            output_artifacts_seen,
+		OutputArtifactsFromActionCache: output_artifacts_from_action_cache,
+		TopLevelArtifacts:              top_level_artifacts,
+	}
+
+	//cumulative metrics
+
+	cumulative_metrics := CumulativeMetrics{
+		NumAnalyses: metrics.CumulativeMetrics.NumAnalyses,
+		NumBuilds:   metrics.CumulativeMetrics.NumBuilds,
+	}
+
+	//network metrics
+
+	system_network_stats := SystemNetworkStats{
+		BytesSent:             metrics.NetworkMetrics.SystemNetworkStats.BytesSent,
+		BytesRecv:             metrics.NetworkMetrics.SystemNetworkStats.BytesRecv,
+		PacketsSent:           metrics.NetworkMetrics.SystemNetworkStats.PacketsSent,
+		PacketsRecv:           metrics.NetworkMetrics.SystemNetworkStats.PacketsRecv,
+		PeakBytesSentPerSec:   metrics.NetworkMetrics.SystemNetworkStats.PeakBytesSentPerSec,
+		PeakBytesRecvPerSec:   metrics.NetworkMetrics.SystemNetworkStats.PeakBytesRecvPerSec,
+		PeakPacketsSentPerSec: metrics.NetworkMetrics.SystemNetworkStats.PeakPacketsSentPerSec,
+		PeakPacketsRecvPerSec: metrics.NetworkMetrics.SystemNetworkStats.PeakPacketsRecvPerSec,
+	}
+
+	network_metrics := NetworkMetrics{
+		SystemNetworkStats: &system_network_stats,
+	}
+
+	summary_metrics := Metrics{
+		ActionSummary:     action_summary,
+		MemoryMetrics:     memory_metrics,
+		TargetMetrics:     target_metrics,
+		PackageMetrics:    package_metrics,
+		TimingMetrics:     timing_metrics,
+		ArtifactMetrics:   artifact_metrics,
+		CumulativeMetrics: cumulative_metrics,
+		NetworkMetrics:    network_metrics,
+	}
+
+	s.summary.Metrics = summary_metrics
 }
 
 func (s Summarizer) handleBuildFinished(finished *bes.BuildFinished) {

@@ -12,11 +12,30 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/actioncachestatistics"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/actiondata"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/actionsummary"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/artifactmetrics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/bazelinvocation"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/bazelinvocationproblem"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/blob"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/build"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/cumulativemetrics"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/dynamicexecutionmetrics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/eventfile"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/filesmetric"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/garbagemetrics"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/memorymetrics"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/metrics"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/missdetail"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/networkmetrics"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/packageloadmetrics"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/packagemetrics"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/racestatistics"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/runnercount"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/systemnetworkstats"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/targetmetrics"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/timingmetrics"
 )
 
 // ent aliases to avoid import conflicts in user's code.
@@ -77,11 +96,30 @@ var (
 func checkColumn(table, column string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
-			bazelinvocation.Table:        bazelinvocation.ValidColumn,
-			bazelinvocationproblem.Table: bazelinvocationproblem.ValidColumn,
-			blob.Table:                   blob.ValidColumn,
-			build.Table:                  build.ValidColumn,
-			eventfile.Table:              eventfile.ValidColumn,
+			actioncachestatistics.Table:   actioncachestatistics.ValidColumn,
+			actiondata.Table:              actiondata.ValidColumn,
+			actionsummary.Table:           actionsummary.ValidColumn,
+			artifactmetrics.Table:         artifactmetrics.ValidColumn,
+			bazelinvocation.Table:         bazelinvocation.ValidColumn,
+			bazelinvocationproblem.Table:  bazelinvocationproblem.ValidColumn,
+			blob.Table:                    blob.ValidColumn,
+			build.Table:                   build.ValidColumn,
+			cumulativemetrics.Table:       cumulativemetrics.ValidColumn,
+			dynamicexecutionmetrics.Table: dynamicexecutionmetrics.ValidColumn,
+			eventfile.Table:               eventfile.ValidColumn,
+			filesmetric.Table:             filesmetric.ValidColumn,
+			garbagemetrics.Table:          garbagemetrics.ValidColumn,
+			memorymetrics.Table:           memorymetrics.ValidColumn,
+			metrics.Table:                 metrics.ValidColumn,
+			missdetail.Table:              missdetail.ValidColumn,
+			networkmetrics.Table:          networkmetrics.ValidColumn,
+			packageloadmetrics.Table:      packageloadmetrics.ValidColumn,
+			packagemetrics.Table:          packagemetrics.ValidColumn,
+			racestatistics.Table:          racestatistics.ValidColumn,
+			runnercount.Table:             runnercount.ValidColumn,
+			systemnetworkstats.Table:      systemnetworkstats.ValidColumn,
+			targetmetrics.Table:           targetmetrics.ValidColumn,
+			timingmetrics.Table:           timingmetrics.ValidColumn,
 		})
 	})
 	return columnCheck(table, column)

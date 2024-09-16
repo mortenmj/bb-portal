@@ -6,6 +6,18 @@ import (
 	"entgo.io/ent/dialect/sql"
 )
 
+// ActionCacheStatistics is the predicate function for actioncachestatistics builders.
+type ActionCacheStatistics func(*sql.Selector)
+
+// ActionData is the predicate function for actiondata builders.
+type ActionData func(*sql.Selector)
+
+// ActionSummary is the predicate function for actionsummary builders.
+type ActionSummary func(*sql.Selector)
+
+// ArtifactMetrics is the predicate function for artifactmetrics builders.
+type ArtifactMetrics func(*sql.Selector)
+
 // BazelInvocation is the predicate function for bazelinvocation builders.
 type BazelInvocation func(*sql.Selector)
 
@@ -18,5 +30,50 @@ type Blob func(*sql.Selector)
 // Build is the predicate function for build builders.
 type Build func(*sql.Selector)
 
+// CumulativeMetrics is the predicate function for cumulativemetrics builders.
+type CumulativeMetrics func(*sql.Selector)
+
+// DynamicExecutionMetrics is the predicate function for dynamicexecutionmetrics builders.
+type DynamicExecutionMetrics func(*sql.Selector)
+
 // EventFile is the predicate function for eventfile builders.
 type EventFile func(*sql.Selector)
+
+// FilesMetric is the predicate function for filesmetric builders.
+type FilesMetric func(*sql.Selector)
+
+// GarbageMetrics is the predicate function for garbagemetrics builders.
+type GarbageMetrics func(*sql.Selector)
+
+// MemoryMetrics is the predicate function for memorymetrics builders.
+type MemoryMetrics func(*sql.Selector)
+
+// Metrics is the predicate function for metrics builders.
+type Metrics func(*sql.Selector)
+
+// MissDetail is the predicate function for missdetail builders.
+type MissDetail func(*sql.Selector)
+
+// NetworkMetrics is the predicate function for networkmetrics builders.
+type NetworkMetrics func(*sql.Selector)
+
+// PackageLoadMetrics is the predicate function for packageloadmetrics builders.
+type PackageLoadMetrics func(*sql.Selector)
+
+// PackageMetrics is the predicate function for packagemetrics builders.
+type PackageMetrics func(*sql.Selector)
+
+// RaceStatistics is the predicate function for racestatistics builders.
+type RaceStatistics func(*sql.Selector)
+
+// RunnerCount is the predicate function for runnercount builders.
+type RunnerCount func(*sql.Selector)
+
+// SystemNetworkStats is the predicate function for systemnetworkstats builders.
+type SystemNetworkStats func(*sql.Selector)
+
+// TargetMetrics is the predicate function for targetmetrics builders.
+type TargetMetrics func(*sql.Selector)
+
+// TimingMetrics is the predicate function for timingmetrics builders.
+type TimingMetrics func(*sql.Selector)

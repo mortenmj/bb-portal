@@ -19,4 +19,6 @@ func init() {
 	eventfileDescStatus := eventfileFields[4].Descriptor()
 	// eventfile.DefaultStatus holds the default value on creation for the status field.
 	eventfile.DefaultStatus = eventfileDescStatus.Default.(string)
+	missdetailFields := schema.MissDetail{}.Fields()
+	_ = missdetailFields
 }

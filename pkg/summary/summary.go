@@ -39,6 +39,18 @@ type Summary struct {
 	UserLDAP       string
 	UserEmail      string
 	BuildLogs      strings.Builder
+	Metrics        Metrics
+}
+
+type Metrics struct {
+	ActionSummary     ActionSummary
+	MemoryMetrics     MemoryMetrics
+	TargetMetrics     TargetMetrics
+	PackageMetrics    PackageMetrics
+	TimingMetrics     TimingMetrics
+	CumulativeMetrics CumulativeMetrics
+	ArtifactMetrics   ArtifactMetrics
+	NetworkMetrics    NetworkMetrics
 }
 
 type InvocationSummary struct {
@@ -68,4 +80,124 @@ type Blob struct {
 	Size     int
 	Contents string
 	Name     string
+}
+
+type ActionSummary struct {
+	ActionsCreated                    int64
+	ActionsCreatedNotIncludingAspects int64
+	ActionsExecuted                   int64
+	ActionData                        []ActionData
+
+	RemoteCacheHits       int64
+	RunnerCount           []RunnerCount
+	ActionCacheStatistics ActionCacheStatistics
+}
+
+type ActionData struct {
+	Mnemonic        string
+	ActionsExecuted int64
+	FirstStartedMs  int64
+	LastEndedMs     int64
+	SystemTime      time.Duration
+	UserTime        time.Duration
+}
+
+type RunnerCount struct {
+	Name     string
+	Count    int32
+	ExecKind string
+}
+
+type GarbageMetrics struct {
+	Type             string
+	GarbageCollected int64
+}
+
+type MemoryMetrics struct {
+	UsedHeapSizePostBuild          int64
+	PeakPostGcHeapSize             int64
+	PeakPostGcTenuredSpaceHeapSize int64
+	GarbageMetrics                 []GarbageMetrics
+}
+
+type TargetMetrics struct {
+	TargetsLoaded                        int64
+	TargetsConfigured                    int64
+	TargetsConfiguredNotIncludingAspects int64
+}
+
+type PackageMetrics struct {
+	PackagesLoaded     int64
+	PackageLoadMetrics []PackageLoadMetrics
+}
+
+type TimingMetrics struct {
+	CpuTimeInMs            int64
+	WallTimeInMs           int64
+	AnalysisPhaseTimeInMs  int64
+	ExecutionPhaseTimeInMs int64
+}
+
+type CumulativeMetrics struct {
+	NumAnalyses int32
+	NumBuilds   int32
+}
+
+type ArtifactMetrics struct {
+	SourceArtifactsRead            FilesMetric
+	OutputArtifactsSeen            FilesMetric
+	OutputArtifactsFromActionCache FilesMetric
+	TopLevelArtifacts              FilesMetric
+}
+
+type FilesMetric struct {
+	SizeInBytes int64
+	Count       int32
+}
+
+type SystemNetworkStats struct {
+	BytesSent             uint64
+	BytesRecv             uint64
+	PacketsSent           uint64
+	PacketsRecv           uint64
+	PeakBytesSentPerSec   uint64
+	PeakBytesRecvPerSec   uint64
+	PeakPacketsSentPerSec uint64
+	PeakPacketsRecvPerSec uint64
+}
+
+type NetworkMetrics struct {
+	SystemNetworkStats *SystemNetworkStats
+}
+type ActionCacheStatistics struct {
+	SizeInBytes  uint64
+	SaveTimeInMs uint64
+	Hits         int32
+	Misses       int32
+	MissDetails  []MissDetail
+}
+type MissDetail struct {
+	Reason MissReason
+	Count  int32
+}
+
+type MissReason int32
+
+const (
+	DIFFERENT_ACTION_KEY MissReason = iota + 1
+	DIFFERENT_DEPS
+	DIFFERENT_ENVIRONMENT
+	DIFFERENT_FILES
+	CORRUPTED_CACHE_ENTRY
+	NOT_CACHED
+	UNCONDITIONAL_EXECUTION
+)
+
+type PackageLoadMetrics struct {
+	Name               string
+	LoadDuration       time.Duration
+	NumTargets         uint64
+	ComputationSteps   uint64
+	NumTransitiveLoads uint64
+	PackageOverhead    uint64
 }

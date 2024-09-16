@@ -36,6 +36,8 @@ const (
 	FieldUserLdap = "user_ldap"
 	// FieldBuildLogs holds the string denoting the build_logs field in the database.
 	FieldBuildLogs = "build_logs"
+	// FieldMetrics holds the string denoting the metrics field in the database.
+	FieldMetrics = "metrics"
 	// EdgeEventFile holds the string denoting the event_file edge name in mutations.
 	EdgeEventFile = "event_file"
 	// EdgeBuild holds the string denoting the build edge name in mutations.
@@ -82,6 +84,7 @@ var Columns = []string{
 	FieldUserEmail,
 	FieldUserLdap,
 	FieldBuildLogs,
+	FieldMetrics,
 }
 
 // ForeignKeys holds the SQL foreign-keys that are owned by the "bazel_invocations"

@@ -46,6 +46,8 @@ type BazelInvocation struct {
 	UserLdap string `json:"user_ldap,omitempty"`
 	// BuildLogs holds the value of the "build_logs" field.
 	BuildLogs string `json:"build_logs,omitempty"`
+	// Metrics holds the value of the "metrics" field.
+	Metrics summary.Metrics `json:"metrics,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the BazelInvocationQuery when eager-loading is set.
 	Edges                       BazelInvocationEdges `json:"edges"`
@@ -107,7 +109,7 @@ func (*BazelInvocation) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case bazelinvocation.FieldSummary, bazelinvocation.FieldRelatedFiles:
+		case bazelinvocation.FieldSummary, bazelinvocation.FieldRelatedFiles, bazelinvocation.FieldMetrics:
 			values[i] = new([]byte)
 		case bazelinvocation.FieldBepCompleted:
 			values[i] = new(sql.NullBool)
@@ -220,6 +222,14 @@ func (bi *BazelInvocation) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				bi.BuildLogs = value.String
 			}
+		case bazelinvocation.FieldMetrics:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field metrics", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &bi.Metrics); err != nil {
+					return fmt.Errorf("unmarshal field metrics: %w", err)
+				}
+			}
 		case bazelinvocation.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for edge-field build_invocations", value)
@@ -320,6 +330,9 @@ func (bi *BazelInvocation) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("build_logs=")
 	builder.WriteString(bi.BuildLogs)
+	builder.WriteString(", ")
+	builder.WriteString("metrics=")
+	builder.WriteString(fmt.Sprintf("%v", bi.Metrics))
 	builder.WriteByte(')')
 	return builder.String()
 }

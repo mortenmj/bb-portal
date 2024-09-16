@@ -33,6 +33,7 @@ func (BazelInvocation) Fields() []ent.Field {
 		field.String("user_email").Optional(),
 		field.String("user_ldap").Optional(),
 		field.String("build_logs").Optional(),
+		field.JSON("metrics", summary.Metrics{}).Optional(),
 	}
 }
 
