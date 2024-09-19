@@ -221,7 +221,6 @@ func (s Summarizer) handleBuildMetrics(metrics *bes.BuildMetrics) {
 	}
 
 	//memory metrics
-
 	var garbage_metrics []GarbageMetrics = make([]GarbageMetrics, 0)
 
 	for _, gm := range metrics.MemoryMetrics.GarbageMetrics {
@@ -240,7 +239,6 @@ func (s Summarizer) handleBuildMetrics(metrics *bes.BuildMetrics) {
 	}
 
 	//target metrics
-
 	target_metrics := TargetMetrics{
 		TargetsConfigured:                    metrics.TargetMetrics.TargetsConfigured,
 		TargetsConfiguredNotIncludingAspects: metrics.TargetMetrics.TargetsConfiguredNotIncludingAspects,
@@ -248,7 +246,6 @@ func (s Summarizer) handleBuildMetrics(metrics *bes.BuildMetrics) {
 	}
 
 	//package metrics
-
 	var package_load_metrics []PackageLoadMetrics = make([]PackageLoadMetrics, 0)
 
 	for _, plm := range metrics.PackageMetrics.PackageLoadMetrics {
