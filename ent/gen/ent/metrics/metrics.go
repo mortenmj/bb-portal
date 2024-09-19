@@ -12,6 +12,8 @@ const (
 	Label = "metrics"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// EdgeBazelInvocation holds the string denoting the bazel_invocation edge name in mutations.
+	EdgeBazelInvocation = "bazel_invocation"
 	// EdgeActionSummary holds the string denoting the action_summary edge name in mutations.
 	EdgeActionSummary = "action_summary"
 	// EdgeMemoryMetrics holds the string denoting the memory_metrics edge name in mutations.
@@ -32,6 +34,13 @@ const (
 	EdgeDynamicExecutionMetrics = "dynamic_execution_metrics"
 	// Table holds the table name of the metrics in the database.
 	Table = "metrics"
+	// BazelInvocationTable is the table that holds the bazel_invocation relation/edge.
+	BazelInvocationTable = "metrics"
+	// BazelInvocationInverseTable is the table name for the BazelInvocation entity.
+	// It exists in this package in order to avoid circular dependency with the "bazelinvocation" package.
+	BazelInvocationInverseTable = "bazel_invocations"
+	// BazelInvocationColumn is the table column denoting the bazel_invocation relation/edge.
+	BazelInvocationColumn = "bazel_invocation_metrics"
 	// ActionSummaryTable is the table that holds the action_summary relation/edge.
 	ActionSummaryTable = "action_summaries"
 	// ActionSummaryInverseTable is the table name for the ActionSummary entity.
@@ -86,6 +95,12 @@ var Columns = []string{
 	FieldID,
 }
 
+// ForeignKeys holds the SQL foreign-keys that are owned by the "metrics"
+// table and are not defined as standalone fields in the schema.
+var ForeignKeys = []string{
+	"bazel_invocation_metrics",
+}
+
 var (
 	// MemoryMetricsPrimaryKey and MemoryMetricsColumn2 are the table columns denoting the
 	// primary key for the memory_metrics relation (M2M).
@@ -120,6 +135,11 @@ func ValidColumn(column string) bool {
 			return true
 		}
 	}
+	for i := range ForeignKeys {
+		if column == ForeignKeys[i] {
+			return true
+		}
+	}
 	return false
 }
 
@@ -129,6 +149,13 @@ type OrderOption func(*sql.Selector)
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
+}
+
+// ByBazelInvocationField orders the results by bazel_invocation field.
+func ByBazelInvocationField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newBazelInvocationStep(), sql.OrderByField(field, opts...))
+	}
 }
 
 // ByActionSummaryCount orders the results by action_summary count.
@@ -255,6 +282,13 @@ func ByDynamicExecutionMetrics(term sql.OrderTerm, terms ...sql.OrderTerm) Order
 	return func(s *sql.Selector) {
 		sqlgraph.OrderByNeighborTerms(s, newDynamicExecutionMetricsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
+}
+func newBazelInvocationStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(BazelInvocationInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2O, true, BazelInvocationTable, BazelInvocationColumn),
+	)
 }
 func newActionSummaryStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(

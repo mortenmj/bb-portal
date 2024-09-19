@@ -13,6 +13,7 @@ import (
 	"github.com/buildbarn/bb-portal/ent/gen/ent/bazelinvocation"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/build"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/eventfile"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/metrics"
 	"github.com/buildbarn/bb-portal/pkg/summary"
 	"github.com/google/uuid"
 )
@@ -46,8 +47,6 @@ type BazelInvocation struct {
 	UserLdap string `json:"user_ldap,omitempty"`
 	// BuildLogs holds the value of the "build_logs" field.
 	BuildLogs string `json:"build_logs,omitempty"`
-	// Metrics holds the value of the "metrics" field.
-	Metrics summary.Metrics `json:"metrics,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the BazelInvocationQuery when eager-loading is set.
 	Edges                       BazelInvocationEdges `json:"edges"`
@@ -62,13 +61,15 @@ type BazelInvocationEdges struct {
 	EventFile *EventFile `json:"event_file,omitempty"`
 	// Build holds the value of the build edge.
 	Build *Build `json:"build,omitempty"`
+	// Metrics holds the value of the metrics edge.
+	Metrics *Metrics `json:"metrics,omitempty"`
 	// Problems holds the value of the problems edge.
 	Problems []*BazelInvocationProblem `json:"problems,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [3]bool
+	loadedTypes [4]bool
 	// totalCount holds the count of the edges above.
-	totalCount [2]map[string]int
+	totalCount [3]map[string]int
 
 	namedProblems map[string][]*BazelInvocationProblem
 }
@@ -95,10 +96,21 @@ func (e BazelInvocationEdges) BuildOrErr() (*Build, error) {
 	return nil, &NotLoadedError{edge: "build"}
 }
 
+// MetricsOrErr returns the Metrics value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e BazelInvocationEdges) MetricsOrErr() (*Metrics, error) {
+	if e.Metrics != nil {
+		return e.Metrics, nil
+	} else if e.loadedTypes[2] {
+		return nil, &NotFoundError{label: metrics.Label}
+	}
+	return nil, &NotLoadedError{edge: "metrics"}
+}
+
 // ProblemsOrErr returns the Problems value or an error if the edge
 // was not loaded in eager-loading.
 func (e BazelInvocationEdges) ProblemsOrErr() ([]*BazelInvocationProblem, error) {
-	if e.loadedTypes[2] {
+	if e.loadedTypes[3] {
 		return e.Problems, nil
 	}
 	return nil, &NotLoadedError{edge: "problems"}
@@ -109,7 +121,7 @@ func (*BazelInvocation) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case bazelinvocation.FieldSummary, bazelinvocation.FieldRelatedFiles, bazelinvocation.FieldMetrics:
+		case bazelinvocation.FieldSummary, bazelinvocation.FieldRelatedFiles:
 			values[i] = new([]byte)
 		case bazelinvocation.FieldBepCompleted:
 			values[i] = new(sql.NullBool)
@@ -222,14 +234,6 @@ func (bi *BazelInvocation) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				bi.BuildLogs = value.String
 			}
-		case bazelinvocation.FieldMetrics:
-			if value, ok := values[i].(*[]byte); !ok {
-				return fmt.Errorf("unexpected type %T for field metrics", values[i])
-			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &bi.Metrics); err != nil {
-					return fmt.Errorf("unmarshal field metrics: %w", err)
-				}
-			}
 		case bazelinvocation.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for edge-field build_invocations", value)
@@ -265,6 +269,11 @@ func (bi *BazelInvocation) QueryEventFile() *EventFileQuery {
 // QueryBuild queries the "build" edge of the BazelInvocation entity.
 func (bi *BazelInvocation) QueryBuild() *BuildQuery {
 	return NewBazelInvocationClient(bi.config).QueryBuild(bi)
+}
+
+// QueryMetrics queries the "metrics" edge of the BazelInvocation entity.
+func (bi *BazelInvocation) QueryMetrics() *MetricsQuery {
+	return NewBazelInvocationClient(bi.config).QueryMetrics(bi)
 }
 
 // QueryProblems queries the "problems" edge of the BazelInvocation entity.
@@ -330,9 +339,6 @@ func (bi *BazelInvocation) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("build_logs=")
 	builder.WriteString(bi.BuildLogs)
-	builder.WriteString(", ")
-	builder.WriteString("metrics=")
-	builder.WriteString(fmt.Sprintf("%v", bi.Metrics))
 	builder.WriteByte(')')
 	return builder.String()
 }

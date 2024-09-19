@@ -22,6 +22,7 @@ func (GarbageMetrics) Fields() []ent.Field {
 // Edges of MemoryMetrics
 func (GarbageMetrics) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("memory_metrics", MemoryMetrics.Type).Ref("garbage_metrics"),
+		edge.From("memory_metrics", MemoryMetrics.Type).
+			Ref("garbage_metrics"),
 	}
 }

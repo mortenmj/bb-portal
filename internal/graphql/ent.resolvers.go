@@ -20,12 +20,12 @@ import (
 
 // ID is the resolver for the id field.
 func (r *actionCacheStatisticsResolver) ID(ctx context.Context, obj *ent.ActionCacheStatistics) (string, error) {
-	panic(fmt.Errorf("not implemented: ID - id"))
+	return helpers.GraphQLIDFromTypeAndID("ActionCacheStatistics", obj.ID), nil
 }
 
 // ID is the resolver for the id field.
 func (r *actionDataResolver) ID(ctx context.Context, obj *ent.ActionData) (string, error) {
-	panic(fmt.Errorf("not implemented: ID - id"))
+	return helpers.GraphQLIDFromTypeAndID("ActionData", obj.ID), nil
 }
 
 // SystemTime is the resolver for the systemTime field.
@@ -40,22 +40,17 @@ func (r *actionDataResolver) UserTime(ctx context.Context, obj *ent.ActionData) 
 
 // ID is the resolver for the id field.
 func (r *actionSummaryResolver) ID(ctx context.Context, obj *ent.ActionSummary) (string, error) {
-	panic(fmt.Errorf("not implemented: ID - id"))
+	return helpers.GraphQLIDFromTypeAndID("ActionSummary", obj.ID), nil
 }
 
 // ID is the resolver for the id field.
 func (r *artifactMetricsResolver) ID(ctx context.Context, obj *ent.ArtifactMetrics) (string, error) {
-	panic(fmt.Errorf("not implemented: ID - id"))
+	return helpers.GraphQLIDFromTypeAndID("ArtifactMetrics", obj.ID), nil
 }
 
 // ID is the resolver for the id field.
 func (r *bazelInvocationResolver) ID(ctx context.Context, obj *ent.BazelInvocation) (string, error) {
 	return helpers.GraphQLIDFromTypeAndID("BazelInvocation", obj.ID), nil
-}
-
-// Metrics is the resolver for the metrics field.
-func (r *bazelInvocationResolver) Metrics(ctx context.Context, obj *ent.BazelInvocation) (*ent.Metrics, error) {
-	panic(fmt.Errorf("not implemented: Metrics - metrics"))
 }
 
 // ID is the resolver for the id field.
@@ -75,12 +70,12 @@ func (r *buildResolver) ID(ctx context.Context, obj *ent.Build) (string, error) 
 
 // ID is the resolver for the id field.
 func (r *cumulativeMetricsResolver) ID(ctx context.Context, obj *ent.CumulativeMetrics) (string, error) {
-	panic(fmt.Errorf("not implemented: ID - id"))
+	return helpers.GraphQLIDFromTypeAndID("CumulativeMetrics", obj.ID), nil
 }
 
 // ID is the resolver for the id field.
 func (r *dynamicExecutionMetricsResolver) ID(ctx context.Context, obj *ent.DynamicExecutionMetrics) (string, error) {
-	panic(fmt.Errorf("not implemented: ID - id"))
+	return helpers.GraphQLIDFromTypeAndID("DynamicExecutionMetrics", obj.ID), nil
 }
 
 // ID is the resolver for the id field.
@@ -90,37 +85,37 @@ func (r *eventFileResolver) ID(ctx context.Context, obj *ent.EventFile) (string,
 
 // ID is the resolver for the id field.
 func (r *filesMetricResolver) ID(ctx context.Context, obj *ent.FilesMetric) (string, error) {
-	panic(fmt.Errorf("not implemented: ID - id"))
+	return helpers.GraphQLIDFromTypeAndID("FilesMetric", obj.ID), nil
 }
 
 // ID is the resolver for the id field.
 func (r *garbageMetricsResolver) ID(ctx context.Context, obj *ent.GarbageMetrics) (string, error) {
-	panic(fmt.Errorf("not implemented: ID - id"))
+	return helpers.GraphQLIDFromTypeAndID("GarbageMetrics", obj.ID), nil
 }
 
 // ID is the resolver for the id field.
 func (r *memoryMetricsResolver) ID(ctx context.Context, obj *ent.MemoryMetrics) (string, error) {
-	panic(fmt.Errorf("not implemented: ID - id"))
+	return helpers.GraphQLIDFromTypeAndID("MemoryMetrics", obj.ID), nil
 }
 
 // ID is the resolver for the id field.
 func (r *metricsResolver) ID(ctx context.Context, obj *ent.Metrics) (string, error) {
-	panic(fmt.Errorf("not implemented: ID - id"))
+	return helpers.GraphQLIDFromTypeAndID("Metrics", obj.ID), nil
 }
 
 // ID is the resolver for the id field.
 func (r *missDetailResolver) ID(ctx context.Context, obj *ent.MissDetail) (string, error) {
-	panic(fmt.Errorf("not implemented: ID - id"))
+	return helpers.GraphQLIDFromTypeAndID("MissDetai", obj.ID), nil
 }
 
 // ID is the resolver for the id field.
 func (r *networkMetricsResolver) ID(ctx context.Context, obj *ent.NetworkMetrics) (string, error) {
-	panic(fmt.Errorf("not implemented: ID - id"))
+	return helpers.GraphQLIDFromTypeAndID("NetworkMetrics", obj.ID), nil
 }
 
 // ID is the resolver for the id field.
 func (r *packageLoadMetricsResolver) ID(ctx context.Context, obj *ent.PackageLoadMetrics) (string, error) {
-	panic(fmt.Errorf("not implemented: ID - id"))
+	return helpers.GraphQLIDFromTypeAndID("PackageLoadMetrics", obj.ID), nil
 }
 
 // LoadDuration is the resolver for the loadDuration field.
@@ -130,7 +125,7 @@ func (r *packageLoadMetricsResolver) LoadDuration(ctx context.Context, obj *ent.
 
 // ID is the resolver for the id field.
 func (r *packageMetricsResolver) ID(ctx context.Context, obj *ent.PackageMetrics) (string, error) {
-	panic(fmt.Errorf("not implemented: ID - id"))
+	return helpers.GraphQLIDFromTypeAndID("PackageMetrics", obj.ID), nil
 }
 
 // Node is the resolver for the node field.
@@ -195,29 +190,34 @@ func (r *queryResolver) FindBuilds(ctx context.Context, after *entgql.Cursor[int
 	return r.client.Build.Query().Paginate(ctx, after, first, before, last, ent.WithBuildFilter(where.Filter))
 }
 
+// FindMetrics is the resolver for the findMetrics field.
+func (r *queryResolver) FindMetrics(ctx context.Context, after *entgql.Cursor[int], first *int, before *entgql.Cursor[int], last *int, where *ent.MetricsWhereInput) (*ent.MetricsConnection, error) {
+	return r.client.Metrics.Query().Paginate(ctx, after, first, before, last, ent.WithMetricsFilter(where.Filter))
+}
+
 // ID is the resolver for the id field.
 func (r *raceStatisticsResolver) ID(ctx context.Context, obj *ent.RaceStatistics) (string, error) {
-	panic(fmt.Errorf("not implemented: ID - id"))
+	return helpers.GraphQLIDFromTypeAndID("RaceStatistics", obj.ID), nil
 }
 
 // ID is the resolver for the id field.
 func (r *runnerCountResolver) ID(ctx context.Context, obj *ent.RunnerCount) (string, error) {
-	panic(fmt.Errorf("not implemented: ID - id"))
+	return helpers.GraphQLIDFromTypeAndID("RunnerCount", obj.ID), nil
 }
 
 // ID is the resolver for the id field.
 func (r *systemNetworkStatsResolver) ID(ctx context.Context, obj *ent.SystemNetworkStats) (string, error) {
-	panic(fmt.Errorf("not implemented: ID - id"))
+	return helpers.GraphQLIDFromTypeAndID("SystemNetworkStats", obj.ID), nil
 }
 
 // ID is the resolver for the id field.
 func (r *targetMetricsResolver) ID(ctx context.Context, obj *ent.TargetMetrics) (string, error) {
-	panic(fmt.Errorf("not implemented: ID - id"))
+	return helpers.GraphQLIDFromTypeAndID("TargetMetrics", obj.ID), nil
 }
 
 // ID is the resolver for the id field.
 func (r *timingMetricsResolver) ID(ctx context.Context, obj *ent.TimingMetrics) (string, error) {
-	panic(fmt.Errorf("not implemented: ID - id"))
+	return helpers.GraphQLIDFromTypeAndID("TimingMetrics", obj.ID), nil
 }
 
 // ID is the resolver for the id field.

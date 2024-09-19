@@ -554,6 +554,9 @@ export type BazelInvocationWhereInput = {
   /** event_file edge predicates */
   hasEventFile?: InputMaybe<Scalars['Boolean']['input']>;
   hasEventFileWith?: InputMaybe<Array<EventFileWhereInput>>;
+  /** metrics edge predicates */
+  hasMetrics?: InputMaybe<Scalars['Boolean']['input']>;
+  hasMetricsWith?: InputMaybe<Array<MetricsWhereInput>>;
   /** problems edge predicates */
   hasProblems?: InputMaybe<Scalars['Boolean']['input']>;
   hasProblemsWith?: InputMaybe<Array<BazelInvocationProblemWhereInput>>;
@@ -1232,6 +1235,7 @@ export type Metrics = Node & {
   __typename?: 'Metrics';
   actionSummary?: Maybe<Array<ActionSummary>>;
   artifactMetrics?: Maybe<Array<ArtifactMetrics>>;
+  bazelInvocation?: Maybe<BazelInvocation>;
   cumulativeMetrics?: Maybe<Array<CumulativeMetrics>>;
   dynamicExecutionMetrics?: Maybe<Array<DynamicExecutionMetrics>>;
   id: Scalars['ID']['output'];
@@ -1240,6 +1244,26 @@ export type Metrics = Node & {
   packageMetrics?: Maybe<Array<PackageMetrics>>;
   targetMetrics?: Maybe<Array<TargetMetrics>>;
   timingMetrics?: Maybe<Array<TimingMetrics>>;
+};
+
+/** A connection to a list of items. */
+export type MetricsConnection = {
+  __typename?: 'MetricsConnection';
+  /** A list of edges. */
+  edges?: Maybe<Array<Maybe<MetricsEdge>>>;
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo;
+  /** Identifies the total count of items in the connection. */
+  totalCount: Scalars['Int']['output'];
+};
+
+/** An edge in a connection. */
+export type MetricsEdge = {
+  __typename?: 'MetricsEdge';
+  /** A cursor for use in pagination. */
+  cursor: Scalars['Cursor']['output'];
+  /** The item at the end of the edge. */
+  node?: Maybe<Metrics>;
 };
 
 /**
@@ -1254,6 +1278,9 @@ export type MetricsWhereInput = {
   /** artifact_metrics edge predicates */
   hasArtifactMetrics?: InputMaybe<Scalars['Boolean']['input']>;
   hasArtifactMetricsWith?: InputMaybe<Array<ArtifactMetricsWhereInput>>;
+  /** bazel_invocation edge predicates */
+  hasBazelInvocation?: InputMaybe<Scalars['Boolean']['input']>;
+  hasBazelInvocationWith?: InputMaybe<Array<BazelInvocationWhereInput>>;
   /** cumulative_metrics edge predicates */
   hasCumulativeMetrics?: InputMaybe<Scalars['Boolean']['input']>;
   hasCumulativeMetricsWith?: InputMaybe<Array<CumulativeMetricsWhereInput>>;
@@ -1293,7 +1320,7 @@ export type MissDetail = Node & {
   actionCacheStatistics?: Maybe<Array<ActionCacheStatistics>>;
   count?: Maybe<Scalars['Int']['output']>;
   id: Scalars['ID']['output'];
-  reason: MissDetailReason;
+  reason?: Maybe<MissDetailReason>;
 };
 
 /** MissDetailReason is enum for the field reason */
@@ -1342,8 +1369,10 @@ export type MissDetailWhereInput = {
   /** reason field predicates */
   reason?: InputMaybe<MissDetailReason>;
   reasonIn?: InputMaybe<Array<MissDetailReason>>;
+  reasonIsNil?: InputMaybe<Scalars['Boolean']['input']>;
   reasonNEQ?: InputMaybe<MissDetailReason>;
   reasonNotIn?: InputMaybe<Array<MissDetailReason>>;
+  reasonNotNil?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 export type NamedFile = {
@@ -1583,6 +1612,7 @@ export type Query = {
   bazelInvocation: BazelInvocation;
   findBazelInvocations: BazelInvocationConnection;
   findBuilds: BuildConnection;
+  findMetrics: MetricsConnection;
   getBuild?: Maybe<Build>;
   /** Fetches an object given its ID. */
   node?: Maybe<Node>;
@@ -1611,6 +1641,15 @@ export type QueryFindBuildsArgs = {
   first?: InputMaybe<Scalars['Int']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
   where?: InputMaybe<BuildWhereInput>;
+};
+
+
+export type QueryFindMetricsArgs = {
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  where?: InputMaybe<MetricsWhereInput>;
 };
 
 

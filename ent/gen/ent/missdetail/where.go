@@ -78,6 +78,16 @@ func ReasonNotIn(vs ...Reason) predicate.MissDetail {
 	return predicate.MissDetail(sql.FieldNotIn(FieldReason, vs...))
 }
 
+// ReasonIsNil applies the IsNil predicate on the "reason" field.
+func ReasonIsNil() predicate.MissDetail {
+	return predicate.MissDetail(sql.FieldIsNull(FieldReason))
+}
+
+// ReasonNotNil applies the NotNil predicate on the "reason" field.
+func ReasonNotNil() predicate.MissDetail {
+	return predicate.MissDetail(sql.FieldNotNull(FieldReason))
+}
+
 // CountEQ applies the EQ predicate on the "count" field.
 func CountEQ(v int32) predicate.MissDetail {
 	return predicate.MissDetail(sql.FieldEQ(FieldCount, v))

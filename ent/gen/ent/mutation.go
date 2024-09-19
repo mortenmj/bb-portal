@@ -3884,12 +3884,13 @@ type BazelInvocationMutation struct {
 	user_email         *string
 	user_ldap          *string
 	build_logs         *string
-	metrics            *summary.Metrics
 	clearedFields      map[string]struct{}
 	event_file         *int
 	clearedevent_file  bool
 	build              *int
 	clearedbuild       bool
+	metrics            *int
+	clearedmetrics     bool
 	problems           map[int]struct{}
 	removedproblems    map[int]struct{}
 	clearedproblems    bool
@@ -4561,55 +4562,6 @@ func (m *BazelInvocationMutation) ResetBuildLogs() {
 	delete(m.clearedFields, bazelinvocation.FieldBuildLogs)
 }
 
-// SetMetrics sets the "metrics" field.
-func (m *BazelInvocationMutation) SetMetrics(s summary.Metrics) {
-	m.metrics = &s
-}
-
-// Metrics returns the value of the "metrics" field in the mutation.
-func (m *BazelInvocationMutation) Metrics() (r summary.Metrics, exists bool) {
-	v := m.metrics
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldMetrics returns the old "metrics" field's value of the BazelInvocation entity.
-// If the BazelInvocation object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *BazelInvocationMutation) OldMetrics(ctx context.Context) (v summary.Metrics, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldMetrics is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldMetrics requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldMetrics: %w", err)
-	}
-	return oldValue.Metrics, nil
-}
-
-// ClearMetrics clears the value of the "metrics" field.
-func (m *BazelInvocationMutation) ClearMetrics() {
-	m.metrics = nil
-	m.clearedFields[bazelinvocation.FieldMetrics] = struct{}{}
-}
-
-// MetricsCleared returns if the "metrics" field was cleared in this mutation.
-func (m *BazelInvocationMutation) MetricsCleared() bool {
-	_, ok := m.clearedFields[bazelinvocation.FieldMetrics]
-	return ok
-}
-
-// ResetMetrics resets all changes to the "metrics" field.
-func (m *BazelInvocationMutation) ResetMetrics() {
-	m.metrics = nil
-	delete(m.clearedFields, bazelinvocation.FieldMetrics)
-}
-
 // SetEventFileID sets the "event_file" edge to the EventFile entity by id.
 func (m *BazelInvocationMutation) SetEventFileID(id int) {
 	m.event_file = &id
@@ -4686,6 +4638,45 @@ func (m *BazelInvocationMutation) BuildIDs() (ids []int) {
 func (m *BazelInvocationMutation) ResetBuild() {
 	m.build = nil
 	m.clearedbuild = false
+}
+
+// SetMetricsID sets the "metrics" edge to the Metrics entity by id.
+func (m *BazelInvocationMutation) SetMetricsID(id int) {
+	m.metrics = &id
+}
+
+// ClearMetrics clears the "metrics" edge to the Metrics entity.
+func (m *BazelInvocationMutation) ClearMetrics() {
+	m.clearedmetrics = true
+}
+
+// MetricsCleared reports if the "metrics" edge to the Metrics entity was cleared.
+func (m *BazelInvocationMutation) MetricsCleared() bool {
+	return m.clearedmetrics
+}
+
+// MetricsID returns the "metrics" edge ID in the mutation.
+func (m *BazelInvocationMutation) MetricsID() (id int, exists bool) {
+	if m.metrics != nil {
+		return *m.metrics, true
+	}
+	return
+}
+
+// MetricsIDs returns the "metrics" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// MetricsID instead. It exists only for internal usage by the builders.
+func (m *BazelInvocationMutation) MetricsIDs() (ids []int) {
+	if id := m.metrics; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetMetrics resets all changes to the "metrics" edge.
+func (m *BazelInvocationMutation) ResetMetrics() {
+	m.metrics = nil
+	m.clearedmetrics = false
 }
 
 // AddProblemIDs adds the "problems" edge to the BazelInvocationProblem entity by ids.
@@ -4776,7 +4767,7 @@ func (m *BazelInvocationMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *BazelInvocationMutation) Fields() []string {
-	fields := make([]string, 0, 13)
+	fields := make([]string, 0, 12)
 	if m.invocation_id != nil {
 		fields = append(fields, bazelinvocation.FieldInvocationID)
 	}
@@ -4813,9 +4804,6 @@ func (m *BazelInvocationMutation) Fields() []string {
 	if m.build_logs != nil {
 		fields = append(fields, bazelinvocation.FieldBuildLogs)
 	}
-	if m.metrics != nil {
-		fields = append(fields, bazelinvocation.FieldMetrics)
-	}
 	return fields
 }
 
@@ -4848,8 +4836,6 @@ func (m *BazelInvocationMutation) Field(name string) (ent.Value, bool) {
 		return m.UserLdap()
 	case bazelinvocation.FieldBuildLogs:
 		return m.BuildLogs()
-	case bazelinvocation.FieldMetrics:
-		return m.Metrics()
 	}
 	return nil, false
 }
@@ -4883,8 +4869,6 @@ func (m *BazelInvocationMutation) OldField(ctx context.Context, name string) (en
 		return m.OldUserLdap(ctx)
 	case bazelinvocation.FieldBuildLogs:
 		return m.OldBuildLogs(ctx)
-	case bazelinvocation.FieldMetrics:
-		return m.OldMetrics(ctx)
 	}
 	return nil, fmt.Errorf("unknown BazelInvocation field %s", name)
 }
@@ -4978,13 +4962,6 @@ func (m *BazelInvocationMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetBuildLogs(v)
 		return nil
-	case bazelinvocation.FieldMetrics:
-		v, ok := value.(summary.Metrics)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetMetrics(v)
-		return nil
 	}
 	return fmt.Errorf("unknown BazelInvocation field %s", name)
 }
@@ -5063,9 +5040,6 @@ func (m *BazelInvocationMutation) ClearedFields() []string {
 	if m.FieldCleared(bazelinvocation.FieldBuildLogs) {
 		fields = append(fields, bazelinvocation.FieldBuildLogs)
 	}
-	if m.FieldCleared(bazelinvocation.FieldMetrics) {
-		fields = append(fields, bazelinvocation.FieldMetrics)
-	}
 	return fields
 }
 
@@ -5100,9 +5074,6 @@ func (m *BazelInvocationMutation) ClearField(name string) error {
 		return nil
 	case bazelinvocation.FieldBuildLogs:
 		m.ClearBuildLogs()
-		return nil
-	case bazelinvocation.FieldMetrics:
-		m.ClearMetrics()
 		return nil
 	}
 	return fmt.Errorf("unknown BazelInvocation nullable field %s", name)
@@ -5148,21 +5119,21 @@ func (m *BazelInvocationMutation) ResetField(name string) error {
 	case bazelinvocation.FieldBuildLogs:
 		m.ResetBuildLogs()
 		return nil
-	case bazelinvocation.FieldMetrics:
-		m.ResetMetrics()
-		return nil
 	}
 	return fmt.Errorf("unknown BazelInvocation field %s", name)
 }
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *BazelInvocationMutation) AddedEdges() []string {
-	edges := make([]string, 0, 3)
+	edges := make([]string, 0, 4)
 	if m.event_file != nil {
 		edges = append(edges, bazelinvocation.EdgeEventFile)
 	}
 	if m.build != nil {
 		edges = append(edges, bazelinvocation.EdgeBuild)
+	}
+	if m.metrics != nil {
+		edges = append(edges, bazelinvocation.EdgeMetrics)
 	}
 	if m.problems != nil {
 		edges = append(edges, bazelinvocation.EdgeProblems)
@@ -5182,6 +5153,10 @@ func (m *BazelInvocationMutation) AddedIDs(name string) []ent.Value {
 		if id := m.build; id != nil {
 			return []ent.Value{*id}
 		}
+	case bazelinvocation.EdgeMetrics:
+		if id := m.metrics; id != nil {
+			return []ent.Value{*id}
+		}
 	case bazelinvocation.EdgeProblems:
 		ids := make([]ent.Value, 0, len(m.problems))
 		for id := range m.problems {
@@ -5194,7 +5169,7 @@ func (m *BazelInvocationMutation) AddedIDs(name string) []ent.Value {
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *BazelInvocationMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 3)
+	edges := make([]string, 0, 4)
 	if m.removedproblems != nil {
 		edges = append(edges, bazelinvocation.EdgeProblems)
 	}
@@ -5217,12 +5192,15 @@ func (m *BazelInvocationMutation) RemovedIDs(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *BazelInvocationMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 3)
+	edges := make([]string, 0, 4)
 	if m.clearedevent_file {
 		edges = append(edges, bazelinvocation.EdgeEventFile)
 	}
 	if m.clearedbuild {
 		edges = append(edges, bazelinvocation.EdgeBuild)
+	}
+	if m.clearedmetrics {
+		edges = append(edges, bazelinvocation.EdgeMetrics)
 	}
 	if m.clearedproblems {
 		edges = append(edges, bazelinvocation.EdgeProblems)
@@ -5238,6 +5216,8 @@ func (m *BazelInvocationMutation) EdgeCleared(name string) bool {
 		return m.clearedevent_file
 	case bazelinvocation.EdgeBuild:
 		return m.clearedbuild
+	case bazelinvocation.EdgeMetrics:
+		return m.clearedmetrics
 	case bazelinvocation.EdgeProblems:
 		return m.clearedproblems
 	}
@@ -5254,6 +5234,9 @@ func (m *BazelInvocationMutation) ClearEdge(name string) error {
 	case bazelinvocation.EdgeBuild:
 		m.ClearBuild()
 		return nil
+	case bazelinvocation.EdgeMetrics:
+		m.ClearMetrics()
+		return nil
 	}
 	return fmt.Errorf("unknown BazelInvocation unique edge %s", name)
 }
@@ -5267,6 +5250,9 @@ func (m *BazelInvocationMutation) ResetEdge(name string) error {
 		return nil
 	case bazelinvocation.EdgeBuild:
 		m.ResetBuild()
+		return nil
+	case bazelinvocation.EdgeMetrics:
+		m.ResetMetrics()
 		return nil
 	case bazelinvocation.EdgeProblems:
 		m.ResetProblems()
@@ -10586,6 +10572,8 @@ type MetricsMutation struct {
 	typ                              string
 	id                               *int
 	clearedFields                    map[string]struct{}
+	bazel_invocation                 *int
+	clearedbazel_invocation          bool
 	action_summary                   map[int]struct{}
 	removedaction_summary            map[int]struct{}
 	clearedaction_summary            bool
@@ -10714,6 +10702,45 @@ func (m *MetricsMutation) IDs(ctx context.Context) ([]int, error) {
 	default:
 		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
 	}
+}
+
+// SetBazelInvocationID sets the "bazel_invocation" edge to the BazelInvocation entity by id.
+func (m *MetricsMutation) SetBazelInvocationID(id int) {
+	m.bazel_invocation = &id
+}
+
+// ClearBazelInvocation clears the "bazel_invocation" edge to the BazelInvocation entity.
+func (m *MetricsMutation) ClearBazelInvocation() {
+	m.clearedbazel_invocation = true
+}
+
+// BazelInvocationCleared reports if the "bazel_invocation" edge to the BazelInvocation entity was cleared.
+func (m *MetricsMutation) BazelInvocationCleared() bool {
+	return m.clearedbazel_invocation
+}
+
+// BazelInvocationID returns the "bazel_invocation" edge ID in the mutation.
+func (m *MetricsMutation) BazelInvocationID() (id int, exists bool) {
+	if m.bazel_invocation != nil {
+		return *m.bazel_invocation, true
+	}
+	return
+}
+
+// BazelInvocationIDs returns the "bazel_invocation" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// BazelInvocationID instead. It exists only for internal usage by the builders.
+func (m *MetricsMutation) BazelInvocationIDs() (ids []int) {
+	if id := m.bazel_invocation; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetBazelInvocation resets all changes to the "bazel_invocation" edge.
+func (m *MetricsMutation) ResetBazelInvocation() {
+	m.bazel_invocation = nil
+	m.clearedbazel_invocation = false
 }
 
 // AddActionSummaryIDs adds the "action_summary" edge to the ActionSummary entity by ids.
@@ -11310,7 +11337,10 @@ func (m *MetricsMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *MetricsMutation) AddedEdges() []string {
-	edges := make([]string, 0, 9)
+	edges := make([]string, 0, 10)
+	if m.bazel_invocation != nil {
+		edges = append(edges, metrics.EdgeBazelInvocation)
+	}
 	if m.action_summary != nil {
 		edges = append(edges, metrics.EdgeActionSummary)
 	}
@@ -11345,6 +11375,10 @@ func (m *MetricsMutation) AddedEdges() []string {
 // name in this mutation.
 func (m *MetricsMutation) AddedIDs(name string) []ent.Value {
 	switch name {
+	case metrics.EdgeBazelInvocation:
+		if id := m.bazel_invocation; id != nil {
+			return []ent.Value{*id}
+		}
 	case metrics.EdgeActionSummary:
 		ids := make([]ent.Value, 0, len(m.action_summary))
 		for id := range m.action_summary {
@@ -11405,7 +11439,7 @@ func (m *MetricsMutation) AddedIDs(name string) []ent.Value {
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *MetricsMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 9)
+	edges := make([]string, 0, 10)
 	if m.removedaction_summary != nil {
 		edges = append(edges, metrics.EdgeActionSummary)
 	}
@@ -11500,7 +11534,10 @@ func (m *MetricsMutation) RemovedIDs(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *MetricsMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 9)
+	edges := make([]string, 0, 10)
+	if m.clearedbazel_invocation {
+		edges = append(edges, metrics.EdgeBazelInvocation)
+	}
 	if m.clearedaction_summary {
 		edges = append(edges, metrics.EdgeActionSummary)
 	}
@@ -11535,6 +11572,8 @@ func (m *MetricsMutation) ClearedEdges() []string {
 // was cleared in this mutation.
 func (m *MetricsMutation) EdgeCleared(name string) bool {
 	switch name {
+	case metrics.EdgeBazelInvocation:
+		return m.clearedbazel_invocation
 	case metrics.EdgeActionSummary:
 		return m.clearedaction_summary
 	case metrics.EdgeMemoryMetrics:
@@ -11561,6 +11600,9 @@ func (m *MetricsMutation) EdgeCleared(name string) bool {
 // if that edge is not defined in the schema.
 func (m *MetricsMutation) ClearEdge(name string) error {
 	switch name {
+	case metrics.EdgeBazelInvocation:
+		m.ClearBazelInvocation()
+		return nil
 	}
 	return fmt.Errorf("unknown Metrics unique edge %s", name)
 }
@@ -11569,6 +11611,9 @@ func (m *MetricsMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *MetricsMutation) ResetEdge(name string) error {
 	switch name {
+	case metrics.EdgeBazelInvocation:
+		m.ResetBazelInvocation()
+		return nil
 	case metrics.EdgeActionSummary:
 		m.ResetActionSummary()
 		return nil
@@ -11747,9 +11792,22 @@ func (m *MissDetailMutation) OldReason(ctx context.Context) (v missdetail.Reason
 	return oldValue.Reason, nil
 }
 
+// ClearReason clears the value of the "reason" field.
+func (m *MissDetailMutation) ClearReason() {
+	m.reason = nil
+	m.clearedFields[missdetail.FieldReason] = struct{}{}
+}
+
+// ReasonCleared returns if the "reason" field was cleared in this mutation.
+func (m *MissDetailMutation) ReasonCleared() bool {
+	_, ok := m.clearedFields[missdetail.FieldReason]
+	return ok
+}
+
 // ResetReason resets all changes to the "reason" field.
 func (m *MissDetailMutation) ResetReason() {
 	m.reason = nil
+	delete(m.clearedFields, missdetail.FieldReason)
 }
 
 // SetCount sets the "count" field.
@@ -12010,6 +12068,9 @@ func (m *MissDetailMutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *MissDetailMutation) ClearedFields() []string {
 	var fields []string
+	if m.FieldCleared(missdetail.FieldReason) {
+		fields = append(fields, missdetail.FieldReason)
+	}
 	if m.FieldCleared(missdetail.FieldCount) {
 		fields = append(fields, missdetail.FieldCount)
 	}
@@ -12027,6 +12088,9 @@ func (m *MissDetailMutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *MissDetailMutation) ClearField(name string) error {
 	switch name {
+	case missdetail.FieldReason:
+		m.ClearReason()
+		return nil
 	case missdetail.FieldCount:
 		m.ClearCount()
 		return nil

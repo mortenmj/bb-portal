@@ -15,6 +15,7 @@ import (
 	"github.com/buildbarn/bb-portal/ent/gen/ent/bazelinvocationproblem"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/build"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/eventfile"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/metrics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/predicate"
 	"github.com/buildbarn/bb-portal/pkg/summary"
 )
@@ -234,26 +235,6 @@ func (biu *BazelInvocationUpdate) ClearBuildLogs() *BazelInvocationUpdate {
 	return biu
 }
 
-// SetMetrics sets the "metrics" field.
-func (biu *BazelInvocationUpdate) SetMetrics(s summary.Metrics) *BazelInvocationUpdate {
-	biu.mutation.SetMetrics(s)
-	return biu
-}
-
-// SetNillableMetrics sets the "metrics" field if the given value is not nil.
-func (biu *BazelInvocationUpdate) SetNillableMetrics(s *summary.Metrics) *BazelInvocationUpdate {
-	if s != nil {
-		biu.SetMetrics(*s)
-	}
-	return biu
-}
-
-// ClearMetrics clears the value of the "metrics" field.
-func (biu *BazelInvocationUpdate) ClearMetrics() *BazelInvocationUpdate {
-	biu.mutation.ClearMetrics()
-	return biu
-}
-
 // SetEventFileID sets the "event_file" edge to the EventFile entity by ID.
 func (biu *BazelInvocationUpdate) SetEventFileID(id int) *BazelInvocationUpdate {
 	biu.mutation.SetEventFileID(id)
@@ -282,6 +263,25 @@ func (biu *BazelInvocationUpdate) SetNillableBuildID(id *int) *BazelInvocationUp
 // SetBuild sets the "build" edge to the Build entity.
 func (biu *BazelInvocationUpdate) SetBuild(b *Build) *BazelInvocationUpdate {
 	return biu.SetBuildID(b.ID)
+}
+
+// SetMetricsID sets the "metrics" edge to the Metrics entity by ID.
+func (biu *BazelInvocationUpdate) SetMetricsID(id int) *BazelInvocationUpdate {
+	biu.mutation.SetMetricsID(id)
+	return biu
+}
+
+// SetNillableMetricsID sets the "metrics" edge to the Metrics entity by ID if the given value is not nil.
+func (biu *BazelInvocationUpdate) SetNillableMetricsID(id *int) *BazelInvocationUpdate {
+	if id != nil {
+		biu = biu.SetMetricsID(*id)
+	}
+	return biu
+}
+
+// SetMetrics sets the "metrics" edge to the Metrics entity.
+func (biu *BazelInvocationUpdate) SetMetrics(m *Metrics) *BazelInvocationUpdate {
+	return biu.SetMetricsID(m.ID)
 }
 
 // AddProblemIDs adds the "problems" edge to the BazelInvocationProblem entity by IDs.
@@ -313,6 +313,12 @@ func (biu *BazelInvocationUpdate) ClearEventFile() *BazelInvocationUpdate {
 // ClearBuild clears the "build" edge to the Build entity.
 func (biu *BazelInvocationUpdate) ClearBuild() *BazelInvocationUpdate {
 	biu.mutation.ClearBuild()
+	return biu
+}
+
+// ClearMetrics clears the "metrics" edge to the Metrics entity.
+func (biu *BazelInvocationUpdate) ClearMetrics() *BazelInvocationUpdate {
+	biu.mutation.ClearMetrics()
 	return biu
 }
 
@@ -444,12 +450,6 @@ func (biu *BazelInvocationUpdate) sqlSave(ctx context.Context) (n int, err error
 	if biu.mutation.BuildLogsCleared() {
 		_spec.ClearField(bazelinvocation.FieldBuildLogs, field.TypeString)
 	}
-	if value, ok := biu.mutation.Metrics(); ok {
-		_spec.SetField(bazelinvocation.FieldMetrics, field.TypeJSON, value)
-	}
-	if biu.mutation.MetricsCleared() {
-		_spec.ClearField(bazelinvocation.FieldMetrics, field.TypeJSON)
-	}
 	if biu.mutation.EventFileCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
@@ -501,6 +501,35 @@ func (biu *BazelInvocationUpdate) sqlSave(ctx context.Context) (n int, err error
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(build.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if biu.mutation.MetricsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   bazelinvocation.MetricsTable,
+			Columns: []string{bazelinvocation.MetricsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(metrics.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := biu.mutation.MetricsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   bazelinvocation.MetricsTable,
+			Columns: []string{bazelinvocation.MetricsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(metrics.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -775,26 +804,6 @@ func (biuo *BazelInvocationUpdateOne) ClearBuildLogs() *BazelInvocationUpdateOne
 	return biuo
 }
 
-// SetMetrics sets the "metrics" field.
-func (biuo *BazelInvocationUpdateOne) SetMetrics(s summary.Metrics) *BazelInvocationUpdateOne {
-	biuo.mutation.SetMetrics(s)
-	return biuo
-}
-
-// SetNillableMetrics sets the "metrics" field if the given value is not nil.
-func (biuo *BazelInvocationUpdateOne) SetNillableMetrics(s *summary.Metrics) *BazelInvocationUpdateOne {
-	if s != nil {
-		biuo.SetMetrics(*s)
-	}
-	return biuo
-}
-
-// ClearMetrics clears the value of the "metrics" field.
-func (biuo *BazelInvocationUpdateOne) ClearMetrics() *BazelInvocationUpdateOne {
-	biuo.mutation.ClearMetrics()
-	return biuo
-}
-
 // SetEventFileID sets the "event_file" edge to the EventFile entity by ID.
 func (biuo *BazelInvocationUpdateOne) SetEventFileID(id int) *BazelInvocationUpdateOne {
 	biuo.mutation.SetEventFileID(id)
@@ -823,6 +832,25 @@ func (biuo *BazelInvocationUpdateOne) SetNillableBuildID(id *int) *BazelInvocati
 // SetBuild sets the "build" edge to the Build entity.
 func (biuo *BazelInvocationUpdateOne) SetBuild(b *Build) *BazelInvocationUpdateOne {
 	return biuo.SetBuildID(b.ID)
+}
+
+// SetMetricsID sets the "metrics" edge to the Metrics entity by ID.
+func (biuo *BazelInvocationUpdateOne) SetMetricsID(id int) *BazelInvocationUpdateOne {
+	biuo.mutation.SetMetricsID(id)
+	return biuo
+}
+
+// SetNillableMetricsID sets the "metrics" edge to the Metrics entity by ID if the given value is not nil.
+func (biuo *BazelInvocationUpdateOne) SetNillableMetricsID(id *int) *BazelInvocationUpdateOne {
+	if id != nil {
+		biuo = biuo.SetMetricsID(*id)
+	}
+	return biuo
+}
+
+// SetMetrics sets the "metrics" edge to the Metrics entity.
+func (biuo *BazelInvocationUpdateOne) SetMetrics(m *Metrics) *BazelInvocationUpdateOne {
+	return biuo.SetMetricsID(m.ID)
 }
 
 // AddProblemIDs adds the "problems" edge to the BazelInvocationProblem entity by IDs.
@@ -854,6 +882,12 @@ func (biuo *BazelInvocationUpdateOne) ClearEventFile() *BazelInvocationUpdateOne
 // ClearBuild clears the "build" edge to the Build entity.
 func (biuo *BazelInvocationUpdateOne) ClearBuild() *BazelInvocationUpdateOne {
 	biuo.mutation.ClearBuild()
+	return biuo
+}
+
+// ClearMetrics clears the "metrics" edge to the Metrics entity.
+func (biuo *BazelInvocationUpdateOne) ClearMetrics() *BazelInvocationUpdateOne {
+	biuo.mutation.ClearMetrics()
 	return biuo
 }
 
@@ -1015,12 +1049,6 @@ func (biuo *BazelInvocationUpdateOne) sqlSave(ctx context.Context) (_node *Bazel
 	if biuo.mutation.BuildLogsCleared() {
 		_spec.ClearField(bazelinvocation.FieldBuildLogs, field.TypeString)
 	}
-	if value, ok := biuo.mutation.Metrics(); ok {
-		_spec.SetField(bazelinvocation.FieldMetrics, field.TypeJSON, value)
-	}
-	if biuo.mutation.MetricsCleared() {
-		_spec.ClearField(bazelinvocation.FieldMetrics, field.TypeJSON)
-	}
 	if biuo.mutation.EventFileCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
@@ -1072,6 +1100,35 @@ func (biuo *BazelInvocationUpdateOne) sqlSave(ctx context.Context) (_node *Bazel
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(build.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if biuo.mutation.MetricsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   bazelinvocation.MetricsTable,
+			Columns: []string{bazelinvocation.MetricsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(metrics.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := biuo.mutation.MetricsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   bazelinvocation.MetricsTable,
+			Columns: []string{bazelinvocation.MetricsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(metrics.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

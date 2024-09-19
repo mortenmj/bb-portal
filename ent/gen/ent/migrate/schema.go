@@ -88,7 +88,6 @@ var (
 		{Name: "user_email", Type: field.TypeString, Nullable: true},
 		{Name: "user_ldap", Type: field.TypeString, Nullable: true},
 		{Name: "build_logs", Type: field.TypeString, Nullable: true},
-		{Name: "metrics", Type: field.TypeJSON, Nullable: true},
 		{Name: "build_invocations", Type: field.TypeInt, Nullable: true},
 		{Name: "event_file_bazel_invocation", Type: field.TypeInt, Unique: true},
 	}
@@ -100,13 +99,13 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "bazel_invocations_builds_invocations",
-				Columns:    []*schema.Column{BazelInvocationsColumns[14]},
+				Columns:    []*schema.Column{BazelInvocationsColumns[13]},
 				RefColumns: []*schema.Column{BuildsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "bazel_invocations_event_files_bazel_invocation",
-				Columns:    []*schema.Column{BazelInvocationsColumns[15]},
+				Columns:    []*schema.Column{BazelInvocationsColumns[14]},
 				RefColumns: []*schema.Column{EventFilesColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -284,17 +283,26 @@ var (
 	// MetricsColumns holds the columns for the "metrics" table.
 	MetricsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "bazel_invocation_metrics", Type: field.TypeInt, Unique: true, Nullable: true},
 	}
 	// MetricsTable holds the schema information for the "metrics" table.
 	MetricsTable = &schema.Table{
 		Name:       "metrics",
 		Columns:    MetricsColumns,
 		PrimaryKey: []*schema.Column{MetricsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "metrics_bazel_invocations_metrics",
+				Columns:    []*schema.Column{MetricsColumns[1]},
+				RefColumns: []*schema.Column{BazelInvocationsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
 	}
 	// MissDetailsColumns holds the columns for the "miss_details" table.
 	MissDetailsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "reason", Type: field.TypeEnum, Enums: []string{"DIFFERENT_ACTION_KEY", "DIFFERENT_DEPS", "DIFFERENT_ENVIRONMENT", "DIFFERENT_FILES", "CORRUPTED_CACHE_ENTRY", "NOT_CACHED", "UNCONDITIONAL_EXECUTION", "UNKNOWN"}, Default: "UNKNOWN"},
+		{Name: "reason", Type: field.TypeEnum, Nullable: true, Enums: []string{"DIFFERENT_ACTION_KEY", "DIFFERENT_DEPS", "DIFFERENT_ENVIRONMENT", "DIFFERENT_FILES", "CORRUPTED_CACHE_ENTRY", "NOT_CACHED", "UNCONDITIONAL_EXECUTION", "UNKNOWN"}, Default: "UNKNOWN"},
 		{Name: "count", Type: field.TypeInt32, Nullable: true},
 	}
 	// MissDetailsTable holds the schema information for the "miss_details" table.
@@ -876,6 +884,7 @@ func init() {
 	FilesMetricsTable.ForeignKeys[0].RefTable = ArtifactMetricsTable
 	FilesMetricsTable.ForeignKeys[1].RefTable = ArtifactMetricsTable
 	FilesMetricsTable.ForeignKeys[2].RefTable = ArtifactMetricsTable
+	MetricsTable.ForeignKeys[0].RefTable = BazelInvocationsTable
 	SystemNetworkStatsTable.ForeignKeys[0].RefTable = NetworkMetricsTable
 	ActionCacheStatisticsMissDetailsTable.ForeignKeys[0].RefTable = ActionCacheStatisticsTable
 	ActionCacheStatisticsMissDetailsTable.ForeignKeys[1].RefTable = MissDetailsTable

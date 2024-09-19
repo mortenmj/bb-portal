@@ -164,6 +164,14 @@ func (bi *BazelInvocation) Build(ctx context.Context) (*Build, error) {
 	return result, MaskNotFound(err)
 }
 
+func (bi *BazelInvocation) Metrics(ctx context.Context) (*Metrics, error) {
+	result, err := bi.Edges.MetricsOrErr()
+	if IsNotLoaded(err) {
+		result, err = bi.QueryMetrics().Only(ctx)
+	}
+	return result, MaskNotFound(err)
+}
+
 func (bip *BazelInvocationProblem) BazelInvocation(ctx context.Context) (*BazelInvocation, error) {
 	result, err := bip.Edges.BazelInvocationOrErr()
 	if IsNotLoaded(err) {
@@ -274,6 +282,14 @@ func (mm *MemoryMetrics) Metrics(ctx context.Context) (result []*Metrics, err er
 		result, err = mm.QueryMetrics().All(ctx)
 	}
 	return result, err
+}
+
+func (m *Metrics) BazelInvocation(ctx context.Context) (*BazelInvocation, error) {
+	result, err := m.Edges.BazelInvocationOrErr()
+	if IsNotLoaded(err) {
+		result, err = m.QueryBazelInvocation().Only(ctx)
+	}
+	return result, MaskNotFound(err)
 }
 
 func (m *Metrics) ActionSummary(ctx context.Context) (result []*ActionSummary, err error) {

@@ -1640,6 +1640,10 @@ type BazelInvocationWhereInput struct {
 	HasBuild     *bool              `json:"hasBuild,omitempty"`
 	HasBuildWith []*BuildWhereInput `json:"hasBuildWith,omitempty"`
 
+	// "metrics" edge predicates.
+	HasMetrics     *bool                `json:"hasMetrics,omitempty"`
+	HasMetricsWith []*MetricsWhereInput `json:"hasMetricsWith,omitempty"`
+
 	// "problems" edge predicates.
 	HasProblems     *bool                               `json:"hasProblems,omitempty"`
 	HasProblemsWith []*BazelInvocationProblemWhereInput `json:"hasProblemsWith,omitempty"`
@@ -2100,6 +2104,24 @@ func (i *BazelInvocationWhereInput) P() (predicate.BazelInvocation, error) {
 			with = append(with, p)
 		}
 		predicates = append(predicates, bazelinvocation.HasBuildWith(with...))
+	}
+	if i.HasMetrics != nil {
+		p := bazelinvocation.HasMetrics()
+		if !*i.HasMetrics {
+			p = bazelinvocation.Not(p)
+		}
+		predicates = append(predicates, p)
+	}
+	if len(i.HasMetricsWith) > 0 {
+		with := make([]predicate.Metrics, 0, len(i.HasMetricsWith))
+		for _, w := range i.HasMetricsWith {
+			p, err := w.P()
+			if err != nil {
+				return nil, fmt.Errorf("%w: field 'HasMetricsWith'", err)
+			}
+			with = append(with, p)
+		}
+		predicates = append(predicates, bazelinvocation.HasMetricsWith(with...))
 	}
 	if i.HasProblems != nil {
 		p := bazelinvocation.HasProblems()
@@ -4626,6 +4648,10 @@ type MetricsWhereInput struct {
 	IDLT    *int  `json:"idLT,omitempty"`
 	IDLTE   *int  `json:"idLTE,omitempty"`
 
+	// "bazel_invocation" edge predicates.
+	HasBazelInvocation     *bool                        `json:"hasBazelInvocation,omitempty"`
+	HasBazelInvocationWith []*BazelInvocationWhereInput `json:"hasBazelInvocationWith,omitempty"`
+
 	// "action_summary" edge predicates.
 	HasActionSummary     *bool                      `json:"hasActionSummary,omitempty"`
 	HasActionSummaryWith []*ActionSummaryWhereInput `json:"hasActionSummaryWith,omitempty"`
@@ -4759,6 +4785,24 @@ func (i *MetricsWhereInput) P() (predicate.Metrics, error) {
 		predicates = append(predicates, metrics.IDLTE(*i.IDLTE))
 	}
 
+	if i.HasBazelInvocation != nil {
+		p := metrics.HasBazelInvocation()
+		if !*i.HasBazelInvocation {
+			p = metrics.Not(p)
+		}
+		predicates = append(predicates, p)
+	}
+	if len(i.HasBazelInvocationWith) > 0 {
+		with := make([]predicate.BazelInvocation, 0, len(i.HasBazelInvocationWith))
+		for _, w := range i.HasBazelInvocationWith {
+			p, err := w.P()
+			if err != nil {
+				return nil, fmt.Errorf("%w: field 'HasBazelInvocationWith'", err)
+			}
+			with = append(with, p)
+		}
+		predicates = append(predicates, metrics.HasBazelInvocationWith(with...))
+	}
 	if i.HasActionSummary != nil {
 		p := metrics.HasActionSummary()
 		if !*i.HasActionSummary {
@@ -4949,10 +4993,12 @@ type MissDetailWhereInput struct {
 	IDLTE   *int  `json:"idLTE,omitempty"`
 
 	// "reason" field predicates.
-	Reason      *missdetail.Reason  `json:"reason,omitempty"`
-	ReasonNEQ   *missdetail.Reason  `json:"reasonNEQ,omitempty"`
-	ReasonIn    []missdetail.Reason `json:"reasonIn,omitempty"`
-	ReasonNotIn []missdetail.Reason `json:"reasonNotIn,omitempty"`
+	Reason       *missdetail.Reason  `json:"reason,omitempty"`
+	ReasonNEQ    *missdetail.Reason  `json:"reasonNEQ,omitempty"`
+	ReasonIn     []missdetail.Reason `json:"reasonIn,omitempty"`
+	ReasonNotIn  []missdetail.Reason `json:"reasonNotIn,omitempty"`
+	ReasonIsNil  bool                `json:"reasonIsNil,omitempty"`
+	ReasonNotNil bool                `json:"reasonNotNil,omitempty"`
 
 	// "count" field predicates.
 	Count       *int32  `json:"count,omitempty"`
@@ -5077,6 +5123,12 @@ func (i *MissDetailWhereInput) P() (predicate.MissDetail, error) {
 	}
 	if len(i.ReasonNotIn) > 0 {
 		predicates = append(predicates, missdetail.ReasonNotIn(i.ReasonNotIn...))
+	}
+	if i.ReasonIsNil {
+		predicates = append(predicates, missdetail.ReasonIsNil())
+	}
+	if i.ReasonNotNil {
+		predicates = append(predicates, missdetail.ReasonNotNil())
 	}
 	if i.Count != nil {
 		predicates = append(predicates, missdetail.CountEQ(*i.Count))

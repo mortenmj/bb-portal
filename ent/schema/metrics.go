@@ -1,7 +1,9 @@
 package schema
 
 import (
+	"entgo.io/contrib/entgql"
 	"entgo.io/ent"
+	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/edge"
 )
 
@@ -18,6 +20,9 @@ func (Metrics) Fields() []ent.Field {
 // Edges of the BazelInvocation.
 func (Metrics) Edges() []ent.Edge {
 	return []ent.Edge{
+		edge.From("bazel_invocation", BazelInvocation.Type).
+			Ref("metrics").
+			Unique(),
 		edge.To("action_summary", ActionSummary.Type),
 		//Annotations(entgql.Skip(entgql.SkipType)), // NOTE: Uses custom resolver / types.
 		edge.To("memory_metrics", MemoryMetrics.Type),
@@ -36,5 +41,12 @@ func (Metrics) Edges() []ent.Edge {
 		//Annotations(entgql.Skip(entgql.SkipType)), // NOTE: Uses custom resolver / types.
 		edge.To("dynamic_execution_metrics", DynamicExecutionMetrics.Type),
 		//Annotations(entgql.Skip(entgql.SkipType)), // NOTE: Uses custom resolver / types.
+	}
+}
+
+func (Metrics) Annotations() []schema.Annotation {
+	return []schema.Annotation{
+		entgql.RelayConnection(),
+		entgql.QueryField("findMetrics"),
 	}
 }

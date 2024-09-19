@@ -405,9 +405,9 @@ type BazelInvocation implements Node {
   userEmail: String
   userLdap: String
   buildLogs: String
-  metrics: Metrics
   eventFile: EventFile!
   build: Build
+  metrics: Metrics
 }
 """
 A connection to a list of items.
@@ -669,6 +669,11 @@ input BazelInvocationWhereInput {
   """
   hasBuild: Boolean
   hasBuildWith: [BuildWhereInput!]
+  """
+  metrics edge predicates
+  """
+  hasMetrics: Boolean
+  hasMetricsWith: [MetricsWhereInput!]
   """
   problems edge predicates
   """
@@ -1295,6 +1300,7 @@ input MemoryMetricsWhereInput {
 }
 type Metrics implements Node {
   id: ID!
+  bazelInvocation: BazelInvocation
   actionSummary: [ActionSummary!]
   memoryMetrics: [MemoryMetrics!]
   targetMetrics: [TargetMetrics!]
@@ -1304,6 +1310,36 @@ type Metrics implements Node {
   artifactMetrics: [ArtifactMetrics!]
   networkMetrics: [NetworkMetrics!]
   dynamicExecutionMetrics: [DynamicExecutionMetrics!]
+}
+"""
+A connection to a list of items.
+"""
+type MetricsConnection {
+  """
+  A list of edges.
+  """
+  edges: [MetricsEdge]
+  """
+  Information to aid in pagination.
+  """
+  pageInfo: PageInfo!
+  """
+  Identifies the total count of items in the connection.
+  """
+  totalCount: Int!
+}
+"""
+An edge in a connection.
+"""
+type MetricsEdge {
+  """
+  The item at the end of the edge.
+  """
+  node: Metrics
+  """
+  A cursor for use in pagination.
+  """
+  cursor: Cursor!
 }
 """
 MetricsWhereInput is used for filtering Metrics objects.
@@ -1324,6 +1360,11 @@ input MetricsWhereInput {
   idGTE: ID
   idLT: ID
   idLTE: ID
+  """
+  bazel_invocation edge predicates
+  """
+  hasBazelInvocation: Boolean
+  hasBazelInvocationWith: [BazelInvocationWhereInput!]
   """
   action_summary edge predicates
   """
@@ -1372,7 +1413,7 @@ input MetricsWhereInput {
 }
 type MissDetail implements Node {
   id: ID!
-  reason: MissDetailReason!
+  reason: MissDetailReason
   count: Int
   actionCacheStatistics: [ActionCacheStatistics!]
 }
@@ -1415,6 +1456,8 @@ input MissDetailWhereInput {
   reasonNEQ: MissDetailReason
   reasonIn: [MissDetailReason!]
   reasonNotIn: [MissDetailReason!]
+  reasonIsNil: Boolean
+  reasonNotNil: Boolean
   """
   count field predicates
   """
@@ -1752,6 +1795,32 @@ type Query {
     """
     where: BuildWhereInput
   ): BuildConnection!
+  findMetrics(
+    """
+    Returns the elements in the list that come after the specified cursor.
+    """
+    after: Cursor
+
+    """
+    Returns the first _n_ elements from the list.
+    """
+    first: Int
+
+    """
+    Returns the elements in the list that come before the specified cursor.
+    """
+    before: Cursor
+
+    """
+    Returns the last _n_ elements from the list.
+    """
+    last: Int
+
+    """
+    Filtering options for MetricsSlice returned from the connection.
+    """
+    where: MetricsWhereInput
+  ): MetricsConnection!
 }
 type RaceStatistics implements Node {
   id: ID!

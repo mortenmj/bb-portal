@@ -1265,6 +1265,22 @@ func (c *BazelInvocationClient) QueryBuild(bi *BazelInvocation) *BuildQuery {
 	return query
 }
 
+// QueryMetrics queries the metrics edge of a BazelInvocation.
+func (c *BazelInvocationClient) QueryMetrics(bi *BazelInvocation) *MetricsQuery {
+	query := (&MetricsClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := bi.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(bazelinvocation.Table, bazelinvocation.FieldID, id),
+			sqlgraph.To(metrics.Table, metrics.FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, false, bazelinvocation.MetricsTable, bazelinvocation.MetricsColumn),
+		)
+		fromV = sqlgraph.Neighbors(bi.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // QueryProblems queries the problems edge of a BazelInvocation.
 func (c *BazelInvocationClient) QueryProblems(bi *BazelInvocation) *BazelInvocationProblemQuery {
 	query := (&BazelInvocationProblemClient{config: c.config}).Query()
@@ -2769,6 +2785,22 @@ func (c *MetricsClient) GetX(ctx context.Context, id int) *Metrics {
 		panic(err)
 	}
 	return obj
+}
+
+// QueryBazelInvocation queries the bazel_invocation edge of a Metrics.
+func (c *MetricsClient) QueryBazelInvocation(m *Metrics) *BazelInvocationQuery {
+	query := (&BazelInvocationClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(metrics.Table, metrics.FieldID, id),
+			sqlgraph.To(bazelinvocation.Table, bazelinvocation.FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, true, metrics.BazelInvocationTable, metrics.BazelInvocationColumn),
+		)
+		fromV = sqlgraph.Neighbors(m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
 }
 
 // QueryActionSummary queries the action_summary edge of a Metrics.

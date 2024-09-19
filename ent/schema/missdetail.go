@@ -17,7 +17,8 @@ func (MissDetail) Fields() []ent.Field {
 
 		field.Enum("reason").
 			Values("DIFFERENT_ACTION_KEY", "DIFFERENT_DEPS", "DIFFERENT_ENVIRONMENT", "DIFFERENT_FILES", "CORRUPTED_CACHE_ENTRY", "NOT_CACHED", "UNCONDITIONAL_EXECUTION", "UNKNOWN").
-			Default("UNKNOWN"),
+			Default("UNKNOWN").Optional(),
+
 		field.Int32("count").Optional(),
 	}
 }

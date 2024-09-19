@@ -36,12 +36,12 @@ const (
 	FieldUserLdap = "user_ldap"
 	// FieldBuildLogs holds the string denoting the build_logs field in the database.
 	FieldBuildLogs = "build_logs"
-	// FieldMetrics holds the string denoting the metrics field in the database.
-	FieldMetrics = "metrics"
 	// EdgeEventFile holds the string denoting the event_file edge name in mutations.
 	EdgeEventFile = "event_file"
 	// EdgeBuild holds the string denoting the build edge name in mutations.
 	EdgeBuild = "build"
+	// EdgeMetrics holds the string denoting the metrics edge name in mutations.
+	EdgeMetrics = "metrics"
 	// EdgeProblems holds the string denoting the problems edge name in mutations.
 	EdgeProblems = "problems"
 	// Table holds the table name of the bazelinvocation in the database.
@@ -60,6 +60,13 @@ const (
 	BuildInverseTable = "builds"
 	// BuildColumn is the table column denoting the build relation/edge.
 	BuildColumn = "build_invocations"
+	// MetricsTable is the table that holds the metrics relation/edge.
+	MetricsTable = "metrics"
+	// MetricsInverseTable is the table name for the Metrics entity.
+	// It exists in this package in order to avoid circular dependency with the "metrics" package.
+	MetricsInverseTable = "metrics"
+	// MetricsColumn is the table column denoting the metrics relation/edge.
+	MetricsColumn = "bazel_invocation_metrics"
 	// ProblemsTable is the table that holds the problems relation/edge.
 	ProblemsTable = "bazel_invocation_problems"
 	// ProblemsInverseTable is the table name for the BazelInvocationProblem entity.
@@ -84,7 +91,6 @@ var Columns = []string{
 	FieldUserEmail,
 	FieldUserLdap,
 	FieldBuildLogs,
-	FieldMetrics,
 }
 
 // ForeignKeys holds the SQL foreign-keys that are owned by the "bazel_invocations"
@@ -181,6 +187,13 @@ func ByBuildField(field string, opts ...sql.OrderTermOption) OrderOption {
 	}
 }
 
+// ByMetricsField orders the results by metrics field.
+func ByMetricsField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newMetricsStep(), sql.OrderByField(field, opts...))
+	}
+}
+
 // ByProblemsCount orders the results by problems count.
 func ByProblemsCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -206,6 +219,13 @@ func newBuildStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(BuildInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, true, BuildTable, BuildColumn),
+	)
+}
+func newMetricsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(MetricsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2O, false, MetricsTable, MetricsColumn),
 	)
 }
 func newProblemsStep() *sqlgraph.Step {

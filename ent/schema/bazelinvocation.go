@@ -33,7 +33,7 @@ func (BazelInvocation) Fields() []ent.Field {
 		field.String("user_email").Optional(),
 		field.String("user_ldap").Optional(),
 		field.String("build_logs").Optional(),
-		field.JSON("metrics", summary.Metrics{}).Optional(),
+		//field.JSON("metrics", summary.Metrics{}).Optional(),
 	}
 }
 
@@ -46,6 +46,8 @@ func (BazelInvocation) Edges() []ent.Edge {
 			Required(),
 		edge.From("build", Build.Type).
 			Ref("invocations").
+			Unique(),
+		edge.To("metrics", Metrics.Type).
 			Unique(),
 		edge.To("problems", BazelInvocationProblem.Type).
 			Annotations(entgql.Skip(entgql.SkipType)), // NOTE: Uses custom resolver / types.

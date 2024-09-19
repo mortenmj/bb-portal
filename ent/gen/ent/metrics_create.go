@@ -10,6 +10,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/actionsummary"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/artifactmetrics"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/bazelinvocation"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/cumulativemetrics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/dynamicexecutionmetrics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/memorymetrics"
@@ -25,6 +26,25 @@ type MetricsCreate struct {
 	config
 	mutation *MetricsMutation
 	hooks    []Hook
+}
+
+// SetBazelInvocationID sets the "bazel_invocation" edge to the BazelInvocation entity by ID.
+func (mc *MetricsCreate) SetBazelInvocationID(id int) *MetricsCreate {
+	mc.mutation.SetBazelInvocationID(id)
+	return mc
+}
+
+// SetNillableBazelInvocationID sets the "bazel_invocation" edge to the BazelInvocation entity by ID if the given value is not nil.
+func (mc *MetricsCreate) SetNillableBazelInvocationID(id *int) *MetricsCreate {
+	if id != nil {
+		mc = mc.SetBazelInvocationID(*id)
+	}
+	return mc
+}
+
+// SetBazelInvocation sets the "bazel_invocation" edge to the BazelInvocation entity.
+func (mc *MetricsCreate) SetBazelInvocation(b *BazelInvocation) *MetricsCreate {
+	return mc.SetBazelInvocationID(b.ID)
 }
 
 // AddActionSummaryIDs adds the "action_summary" edge to the ActionSummary entity by IDs.
@@ -222,6 +242,23 @@ func (mc *MetricsCreate) createSpec() (*Metrics, *sqlgraph.CreateSpec) {
 		_node = &Metrics{config: mc.config}
 		_spec = sqlgraph.NewCreateSpec(metrics.Table, sqlgraph.NewFieldSpec(metrics.FieldID, field.TypeInt))
 	)
+	if nodes := mc.mutation.BazelInvocationIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: true,
+			Table:   metrics.BazelInvocationTable,
+			Columns: []string{metrics.BazelInvocationColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(bazelinvocation.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.bazel_invocation_metrics = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
 	if nodes := mc.mutation.ActionSummaryIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,

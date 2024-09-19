@@ -186,11 +186,36 @@ func (s Summarizer) handleBuildMetrics(metrics *bes.BuildMetrics) {
 		MissDetails:  miss_details,
 	}
 
+	var runner_counts []RunnerCount = make([]RunnerCount, 0)
+	for _, rc := range metrics.ActionSummary.RunnerCount {
+		runner_count := RunnerCount{
+			ExecKind: rc.ExecKind,
+			Count:    rc.Count,
+			Name:     rc.Name,
+		}
+		runner_counts = append(runner_counts, runner_count)
+	}
+
+	var action_datas []ActionData = make([]ActionData, 0)
+	for _, ad := range metrics.ActionSummary.ActionData {
+		action_data := ActionData{
+			Mnemonic:        ad.Mnemonic,
+			UserTime:        ad.UserTime.AsDuration(),
+			SystemTime:      ad.SystemTime.AsDuration(),
+			ActionsExecuted: ad.ActionsExecuted,
+			FirstStartedMs:  ad.FirstStartedMs,
+			LastEndedMs:     ad.LastEndedMs,
+		}
+		action_datas = append(action_datas, action_data)
+	}
+
 	action_summary := ActionSummary{
 		ActionsCreated:                    metrics.ActionSummary.ActionsCreated,
 		ActionsExecuted:                   metrics.ActionSummary.ActionsExecuted,
 		ActionsCreatedNotIncludingAspects: metrics.ActionSummary.ActionsCreatedNotIncludingAspects,
 		ActionCacheStatistics:             action_cache_statistics,
+		RunnerCount:                       runner_counts,
+		ActionData:                        action_datas,
 	}
 
 	//memory metrics

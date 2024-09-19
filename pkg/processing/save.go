@@ -11,6 +11,7 @@ import (
 	"github.com/buildbarn/bb-portal/ent/gen/ent"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/blob"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/build"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/missdetail"
 	"github.com/buildbarn/bb-portal/pkg/summary"
 	"github.com/buildbarn/bb-portal/pkg/summary/detectors"
 )
@@ -31,7 +32,12 @@ func (act SaveActor) SaveSummary(ctx context.Context, summary *summary.Summary) 
 		return nil, err
 	}
 
-	bazelInvocation, err := act.saveBazelInvocation(ctx, summary, eventFile, buildRecord)
+	metrics, err := act.CreateMetrics(ctx, summary)
+	if err != nil {
+		return nil, err
+	}
+
+	bazelInvocation, err := act.saveBazelInvocation(ctx, summary, eventFile, buildRecord, metrics)
 	if err != nil {
 		return nil, fmt.Errorf("could not save BazelInvocation: %w", err)
 	}
@@ -105,7 +111,7 @@ func (act SaveActor) determineMissingBlobs(ctx context.Context, detectedBlobs []
 	return missingBlobs, nil
 }
 
-func (act SaveActor) saveBazelInvocation(ctx context.Context, summary *summary.Summary, eventFile *ent.EventFile, buildRecord *ent.Build) (*ent.BazelInvocation, error) {
+func (act SaveActor) saveBazelInvocation(ctx context.Context, summary *summary.Summary, eventFile *ent.EventFile, buildRecord *ent.Build, metrics *ent.Metrics) (*ent.BazelInvocation, error) {
 	create := act.db.BazelInvocation.Create().
 		SetInvocationID(uuid.MustParse(summary.InvocationID)).
 		SetStartedAt(summary.StartedAt).
@@ -119,7 +125,9 @@ func (act SaveActor) saveBazelInvocation(ctx context.Context, summary *summary.S
 		SetBuildLogs(summary.BuildLogs.String()).
 		SetUserLdap(summary.UserLDAP).
 		SetRelatedFiles(summary.RelatedFiles).
-		SetEventFile(eventFile)
+		SetEventFile(eventFile).
+		//metrics
+		SetMetrics(metrics)
 
 	if buildRecord != nil {
 		create = create.SetBuild(buildRecord)
@@ -138,6 +146,372 @@ func (act SaveActor) saveEventFile(ctx context.Context, summary *summary.Summary
 		SetStatus("SUCCESS").                // TODO: Keep workflow of DETECTED->IMPORTING->...?
 		Save(ctx)
 	return eventFile, err
+}
+
+func (act SaveActor) CreateMetrics(ctx context.Context, summary *summary.Summary) (*ent.Metrics, error) {
+	var err error
+	var metrics *ent.Metrics
+
+	//create the miss details
+	slog.Debug("creating miss details")
+	var missDetails []*ent.MissDetail
+	for _, md := range summary.Metrics.ActionSummary.ActionCacheStatistics.MissDetails {
+
+		var missDetail *ent.MissDetail
+		switch md.Reason.String() {
+		case "UNKNOWN":
+
+			missDetail, err = act.db.MissDetail.Create().
+				SetCount(md.Count).
+				SetReason(missdetail.DefaultReason).
+				Save(ctx)
+
+		case "DIFFERENT_ACTION_KEY":
+
+			missDetail, err = act.db.MissDetail.Create().
+				SetCount(md.Count).
+				SetReason(missdetail.ReasonDIFFERENT_ACTION_KEY).
+				Save(ctx)
+
+		case "DIFFERENT_DEPS":
+
+			missDetail, err = act.db.MissDetail.Create().
+				SetCount(md.Count).
+				SetReason(missdetail.ReasonDIFFERENT_DEPS).
+				Save(ctx)
+
+		case "DIFFERENT_ENVIRONMENT":
+
+			missDetail, err = act.db.MissDetail.Create().
+				SetCount(md.Count).
+				SetReason(missdetail.ReasonDIFFERENT_ENVIRONMENT).
+				Save(ctx)
+
+		case "DIFFERENT_FILES":
+
+			missDetail, err = act.db.MissDetail.Create().
+				SetCount(md.Count).
+				SetReason(missdetail.ReasonDIFFERENT_FILES).
+				Save(ctx)
+
+		case "CORRUPTED_CACHE_ENTRY":
+
+			missDetail, err = act.db.MissDetail.Create().
+				SetCount(md.Count).
+				SetReason(missdetail.ReasonCORRUPTED_CACHE_ENTRY).
+				Save(ctx)
+
+		case "NOT_CACHED":
+
+			missDetail, err = act.db.MissDetail.Create().
+				SetCount(md.Count).
+				SetReason(missdetail.ReasonNOT_CACHED).
+				Save(ctx)
+
+		case "UNCONDITIONAL_EXECUTION":
+
+			missDetail, err = act.db.MissDetail.Create().
+				SetCount(md.Count).
+				SetReason(missdetail.ReasonUNCONDITIONAL_EXECUTION).
+				Save(ctx)
+
+		}
+		if err != nil {
+			slog.Error("unable to create miss detail %w", err)
+			err = nil
+		}
+		missDetails = append(missDetails, missDetail)
+	}
+
+	//create the action cache statistics
+	slog.Debug("creating action cache statistics")
+	var actionCacheStatistics *ent.ActionCacheStatistics
+	actionCacheStatistics, err = act.db.ActionCacheStatistics.Create().
+		SetSizeInBytes(int64(summary.Metrics.ActionSummary.ActionCacheStatistics.SizeInBytes)).
+		SetSaveTimeInMs(int64(summary.Metrics.ActionSummary.ActionCacheStatistics.SaveTimeInMs)).
+		SetHits(summary.Metrics.ActionSummary.ActionCacheStatistics.Hits).
+		SetMisses(summary.Metrics.ActionSummary.ActionCacheStatistics.Misses).
+		AddMissDetails(missDetails...).
+		Save(ctx)
+
+	if err != nil {
+		slog.Error("error creating action cache statistics. %w", err)
+		err = nil
+	}
+
+	//create runner counters
+	slog.Debug("creating runner counts ")
+	var runnerCounts []*ent.RunnerCount
+	for _, rc := range summary.Metrics.ActionSummary.RunnerCount {
+		var runnerCount *ent.RunnerCount
+		runnerCount, err = act.db.RunnerCount.Create().
+			SetActionsExecuted(int64(rc.Count)).
+			SetName(rc.Name).
+			SetExecKind(rc.ExecKind).
+			Save(ctx)
+
+		if err != nil {
+			slog.Error("error creating runner count. %w", err)
+			err = nil
+		}
+
+		runnerCounts = append(runnerCounts, runnerCount)
+
+	}
+
+	//create action datas
+	slog.Debug("creating action datas")
+	var actionDatas []*ent.ActionData
+	for _, ad := range summary.Metrics.ActionSummary.ActionData {
+		var actionData *ent.ActionData
+		actionData, err = act.db.ActionData.Create().
+			SetActionsExecuted(ad.ActionsExecuted).
+			SetMnemonic(ad.Mnemonic).
+			SetFirstStartedMs(ad.FirstStartedMs).
+			SetLastEndedMs(ad.LastEndedMs).
+			SetSystemTime(ad.SystemTime).
+			SetUserTime(ad.UserTime).
+			Save(ctx)
+
+		if err != nil {
+			slog.Error("error creating action data. %w", err)
+			err = nil
+		}
+
+		actionDatas = append(actionDatas, actionData)
+
+	}
+
+	//create the action summary
+	slog.Debug("creating acton summary")
+	var actionSummary *ent.ActionSummary
+	actionSummary, err = act.db.ActionSummary.Create().
+		SetActionsCreated(summary.Metrics.ActionSummary.ActionsCreated).
+		SetActionsCreatedNotIncludingAspects(summary.Metrics.ActionSummary.ActionsCreatedNotIncludingAspects).
+		SetActionsExecuted(summary.Metrics.ActionSummary.ActionsExecuted).
+		SetRemoteCacheHits(summary.Metrics.ActionSummary.RemoteCacheHits).
+		AddActionCacheStatistics(actionCacheStatistics).
+		AddRunnerCount(runnerCounts...).
+		AddActionData(actionDatas...).
+		Save(ctx)
+
+	if err != nil {
+		slog.Error("error creating action summary. %w", err)
+		err = nil
+	}
+
+	//create garbage metrics
+	slog.Debug("creating garbage metrics")
+	var garbageMetrics []*ent.GarbageMetrics
+	for _, gm := range summary.Metrics.MemoryMetrics.GarbageMetrics {
+		var garbageMetric *ent.GarbageMetrics
+		garbageMetric, err = act.db.GarbageMetrics.Create().
+			SetGarbageCollected(gm.GarbageCollected).
+			SetType(gm.Type).
+			Save(ctx)
+
+		if err != nil {
+			slog.Error("error creating garbage metrics. %w", err)
+			err = nil
+		}
+
+		garbageMetrics = append(garbageMetrics, garbageMetric)
+	}
+
+	//create memory metrics
+	slog.Debug("creating memory metrics")
+	var memoryMetrics *ent.MemoryMetrics
+	memoryMetrics, err = act.db.MemoryMetrics.Create().
+		SetPeakPostGcHeapSize(summary.Metrics.MemoryMetrics.PeakPostGcHeapSize).
+		SetPeakPostGcTenuredSpaceHeapSize(summary.Metrics.MemoryMetrics.PeakPostGcTenuredSpaceHeapSize).
+		SetUsedHeapSizePostBuild(summary.Metrics.MemoryMetrics.UsedHeapSizePostBuild).
+		AddGarbageMetrics(garbageMetrics...).
+		Save(ctx)
+	if err != nil {
+		slog.Error("error creating memory metrics. %w", err)
+		err = nil
+	}
+
+	//create target metrics
+	slog.Debug("creating target metrics")
+	var targetMetrics *ent.TargetMetrics
+	targetMetrics, err = act.db.TargetMetrics.Create().
+		SetTargetsConfigured(summary.Metrics.TargetMetrics.TargetsConfigured).
+		SetTargetsConfiguredNotIncludingAspects(summary.Metrics.TargetMetrics.TargetsConfiguredNotIncludingAspects).
+		SetTargetsLoaded(summary.Metrics.TargetMetrics.TargetsLoaded).
+		Save(ctx)
+	if err != nil {
+		slog.Error("error creating target metrics. %w", err)
+		err = nil
+	}
+
+	//create the package load metrics
+	slog.Debug("creating package load metrics")
+	var packageLoadMetrics []*ent.PackageLoadMetrics
+
+	for _, plm := range summary.Metrics.PackageMetrics.PackageLoadMetrics {
+		var packageLoadMetric *ent.PackageLoadMetrics
+		packageLoadMetric, err = act.db.PackageLoadMetrics.Create().
+			SetName(plm.Name).
+			SetLoadDuration(plm.LoadDuration).
+			SetNumTargets(int64(plm.NumTargets)).
+			SetComputationSteps(int64(plm.ComputationSteps)).
+			SetNumTransitiveLoads(int64(plm.NumTransitiveLoads)).
+			SetPackageOverhead(int64(plm.PackageOverhead)).
+			Save(ctx)
+		if err != nil {
+			slog.Error("error creating package metrics. %w", err)
+			err = nil
+		}
+		packageLoadMetrics = append(packageLoadMetrics, packageLoadMetric)
+	}
+
+	//create the package metrics
+	slog.Debug("creating package metrics")
+	var packageMetrics *ent.PackageMetrics
+	packageMetrics, err = act.db.PackageMetrics.Create().
+		SetPackagesLoaded(summary.Metrics.PackageMetrics.PackagesLoaded).
+		AddPackageLoadMetrics(packageLoadMetrics...).
+		Save(ctx)
+	if err != nil {
+		slog.Error("error creating package metrics. %w", err)
+		err = nil
+	}
+
+	//create the cumulative metrics
+	var cumulativeMetrics *ent.CumulativeMetrics
+	slog.Debug("creating cumulative  metrics")
+	cumulativeMetrics, err = act.db.CumulativeMetrics.Create().
+		SetNumAnalyses(summary.Metrics.CumulativeMetrics.NumAnalyses).
+		SetNumBuilds(summary.Metrics.CumulativeMetrics.NumBuilds).
+		Save(ctx)
+	if err != nil {
+		slog.Error("error creating cumulative metrics. %w", err)
+		err = nil
+	}
+
+	//create the timing metrics
+	var timingMetrics *ent.TimingMetrics
+	slog.Debug("creating timing metrics")
+	timingMetrics, err = act.db.TimingMetrics.Create().
+		SetAnalysisPhaseTimeInMs(summary.Metrics.TimingMetrics.AnalysisPhaseTimeInMs).
+		SetCPUTimeInMs(summary.Metrics.TimingMetrics.CpuTimeInMs).
+		SetExecutionPhaseTimeInMs(summary.Metrics.TimingMetrics.ExecutionPhaseTimeInMs).
+		SetWallTimeInMs(summary.Metrics.TimingMetrics.WallTimeInMs).
+		//TODO:
+		//SetActionsExecutionStartInMs()
+		Save(ctx)
+	if err != nil {
+		slog.Error("error creating timing metrics. %w", err)
+		err = nil
+	}
+
+	//create source artifacts read
+	slog.Debug("creating artifact metrics")
+	var soureArtifactsRead *ent.FilesMetric
+	soureArtifactsRead, err = act.db.FilesMetric.Create().
+		SetCount(summary.Metrics.ArtifactMetrics.SourceArtifactsRead.Count).
+		SetSizeInBytes(summary.Metrics.ArtifactMetrics.SourceArtifactsRead.SizeInBytes).
+		Save(ctx)
+	if err != nil {
+		slog.Error("error creating source artifacts read metrics. %w", err)
+		err = nil
+	}
+
+	//create output artifacts seen
+	var outputArtifactsSeen *ent.FilesMetric
+	outputArtifactsSeen, err = act.db.FilesMetric.Create().
+		SetCount(summary.Metrics.ArtifactMetrics.OutputArtifactsSeen.Count).
+		SetSizeInBytes(summary.Metrics.ArtifactMetrics.OutputArtifactsSeen.SizeInBytes).
+		Save(ctx)
+	if err != nil {
+		slog.Error("error creating output artifacts seen metrics. %w", err)
+		err = nil
+	}
+
+	//create output artifacts from action cache
+	var outputArtifactsFromActionCache *ent.FilesMetric
+	outputArtifactsFromActionCache, err = act.db.FilesMetric.Create().
+		SetCount(summary.Metrics.ArtifactMetrics.OutputArtifactsFromActionCache.Count).
+		SetSizeInBytes(summary.Metrics.ArtifactMetrics.OutputArtifactsFromActionCache.SizeInBytes).
+		Save(ctx)
+	if err != nil {
+		slog.Error("error creating output artifacts from action cache metrics. %w", err)
+		err = nil
+	}
+
+	//create top level artifacts
+	var topLevelArtifacts *ent.FilesMetric
+	topLevelArtifacts, err = act.db.FilesMetric.Create().
+		SetCount(summary.Metrics.ArtifactMetrics.TopLevelArtifacts.Count).
+		SetSizeInBytes(summary.Metrics.ArtifactMetrics.TopLevelArtifacts.SizeInBytes).
+		Save(ctx)
+	if err != nil {
+		slog.Error("error creating top level artifacts metrics. %w", err)
+		err = nil
+	}
+
+	//create the artifact metrics
+	var artifactMetrics *ent.ArtifactMetrics
+	slog.Debug("creating artifact metrics")
+	artifactMetrics, err = act.db.ArtifactMetrics.Create().
+		AddSourceArtifactsRead(soureArtifactsRead).
+		AddOutputArtifactsSeen(outputArtifactsSeen).
+		AddOutputArtifactsFromActionCache(outputArtifactsFromActionCache).
+		AddTopLevelArtifacts(topLevelArtifacts).
+		Save(ctx)
+	if err != nil {
+		slog.Error("error creating artifact metrics. %w", err)
+		err = nil
+	}
+
+	slog.Debug("creating network metrics")
+	//create the system network stats
+	var systemNetworkStats *ent.SystemNetworkStats
+	systemNetworkStats, err = act.db.SystemNetworkStats.Create().
+		SetBytesRecv(int64(summary.Metrics.NetworkMetrics.SystemNetworkStats.BytesRecv)).
+		SetBytesSent(int64(summary.Metrics.NetworkMetrics.SystemNetworkStats.BytesSent)).
+		SetPacketsRecv(int64(summary.Metrics.NetworkMetrics.SystemNetworkStats.PacketsRecv)).
+		SetPacketsSent(int64(summary.Metrics.NetworkMetrics.SystemNetworkStats.PacketsSent)).
+		SetPeakBytesRecvPerSec(int64(summary.Metrics.NetworkMetrics.SystemNetworkStats.PeakBytesRecvPerSec)).
+		SetPeakBytesSentPerSec(int64(summary.Metrics.NetworkMetrics.SystemNetworkStats.PeakBytesSentPerSec)).
+		SetPeakPacketsRecvPerSec(int64(summary.Metrics.NetworkMetrics.SystemNetworkStats.PeakPacketsRecvPerSec)).
+		SetPeakBytesSentPerSec(int64(summary.Metrics.NetworkMetrics.SystemNetworkStats.PeakPacketsSentPerSec)).
+		Save(ctx)
+	if err != nil {
+		slog.Error("error creating system network stats metrics. %w", err)
+		err = nil
+	}
+
+	//create the network metrics
+	var networkMetrics *ent.NetworkMetrics
+	networkMetrics, err = act.db.NetworkMetrics.Create().
+		AddSystemNetworkStats(systemNetworkStats).
+		Save(ctx)
+	if err != nil {
+		slog.Error("error creating network metrics. %w", err)
+		err = nil
+	}
+
+	//create the metrics object
+	slog.Debug("creating metrics object")
+	metrics, err = act.db.Metrics.Create().
+		AddActionSummary(actionSummary).
+		AddMemoryMetrics(memoryMetrics).
+		AddTargetMetrics(targetMetrics).
+		AddPackageMetrics(packageMetrics).
+		AddCumulativeMetrics(cumulativeMetrics).
+		AddTimingMetrics(timingMetrics).
+		AddArtifactMetrics(artifactMetrics).
+		AddNetworkMetrics(networkMetrics).
+		Save(ctx)
+
+	if err != nil {
+		return nil, fmt.Errorf("unable to create metrics %w", err)
+	}
+
+	return metrics, nil
+
 }
 
 func (act SaveActor) findOrCreateBuild(ctx context.Context, summary *summary.Summary) (*ent.Build, error) {

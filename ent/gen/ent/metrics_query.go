@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/actionsummary"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/artifactmetrics"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/bazelinvocation"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/cumulativemetrics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/dynamicexecutionmetrics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/memorymetrics"
@@ -31,6 +32,7 @@ type MetricsQuery struct {
 	order                            []metrics.OrderOption
 	inters                           []Interceptor
 	predicates                       []predicate.Metrics
+	withBazelInvocation              *BazelInvocationQuery
 	withActionSummary                *ActionSummaryQuery
 	withMemoryMetrics                *MemoryMetricsQuery
 	withTargetMetrics                *TargetMetricsQuery
@@ -40,6 +42,7 @@ type MetricsQuery struct {
 	withArtifactMetrics              *ArtifactMetricsQuery
 	withNetworkMetrics               *NetworkMetricsQuery
 	withDynamicExecutionMetrics      *DynamicExecutionMetricsQuery
+	withFKs                          bool
 	modifiers                        []func(*sql.Selector)
 	loadTotal                        []func(context.Context, []*Metrics) error
 	withNamedActionSummary           map[string]*ActionSummaryQuery
@@ -85,6 +88,28 @@ func (mq *MetricsQuery) Unique(unique bool) *MetricsQuery {
 func (mq *MetricsQuery) Order(o ...metrics.OrderOption) *MetricsQuery {
 	mq.order = append(mq.order, o...)
 	return mq
+}
+
+// QueryBazelInvocation chains the current query on the "bazel_invocation" edge.
+func (mq *MetricsQuery) QueryBazelInvocation() *BazelInvocationQuery {
+	query := (&BazelInvocationClient{config: mq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := mq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := mq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(metrics.Table, metrics.FieldID, selector),
+			sqlgraph.To(bazelinvocation.Table, bazelinvocation.FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, true, metrics.BazelInvocationTable, metrics.BazelInvocationColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(mq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
 }
 
 // QueryActionSummary chains the current query on the "action_summary" edge.
@@ -477,6 +502,7 @@ func (mq *MetricsQuery) Clone() *MetricsQuery {
 		order:                       append([]metrics.OrderOption{}, mq.order...),
 		inters:                      append([]Interceptor{}, mq.inters...),
 		predicates:                  append([]predicate.Metrics{}, mq.predicates...),
+		withBazelInvocation:         mq.withBazelInvocation.Clone(),
 		withActionSummary:           mq.withActionSummary.Clone(),
 		withMemoryMetrics:           mq.withMemoryMetrics.Clone(),
 		withTargetMetrics:           mq.withTargetMetrics.Clone(),
@@ -490,6 +516,17 @@ func (mq *MetricsQuery) Clone() *MetricsQuery {
 		sql:  mq.sql.Clone(),
 		path: mq.path,
 	}
+}
+
+// WithBazelInvocation tells the query-builder to eager-load the nodes that are connected to
+// the "bazel_invocation" edge. The optional arguments are used to configure the query builder of the edge.
+func (mq *MetricsQuery) WithBazelInvocation(opts ...func(*BazelInvocationQuery)) *MetricsQuery {
+	query := (&BazelInvocationClient{config: mq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	mq.withBazelInvocation = query
+	return mq
 }
 
 // WithActionSummary tells the query-builder to eager-load the nodes that are connected to
@@ -646,8 +683,10 @@ func (mq *MetricsQuery) prepareQuery(ctx context.Context) error {
 func (mq *MetricsQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Metrics, error) {
 	var (
 		nodes       = []*Metrics{}
+		withFKs     = mq.withFKs
 		_spec       = mq.querySpec()
-		loadedTypes = [9]bool{
+		loadedTypes = [10]bool{
+			mq.withBazelInvocation != nil,
 			mq.withActionSummary != nil,
 			mq.withMemoryMetrics != nil,
 			mq.withTargetMetrics != nil,
@@ -659,6 +698,12 @@ func (mq *MetricsQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Metr
 			mq.withDynamicExecutionMetrics != nil,
 		}
 	)
+	if mq.withBazelInvocation != nil {
+		withFKs = true
+	}
+	if withFKs {
+		_spec.Node.Columns = append(_spec.Node.Columns, metrics.ForeignKeys...)
+	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*Metrics).scanValues(nil, columns)
 	}
@@ -679,6 +724,12 @@ func (mq *MetricsQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Metr
 	}
 	if len(nodes) == 0 {
 		return nodes, nil
+	}
+	if query := mq.withBazelInvocation; query != nil {
+		if err := mq.loadBazelInvocation(ctx, query, nodes, nil,
+			func(n *Metrics, e *BazelInvocation) { n.Edges.BazelInvocation = e }); err != nil {
+			return nil, err
+		}
 	}
 	if query := mq.withActionSummary; query != nil {
 		if err := mq.loadActionSummary(ctx, query, nodes,
@@ -818,6 +869,38 @@ func (mq *MetricsQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Metr
 	return nodes, nil
 }
 
+func (mq *MetricsQuery) loadBazelInvocation(ctx context.Context, query *BazelInvocationQuery, nodes []*Metrics, init func(*Metrics), assign func(*Metrics, *BazelInvocation)) error {
+	ids := make([]int, 0, len(nodes))
+	nodeids := make(map[int][]*Metrics)
+	for i := range nodes {
+		if nodes[i].bazel_invocation_metrics == nil {
+			continue
+		}
+		fk := *nodes[i].bazel_invocation_metrics
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(bazelinvocation.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "bazel_invocation_metrics" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
 func (mq *MetricsQuery) loadActionSummary(ctx context.Context, query *ActionSummaryQuery, nodes []*Metrics, init func(*Metrics), assign func(*Metrics, *ActionSummary)) error {
 	fks := make([]driver.Value, 0, len(nodes))
 	nodeids := make(map[int]*Metrics)

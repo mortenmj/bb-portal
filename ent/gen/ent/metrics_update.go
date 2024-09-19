@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/actionsummary"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/artifactmetrics"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/bazelinvocation"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/cumulativemetrics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/dynamicexecutionmetrics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/memorymetrics"
@@ -34,6 +35,25 @@ type MetricsUpdate struct {
 func (mu *MetricsUpdate) Where(ps ...predicate.Metrics) *MetricsUpdate {
 	mu.mutation.Where(ps...)
 	return mu
+}
+
+// SetBazelInvocationID sets the "bazel_invocation" edge to the BazelInvocation entity by ID.
+func (mu *MetricsUpdate) SetBazelInvocationID(id int) *MetricsUpdate {
+	mu.mutation.SetBazelInvocationID(id)
+	return mu
+}
+
+// SetNillableBazelInvocationID sets the "bazel_invocation" edge to the BazelInvocation entity by ID if the given value is not nil.
+func (mu *MetricsUpdate) SetNillableBazelInvocationID(id *int) *MetricsUpdate {
+	if id != nil {
+		mu = mu.SetBazelInvocationID(*id)
+	}
+	return mu
+}
+
+// SetBazelInvocation sets the "bazel_invocation" edge to the BazelInvocation entity.
+func (mu *MetricsUpdate) SetBazelInvocation(b *BazelInvocation) *MetricsUpdate {
+	return mu.SetBazelInvocationID(b.ID)
 }
 
 // AddActionSummaryIDs adds the "action_summary" edge to the ActionSummary entity by IDs.
@@ -174,6 +194,12 @@ func (mu *MetricsUpdate) AddDynamicExecutionMetrics(d ...*DynamicExecutionMetric
 // Mutation returns the MetricsMutation object of the builder.
 func (mu *MetricsUpdate) Mutation() *MetricsMutation {
 	return mu.mutation
+}
+
+// ClearBazelInvocation clears the "bazel_invocation" edge to the BazelInvocation entity.
+func (mu *MetricsUpdate) ClearBazelInvocation() *MetricsUpdate {
+	mu.mutation.ClearBazelInvocation()
+	return mu
 }
 
 // ClearActionSummary clears all "action_summary" edges to the ActionSummary entity.
@@ -400,6 +426,35 @@ func (mu *MetricsUpdate) sqlSave(ctx context.Context) (n int, err error) {
 				ps[i](selector)
 			}
 		}
+	}
+	if mu.mutation.BazelInvocationCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: true,
+			Table:   metrics.BazelInvocationTable,
+			Columns: []string{metrics.BazelInvocationColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(bazelinvocation.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := mu.mutation.BazelInvocationIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: true,
+			Table:   metrics.BazelInvocationTable,
+			Columns: []string{metrics.BazelInvocationColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(bazelinvocation.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if mu.mutation.ActionSummaryCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -826,6 +881,25 @@ type MetricsUpdateOne struct {
 	mutation *MetricsMutation
 }
 
+// SetBazelInvocationID sets the "bazel_invocation" edge to the BazelInvocation entity by ID.
+func (muo *MetricsUpdateOne) SetBazelInvocationID(id int) *MetricsUpdateOne {
+	muo.mutation.SetBazelInvocationID(id)
+	return muo
+}
+
+// SetNillableBazelInvocationID sets the "bazel_invocation" edge to the BazelInvocation entity by ID if the given value is not nil.
+func (muo *MetricsUpdateOne) SetNillableBazelInvocationID(id *int) *MetricsUpdateOne {
+	if id != nil {
+		muo = muo.SetBazelInvocationID(*id)
+	}
+	return muo
+}
+
+// SetBazelInvocation sets the "bazel_invocation" edge to the BazelInvocation entity.
+func (muo *MetricsUpdateOne) SetBazelInvocation(b *BazelInvocation) *MetricsUpdateOne {
+	return muo.SetBazelInvocationID(b.ID)
+}
+
 // AddActionSummaryIDs adds the "action_summary" edge to the ActionSummary entity by IDs.
 func (muo *MetricsUpdateOne) AddActionSummaryIDs(ids ...int) *MetricsUpdateOne {
 	muo.mutation.AddActionSummaryIDs(ids...)
@@ -964,6 +1038,12 @@ func (muo *MetricsUpdateOne) AddDynamicExecutionMetrics(d ...*DynamicExecutionMe
 // Mutation returns the MetricsMutation object of the builder.
 func (muo *MetricsUpdateOne) Mutation() *MetricsMutation {
 	return muo.mutation
+}
+
+// ClearBazelInvocation clears the "bazel_invocation" edge to the BazelInvocation entity.
+func (muo *MetricsUpdateOne) ClearBazelInvocation() *MetricsUpdateOne {
+	muo.mutation.ClearBazelInvocation()
+	return muo
 }
 
 // ClearActionSummary clears all "action_summary" edges to the ActionSummary entity.
@@ -1220,6 +1300,35 @@ func (muo *MetricsUpdateOne) sqlSave(ctx context.Context) (_node *Metrics, err e
 				ps[i](selector)
 			}
 		}
+	}
+	if muo.mutation.BazelInvocationCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: true,
+			Table:   metrics.BazelInvocationTable,
+			Columns: []string{metrics.BazelInvocationColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(bazelinvocation.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := muo.mutation.BazelInvocationIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: true,
+			Table:   metrics.BazelInvocationTable,
+			Columns: []string{metrics.BazelInvocationColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(bazelinvocation.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if muo.mutation.ActionSummaryCleared() {
 		edge := &sqlgraph.EdgeSpec{

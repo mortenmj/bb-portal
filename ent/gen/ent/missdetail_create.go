@@ -4,7 +4,6 @@ package ent
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -106,9 +105,6 @@ func (mdc *MissDetailCreate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (mdc *MissDetailCreate) check() error {
-	if _, ok := mdc.mutation.Reason(); !ok {
-		return &ValidationError{Name: "reason", err: errors.New(`ent: missing required field "MissDetail.reason"`)}
-	}
 	if v, ok := mdc.mutation.Reason(); ok {
 		if err := missdetail.ReasonValidator(v); err != nil {
 			return &ValidationError{Name: "reason", err: fmt.Errorf(`ent: validator failed for field "MissDetail.reason": %w`, err)}

@@ -28,6 +28,8 @@ func (ActionSummary) Edges() []ent.Edge {
 		edge.To("action_data", ActionData.Type),
 		edge.To("runner_count", RunnerCount.Type),
 		edge.To("action_cache_statistics", ActionCacheStatistics.Type),
-		edge.From("metrics", Metrics.Type).Ref("action_summary").Unique(),
+		edge.From("metrics", Metrics.Type).
+			Ref("action_summary").
+			Unique(),
 	}
 }

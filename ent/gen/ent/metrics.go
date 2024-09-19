@@ -8,6 +8,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/bazelinvocation"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/metrics"
 )
 
@@ -18,12 +19,15 @@ type Metrics struct {
 	ID int `json:"id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the MetricsQuery when eager-loading is set.
-	Edges        MetricsEdges `json:"edges"`
-	selectValues sql.SelectValues
+	Edges                    MetricsEdges `json:"edges"`
+	bazel_invocation_metrics *int
+	selectValues             sql.SelectValues
 }
 
 // MetricsEdges holds the relations/edges for other nodes in the graph.
 type MetricsEdges struct {
+	// BazelInvocation holds the value of the bazel_invocation edge.
+	BazelInvocation *BazelInvocation `json:"bazel_invocation,omitempty"`
 	// ActionSummary holds the value of the action_summary edge.
 	ActionSummary []*ActionSummary `json:"action_summary,omitempty"`
 	// MemoryMetrics holds the value of the memory_metrics edge.
@@ -44,9 +48,9 @@ type MetricsEdges struct {
 	DynamicExecutionMetrics []*DynamicExecutionMetrics `json:"dynamic_execution_metrics,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [9]bool
+	loadedTypes [10]bool
 	// totalCount holds the count of the edges above.
-	totalCount [9]map[string]int
+	totalCount [10]map[string]int
 
 	namedActionSummary           map[string][]*ActionSummary
 	namedMemoryMetrics           map[string][]*MemoryMetrics
@@ -59,10 +63,21 @@ type MetricsEdges struct {
 	namedDynamicExecutionMetrics map[string][]*DynamicExecutionMetrics
 }
 
+// BazelInvocationOrErr returns the BazelInvocation value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e MetricsEdges) BazelInvocationOrErr() (*BazelInvocation, error) {
+	if e.BazelInvocation != nil {
+		return e.BazelInvocation, nil
+	} else if e.loadedTypes[0] {
+		return nil, &NotFoundError{label: bazelinvocation.Label}
+	}
+	return nil, &NotLoadedError{edge: "bazel_invocation"}
+}
+
 // ActionSummaryOrErr returns the ActionSummary value or an error if the edge
 // was not loaded in eager-loading.
 func (e MetricsEdges) ActionSummaryOrErr() ([]*ActionSummary, error) {
-	if e.loadedTypes[0] {
+	if e.loadedTypes[1] {
 		return e.ActionSummary, nil
 	}
 	return nil, &NotLoadedError{edge: "action_summary"}
@@ -71,7 +86,7 @@ func (e MetricsEdges) ActionSummaryOrErr() ([]*ActionSummary, error) {
 // MemoryMetricsOrErr returns the MemoryMetrics value or an error if the edge
 // was not loaded in eager-loading.
 func (e MetricsEdges) MemoryMetricsOrErr() ([]*MemoryMetrics, error) {
-	if e.loadedTypes[1] {
+	if e.loadedTypes[2] {
 		return e.MemoryMetrics, nil
 	}
 	return nil, &NotLoadedError{edge: "memory_metrics"}
@@ -80,7 +95,7 @@ func (e MetricsEdges) MemoryMetricsOrErr() ([]*MemoryMetrics, error) {
 // TargetMetricsOrErr returns the TargetMetrics value or an error if the edge
 // was not loaded in eager-loading.
 func (e MetricsEdges) TargetMetricsOrErr() ([]*TargetMetrics, error) {
-	if e.loadedTypes[2] {
+	if e.loadedTypes[3] {
 		return e.TargetMetrics, nil
 	}
 	return nil, &NotLoadedError{edge: "target_metrics"}
@@ -89,7 +104,7 @@ func (e MetricsEdges) TargetMetricsOrErr() ([]*TargetMetrics, error) {
 // PackageMetricsOrErr returns the PackageMetrics value or an error if the edge
 // was not loaded in eager-loading.
 func (e MetricsEdges) PackageMetricsOrErr() ([]*PackageMetrics, error) {
-	if e.loadedTypes[3] {
+	if e.loadedTypes[4] {
 		return e.PackageMetrics, nil
 	}
 	return nil, &NotLoadedError{edge: "package_metrics"}
@@ -98,7 +113,7 @@ func (e MetricsEdges) PackageMetricsOrErr() ([]*PackageMetrics, error) {
 // TimingMetricsOrErr returns the TimingMetrics value or an error if the edge
 // was not loaded in eager-loading.
 func (e MetricsEdges) TimingMetricsOrErr() ([]*TimingMetrics, error) {
-	if e.loadedTypes[4] {
+	if e.loadedTypes[5] {
 		return e.TimingMetrics, nil
 	}
 	return nil, &NotLoadedError{edge: "timing_metrics"}
@@ -107,7 +122,7 @@ func (e MetricsEdges) TimingMetricsOrErr() ([]*TimingMetrics, error) {
 // CumulativeMetricsOrErr returns the CumulativeMetrics value or an error if the edge
 // was not loaded in eager-loading.
 func (e MetricsEdges) CumulativeMetricsOrErr() ([]*CumulativeMetrics, error) {
-	if e.loadedTypes[5] {
+	if e.loadedTypes[6] {
 		return e.CumulativeMetrics, nil
 	}
 	return nil, &NotLoadedError{edge: "cumulative_metrics"}
@@ -116,7 +131,7 @@ func (e MetricsEdges) CumulativeMetricsOrErr() ([]*CumulativeMetrics, error) {
 // ArtifactMetricsOrErr returns the ArtifactMetrics value or an error if the edge
 // was not loaded in eager-loading.
 func (e MetricsEdges) ArtifactMetricsOrErr() ([]*ArtifactMetrics, error) {
-	if e.loadedTypes[6] {
+	if e.loadedTypes[7] {
 		return e.ArtifactMetrics, nil
 	}
 	return nil, &NotLoadedError{edge: "artifact_metrics"}
@@ -125,7 +140,7 @@ func (e MetricsEdges) ArtifactMetricsOrErr() ([]*ArtifactMetrics, error) {
 // NetworkMetricsOrErr returns the NetworkMetrics value or an error if the edge
 // was not loaded in eager-loading.
 func (e MetricsEdges) NetworkMetricsOrErr() ([]*NetworkMetrics, error) {
-	if e.loadedTypes[7] {
+	if e.loadedTypes[8] {
 		return e.NetworkMetrics, nil
 	}
 	return nil, &NotLoadedError{edge: "network_metrics"}
@@ -134,7 +149,7 @@ func (e MetricsEdges) NetworkMetricsOrErr() ([]*NetworkMetrics, error) {
 // DynamicExecutionMetricsOrErr returns the DynamicExecutionMetrics value or an error if the edge
 // was not loaded in eager-loading.
 func (e MetricsEdges) DynamicExecutionMetricsOrErr() ([]*DynamicExecutionMetrics, error) {
-	if e.loadedTypes[8] {
+	if e.loadedTypes[9] {
 		return e.DynamicExecutionMetrics, nil
 	}
 	return nil, &NotLoadedError{edge: "dynamic_execution_metrics"}
@@ -146,6 +161,8 @@ func (*Metrics) scanValues(columns []string) ([]any, error) {
 	for i := range columns {
 		switch columns[i] {
 		case metrics.FieldID:
+			values[i] = new(sql.NullInt64)
+		case metrics.ForeignKeys[0]: // bazel_invocation_metrics
 			values[i] = new(sql.NullInt64)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -168,6 +185,13 @@ func (m *Metrics) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
 			m.ID = int(value.Int64)
+		case metrics.ForeignKeys[0]:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for edge-field bazel_invocation_metrics", value)
+			} else if value.Valid {
+				m.bazel_invocation_metrics = new(int)
+				*m.bazel_invocation_metrics = int(value.Int64)
+			}
 		default:
 			m.selectValues.Set(columns[i], values[i])
 		}
@@ -179,6 +203,11 @@ func (m *Metrics) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (m *Metrics) Value(name string) (ent.Value, error) {
 	return m.selectValues.Get(name)
+}
+
+// QueryBazelInvocation queries the "bazel_invocation" edge of the Metrics entity.
+func (m *Metrics) QueryBazelInvocation() *BazelInvocationQuery {
+	return NewMetricsClient(m.config).QueryBazelInvocation(m)
 }
 
 // QueryActionSummary queries the "action_summary" edge of the Metrics entity.

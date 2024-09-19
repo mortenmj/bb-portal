@@ -42,6 +42,12 @@ func (mdu *MissDetailUpdate) SetNillableReason(m *missdetail.Reason) *MissDetail
 	return mdu
 }
 
+// ClearReason clears the value of the "reason" field.
+func (mdu *MissDetailUpdate) ClearReason() *MissDetailUpdate {
+	mdu.mutation.ClearReason()
+	return mdu
+}
+
 // SetCount sets the "count" field.
 func (mdu *MissDetailUpdate) SetCount(i int32) *MissDetailUpdate {
 	mdu.mutation.ResetCount()
@@ -162,6 +168,9 @@ func (mdu *MissDetailUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := mdu.mutation.Reason(); ok {
 		_spec.SetField(missdetail.FieldReason, field.TypeEnum, value)
 	}
+	if mdu.mutation.ReasonCleared() {
+		_spec.ClearField(missdetail.FieldReason, field.TypeEnum)
+	}
 	if value, ok := mdu.mutation.Count(); ok {
 		_spec.SetField(missdetail.FieldCount, field.TypeInt32, value)
 	}
@@ -247,6 +256,12 @@ func (mduo *MissDetailUpdateOne) SetNillableReason(m *missdetail.Reason) *MissDe
 	if m != nil {
 		mduo.SetReason(*m)
 	}
+	return mduo
+}
+
+// ClearReason clears the value of the "reason" field.
+func (mduo *MissDetailUpdateOne) ClearReason() *MissDetailUpdateOne {
+	mduo.mutation.ClearReason()
 	return mduo
 }
 
@@ -399,6 +414,9 @@ func (mduo *MissDetailUpdateOne) sqlSave(ctx context.Context) (_node *MissDetail
 	}
 	if value, ok := mduo.mutation.Reason(); ok {
 		_spec.SetField(missdetail.FieldReason, field.TypeEnum, value)
+	}
+	if mduo.mutation.ReasonCleared() {
+		_spec.ClearField(missdetail.FieldReason, field.TypeEnum)
 	}
 	if value, ok := mduo.mutation.Count(); ok {
 		_spec.SetField(missdetail.FieldCount, field.TypeInt32, value)

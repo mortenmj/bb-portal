@@ -14,6 +14,7 @@ import (
 	"github.com/buildbarn/bb-portal/ent/gen/ent/bazelinvocationproblem"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/build"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/eventfile"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/metrics"
 	"github.com/buildbarn/bb-portal/pkg/summary"
 	"github.com/google/uuid"
 )
@@ -153,20 +154,6 @@ func (bic *BazelInvocationCreate) SetNillableBuildLogs(s *string) *BazelInvocati
 	return bic
 }
 
-// SetMetrics sets the "metrics" field.
-func (bic *BazelInvocationCreate) SetMetrics(s summary.Metrics) *BazelInvocationCreate {
-	bic.mutation.SetMetrics(s)
-	return bic
-}
-
-// SetNillableMetrics sets the "metrics" field if the given value is not nil.
-func (bic *BazelInvocationCreate) SetNillableMetrics(s *summary.Metrics) *BazelInvocationCreate {
-	if s != nil {
-		bic.SetMetrics(*s)
-	}
-	return bic
-}
-
 // SetEventFileID sets the "event_file" edge to the EventFile entity by ID.
 func (bic *BazelInvocationCreate) SetEventFileID(id int) *BazelInvocationCreate {
 	bic.mutation.SetEventFileID(id)
@@ -195,6 +182,25 @@ func (bic *BazelInvocationCreate) SetNillableBuildID(id *int) *BazelInvocationCr
 // SetBuild sets the "build" edge to the Build entity.
 func (bic *BazelInvocationCreate) SetBuild(b *Build) *BazelInvocationCreate {
 	return bic.SetBuildID(b.ID)
+}
+
+// SetMetricsID sets the "metrics" edge to the Metrics entity by ID.
+func (bic *BazelInvocationCreate) SetMetricsID(id int) *BazelInvocationCreate {
+	bic.mutation.SetMetricsID(id)
+	return bic
+}
+
+// SetNillableMetricsID sets the "metrics" edge to the Metrics entity by ID if the given value is not nil.
+func (bic *BazelInvocationCreate) SetNillableMetricsID(id *int) *BazelInvocationCreate {
+	if id != nil {
+		bic = bic.SetMetricsID(*id)
+	}
+	return bic
+}
+
+// SetMetrics sets the "metrics" edge to the Metrics entity.
+func (bic *BazelInvocationCreate) SetMetrics(m *Metrics) *BazelInvocationCreate {
+	return bic.SetMetricsID(m.ID)
 }
 
 // AddProblemIDs adds the "problems" edge to the BazelInvocationProblem entity by IDs.
@@ -338,10 +344,6 @@ func (bic *BazelInvocationCreate) createSpec() (*BazelInvocation, *sqlgraph.Crea
 		_spec.SetField(bazelinvocation.FieldBuildLogs, field.TypeString, value)
 		_node.BuildLogs = value
 	}
-	if value, ok := bic.mutation.Metrics(); ok {
-		_spec.SetField(bazelinvocation.FieldMetrics, field.TypeJSON, value)
-		_node.Metrics = value
-	}
 	if nodes := bic.mutation.EventFileIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
@@ -374,6 +376,22 @@ func (bic *BazelInvocationCreate) createSpec() (*BazelInvocation, *sqlgraph.Crea
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.build_invocations = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := bic.mutation.MetricsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   bazelinvocation.MetricsTable,
+			Columns: []string{bazelinvocation.MetricsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(metrics.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := bic.mutation.ProblemsIDs(); len(nodes) > 0 {

@@ -15,6 +15,7 @@ import (
 	"github.com/buildbarn/bb-portal/ent/gen/ent/bazelinvocationproblem"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/build"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/eventfile"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/metrics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/predicate"
 )
 
@@ -27,6 +28,7 @@ type BazelInvocationQuery struct {
 	predicates        []predicate.BazelInvocation
 	withEventFile     *EventFileQuery
 	withBuild         *BuildQuery
+	withMetrics       *MetricsQuery
 	withProblems      *BazelInvocationProblemQuery
 	withFKs           bool
 	modifiers         []func(*sql.Selector)
@@ -105,6 +107,28 @@ func (biq *BazelInvocationQuery) QueryBuild() *BuildQuery {
 			sqlgraph.From(bazelinvocation.Table, bazelinvocation.FieldID, selector),
 			sqlgraph.To(build.Table, build.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, bazelinvocation.BuildTable, bazelinvocation.BuildColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(biq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryMetrics chains the current query on the "metrics" edge.
+func (biq *BazelInvocationQuery) QueryMetrics() *MetricsQuery {
+	query := (&MetricsClient{config: biq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := biq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := biq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(bazelinvocation.Table, bazelinvocation.FieldID, selector),
+			sqlgraph.To(metrics.Table, metrics.FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, false, bazelinvocation.MetricsTable, bazelinvocation.MetricsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(biq.driver.Dialect(), step)
 		return fromU, nil
@@ -328,6 +352,7 @@ func (biq *BazelInvocationQuery) Clone() *BazelInvocationQuery {
 		predicates:    append([]predicate.BazelInvocation{}, biq.predicates...),
 		withEventFile: biq.withEventFile.Clone(),
 		withBuild:     biq.withBuild.Clone(),
+		withMetrics:   biq.withMetrics.Clone(),
 		withProblems:  biq.withProblems.Clone(),
 		// clone intermediate query.
 		sql:  biq.sql.Clone(),
@@ -354,6 +379,17 @@ func (biq *BazelInvocationQuery) WithBuild(opts ...func(*BuildQuery)) *BazelInvo
 		opt(query)
 	}
 	biq.withBuild = query
+	return biq
+}
+
+// WithMetrics tells the query-builder to eager-load the nodes that are connected to
+// the "metrics" edge. The optional arguments are used to configure the query builder of the edge.
+func (biq *BazelInvocationQuery) WithMetrics(opts ...func(*MetricsQuery)) *BazelInvocationQuery {
+	query := (&MetricsClient{config: biq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	biq.withMetrics = query
 	return biq
 }
 
@@ -447,9 +483,10 @@ func (biq *BazelInvocationQuery) sqlAll(ctx context.Context, hooks ...queryHook)
 		nodes       = []*BazelInvocation{}
 		withFKs     = biq.withFKs
 		_spec       = biq.querySpec()
-		loadedTypes = [3]bool{
+		loadedTypes = [4]bool{
 			biq.withEventFile != nil,
 			biq.withBuild != nil,
+			biq.withMetrics != nil,
 			biq.withProblems != nil,
 		}
 	)
@@ -489,6 +526,12 @@ func (biq *BazelInvocationQuery) sqlAll(ctx context.Context, hooks ...queryHook)
 	if query := biq.withBuild; query != nil {
 		if err := biq.loadBuild(ctx, query, nodes, nil,
 			func(n *BazelInvocation, e *Build) { n.Edges.Build = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := biq.withMetrics; query != nil {
+		if err := biq.loadMetrics(ctx, query, nodes, nil,
+			func(n *BazelInvocation, e *Metrics) { n.Edges.Metrics = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -575,6 +618,34 @@ func (biq *BazelInvocationQuery) loadBuild(ctx context.Context, query *BuildQuer
 		for i := range nodes {
 			assign(nodes[i], n)
 		}
+	}
+	return nil
+}
+func (biq *BazelInvocationQuery) loadMetrics(ctx context.Context, query *MetricsQuery, nodes []*BazelInvocation, init func(*BazelInvocation), assign func(*BazelInvocation, *Metrics)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int]*BazelInvocation)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+	}
+	query.withFKs = true
+	query.Where(predicate.Metrics(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(bazelinvocation.MetricsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.bazel_invocation_metrics
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "bazel_invocation_metrics" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "bazel_invocation_metrics" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
 	}
 	return nil
 }

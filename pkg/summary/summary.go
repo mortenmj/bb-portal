@@ -181,6 +181,23 @@ type MissDetail struct {
 	Count  int32
 }
 
+func (r MissReason) EnumIndex() int {
+	return int(r)
+}
+
+func (r MissReason) String() string {
+	return [...]string{
+		"UNKNOWN",
+		"DIFFERENT_ACTION_KEY",
+		"DIFFERENT_DEPS",
+		"DIFFERENT_ENVIRONMENT",
+		"DIFFERENT_FILES",
+		"CORRUPTED_CACHE_ENTRY",
+		"NOT_CACHED",
+		"UNCONDITIONAL_EXECUTION",
+	}[r]
+}
+
 type MissReason int32
 
 const (

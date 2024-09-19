@@ -541,6 +541,17 @@ func (bi *BazelInvocationQuery) collectField(ctx context.Context, oneNode bool, 
 				return err
 			}
 			bi.withBuild = query
+
+		case "metrics":
+			var (
+				alias = field.Alias
+				path  = append(path, alias)
+				query = (&MetricsClient{config: bi.config}).Query()
+			)
+			if err := query.collectField(ctx, oneNode, opCtx, field, path, mayAddCondition(satisfies, metricsImplementors)...); err != nil {
+				return err
+			}
+			bi.withMetrics = query
 		case "invocationID":
 			if _, ok := fieldSeen[bazelinvocation.FieldInvocationID]; !ok {
 				selectedFields = append(selectedFields, bazelinvocation.FieldInvocationID)
@@ -590,11 +601,6 @@ func (bi *BazelInvocationQuery) collectField(ctx context.Context, oneNode bool, 
 			if _, ok := fieldSeen[bazelinvocation.FieldBuildLogs]; !ok {
 				selectedFields = append(selectedFields, bazelinvocation.FieldBuildLogs)
 				fieldSeen[bazelinvocation.FieldBuildLogs] = struct{}{}
-			}
-		case "metrics":
-			if _, ok := fieldSeen[bazelinvocation.FieldMetrics]; !ok {
-				selectedFields = append(selectedFields, bazelinvocation.FieldMetrics)
-				fieldSeen[bazelinvocation.FieldMetrics] = struct{}{}
 			}
 		case "id":
 		case "__typename":
@@ -1445,6 +1451,17 @@ func (m *MetricsQuery) collectField(ctx context.Context, oneNode bool, opCtx *gr
 	path = append([]string(nil), path...)
 	for _, field := range graphql.CollectFields(opCtx, collected.Selections, satisfies) {
 		switch field.Name {
+
+		case "bazelInvocation":
+			var (
+				alias = field.Alias
+				path  = append(path, alias)
+				query = (&BazelInvocationClient{config: m.config}).Query()
+			)
+			if err := query.collectField(ctx, oneNode, opCtx, field, path, mayAddCondition(satisfies, bazelinvocationImplementors)...); err != nil {
+				return err
+			}
+			m.withBazelInvocation = query
 
 		case "actionSummary":
 			var (

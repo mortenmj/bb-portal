@@ -53,6 +53,29 @@ func IDLTE(id int) predicate.Metrics {
 	return predicate.Metrics(sql.FieldLTE(FieldID, id))
 }
 
+// HasBazelInvocation applies the HasEdge predicate on the "bazel_invocation" edge.
+func HasBazelInvocation() predicate.Metrics {
+	return predicate.Metrics(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, true, BazelInvocationTable, BazelInvocationColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasBazelInvocationWith applies the HasEdge predicate on the "bazel_invocation" edge with a given conditions (other predicates).
+func HasBazelInvocationWith(preds ...predicate.BazelInvocation) predicate.Metrics {
+	return predicate.Metrics(func(s *sql.Selector) {
+		step := newBazelInvocationStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // HasActionSummary applies the HasEdge predicate on the "action_summary" edge.
 func HasActionSummary() predicate.Metrics {
 	return predicate.Metrics(func(s *sql.Selector) {
