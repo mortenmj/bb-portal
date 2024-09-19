@@ -50,7 +50,10 @@ type Metrics struct {
 	TimingMetrics     TimingMetrics
 	CumulativeMetrics CumulativeMetrics
 	ArtifactMetrics   ArtifactMetrics
-	NetworkMetrics    NetworkMetrics
+	BuildGraphMetrics BuildGraphMetrics
+	//below types are missing from the proto, but i want em
+	NetworkMetrics          NetworkMetrics
+	DynamicExecutionMetrics DynamicExecutionMetrics
 }
 
 type InvocationSummary struct {
@@ -172,6 +175,7 @@ type NetworkMetrics struct {
 type ActionCacheStatistics struct {
 	SizeInBytes  uint64
 	SaveTimeInMs uint64
+	LoadTimeInMs uint64
 	Hits         int32
 	Misses       int32
 	MissDetails  []MissDetail
@@ -217,4 +221,37 @@ type PackageLoadMetrics struct {
 	ComputationSteps   uint64
 	NumTransitiveLoads uint64
 	PackageOverhead    uint64
+}
+
+type DynamicExecutionMetrics struct {
+	RaceStatistics []RaceStatistics
+}
+
+type RaceStatistics struct {
+	Mnemonic     string
+	LocalRunner  string
+	RemoteRunner string
+	LocalWins    int64
+	RemoteWins   int64
+}
+
+type EvaluationStat struct {
+	SkyfunctionName string
+	Count           int64
+}
+
+type BuildGraphMetrics struct {
+	ActionLookupValueCount                    int32
+	ActionLookupValueCountNotIncludingAspects int32
+	ActionCount                               int32
+	InputFileConfiguredTargetCount            int32
+	OutputFileConfiguredTargetCount           int32
+	OtherConfiguredTargetCount                int32
+	OutputArtifactCount                       int32
+	PostInvocationSkyframeNodeCount           int32
+	DirtiedValues                             []EvaluationStat
+	ChangedValues                             []EvaluationStat
+	BuiltValues                               []EvaluationStat
+	CleanedValues                             []EvaluationStat
+	EvaluatedValues                           []EvaluationStat
 }

@@ -5,7 +5,6 @@ package ent
 import (
 	"fmt"
 	"strings"
-	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
@@ -28,9 +27,9 @@ type ActionData struct {
 	// LastEndedMs holds the value of the "last_ended_ms" field.
 	LastEndedMs int64 `json:"last_ended_ms,omitempty"`
 	// SystemTime holds the value of the "system_time" field.
-	SystemTime time.Duration `json:"system_time,omitempty"`
+	SystemTime int64 `json:"system_time,omitempty"`
 	// UserTime holds the value of the "user_time" field.
-	UserTime time.Duration `json:"user_time,omitempty"`
+	UserTime int64 `json:"user_time,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the ActionDataQuery when eager-loading is set.
 	Edges        ActionDataEdges `json:"edges"`
@@ -123,13 +122,13 @@ func (ad *ActionData) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field system_time", values[i])
 			} else if value.Valid {
-				ad.SystemTime = time.Duration(value.Int64)
+				ad.SystemTime = value.Int64
 			}
 		case actiondata.FieldUserTime:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field user_time", values[i])
 			} else if value.Valid {
-				ad.UserTime = time.Duration(value.Int64)
+				ad.UserTime = value.Int64
 			}
 		default:
 			ad.selectValues.Set(columns[i], values[i])

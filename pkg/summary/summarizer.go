@@ -181,9 +181,11 @@ func (s Summarizer) handleBuildMetrics(metrics *bes.BuildMetrics) {
 	action_cache_statistics := ActionCacheStatistics{
 		SizeInBytes:  metrics.ActionSummary.ActionCacheStatistics.SizeInBytes,
 		SaveTimeInMs: metrics.ActionSummary.ActionCacheStatistics.SaveTimeInMs,
-		Hits:         metrics.ActionSummary.ActionCacheStatistics.Hits,
-		Misses:       metrics.ActionSummary.ActionCacheStatistics.Misses,
-		MissDetails:  miss_details,
+		//TODO: investigate why load time in ms is not available on bes object
+		//LoadTimeInMs: metrics.ActionSummary.ActionCacheStatistics
+		Hits:        metrics.ActionSummary.ActionCacheStatistics.Hits,
+		Misses:      metrics.ActionSummary.ActionCacheStatistics.Misses,
+		MissDetails: miss_details,
 	}
 
 	var runner_counts []RunnerCount = make([]RunnerCount, 0)
@@ -273,6 +275,8 @@ func (s Summarizer) handleBuildMetrics(metrics *bes.BuildMetrics) {
 		WallTimeInMs:           metrics.TimingMetrics.WallTimeInMs,
 		ExecutionPhaseTimeInMs: metrics.TimingMetrics.ExecutionPhaseTimeInMs,
 		AnalysisPhaseTimeInMs:  metrics.TimingMetrics.AnalysisPhaseTimeInMs,
+		//TODO: why isn't this on the proto
+		//ActionsExecutionStartInMs: metrics.TimingMetrics.ActionsExecutionStartInMs,
 	}
 
 	//artifact metrics
@@ -311,7 +315,14 @@ func (s Summarizer) handleBuildMetrics(metrics *bes.BuildMetrics) {
 		NumBuilds:   metrics.CumulativeMetrics.NumBuilds,
 	}
 
-	//network metrics
+	//TODO: dynamic metrics are not on the proto
+	var race_statistics []RaceStatistics = make([]RaceStatistics, 0)
+	// for _,rc := range metrics.
+	dynamic_metrics := DynamicExecutionMetrics{
+		RaceStatistics: race_statistics,
+	}
+
+	//network metrics are currently empty...not sure why
 
 	var system_network_stats SystemNetworkStats
 
@@ -333,15 +344,40 @@ func (s Summarizer) handleBuildMetrics(metrics *bes.BuildMetrics) {
 		SystemNetworkStats: &system_network_stats,
 	}
 
+	//TODO: these vaues are not on the proto.
+	var dirtied_values []EvaluationStat = make([]EvaluationStat, 0)
+	var changed_values []EvaluationStat = make([]EvaluationStat, 0)
+	var built_values []EvaluationStat = make([]EvaluationStat, 0)
+	var cleaned_values []EvaluationStat = make([]EvaluationStat, 0)
+	var evaluated_values []EvaluationStat = make([]EvaluationStat, 0)
+
+	buildgraph_metrics := BuildGraphMetrics{
+		ActionLookupValueCount:                    metrics.BuildGraphMetrics.ActionLookupValueCount,
+		ActionLookupValueCountNotIncludingAspects: metrics.BuildGraphMetrics.ActionLookupValueCountNotIncludingAspects,
+		ActionCount:                     metrics.BuildGraphMetrics.ActionCount,
+		InputFileConfiguredTargetCount:  metrics.BuildGraphMetrics.InputFileConfiguredTargetCount,
+		OutputFileConfiguredTargetCount: metrics.BuildGraphMetrics.OutputFileConfiguredTargetCount,
+		OtherConfiguredTargetCount:      metrics.BuildGraphMetrics.OtherConfiguredTargetCount,
+		OutputArtifactCount:             metrics.BuildGraphMetrics.OutputArtifactCount,
+		PostInvocationSkyframeNodeCount: metrics.BuildGraphMetrics.PostInvocationSkyframeNodeCount,
+		DirtiedValues:                   dirtied_values,
+		ChangedValues:                   changed_values,
+		BuiltValues:                     built_values,
+		CleanedValues:                   cleaned_values,
+		EvaluatedValues:                 evaluated_values,
+	}
+
 	summary_metrics := Metrics{
-		ActionSummary:     action_summary,
-		MemoryMetrics:     memory_metrics,
-		TargetMetrics:     target_metrics,
-		PackageMetrics:    package_metrics,
-		TimingMetrics:     timing_metrics,
-		ArtifactMetrics:   artifact_metrics,
-		CumulativeMetrics: cumulative_metrics,
-		NetworkMetrics:    network_metrics,
+		ActionSummary:           action_summary,
+		MemoryMetrics:           memory_metrics,
+		TargetMetrics:           target_metrics,
+		PackageMetrics:          package_metrics,
+		TimingMetrics:           timing_metrics,
+		ArtifactMetrics:         artifact_metrics,
+		CumulativeMetrics:       cumulative_metrics,
+		NetworkMetrics:          network_metrics,
+		BuildGraphMetrics:       buildgraph_metrics,
+		DynamicExecutionMetrics: dynamic_metrics,
 	}
 
 	s.summary.Metrics = summary_metrics

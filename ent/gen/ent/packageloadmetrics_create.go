@@ -5,7 +5,6 @@ package ent
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -35,15 +34,15 @@ func (plmc *PackageLoadMetricsCreate) SetNillableName(s *string) *PackageLoadMet
 }
 
 // SetLoadDuration sets the "load_duration" field.
-func (plmc *PackageLoadMetricsCreate) SetLoadDuration(t time.Duration) *PackageLoadMetricsCreate {
-	plmc.mutation.SetLoadDuration(t)
+func (plmc *PackageLoadMetricsCreate) SetLoadDuration(i int64) *PackageLoadMetricsCreate {
+	plmc.mutation.SetLoadDuration(i)
 	return plmc
 }
 
 // SetNillableLoadDuration sets the "load_duration" field if the given value is not nil.
-func (plmc *PackageLoadMetricsCreate) SetNillableLoadDuration(t *time.Duration) *PackageLoadMetricsCreate {
-	if t != nil {
-		plmc.SetLoadDuration(*t)
+func (plmc *PackageLoadMetricsCreate) SetNillableLoadDuration(i *int64) *PackageLoadMetricsCreate {
+	if i != nil {
+		plmc.SetLoadDuration(*i)
 	}
 	return plmc
 }

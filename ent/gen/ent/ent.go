@@ -20,8 +20,10 @@ import (
 	"github.com/buildbarn/bb-portal/ent/gen/ent/bazelinvocationproblem"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/blob"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/build"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/buildgraphmetrics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/cumulativemetrics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/dynamicexecutionmetrics"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/evaluationstat"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/eventfile"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/filesmetric"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/garbagemetrics"
@@ -104,8 +106,10 @@ func checkColumn(table, column string) error {
 			bazelinvocationproblem.Table:  bazelinvocationproblem.ValidColumn,
 			blob.Table:                    blob.ValidColumn,
 			build.Table:                   build.ValidColumn,
+			buildgraphmetrics.Table:       buildgraphmetrics.ValidColumn,
 			cumulativemetrics.Table:       cumulativemetrics.ValidColumn,
 			dynamicexecutionmetrics.Table: dynamicexecutionmetrics.ValidColumn,
+			evaluationstat.Table:          evaluationstat.ValidColumn,
 			eventfile.Table:               eventfile.ValidColumn,
 			filesmetric.Table:             filesmetric.ValidColumn,
 			garbagemetrics.Table:          garbagemetrics.ValidColumn,

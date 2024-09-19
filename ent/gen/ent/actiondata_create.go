@@ -5,7 +5,6 @@ package ent
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -91,29 +90,29 @@ func (adc *ActionDataCreate) SetNillableLastEndedMs(i *int64) *ActionDataCreate 
 }
 
 // SetSystemTime sets the "system_time" field.
-func (adc *ActionDataCreate) SetSystemTime(t time.Duration) *ActionDataCreate {
-	adc.mutation.SetSystemTime(t)
+func (adc *ActionDataCreate) SetSystemTime(i int64) *ActionDataCreate {
+	adc.mutation.SetSystemTime(i)
 	return adc
 }
 
 // SetNillableSystemTime sets the "system_time" field if the given value is not nil.
-func (adc *ActionDataCreate) SetNillableSystemTime(t *time.Duration) *ActionDataCreate {
-	if t != nil {
-		adc.SetSystemTime(*t)
+func (adc *ActionDataCreate) SetNillableSystemTime(i *int64) *ActionDataCreate {
+	if i != nil {
+		adc.SetSystemTime(*i)
 	}
 	return adc
 }
 
 // SetUserTime sets the "user_time" field.
-func (adc *ActionDataCreate) SetUserTime(t time.Duration) *ActionDataCreate {
-	adc.mutation.SetUserTime(t)
+func (adc *ActionDataCreate) SetUserTime(i int64) *ActionDataCreate {
+	adc.mutation.SetUserTime(i)
 	return adc
 }
 
 // SetNillableUserTime sets the "user_time" field if the given value is not nil.
-func (adc *ActionDataCreate) SetNillableUserTime(t *time.Duration) *ActionDataCreate {
-	if t != nil {
-		adc.SetUserTime(*t)
+func (adc *ActionDataCreate) SetNillableUserTime(i *int64) *ActionDataCreate {
+	if i != nil {
+		adc.SetUserTime(*i)
 	}
 	return adc
 }

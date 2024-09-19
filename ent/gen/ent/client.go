@@ -23,8 +23,10 @@ import (
 	"github.com/buildbarn/bb-portal/ent/gen/ent/bazelinvocationproblem"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/blob"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/build"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/buildgraphmetrics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/cumulativemetrics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/dynamicexecutionmetrics"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/evaluationstat"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/eventfile"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/filesmetric"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/garbagemetrics"
@@ -62,10 +64,14 @@ type Client struct {
 	Blob *BlobClient
 	// Build is the client for interacting with the Build builders.
 	Build *BuildClient
+	// BuildGraphMetrics is the client for interacting with the BuildGraphMetrics builders.
+	BuildGraphMetrics *BuildGraphMetricsClient
 	// CumulativeMetrics is the client for interacting with the CumulativeMetrics builders.
 	CumulativeMetrics *CumulativeMetricsClient
 	// DynamicExecutionMetrics is the client for interacting with the DynamicExecutionMetrics builders.
 	DynamicExecutionMetrics *DynamicExecutionMetricsClient
+	// EvaluationStat is the client for interacting with the EvaluationStat builders.
+	EvaluationStat *EvaluationStatClient
 	// EventFile is the client for interacting with the EventFile builders.
 	EventFile *EventFileClient
 	// FilesMetric is the client for interacting with the FilesMetric builders.
@@ -115,8 +121,10 @@ func (c *Client) init() {
 	c.BazelInvocationProblem = NewBazelInvocationProblemClient(c.config)
 	c.Blob = NewBlobClient(c.config)
 	c.Build = NewBuildClient(c.config)
+	c.BuildGraphMetrics = NewBuildGraphMetricsClient(c.config)
 	c.CumulativeMetrics = NewCumulativeMetricsClient(c.config)
 	c.DynamicExecutionMetrics = NewDynamicExecutionMetricsClient(c.config)
+	c.EvaluationStat = NewEvaluationStatClient(c.config)
 	c.EventFile = NewEventFileClient(c.config)
 	c.FilesMetric = NewFilesMetricClient(c.config)
 	c.GarbageMetrics = NewGarbageMetricsClient(c.config)
@@ -231,8 +239,10 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		BazelInvocationProblem:  NewBazelInvocationProblemClient(cfg),
 		Blob:                    NewBlobClient(cfg),
 		Build:                   NewBuildClient(cfg),
+		BuildGraphMetrics:       NewBuildGraphMetricsClient(cfg),
 		CumulativeMetrics:       NewCumulativeMetricsClient(cfg),
 		DynamicExecutionMetrics: NewDynamicExecutionMetricsClient(cfg),
+		EvaluationStat:          NewEvaluationStatClient(cfg),
 		EventFile:               NewEventFileClient(cfg),
 		FilesMetric:             NewFilesMetricClient(cfg),
 		GarbageMetrics:          NewGarbageMetricsClient(cfg),
@@ -274,8 +284,10 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		BazelInvocationProblem:  NewBazelInvocationProblemClient(cfg),
 		Blob:                    NewBlobClient(cfg),
 		Build:                   NewBuildClient(cfg),
+		BuildGraphMetrics:       NewBuildGraphMetricsClient(cfg),
 		CumulativeMetrics:       NewCumulativeMetricsClient(cfg),
 		DynamicExecutionMetrics: NewDynamicExecutionMetricsClient(cfg),
+		EvaluationStat:          NewEvaluationStatClient(cfg),
 		EventFile:               NewEventFileClient(cfg),
 		FilesMetric:             NewFilesMetricClient(cfg),
 		GarbageMetrics:          NewGarbageMetricsClient(cfg),
@@ -321,8 +333,9 @@ func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
 		c.ActionCacheStatistics, c.ActionData, c.ActionSummary, c.ArtifactMetrics,
 		c.BazelInvocation, c.BazelInvocationProblem, c.Blob, c.Build,
-		c.CumulativeMetrics, c.DynamicExecutionMetrics, c.EventFile, c.FilesMetric,
-		c.GarbageMetrics, c.MemoryMetrics, c.Metrics, c.MissDetail, c.NetworkMetrics,
+		c.BuildGraphMetrics, c.CumulativeMetrics, c.DynamicExecutionMetrics,
+		c.EvaluationStat, c.EventFile, c.FilesMetric, c.GarbageMetrics,
+		c.MemoryMetrics, c.Metrics, c.MissDetail, c.NetworkMetrics,
 		c.PackageLoadMetrics, c.PackageMetrics, c.RaceStatistics, c.RunnerCount,
 		c.SystemNetworkStats, c.TargetMetrics, c.TimingMetrics,
 	} {
@@ -336,8 +349,9 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
 		c.ActionCacheStatistics, c.ActionData, c.ActionSummary, c.ArtifactMetrics,
 		c.BazelInvocation, c.BazelInvocationProblem, c.Blob, c.Build,
-		c.CumulativeMetrics, c.DynamicExecutionMetrics, c.EventFile, c.FilesMetric,
-		c.GarbageMetrics, c.MemoryMetrics, c.Metrics, c.MissDetail, c.NetworkMetrics,
+		c.BuildGraphMetrics, c.CumulativeMetrics, c.DynamicExecutionMetrics,
+		c.EvaluationStat, c.EventFile, c.FilesMetric, c.GarbageMetrics,
+		c.MemoryMetrics, c.Metrics, c.MissDetail, c.NetworkMetrics,
 		c.PackageLoadMetrics, c.PackageMetrics, c.RaceStatistics, c.RunnerCount,
 		c.SystemNetworkStats, c.TargetMetrics, c.TimingMetrics,
 	} {
@@ -364,10 +378,14 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.Blob.mutate(ctx, m)
 	case *BuildMutation:
 		return c.Build.mutate(ctx, m)
+	case *BuildGraphMetricsMutation:
+		return c.BuildGraphMetrics.mutate(ctx, m)
 	case *CumulativeMetricsMutation:
 		return c.CumulativeMetrics.mutate(ctx, m)
 	case *DynamicExecutionMetricsMutation:
 		return c.DynamicExecutionMetrics.mutate(ctx, m)
+	case *EvaluationStatMutation:
+		return c.EvaluationStat.mutate(ctx, m)
 	case *EventFileMutation:
 		return c.EventFile.mutate(ctx, m)
 	case *FilesMetricMutation:
@@ -1753,6 +1771,235 @@ func (c *BuildClient) mutate(ctx context.Context, m *BuildMutation) (Value, erro
 	}
 }
 
+// BuildGraphMetricsClient is a client for the BuildGraphMetrics schema.
+type BuildGraphMetricsClient struct {
+	config
+}
+
+// NewBuildGraphMetricsClient returns a client for the BuildGraphMetrics from the given config.
+func NewBuildGraphMetricsClient(c config) *BuildGraphMetricsClient {
+	return &BuildGraphMetricsClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `buildgraphmetrics.Hooks(f(g(h())))`.
+func (c *BuildGraphMetricsClient) Use(hooks ...Hook) {
+	c.hooks.BuildGraphMetrics = append(c.hooks.BuildGraphMetrics, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `buildgraphmetrics.Intercept(f(g(h())))`.
+func (c *BuildGraphMetricsClient) Intercept(interceptors ...Interceptor) {
+	c.inters.BuildGraphMetrics = append(c.inters.BuildGraphMetrics, interceptors...)
+}
+
+// Create returns a builder for creating a BuildGraphMetrics entity.
+func (c *BuildGraphMetricsClient) Create() *BuildGraphMetricsCreate {
+	mutation := newBuildGraphMetricsMutation(c.config, OpCreate)
+	return &BuildGraphMetricsCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of BuildGraphMetrics entities.
+func (c *BuildGraphMetricsClient) CreateBulk(builders ...*BuildGraphMetricsCreate) *BuildGraphMetricsCreateBulk {
+	return &BuildGraphMetricsCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *BuildGraphMetricsClient) MapCreateBulk(slice any, setFunc func(*BuildGraphMetricsCreate, int)) *BuildGraphMetricsCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &BuildGraphMetricsCreateBulk{err: fmt.Errorf("calling to BuildGraphMetricsClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*BuildGraphMetricsCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &BuildGraphMetricsCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for BuildGraphMetrics.
+func (c *BuildGraphMetricsClient) Update() *BuildGraphMetricsUpdate {
+	mutation := newBuildGraphMetricsMutation(c.config, OpUpdate)
+	return &BuildGraphMetricsUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *BuildGraphMetricsClient) UpdateOne(bgm *BuildGraphMetrics) *BuildGraphMetricsUpdateOne {
+	mutation := newBuildGraphMetricsMutation(c.config, OpUpdateOne, withBuildGraphMetrics(bgm))
+	return &BuildGraphMetricsUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *BuildGraphMetricsClient) UpdateOneID(id int) *BuildGraphMetricsUpdateOne {
+	mutation := newBuildGraphMetricsMutation(c.config, OpUpdateOne, withBuildGraphMetricsID(id))
+	return &BuildGraphMetricsUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for BuildGraphMetrics.
+func (c *BuildGraphMetricsClient) Delete() *BuildGraphMetricsDelete {
+	mutation := newBuildGraphMetricsMutation(c.config, OpDelete)
+	return &BuildGraphMetricsDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *BuildGraphMetricsClient) DeleteOne(bgm *BuildGraphMetrics) *BuildGraphMetricsDeleteOne {
+	return c.DeleteOneID(bgm.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *BuildGraphMetricsClient) DeleteOneID(id int) *BuildGraphMetricsDeleteOne {
+	builder := c.Delete().Where(buildgraphmetrics.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &BuildGraphMetricsDeleteOne{builder}
+}
+
+// Query returns a query builder for BuildGraphMetrics.
+func (c *BuildGraphMetricsClient) Query() *BuildGraphMetricsQuery {
+	return &BuildGraphMetricsQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeBuildGraphMetrics},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a BuildGraphMetrics entity by its id.
+func (c *BuildGraphMetricsClient) Get(ctx context.Context, id int) (*BuildGraphMetrics, error) {
+	return c.Query().Where(buildgraphmetrics.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *BuildGraphMetricsClient) GetX(ctx context.Context, id int) *BuildGraphMetrics {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryMetrics queries the metrics edge of a BuildGraphMetrics.
+func (c *BuildGraphMetricsClient) QueryMetrics(bgm *BuildGraphMetrics) *MetricsQuery {
+	query := (&MetricsClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := bgm.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(buildgraphmetrics.Table, buildgraphmetrics.FieldID, id),
+			sqlgraph.To(metrics.Table, metrics.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, buildgraphmetrics.MetricsTable, buildgraphmetrics.MetricsPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(bgm.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryDirtiedValues queries the dirtied_values edge of a BuildGraphMetrics.
+func (c *BuildGraphMetricsClient) QueryDirtiedValues(bgm *BuildGraphMetrics) *EvaluationStatQuery {
+	query := (&EvaluationStatClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := bgm.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(buildgraphmetrics.Table, buildgraphmetrics.FieldID, id),
+			sqlgraph.To(evaluationstat.Table, evaluationstat.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, buildgraphmetrics.DirtiedValuesTable, buildgraphmetrics.DirtiedValuesColumn),
+		)
+		fromV = sqlgraph.Neighbors(bgm.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryChangedValues queries the changed_values edge of a BuildGraphMetrics.
+func (c *BuildGraphMetricsClient) QueryChangedValues(bgm *BuildGraphMetrics) *EvaluationStatQuery {
+	query := (&EvaluationStatClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := bgm.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(buildgraphmetrics.Table, buildgraphmetrics.FieldID, id),
+			sqlgraph.To(evaluationstat.Table, evaluationstat.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, buildgraphmetrics.ChangedValuesTable, buildgraphmetrics.ChangedValuesColumn),
+		)
+		fromV = sqlgraph.Neighbors(bgm.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryBuiltValues queries the built_values edge of a BuildGraphMetrics.
+func (c *BuildGraphMetricsClient) QueryBuiltValues(bgm *BuildGraphMetrics) *EvaluationStatQuery {
+	query := (&EvaluationStatClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := bgm.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(buildgraphmetrics.Table, buildgraphmetrics.FieldID, id),
+			sqlgraph.To(evaluationstat.Table, evaluationstat.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, buildgraphmetrics.BuiltValuesTable, buildgraphmetrics.BuiltValuesColumn),
+		)
+		fromV = sqlgraph.Neighbors(bgm.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryCleanedValues queries the cleaned_values edge of a BuildGraphMetrics.
+func (c *BuildGraphMetricsClient) QueryCleanedValues(bgm *BuildGraphMetrics) *EvaluationStatQuery {
+	query := (&EvaluationStatClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := bgm.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(buildgraphmetrics.Table, buildgraphmetrics.FieldID, id),
+			sqlgraph.To(evaluationstat.Table, evaluationstat.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, buildgraphmetrics.CleanedValuesTable, buildgraphmetrics.CleanedValuesColumn),
+		)
+		fromV = sqlgraph.Neighbors(bgm.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryEvaluatedValues queries the evaluated_values edge of a BuildGraphMetrics.
+func (c *BuildGraphMetricsClient) QueryEvaluatedValues(bgm *BuildGraphMetrics) *EvaluationStatQuery {
+	query := (&EvaluationStatClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := bgm.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(buildgraphmetrics.Table, buildgraphmetrics.FieldID, id),
+			sqlgraph.To(evaluationstat.Table, evaluationstat.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, buildgraphmetrics.EvaluatedValuesTable, buildgraphmetrics.EvaluatedValuesPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(bgm.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *BuildGraphMetricsClient) Hooks() []Hook {
+	return c.hooks.BuildGraphMetrics
+}
+
+// Interceptors returns the client interceptors.
+func (c *BuildGraphMetricsClient) Interceptors() []Interceptor {
+	return c.inters.BuildGraphMetrics
+}
+
+func (c *BuildGraphMetricsClient) mutate(ctx context.Context, m *BuildGraphMetricsMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&BuildGraphMetricsCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&BuildGraphMetricsUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&BuildGraphMetricsUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&BuildGraphMetricsDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown BuildGraphMetrics mutation op: %q", m.Op())
+	}
+}
+
 // CumulativeMetricsClient is a client for the CumulativeMetrics schema.
 type CumulativeMetricsClient struct {
 	config
@@ -2064,6 +2311,155 @@ func (c *DynamicExecutionMetricsClient) mutate(ctx context.Context, m *DynamicEx
 		return (&DynamicExecutionMetricsDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown DynamicExecutionMetrics mutation op: %q", m.Op())
+	}
+}
+
+// EvaluationStatClient is a client for the EvaluationStat schema.
+type EvaluationStatClient struct {
+	config
+}
+
+// NewEvaluationStatClient returns a client for the EvaluationStat from the given config.
+func NewEvaluationStatClient(c config) *EvaluationStatClient {
+	return &EvaluationStatClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `evaluationstat.Hooks(f(g(h())))`.
+func (c *EvaluationStatClient) Use(hooks ...Hook) {
+	c.hooks.EvaluationStat = append(c.hooks.EvaluationStat, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `evaluationstat.Intercept(f(g(h())))`.
+func (c *EvaluationStatClient) Intercept(interceptors ...Interceptor) {
+	c.inters.EvaluationStat = append(c.inters.EvaluationStat, interceptors...)
+}
+
+// Create returns a builder for creating a EvaluationStat entity.
+func (c *EvaluationStatClient) Create() *EvaluationStatCreate {
+	mutation := newEvaluationStatMutation(c.config, OpCreate)
+	return &EvaluationStatCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of EvaluationStat entities.
+func (c *EvaluationStatClient) CreateBulk(builders ...*EvaluationStatCreate) *EvaluationStatCreateBulk {
+	return &EvaluationStatCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *EvaluationStatClient) MapCreateBulk(slice any, setFunc func(*EvaluationStatCreate, int)) *EvaluationStatCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &EvaluationStatCreateBulk{err: fmt.Errorf("calling to EvaluationStatClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*EvaluationStatCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &EvaluationStatCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for EvaluationStat.
+func (c *EvaluationStatClient) Update() *EvaluationStatUpdate {
+	mutation := newEvaluationStatMutation(c.config, OpUpdate)
+	return &EvaluationStatUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *EvaluationStatClient) UpdateOne(es *EvaluationStat) *EvaluationStatUpdateOne {
+	mutation := newEvaluationStatMutation(c.config, OpUpdateOne, withEvaluationStat(es))
+	return &EvaluationStatUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *EvaluationStatClient) UpdateOneID(id int) *EvaluationStatUpdateOne {
+	mutation := newEvaluationStatMutation(c.config, OpUpdateOne, withEvaluationStatID(id))
+	return &EvaluationStatUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for EvaluationStat.
+func (c *EvaluationStatClient) Delete() *EvaluationStatDelete {
+	mutation := newEvaluationStatMutation(c.config, OpDelete)
+	return &EvaluationStatDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *EvaluationStatClient) DeleteOne(es *EvaluationStat) *EvaluationStatDeleteOne {
+	return c.DeleteOneID(es.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *EvaluationStatClient) DeleteOneID(id int) *EvaluationStatDeleteOne {
+	builder := c.Delete().Where(evaluationstat.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &EvaluationStatDeleteOne{builder}
+}
+
+// Query returns a query builder for EvaluationStat.
+func (c *EvaluationStatClient) Query() *EvaluationStatQuery {
+	return &EvaluationStatQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeEvaluationStat},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a EvaluationStat entity by its id.
+func (c *EvaluationStatClient) Get(ctx context.Context, id int) (*EvaluationStat, error) {
+	return c.Query().Where(evaluationstat.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *EvaluationStatClient) GetX(ctx context.Context, id int) *EvaluationStat {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryBuildGraphMetrics queries the build_graph_metrics edge of a EvaluationStat.
+func (c *EvaluationStatClient) QueryBuildGraphMetrics(es *EvaluationStat) *BuildGraphMetricsQuery {
+	query := (&BuildGraphMetricsClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := es.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(evaluationstat.Table, evaluationstat.FieldID, id),
+			sqlgraph.To(buildgraphmetrics.Table, buildgraphmetrics.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, evaluationstat.BuildGraphMetricsTable, evaluationstat.BuildGraphMetricsPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(es.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *EvaluationStatClient) Hooks() []Hook {
+	return c.hooks.EvaluationStat
+}
+
+// Interceptors returns the client interceptors.
+func (c *EvaluationStatClient) Interceptors() []Interceptor {
+	return c.inters.EvaluationStat
+}
+
+func (c *EvaluationStatClient) mutate(ctx context.Context, m *EvaluationStatMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&EvaluationStatCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&EvaluationStatUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&EvaluationStatUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&EvaluationStatDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown EvaluationStat mutation op: %q", m.Op())
 	}
 }
 
@@ -2940,6 +3336,22 @@ func (c *MetricsClient) QueryDynamicExecutionMetrics(m *Metrics) *DynamicExecuti
 			sqlgraph.From(metrics.Table, metrics.FieldID, id),
 			sqlgraph.To(dynamicexecutionmetrics.Table, dynamicexecutionmetrics.FieldID),
 			sqlgraph.Edge(sqlgraph.M2M, false, metrics.DynamicExecutionMetricsTable, metrics.DynamicExecutionMetricsPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryBuildGraphMetrics queries the build_graph_metrics edge of a Metrics.
+func (c *MetricsClient) QueryBuildGraphMetrics(m *Metrics) *BuildGraphMetricsQuery {
+	query := (&BuildGraphMetricsClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(metrics.Table, metrics.FieldID, id),
+			sqlgraph.To(buildgraphmetrics.Table, buildgraphmetrics.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, metrics.BuildGraphMetricsTable, metrics.BuildGraphMetricsPrimaryKey...),
 		)
 		fromV = sqlgraph.Neighbors(m.driver.Dialect(), step)
 		return fromV, nil
@@ -4349,18 +4761,18 @@ func (c *TimingMetricsClient) mutate(ctx context.Context, m *TimingMetricsMutati
 type (
 	hooks struct {
 		ActionCacheStatistics, ActionData, ActionSummary, ArtifactMetrics,
-		BazelInvocation, BazelInvocationProblem, Blob, Build, CumulativeMetrics,
-		DynamicExecutionMetrics, EventFile, FilesMetric, GarbageMetrics, MemoryMetrics,
-		Metrics, MissDetail, NetworkMetrics, PackageLoadMetrics, PackageMetrics,
-		RaceStatistics, RunnerCount, SystemNetworkStats, TargetMetrics,
-		TimingMetrics []ent.Hook
+		BazelInvocation, BazelInvocationProblem, Blob, Build, BuildGraphMetrics,
+		CumulativeMetrics, DynamicExecutionMetrics, EvaluationStat, EventFile,
+		FilesMetric, GarbageMetrics, MemoryMetrics, Metrics, MissDetail,
+		NetworkMetrics, PackageLoadMetrics, PackageMetrics, RaceStatistics,
+		RunnerCount, SystemNetworkStats, TargetMetrics, TimingMetrics []ent.Hook
 	}
 	inters struct {
 		ActionCacheStatistics, ActionData, ActionSummary, ArtifactMetrics,
-		BazelInvocation, BazelInvocationProblem, Blob, Build, CumulativeMetrics,
-		DynamicExecutionMetrics, EventFile, FilesMetric, GarbageMetrics, MemoryMetrics,
-		Metrics, MissDetail, NetworkMetrics, PackageLoadMetrics, PackageMetrics,
-		RaceStatistics, RunnerCount, SystemNetworkStats, TargetMetrics,
-		TimingMetrics []ent.Interceptor
+		BazelInvocation, BazelInvocationProblem, Blob, Build, BuildGraphMetrics,
+		CumulativeMetrics, DynamicExecutionMetrics, EvaluationStat, EventFile,
+		FilesMetric, GarbageMetrics, MemoryMetrics, Metrics, MissDetail,
+		NetworkMetrics, PackageLoadMetrics, PackageMetrics, RaceStatistics,
+		RunnerCount, SystemNetworkStats, TargetMetrics, TimingMetrics []ent.Interceptor
 	}
 )

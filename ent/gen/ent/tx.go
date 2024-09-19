@@ -28,10 +28,14 @@ type Tx struct {
 	Blob *BlobClient
 	// Build is the client for interacting with the Build builders.
 	Build *BuildClient
+	// BuildGraphMetrics is the client for interacting with the BuildGraphMetrics builders.
+	BuildGraphMetrics *BuildGraphMetricsClient
 	// CumulativeMetrics is the client for interacting with the CumulativeMetrics builders.
 	CumulativeMetrics *CumulativeMetricsClient
 	// DynamicExecutionMetrics is the client for interacting with the DynamicExecutionMetrics builders.
 	DynamicExecutionMetrics *DynamicExecutionMetricsClient
+	// EvaluationStat is the client for interacting with the EvaluationStat builders.
+	EvaluationStat *EvaluationStatClient
 	// EventFile is the client for interacting with the EventFile builders.
 	EventFile *EventFileClient
 	// FilesMetric is the client for interacting with the FilesMetric builders.
@@ -199,8 +203,10 @@ func (tx *Tx) init() {
 	tx.BazelInvocationProblem = NewBazelInvocationProblemClient(tx.config)
 	tx.Blob = NewBlobClient(tx.config)
 	tx.Build = NewBuildClient(tx.config)
+	tx.BuildGraphMetrics = NewBuildGraphMetricsClient(tx.config)
 	tx.CumulativeMetrics = NewCumulativeMetricsClient(tx.config)
 	tx.DynamicExecutionMetrics = NewDynamicExecutionMetricsClient(tx.config)
+	tx.EvaluationStat = NewEvaluationStatClient(tx.config)
 	tx.EventFile = NewEventFileClient(tx.config)
 	tx.FilesMetric = NewFilesMetricClient(tx.config)
 	tx.GarbageMetrics = NewGarbageMetricsClient(tx.config)

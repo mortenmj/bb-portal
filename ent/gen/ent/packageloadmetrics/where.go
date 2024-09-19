@@ -3,8 +3,6 @@
 package packageloadmetrics
 
 import (
-	"time"
-
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/predicate"
@@ -61,9 +59,8 @@ func Name(v string) predicate.PackageLoadMetrics {
 }
 
 // LoadDuration applies equality check predicate on the "load_duration" field. It's identical to LoadDurationEQ.
-func LoadDuration(v time.Duration) predicate.PackageLoadMetrics {
-	vc := int64(v)
-	return predicate.PackageLoadMetrics(sql.FieldEQ(FieldLoadDuration, vc))
+func LoadDuration(v int64) predicate.PackageLoadMetrics {
+	return predicate.PackageLoadMetrics(sql.FieldEQ(FieldLoadDuration, v))
 }
 
 // NumTargets applies equality check predicate on the "num_targets" field. It's identical to NumTargetsEQ.
@@ -162,57 +159,43 @@ func NameContainsFold(v string) predicate.PackageLoadMetrics {
 }
 
 // LoadDurationEQ applies the EQ predicate on the "load_duration" field.
-func LoadDurationEQ(v time.Duration) predicate.PackageLoadMetrics {
-	vc := int64(v)
-	return predicate.PackageLoadMetrics(sql.FieldEQ(FieldLoadDuration, vc))
+func LoadDurationEQ(v int64) predicate.PackageLoadMetrics {
+	return predicate.PackageLoadMetrics(sql.FieldEQ(FieldLoadDuration, v))
 }
 
 // LoadDurationNEQ applies the NEQ predicate on the "load_duration" field.
-func LoadDurationNEQ(v time.Duration) predicate.PackageLoadMetrics {
-	vc := int64(v)
-	return predicate.PackageLoadMetrics(sql.FieldNEQ(FieldLoadDuration, vc))
+func LoadDurationNEQ(v int64) predicate.PackageLoadMetrics {
+	return predicate.PackageLoadMetrics(sql.FieldNEQ(FieldLoadDuration, v))
 }
 
 // LoadDurationIn applies the In predicate on the "load_duration" field.
-func LoadDurationIn(vs ...time.Duration) predicate.PackageLoadMetrics {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = int64(vs[i])
-	}
-	return predicate.PackageLoadMetrics(sql.FieldIn(FieldLoadDuration, v...))
+func LoadDurationIn(vs ...int64) predicate.PackageLoadMetrics {
+	return predicate.PackageLoadMetrics(sql.FieldIn(FieldLoadDuration, vs...))
 }
 
 // LoadDurationNotIn applies the NotIn predicate on the "load_duration" field.
-func LoadDurationNotIn(vs ...time.Duration) predicate.PackageLoadMetrics {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = int64(vs[i])
-	}
-	return predicate.PackageLoadMetrics(sql.FieldNotIn(FieldLoadDuration, v...))
+func LoadDurationNotIn(vs ...int64) predicate.PackageLoadMetrics {
+	return predicate.PackageLoadMetrics(sql.FieldNotIn(FieldLoadDuration, vs...))
 }
 
 // LoadDurationGT applies the GT predicate on the "load_duration" field.
-func LoadDurationGT(v time.Duration) predicate.PackageLoadMetrics {
-	vc := int64(v)
-	return predicate.PackageLoadMetrics(sql.FieldGT(FieldLoadDuration, vc))
+func LoadDurationGT(v int64) predicate.PackageLoadMetrics {
+	return predicate.PackageLoadMetrics(sql.FieldGT(FieldLoadDuration, v))
 }
 
 // LoadDurationGTE applies the GTE predicate on the "load_duration" field.
-func LoadDurationGTE(v time.Duration) predicate.PackageLoadMetrics {
-	vc := int64(v)
-	return predicate.PackageLoadMetrics(sql.FieldGTE(FieldLoadDuration, vc))
+func LoadDurationGTE(v int64) predicate.PackageLoadMetrics {
+	return predicate.PackageLoadMetrics(sql.FieldGTE(FieldLoadDuration, v))
 }
 
 // LoadDurationLT applies the LT predicate on the "load_duration" field.
-func LoadDurationLT(v time.Duration) predicate.PackageLoadMetrics {
-	vc := int64(v)
-	return predicate.PackageLoadMetrics(sql.FieldLT(FieldLoadDuration, vc))
+func LoadDurationLT(v int64) predicate.PackageLoadMetrics {
+	return predicate.PackageLoadMetrics(sql.FieldLT(FieldLoadDuration, v))
 }
 
 // LoadDurationLTE applies the LTE predicate on the "load_duration" field.
-func LoadDurationLTE(v time.Duration) predicate.PackageLoadMetrics {
-	vc := int64(v)
-	return predicate.PackageLoadMetrics(sql.FieldLTE(FieldLoadDuration, vc))
+func LoadDurationLTE(v int64) predicate.PackageLoadMetrics {
+	return predicate.PackageLoadMetrics(sql.FieldLTE(FieldLoadDuration, v))
 }
 
 // LoadDurationIsNil applies the IsNil predicate on the "load_duration" field.

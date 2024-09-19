@@ -18,7 +18,7 @@ func (RaceStatistics) Fields() []ent.Field {
 		field.String("mnemonic").Optional(),
 		field.String("local_runner").Optional(),
 		field.String("remote_runner").Optional(),
-		field.Int32("local_wins").Optional(),
+		field.Int64("local_wins").Optional(),
 		field.Int64("renote_wins").Optional(),
 	}
 }

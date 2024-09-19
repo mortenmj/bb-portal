@@ -175,6 +175,24 @@ var (
 			},
 		},
 	}
+	// BuildGraphMetricsColumns holds the columns for the "build_graph_metrics" table.
+	BuildGraphMetricsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "action_lookup_value_count", Type: field.TypeInt32, Nullable: true},
+		{Name: "action_lookup_value_count_not_including_aspects", Type: field.TypeInt32, Nullable: true},
+		{Name: "action_count", Type: field.TypeInt32, Nullable: true},
+		{Name: "input_file_configured_target_count", Type: field.TypeInt32, Nullable: true},
+		{Name: "output_file_configured_target_count", Type: field.TypeInt32, Nullable: true},
+		{Name: "other_configured_target_count", Type: field.TypeInt32, Nullable: true},
+		{Name: "output_artifact_count", Type: field.TypeInt32, Nullable: true},
+		{Name: "post_invocation_skyframe_node_count", Type: field.TypeInt32, Nullable: true},
+	}
+	// BuildGraphMetricsTable holds the schema information for the "build_graph_metrics" table.
+	BuildGraphMetricsTable = &schema.Table{
+		Name:       "build_graph_metrics",
+		Columns:    BuildGraphMetricsColumns,
+		PrimaryKey: []*schema.Column{BuildGraphMetricsColumns[0]},
+	}
 	// CumulativeMetricsColumns holds the columns for the "cumulative_metrics" table.
 	CumulativeMetricsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
@@ -196,6 +214,48 @@ var (
 		Name:       "dynamic_execution_metrics",
 		Columns:    DynamicExecutionMetricsColumns,
 		PrimaryKey: []*schema.Column{DynamicExecutionMetricsColumns[0]},
+	}
+	// EvaluationStatsColumns holds the columns for the "evaluation_stats" table.
+	EvaluationStatsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "skyfunction_name", Type: field.TypeString, Nullable: true},
+		{Name: "count", Type: field.TypeInt64, Nullable: true},
+		{Name: "build_graph_metrics_dirtied_values", Type: field.TypeInt, Nullable: true},
+		{Name: "build_graph_metrics_changed_values", Type: field.TypeInt, Nullable: true},
+		{Name: "build_graph_metrics_built_values", Type: field.TypeInt, Nullable: true},
+		{Name: "build_graph_metrics_cleaned_values", Type: field.TypeInt, Nullable: true},
+	}
+	// EvaluationStatsTable holds the schema information for the "evaluation_stats" table.
+	EvaluationStatsTable = &schema.Table{
+		Name:       "evaluation_stats",
+		Columns:    EvaluationStatsColumns,
+		PrimaryKey: []*schema.Column{EvaluationStatsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "evaluation_stats_build_graph_metrics_dirtied_values",
+				Columns:    []*schema.Column{EvaluationStatsColumns[3]},
+				RefColumns: []*schema.Column{BuildGraphMetricsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "evaluation_stats_build_graph_metrics_changed_values",
+				Columns:    []*schema.Column{EvaluationStatsColumns[4]},
+				RefColumns: []*schema.Column{BuildGraphMetricsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "evaluation_stats_build_graph_metrics_built_values",
+				Columns:    []*schema.Column{EvaluationStatsColumns[5]},
+				RefColumns: []*schema.Column{BuildGraphMetricsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "evaluation_stats_build_graph_metrics_cleaned_values",
+				Columns:    []*schema.Column{EvaluationStatsColumns[6]},
+				RefColumns: []*schema.Column{BuildGraphMetricsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
 	}
 	// EventFilesColumns holds the columns for the "event_files" table.
 	EventFilesColumns = []*schema.Column{
@@ -354,7 +414,7 @@ var (
 		{Name: "mnemonic", Type: field.TypeString, Nullable: true},
 		{Name: "local_runner", Type: field.TypeString, Nullable: true},
 		{Name: "remote_runner", Type: field.TypeString, Nullable: true},
-		{Name: "local_wins", Type: field.TypeInt32, Nullable: true},
+		{Name: "local_wins", Type: field.TypeInt64, Nullable: true},
 		{Name: "renote_wins", Type: field.TypeInt64, Nullable: true},
 	}
 	// RaceStatisticsTable holds the schema information for the "race_statistics" table.
@@ -552,6 +612,31 @@ var (
 				Symbol:     "artifact_metrics_top_level_artifacts_files_metric_id",
 				Columns:    []*schema.Column{ArtifactMetricsTopLevelArtifactsColumns[1]},
 				RefColumns: []*schema.Column{FilesMetricsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
+	}
+	// BuildGraphMetricsEvaluatedValuesColumns holds the columns for the "build_graph_metrics_evaluated_values" table.
+	BuildGraphMetricsEvaluatedValuesColumns = []*schema.Column{
+		{Name: "build_graph_metrics_id", Type: field.TypeInt},
+		{Name: "evaluation_stat_id", Type: field.TypeInt},
+	}
+	// BuildGraphMetricsEvaluatedValuesTable holds the schema information for the "build_graph_metrics_evaluated_values" table.
+	BuildGraphMetricsEvaluatedValuesTable = &schema.Table{
+		Name:       "build_graph_metrics_evaluated_values",
+		Columns:    BuildGraphMetricsEvaluatedValuesColumns,
+		PrimaryKey: []*schema.Column{BuildGraphMetricsEvaluatedValuesColumns[0], BuildGraphMetricsEvaluatedValuesColumns[1]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "build_graph_metrics_evaluated_values_build_graph_metrics_id",
+				Columns:    []*schema.Column{BuildGraphMetricsEvaluatedValuesColumns[0]},
+				RefColumns: []*schema.Column{BuildGraphMetricsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+			{
+				Symbol:     "build_graph_metrics_evaluated_values_evaluation_stat_id",
+				Columns:    []*schema.Column{BuildGraphMetricsEvaluatedValuesColumns[1]},
+				RefColumns: []*schema.Column{EvaluationStatsColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
 		},
@@ -806,6 +891,31 @@ var (
 			},
 		},
 	}
+	// MetricsBuildGraphMetricsColumns holds the columns for the "metrics_build_graph_metrics" table.
+	MetricsBuildGraphMetricsColumns = []*schema.Column{
+		{Name: "metrics_id", Type: field.TypeInt},
+		{Name: "build_graph_metrics_id", Type: field.TypeInt},
+	}
+	// MetricsBuildGraphMetricsTable holds the schema information for the "metrics_build_graph_metrics" table.
+	MetricsBuildGraphMetricsTable = &schema.Table{
+		Name:       "metrics_build_graph_metrics",
+		Columns:    MetricsBuildGraphMetricsColumns,
+		PrimaryKey: []*schema.Column{MetricsBuildGraphMetricsColumns[0], MetricsBuildGraphMetricsColumns[1]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "metrics_build_graph_metrics_metrics_id",
+				Columns:    []*schema.Column{MetricsBuildGraphMetricsColumns[0]},
+				RefColumns: []*schema.Column{MetricsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+			{
+				Symbol:     "metrics_build_graph_metrics_build_graph_metrics_id",
+				Columns:    []*schema.Column{MetricsBuildGraphMetricsColumns[1]},
+				RefColumns: []*schema.Column{BuildGraphMetricsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
+	}
 	// PackageMetricsPackageLoadMetricsColumns holds the columns for the "package_metrics_package_load_metrics" table.
 	PackageMetricsPackageLoadMetricsColumns = []*schema.Column{
 		{Name: "package_metrics_id", Type: field.TypeInt},
@@ -841,8 +951,10 @@ var (
 		BazelInvocationProblemsTable,
 		BlobsTable,
 		BuildsTable,
+		BuildGraphMetricsTable,
 		CumulativeMetricsTable,
 		DynamicExecutionMetricsTable,
+		EvaluationStatsTable,
 		EventFilesTable,
 		FilesMetricsTable,
 		GarbageMetricsTable,
@@ -862,6 +974,7 @@ var (
 		ActionSummaryRunnerCountTable,
 		ActionSummaryActionCacheStatisticsTable,
 		ArtifactMetricsTopLevelArtifactsTable,
+		BuildGraphMetricsEvaluatedValuesTable,
 		DynamicExecutionMetricsRaceStatisticsTable,
 		MemoryMetricsGarbageMetricsTable,
 		MetricsMemoryMetricsTable,
@@ -872,6 +985,7 @@ var (
 		MetricsArtifactMetricsTable,
 		MetricsNetworkMetricsTable,
 		MetricsDynamicExecutionMetricsTable,
+		MetricsBuildGraphMetricsTable,
 		PackageMetricsPackageLoadMetricsTable,
 	}
 )
@@ -881,6 +995,10 @@ func init() {
 	BazelInvocationsTable.ForeignKeys[0].RefTable = BuildsTable
 	BazelInvocationsTable.ForeignKeys[1].RefTable = EventFilesTable
 	BazelInvocationProblemsTable.ForeignKeys[0].RefTable = BazelInvocationsTable
+	EvaluationStatsTable.ForeignKeys[0].RefTable = BuildGraphMetricsTable
+	EvaluationStatsTable.ForeignKeys[1].RefTable = BuildGraphMetricsTable
+	EvaluationStatsTable.ForeignKeys[2].RefTable = BuildGraphMetricsTable
+	EvaluationStatsTable.ForeignKeys[3].RefTable = BuildGraphMetricsTable
 	FilesMetricsTable.ForeignKeys[0].RefTable = ArtifactMetricsTable
 	FilesMetricsTable.ForeignKeys[1].RefTable = ArtifactMetricsTable
 	FilesMetricsTable.ForeignKeys[2].RefTable = ArtifactMetricsTable
@@ -896,6 +1014,8 @@ func init() {
 	ActionSummaryActionCacheStatisticsTable.ForeignKeys[1].RefTable = ActionCacheStatisticsTable
 	ArtifactMetricsTopLevelArtifactsTable.ForeignKeys[0].RefTable = ArtifactMetricsTable
 	ArtifactMetricsTopLevelArtifactsTable.ForeignKeys[1].RefTable = FilesMetricsTable
+	BuildGraphMetricsEvaluatedValuesTable.ForeignKeys[0].RefTable = BuildGraphMetricsTable
+	BuildGraphMetricsEvaluatedValuesTable.ForeignKeys[1].RefTable = EvaluationStatsTable
 	DynamicExecutionMetricsRaceStatisticsTable.ForeignKeys[0].RefTable = DynamicExecutionMetricsTable
 	DynamicExecutionMetricsRaceStatisticsTable.ForeignKeys[1].RefTable = RaceStatisticsTable
 	MemoryMetricsGarbageMetricsTable.ForeignKeys[0].RefTable = MemoryMetricsTable
@@ -916,6 +1036,8 @@ func init() {
 	MetricsNetworkMetricsTable.ForeignKeys[1].RefTable = NetworkMetricsTable
 	MetricsDynamicExecutionMetricsTable.ForeignKeys[0].RefTable = MetricsTable
 	MetricsDynamicExecutionMetricsTable.ForeignKeys[1].RefTable = DynamicExecutionMetricsTable
+	MetricsBuildGraphMetricsTable.ForeignKeys[0].RefTable = MetricsTable
+	MetricsBuildGraphMetricsTable.ForeignKeys[1].RefTable = BuildGraphMetricsTable
 	PackageMetricsPackageLoadMetricsTable.ForeignKeys[0].RefTable = PackageMetricsTable
 	PackageMetricsPackageLoadMetricsTable.ForeignKeys[1].RefTable = PackageLoadMetricsTable
 }

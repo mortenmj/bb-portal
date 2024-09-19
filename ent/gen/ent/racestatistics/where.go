@@ -69,7 +69,7 @@ func RemoteRunner(v string) predicate.RaceStatistics {
 }
 
 // LocalWins applies equality check predicate on the "local_wins" field. It's identical to LocalWinsEQ.
-func LocalWins(v int32) predicate.RaceStatistics {
+func LocalWins(v int64) predicate.RaceStatistics {
 	return predicate.RaceStatistics(sql.FieldEQ(FieldLocalWins, v))
 }
 
@@ -304,42 +304,42 @@ func RemoteRunnerContainsFold(v string) predicate.RaceStatistics {
 }
 
 // LocalWinsEQ applies the EQ predicate on the "local_wins" field.
-func LocalWinsEQ(v int32) predicate.RaceStatistics {
+func LocalWinsEQ(v int64) predicate.RaceStatistics {
 	return predicate.RaceStatistics(sql.FieldEQ(FieldLocalWins, v))
 }
 
 // LocalWinsNEQ applies the NEQ predicate on the "local_wins" field.
-func LocalWinsNEQ(v int32) predicate.RaceStatistics {
+func LocalWinsNEQ(v int64) predicate.RaceStatistics {
 	return predicate.RaceStatistics(sql.FieldNEQ(FieldLocalWins, v))
 }
 
 // LocalWinsIn applies the In predicate on the "local_wins" field.
-func LocalWinsIn(vs ...int32) predicate.RaceStatistics {
+func LocalWinsIn(vs ...int64) predicate.RaceStatistics {
 	return predicate.RaceStatistics(sql.FieldIn(FieldLocalWins, vs...))
 }
 
 // LocalWinsNotIn applies the NotIn predicate on the "local_wins" field.
-func LocalWinsNotIn(vs ...int32) predicate.RaceStatistics {
+func LocalWinsNotIn(vs ...int64) predicate.RaceStatistics {
 	return predicate.RaceStatistics(sql.FieldNotIn(FieldLocalWins, vs...))
 }
 
 // LocalWinsGT applies the GT predicate on the "local_wins" field.
-func LocalWinsGT(v int32) predicate.RaceStatistics {
+func LocalWinsGT(v int64) predicate.RaceStatistics {
 	return predicate.RaceStatistics(sql.FieldGT(FieldLocalWins, v))
 }
 
 // LocalWinsGTE applies the GTE predicate on the "local_wins" field.
-func LocalWinsGTE(v int32) predicate.RaceStatistics {
+func LocalWinsGTE(v int64) predicate.RaceStatistics {
 	return predicate.RaceStatistics(sql.FieldGTE(FieldLocalWins, v))
 }
 
 // LocalWinsLT applies the LT predicate on the "local_wins" field.
-func LocalWinsLT(v int32) predicate.RaceStatistics {
+func LocalWinsLT(v int64) predicate.RaceStatistics {
 	return predicate.RaceStatistics(sql.FieldLT(FieldLocalWins, v))
 }
 
 // LocalWinsLTE applies the LTE predicate on the "local_wins" field.
-func LocalWinsLTE(v int32) predicate.RaceStatistics {
+func LocalWinsLTE(v int64) predicate.RaceStatistics {
 	return predicate.RaceStatistics(sql.FieldLTE(FieldLocalWins, v))
 }
 

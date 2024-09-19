@@ -1,8 +1,6 @@
 package schema
 
 import (
-	"time"
-
 	"entgo.io/ent"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
@@ -23,10 +21,10 @@ func (ActionData) Fields() []ent.Field {
 		field.Int64("first_started_ms").Optional(),
 		field.Int64("last_ended_ms").Optional(),
 		field.Int64("system_time").
-			GoType(time.Duration(0)).
+			//GoType(time.Duration(0)).
 			Optional(),
 		field.Int64("user_time").
-			GoType(time.Duration(0)).
+			//GoType(time.Duration(0)).
 			Optional(),
 	}
 }

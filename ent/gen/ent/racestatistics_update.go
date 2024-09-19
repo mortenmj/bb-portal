@@ -89,14 +89,14 @@ func (rsu *RaceStatisticsUpdate) ClearRemoteRunner() *RaceStatisticsUpdate {
 }
 
 // SetLocalWins sets the "local_wins" field.
-func (rsu *RaceStatisticsUpdate) SetLocalWins(i int32) *RaceStatisticsUpdate {
+func (rsu *RaceStatisticsUpdate) SetLocalWins(i int64) *RaceStatisticsUpdate {
 	rsu.mutation.ResetLocalWins()
 	rsu.mutation.SetLocalWins(i)
 	return rsu
 }
 
 // SetNillableLocalWins sets the "local_wins" field if the given value is not nil.
-func (rsu *RaceStatisticsUpdate) SetNillableLocalWins(i *int32) *RaceStatisticsUpdate {
+func (rsu *RaceStatisticsUpdate) SetNillableLocalWins(i *int64) *RaceStatisticsUpdate {
 	if i != nil {
 		rsu.SetLocalWins(*i)
 	}
@@ -104,7 +104,7 @@ func (rsu *RaceStatisticsUpdate) SetNillableLocalWins(i *int32) *RaceStatisticsU
 }
 
 // AddLocalWins adds i to the "local_wins" field.
-func (rsu *RaceStatisticsUpdate) AddLocalWins(i int32) *RaceStatisticsUpdate {
+func (rsu *RaceStatisticsUpdate) AddLocalWins(i int64) *RaceStatisticsUpdate {
 	rsu.mutation.AddLocalWins(i)
 	return rsu
 }
@@ -238,13 +238,13 @@ func (rsu *RaceStatisticsUpdate) sqlSave(ctx context.Context) (n int, err error)
 		_spec.ClearField(racestatistics.FieldRemoteRunner, field.TypeString)
 	}
 	if value, ok := rsu.mutation.LocalWins(); ok {
-		_spec.SetField(racestatistics.FieldLocalWins, field.TypeInt32, value)
+		_spec.SetField(racestatistics.FieldLocalWins, field.TypeInt64, value)
 	}
 	if value, ok := rsu.mutation.AddedLocalWins(); ok {
-		_spec.AddField(racestatistics.FieldLocalWins, field.TypeInt32, value)
+		_spec.AddField(racestatistics.FieldLocalWins, field.TypeInt64, value)
 	}
 	if rsu.mutation.LocalWinsCleared() {
-		_spec.ClearField(racestatistics.FieldLocalWins, field.TypeInt32)
+		_spec.ClearField(racestatistics.FieldLocalWins, field.TypeInt64)
 	}
 	if value, ok := rsu.mutation.RenoteWins(); ok {
 		_spec.SetField(racestatistics.FieldRenoteWins, field.TypeInt64, value)
@@ -381,14 +381,14 @@ func (rsuo *RaceStatisticsUpdateOne) ClearRemoteRunner() *RaceStatisticsUpdateOn
 }
 
 // SetLocalWins sets the "local_wins" field.
-func (rsuo *RaceStatisticsUpdateOne) SetLocalWins(i int32) *RaceStatisticsUpdateOne {
+func (rsuo *RaceStatisticsUpdateOne) SetLocalWins(i int64) *RaceStatisticsUpdateOne {
 	rsuo.mutation.ResetLocalWins()
 	rsuo.mutation.SetLocalWins(i)
 	return rsuo
 }
 
 // SetNillableLocalWins sets the "local_wins" field if the given value is not nil.
-func (rsuo *RaceStatisticsUpdateOne) SetNillableLocalWins(i *int32) *RaceStatisticsUpdateOne {
+func (rsuo *RaceStatisticsUpdateOne) SetNillableLocalWins(i *int64) *RaceStatisticsUpdateOne {
 	if i != nil {
 		rsuo.SetLocalWins(*i)
 	}
@@ -396,7 +396,7 @@ func (rsuo *RaceStatisticsUpdateOne) SetNillableLocalWins(i *int32) *RaceStatist
 }
 
 // AddLocalWins adds i to the "local_wins" field.
-func (rsuo *RaceStatisticsUpdateOne) AddLocalWins(i int32) *RaceStatisticsUpdateOne {
+func (rsuo *RaceStatisticsUpdateOne) AddLocalWins(i int64) *RaceStatisticsUpdateOne {
 	rsuo.mutation.AddLocalWins(i)
 	return rsuo
 }
@@ -560,13 +560,13 @@ func (rsuo *RaceStatisticsUpdateOne) sqlSave(ctx context.Context) (_node *RaceSt
 		_spec.ClearField(racestatistics.FieldRemoteRunner, field.TypeString)
 	}
 	if value, ok := rsuo.mutation.LocalWins(); ok {
-		_spec.SetField(racestatistics.FieldLocalWins, field.TypeInt32, value)
+		_spec.SetField(racestatistics.FieldLocalWins, field.TypeInt64, value)
 	}
 	if value, ok := rsuo.mutation.AddedLocalWins(); ok {
-		_spec.AddField(racestatistics.FieldLocalWins, field.TypeInt32, value)
+		_spec.AddField(racestatistics.FieldLocalWins, field.TypeInt64, value)
 	}
 	if rsuo.mutation.LocalWinsCleared() {
-		_spec.ClearField(racestatistics.FieldLocalWins, field.TypeInt32)
+		_spec.ClearField(racestatistics.FieldLocalWins, field.TypeInt64)
 	}
 	if value, ok := rsuo.mutation.RenoteWins(); ok {
 		_spec.SetField(racestatistics.FieldRenoteWins, field.TypeInt64, value)

@@ -14,6 +14,7 @@ import (
 	"github.com/buildbarn/bb-portal/ent/gen/ent/actionsummary"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/artifactmetrics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/bazelinvocation"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/buildgraphmetrics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/cumulativemetrics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/dynamicexecutionmetrics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/memorymetrics"
@@ -42,6 +43,7 @@ type MetricsQuery struct {
 	withArtifactMetrics              *ArtifactMetricsQuery
 	withNetworkMetrics               *NetworkMetricsQuery
 	withDynamicExecutionMetrics      *DynamicExecutionMetricsQuery
+	withBuildGraphMetrics            *BuildGraphMetricsQuery
 	withFKs                          bool
 	modifiers                        []func(*sql.Selector)
 	loadTotal                        []func(context.Context, []*Metrics) error
@@ -54,6 +56,7 @@ type MetricsQuery struct {
 	withNamedArtifactMetrics         map[string]*ArtifactMetricsQuery
 	withNamedNetworkMetrics          map[string]*NetworkMetricsQuery
 	withNamedDynamicExecutionMetrics map[string]*DynamicExecutionMetricsQuery
+	withNamedBuildGraphMetrics       map[string]*BuildGraphMetricsQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -310,6 +313,28 @@ func (mq *MetricsQuery) QueryDynamicExecutionMetrics() *DynamicExecutionMetricsQ
 	return query
 }
 
+// QueryBuildGraphMetrics chains the current query on the "build_graph_metrics" edge.
+func (mq *MetricsQuery) QueryBuildGraphMetrics() *BuildGraphMetricsQuery {
+	query := (&BuildGraphMetricsClient{config: mq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := mq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := mq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(metrics.Table, metrics.FieldID, selector),
+			sqlgraph.To(buildgraphmetrics.Table, buildgraphmetrics.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, metrics.BuildGraphMetricsTable, metrics.BuildGraphMetricsPrimaryKey...),
+		)
+		fromU = sqlgraph.SetNeighbors(mq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
 // First returns the first Metrics entity from the query.
 // Returns a *NotFoundError when no Metrics was found.
 func (mq *MetricsQuery) First(ctx context.Context) (*Metrics, error) {
@@ -512,6 +537,7 @@ func (mq *MetricsQuery) Clone() *MetricsQuery {
 		withArtifactMetrics:         mq.withArtifactMetrics.Clone(),
 		withNetworkMetrics:          mq.withNetworkMetrics.Clone(),
 		withDynamicExecutionMetrics: mq.withDynamicExecutionMetrics.Clone(),
+		withBuildGraphMetrics:       mq.withBuildGraphMetrics.Clone(),
 		// clone intermediate query.
 		sql:  mq.sql.Clone(),
 		path: mq.path,
@@ -628,6 +654,17 @@ func (mq *MetricsQuery) WithDynamicExecutionMetrics(opts ...func(*DynamicExecuti
 	return mq
 }
 
+// WithBuildGraphMetrics tells the query-builder to eager-load the nodes that are connected to
+// the "build_graph_metrics" edge. The optional arguments are used to configure the query builder of the edge.
+func (mq *MetricsQuery) WithBuildGraphMetrics(opts ...func(*BuildGraphMetricsQuery)) *MetricsQuery {
+	query := (&BuildGraphMetricsClient{config: mq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	mq.withBuildGraphMetrics = query
+	return mq
+}
+
 // GroupBy is used to group vertices by one or more fields/columns.
 // It is often used with aggregate functions, like: count, max, mean, min, sum.
 func (mq *MetricsQuery) GroupBy(field string, fields ...string) *MetricsGroupBy {
@@ -685,7 +722,7 @@ func (mq *MetricsQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Metr
 		nodes       = []*Metrics{}
 		withFKs     = mq.withFKs
 		_spec       = mq.querySpec()
-		loadedTypes = [10]bool{
+		loadedTypes = [11]bool{
 			mq.withBazelInvocation != nil,
 			mq.withActionSummary != nil,
 			mq.withMemoryMetrics != nil,
@@ -696,6 +733,7 @@ func (mq *MetricsQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Metr
 			mq.withArtifactMetrics != nil,
 			mq.withNetworkMetrics != nil,
 			mq.withDynamicExecutionMetrics != nil,
+			mq.withBuildGraphMetrics != nil,
 		}
 	)
 	if mq.withBazelInvocation != nil {
@@ -798,6 +836,15 @@ func (mq *MetricsQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Metr
 			return nil, err
 		}
 	}
+	if query := mq.withBuildGraphMetrics; query != nil {
+		if err := mq.loadBuildGraphMetrics(ctx, query, nodes,
+			func(n *Metrics) { n.Edges.BuildGraphMetrics = []*BuildGraphMetrics{} },
+			func(n *Metrics, e *BuildGraphMetrics) {
+				n.Edges.BuildGraphMetrics = append(n.Edges.BuildGraphMetrics, e)
+			}); err != nil {
+			return nil, err
+		}
+	}
 	for name, query := range mq.withNamedActionSummary {
 		if err := mq.loadActionSummary(ctx, query, nodes,
 			func(n *Metrics) { n.appendNamedActionSummary(name) },
@@ -858,6 +905,13 @@ func (mq *MetricsQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Metr
 		if err := mq.loadDynamicExecutionMetrics(ctx, query, nodes,
 			func(n *Metrics) { n.appendNamedDynamicExecutionMetrics(name) },
 			func(n *Metrics, e *DynamicExecutionMetrics) { n.appendNamedDynamicExecutionMetrics(name, e) }); err != nil {
+			return nil, err
+		}
+	}
+	for name, query := range mq.withNamedBuildGraphMetrics {
+		if err := mq.loadBuildGraphMetrics(ctx, query, nodes,
+			func(n *Metrics) { n.appendNamedBuildGraphMetrics(name) },
+			func(n *Metrics, e *BuildGraphMetrics) { n.appendNamedBuildGraphMetrics(name, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -1420,6 +1474,67 @@ func (mq *MetricsQuery) loadDynamicExecutionMetrics(ctx context.Context, query *
 	}
 	return nil
 }
+func (mq *MetricsQuery) loadBuildGraphMetrics(ctx context.Context, query *BuildGraphMetricsQuery, nodes []*Metrics, init func(*Metrics), assign func(*Metrics, *BuildGraphMetrics)) error {
+	edgeIDs := make([]driver.Value, len(nodes))
+	byID := make(map[int]*Metrics)
+	nids := make(map[int]map[*Metrics]struct{})
+	for i, node := range nodes {
+		edgeIDs[i] = node.ID
+		byID[node.ID] = node
+		if init != nil {
+			init(node)
+		}
+	}
+	query.Where(func(s *sql.Selector) {
+		joinT := sql.Table(metrics.BuildGraphMetricsTable)
+		s.Join(joinT).On(s.C(buildgraphmetrics.FieldID), joinT.C(metrics.BuildGraphMetricsPrimaryKey[1]))
+		s.Where(sql.InValues(joinT.C(metrics.BuildGraphMetricsPrimaryKey[0]), edgeIDs...))
+		columns := s.SelectedColumns()
+		s.Select(joinT.C(metrics.BuildGraphMetricsPrimaryKey[0]))
+		s.AppendSelect(columns...)
+		s.SetDistinct(false)
+	})
+	if err := query.prepareQuery(ctx); err != nil {
+		return err
+	}
+	qr := QuerierFunc(func(ctx context.Context, q Query) (Value, error) {
+		return query.sqlAll(ctx, func(_ context.Context, spec *sqlgraph.QuerySpec) {
+			assign := spec.Assign
+			values := spec.ScanValues
+			spec.ScanValues = func(columns []string) ([]any, error) {
+				values, err := values(columns[1:])
+				if err != nil {
+					return nil, err
+				}
+				return append([]any{new(sql.NullInt64)}, values...), nil
+			}
+			spec.Assign = func(columns []string, values []any) error {
+				outValue := int(values[0].(*sql.NullInt64).Int64)
+				inValue := int(values[1].(*sql.NullInt64).Int64)
+				if nids[inValue] == nil {
+					nids[inValue] = map[*Metrics]struct{}{byID[outValue]: {}}
+					return assign(columns[1:], values[1:])
+				}
+				nids[inValue][byID[outValue]] = struct{}{}
+				return nil
+			}
+		})
+	})
+	neighbors, err := withInterceptors[[]*BuildGraphMetrics](ctx, query, qr, query.inters)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected "build_graph_metrics" node returned %v`, n.ID)
+		}
+		for kn := range nodes {
+			assign(kn, n)
+		}
+	}
+	return nil
+}
 
 func (mq *MetricsQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := mq.querySpec()
@@ -1628,6 +1743,20 @@ func (mq *MetricsQuery) WithNamedDynamicExecutionMetrics(name string, opts ...fu
 		mq.withNamedDynamicExecutionMetrics = make(map[string]*DynamicExecutionMetricsQuery)
 	}
 	mq.withNamedDynamicExecutionMetrics[name] = query
+	return mq
+}
+
+// WithNamedBuildGraphMetrics tells the query-builder to eager-load the nodes that are connected to the "build_graph_metrics"
+// edge with the given name. The optional arguments are used to configure the query builder of the edge.
+func (mq *MetricsQuery) WithNamedBuildGraphMetrics(name string, opts ...func(*BuildGraphMetricsQuery)) *MetricsQuery {
+	query := (&BuildGraphMetricsClient{config: mq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	if mq.withNamedBuildGraphMetrics == nil {
+		mq.withNamedBuildGraphMetrics = make(map[string]*BuildGraphMetricsQuery)
+	}
+	mq.withNamedBuildGraphMetrics[name] = query
 	return mq
 }
 

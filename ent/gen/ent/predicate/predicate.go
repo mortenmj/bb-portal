@@ -30,11 +30,17 @@ type Blob func(*sql.Selector)
 // Build is the predicate function for build builders.
 type Build func(*sql.Selector)
 
+// BuildGraphMetrics is the predicate function for buildgraphmetrics builders.
+type BuildGraphMetrics func(*sql.Selector)
+
 // CumulativeMetrics is the predicate function for cumulativemetrics builders.
 type CumulativeMetrics func(*sql.Selector)
 
 // DynamicExecutionMetrics is the predicate function for dynamicexecutionmetrics builders.
 type DynamicExecutionMetrics func(*sql.Selector)
+
+// EvaluationStat is the predicate function for evaluationstat builders.
+type EvaluationStat func(*sql.Selector)
 
 // EventFile is the predicate function for eventfile builders.
 type EventFile func(*sql.Selector)

@@ -1,8 +1,6 @@
 package schema
 
 import (
-	"time"
-
 	"entgo.io/ent"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
@@ -18,7 +16,7 @@ func (PackageLoadMetrics) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("name").Optional(),
 		field.Int64("load_duration").
-			GoType(time.Duration(0)).
+			//GoType(time.Duration(0)).
 			Optional(),
 		field.Int64("num_targets").Optional(),
 		field.Int64("computation_steps").Optional(),

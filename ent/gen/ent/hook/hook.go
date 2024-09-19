@@ -105,6 +105,18 @@ func (f BuildFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.BuildMutation", m)
 }
 
+// The BuildGraphMetricsFunc type is an adapter to allow the use of ordinary
+// function as BuildGraphMetrics mutator.
+type BuildGraphMetricsFunc func(context.Context, *ent.BuildGraphMetricsMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f BuildGraphMetricsFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.BuildGraphMetricsMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.BuildGraphMetricsMutation", m)
+}
+
 // The CumulativeMetricsFunc type is an adapter to allow the use of ordinary
 // function as CumulativeMetrics mutator.
 type CumulativeMetricsFunc func(context.Context, *ent.CumulativeMetricsMutation) (ent.Value, error)
@@ -127,6 +139,18 @@ func (f DynamicExecutionMetricsFunc) Mutate(ctx context.Context, m ent.Mutation)
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.DynamicExecutionMetricsMutation", m)
+}
+
+// The EvaluationStatFunc type is an adapter to allow the use of ordinary
+// function as EvaluationStat mutator.
+type EvaluationStatFunc func(context.Context, *ent.EvaluationStatMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f EvaluationStatFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.EvaluationStatMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.EvaluationStatMutation", m)
 }
 
 // The EventFileFunc type is an adapter to allow the use of ordinary

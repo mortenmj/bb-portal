@@ -192,6 +192,78 @@ func (b *Build) Invocations(ctx context.Context) (result []*BazelInvocation, err
 	return result, err
 }
 
+func (bgm *BuildGraphMetrics) Metrics(ctx context.Context) (result []*Metrics, err error) {
+	if fc := graphql.GetFieldContext(ctx); fc != nil && fc.Field.Alias != "" {
+		result, err = bgm.NamedMetrics(graphql.GetFieldContext(ctx).Field.Alias)
+	} else {
+		result, err = bgm.Edges.MetricsOrErr()
+	}
+	if IsNotLoaded(err) {
+		result, err = bgm.QueryMetrics().All(ctx)
+	}
+	return result, err
+}
+
+func (bgm *BuildGraphMetrics) DirtiedValues(ctx context.Context) (result []*EvaluationStat, err error) {
+	if fc := graphql.GetFieldContext(ctx); fc != nil && fc.Field.Alias != "" {
+		result, err = bgm.NamedDirtiedValues(graphql.GetFieldContext(ctx).Field.Alias)
+	} else {
+		result, err = bgm.Edges.DirtiedValuesOrErr()
+	}
+	if IsNotLoaded(err) {
+		result, err = bgm.QueryDirtiedValues().All(ctx)
+	}
+	return result, err
+}
+
+func (bgm *BuildGraphMetrics) ChangedValues(ctx context.Context) (result []*EvaluationStat, err error) {
+	if fc := graphql.GetFieldContext(ctx); fc != nil && fc.Field.Alias != "" {
+		result, err = bgm.NamedChangedValues(graphql.GetFieldContext(ctx).Field.Alias)
+	} else {
+		result, err = bgm.Edges.ChangedValuesOrErr()
+	}
+	if IsNotLoaded(err) {
+		result, err = bgm.QueryChangedValues().All(ctx)
+	}
+	return result, err
+}
+
+func (bgm *BuildGraphMetrics) BuiltValues(ctx context.Context) (result []*EvaluationStat, err error) {
+	if fc := graphql.GetFieldContext(ctx); fc != nil && fc.Field.Alias != "" {
+		result, err = bgm.NamedBuiltValues(graphql.GetFieldContext(ctx).Field.Alias)
+	} else {
+		result, err = bgm.Edges.BuiltValuesOrErr()
+	}
+	if IsNotLoaded(err) {
+		result, err = bgm.QueryBuiltValues().All(ctx)
+	}
+	return result, err
+}
+
+func (bgm *BuildGraphMetrics) CleanedValues(ctx context.Context) (result []*EvaluationStat, err error) {
+	if fc := graphql.GetFieldContext(ctx); fc != nil && fc.Field.Alias != "" {
+		result, err = bgm.NamedCleanedValues(graphql.GetFieldContext(ctx).Field.Alias)
+	} else {
+		result, err = bgm.Edges.CleanedValuesOrErr()
+	}
+	if IsNotLoaded(err) {
+		result, err = bgm.QueryCleanedValues().All(ctx)
+	}
+	return result, err
+}
+
+func (bgm *BuildGraphMetrics) EvaluatedValues(ctx context.Context) (result []*EvaluationStat, err error) {
+	if fc := graphql.GetFieldContext(ctx); fc != nil && fc.Field.Alias != "" {
+		result, err = bgm.NamedEvaluatedValues(graphql.GetFieldContext(ctx).Field.Alias)
+	} else {
+		result, err = bgm.Edges.EvaluatedValuesOrErr()
+	}
+	if IsNotLoaded(err) {
+		result, err = bgm.QueryEvaluatedValues().All(ctx)
+	}
+	return result, err
+}
+
 func (cm *CumulativeMetrics) Metrics(ctx context.Context) (result []*Metrics, err error) {
 	if fc := graphql.GetFieldContext(ctx); fc != nil && fc.Field.Alias != "" {
 		result, err = cm.NamedMetrics(graphql.GetFieldContext(ctx).Field.Alias)
@@ -224,6 +296,18 @@ func (dem *DynamicExecutionMetrics) RaceStatistics(ctx context.Context) (result 
 	}
 	if IsNotLoaded(err) {
 		result, err = dem.QueryRaceStatistics().All(ctx)
+	}
+	return result, err
+}
+
+func (es *EvaluationStat) BuildGraphMetrics(ctx context.Context) (result []*BuildGraphMetrics, err error) {
+	if fc := graphql.GetFieldContext(ctx); fc != nil && fc.Field.Alias != "" {
+		result, err = es.NamedBuildGraphMetrics(graphql.GetFieldContext(ctx).Field.Alias)
+	} else {
+		result, err = es.Edges.BuildGraphMetricsOrErr()
+	}
+	if IsNotLoaded(err) {
+		result, err = es.QueryBuildGraphMetrics().All(ctx)
 	}
 	return result, err
 }
@@ -396,6 +480,18 @@ func (m *Metrics) DynamicExecutionMetrics(ctx context.Context) (result []*Dynami
 	}
 	if IsNotLoaded(err) {
 		result, err = m.QueryDynamicExecutionMetrics().All(ctx)
+	}
+	return result, err
+}
+
+func (m *Metrics) BuildGraphMetrics(ctx context.Context) (result []*BuildGraphMetrics, err error) {
+	if fc := graphql.GetFieldContext(ctx); fc != nil && fc.Field.Alias != "" {
+		result, err = m.NamedBuildGraphMetrics(graphql.GetFieldContext(ctx).Field.Alias)
+	} else {
+		result, err = m.Edges.BuildGraphMetricsOrErr()
+	}
+	if IsNotLoaded(err) {
+		result, err = m.QueryBuildGraphMetrics().All(ctx)
 	}
 	return result, err
 }

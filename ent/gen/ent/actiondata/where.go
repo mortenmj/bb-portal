@@ -3,8 +3,6 @@
 package actiondata
 
 import (
-	"time"
-
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/predicate"
@@ -81,15 +79,13 @@ func LastEndedMs(v int64) predicate.ActionData {
 }
 
 // SystemTime applies equality check predicate on the "system_time" field. It's identical to SystemTimeEQ.
-func SystemTime(v time.Duration) predicate.ActionData {
-	vc := int64(v)
-	return predicate.ActionData(sql.FieldEQ(FieldSystemTime, vc))
+func SystemTime(v int64) predicate.ActionData {
+	return predicate.ActionData(sql.FieldEQ(FieldSystemTime, v))
 }
 
 // UserTime applies equality check predicate on the "user_time" field. It's identical to UserTimeEQ.
-func UserTime(v time.Duration) predicate.ActionData {
-	vc := int64(v)
-	return predicate.ActionData(sql.FieldEQ(FieldUserTime, vc))
+func UserTime(v int64) predicate.ActionData {
+	return predicate.ActionData(sql.FieldEQ(FieldUserTime, v))
 }
 
 // MnemonicEQ applies the EQ predicate on the "mnemonic" field.
@@ -368,57 +364,43 @@ func LastEndedMsNotNil() predicate.ActionData {
 }
 
 // SystemTimeEQ applies the EQ predicate on the "system_time" field.
-func SystemTimeEQ(v time.Duration) predicate.ActionData {
-	vc := int64(v)
-	return predicate.ActionData(sql.FieldEQ(FieldSystemTime, vc))
+func SystemTimeEQ(v int64) predicate.ActionData {
+	return predicate.ActionData(sql.FieldEQ(FieldSystemTime, v))
 }
 
 // SystemTimeNEQ applies the NEQ predicate on the "system_time" field.
-func SystemTimeNEQ(v time.Duration) predicate.ActionData {
-	vc := int64(v)
-	return predicate.ActionData(sql.FieldNEQ(FieldSystemTime, vc))
+func SystemTimeNEQ(v int64) predicate.ActionData {
+	return predicate.ActionData(sql.FieldNEQ(FieldSystemTime, v))
 }
 
 // SystemTimeIn applies the In predicate on the "system_time" field.
-func SystemTimeIn(vs ...time.Duration) predicate.ActionData {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = int64(vs[i])
-	}
-	return predicate.ActionData(sql.FieldIn(FieldSystemTime, v...))
+func SystemTimeIn(vs ...int64) predicate.ActionData {
+	return predicate.ActionData(sql.FieldIn(FieldSystemTime, vs...))
 }
 
 // SystemTimeNotIn applies the NotIn predicate on the "system_time" field.
-func SystemTimeNotIn(vs ...time.Duration) predicate.ActionData {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = int64(vs[i])
-	}
-	return predicate.ActionData(sql.FieldNotIn(FieldSystemTime, v...))
+func SystemTimeNotIn(vs ...int64) predicate.ActionData {
+	return predicate.ActionData(sql.FieldNotIn(FieldSystemTime, vs...))
 }
 
 // SystemTimeGT applies the GT predicate on the "system_time" field.
-func SystemTimeGT(v time.Duration) predicate.ActionData {
-	vc := int64(v)
-	return predicate.ActionData(sql.FieldGT(FieldSystemTime, vc))
+func SystemTimeGT(v int64) predicate.ActionData {
+	return predicate.ActionData(sql.FieldGT(FieldSystemTime, v))
 }
 
 // SystemTimeGTE applies the GTE predicate on the "system_time" field.
-func SystemTimeGTE(v time.Duration) predicate.ActionData {
-	vc := int64(v)
-	return predicate.ActionData(sql.FieldGTE(FieldSystemTime, vc))
+func SystemTimeGTE(v int64) predicate.ActionData {
+	return predicate.ActionData(sql.FieldGTE(FieldSystemTime, v))
 }
 
 // SystemTimeLT applies the LT predicate on the "system_time" field.
-func SystemTimeLT(v time.Duration) predicate.ActionData {
-	vc := int64(v)
-	return predicate.ActionData(sql.FieldLT(FieldSystemTime, vc))
+func SystemTimeLT(v int64) predicate.ActionData {
+	return predicate.ActionData(sql.FieldLT(FieldSystemTime, v))
 }
 
 // SystemTimeLTE applies the LTE predicate on the "system_time" field.
-func SystemTimeLTE(v time.Duration) predicate.ActionData {
-	vc := int64(v)
-	return predicate.ActionData(sql.FieldLTE(FieldSystemTime, vc))
+func SystemTimeLTE(v int64) predicate.ActionData {
+	return predicate.ActionData(sql.FieldLTE(FieldSystemTime, v))
 }
 
 // SystemTimeIsNil applies the IsNil predicate on the "system_time" field.
@@ -432,57 +414,43 @@ func SystemTimeNotNil() predicate.ActionData {
 }
 
 // UserTimeEQ applies the EQ predicate on the "user_time" field.
-func UserTimeEQ(v time.Duration) predicate.ActionData {
-	vc := int64(v)
-	return predicate.ActionData(sql.FieldEQ(FieldUserTime, vc))
+func UserTimeEQ(v int64) predicate.ActionData {
+	return predicate.ActionData(sql.FieldEQ(FieldUserTime, v))
 }
 
 // UserTimeNEQ applies the NEQ predicate on the "user_time" field.
-func UserTimeNEQ(v time.Duration) predicate.ActionData {
-	vc := int64(v)
-	return predicate.ActionData(sql.FieldNEQ(FieldUserTime, vc))
+func UserTimeNEQ(v int64) predicate.ActionData {
+	return predicate.ActionData(sql.FieldNEQ(FieldUserTime, v))
 }
 
 // UserTimeIn applies the In predicate on the "user_time" field.
-func UserTimeIn(vs ...time.Duration) predicate.ActionData {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = int64(vs[i])
-	}
-	return predicate.ActionData(sql.FieldIn(FieldUserTime, v...))
+func UserTimeIn(vs ...int64) predicate.ActionData {
+	return predicate.ActionData(sql.FieldIn(FieldUserTime, vs...))
 }
 
 // UserTimeNotIn applies the NotIn predicate on the "user_time" field.
-func UserTimeNotIn(vs ...time.Duration) predicate.ActionData {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = int64(vs[i])
-	}
-	return predicate.ActionData(sql.FieldNotIn(FieldUserTime, v...))
+func UserTimeNotIn(vs ...int64) predicate.ActionData {
+	return predicate.ActionData(sql.FieldNotIn(FieldUserTime, vs...))
 }
 
 // UserTimeGT applies the GT predicate on the "user_time" field.
-func UserTimeGT(v time.Duration) predicate.ActionData {
-	vc := int64(v)
-	return predicate.ActionData(sql.FieldGT(FieldUserTime, vc))
+func UserTimeGT(v int64) predicate.ActionData {
+	return predicate.ActionData(sql.FieldGT(FieldUserTime, v))
 }
 
 // UserTimeGTE applies the GTE predicate on the "user_time" field.
-func UserTimeGTE(v time.Duration) predicate.ActionData {
-	vc := int64(v)
-	return predicate.ActionData(sql.FieldGTE(FieldUserTime, vc))
+func UserTimeGTE(v int64) predicate.ActionData {
+	return predicate.ActionData(sql.FieldGTE(FieldUserTime, v))
 }
 
 // UserTimeLT applies the LT predicate on the "user_time" field.
-func UserTimeLT(v time.Duration) predicate.ActionData {
-	vc := int64(v)
-	return predicate.ActionData(sql.FieldLT(FieldUserTime, vc))
+func UserTimeLT(v int64) predicate.ActionData {
+	return predicate.ActionData(sql.FieldLT(FieldUserTime, v))
 }
 
 // UserTimeLTE applies the LTE predicate on the "user_time" field.
-func UserTimeLTE(v time.Duration) predicate.ActionData {
-	vc := int64(v)
-	return predicate.ActionData(sql.FieldLTE(FieldUserTime, vc))
+func UserTimeLTE(v int64) predicate.ActionData {
+	return predicate.ActionData(sql.FieldLTE(FieldUserTime, v))
 }
 
 // UserTimeIsNil applies the IsNil predicate on the "user_time" field.

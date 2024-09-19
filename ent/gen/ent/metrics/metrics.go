@@ -32,6 +32,8 @@ const (
 	EdgeNetworkMetrics = "network_metrics"
 	// EdgeDynamicExecutionMetrics holds the string denoting the dynamic_execution_metrics edge name in mutations.
 	EdgeDynamicExecutionMetrics = "dynamic_execution_metrics"
+	// EdgeBuildGraphMetrics holds the string denoting the build_graph_metrics edge name in mutations.
+	EdgeBuildGraphMetrics = "build_graph_metrics"
 	// Table holds the table name of the metrics in the database.
 	Table = "metrics"
 	// BazelInvocationTable is the table that holds the bazel_invocation relation/edge.
@@ -88,6 +90,11 @@ const (
 	// DynamicExecutionMetricsInverseTable is the table name for the DynamicExecutionMetrics entity.
 	// It exists in this package in order to avoid circular dependency with the "dynamicexecutionmetrics" package.
 	DynamicExecutionMetricsInverseTable = "dynamic_execution_metrics"
+	// BuildGraphMetricsTable is the table that holds the build_graph_metrics relation/edge. The primary key declared below.
+	BuildGraphMetricsTable = "metrics_build_graph_metrics"
+	// BuildGraphMetricsInverseTable is the table name for the BuildGraphMetrics entity.
+	// It exists in this package in order to avoid circular dependency with the "buildgraphmetrics" package.
+	BuildGraphMetricsInverseTable = "build_graph_metrics"
 )
 
 // Columns holds all SQL columns for metrics fields.
@@ -126,6 +133,9 @@ var (
 	// DynamicExecutionMetricsPrimaryKey and DynamicExecutionMetricsColumn2 are the table columns denoting the
 	// primary key for the dynamic_execution_metrics relation (M2M).
 	DynamicExecutionMetricsPrimaryKey = []string{"metrics_id", "dynamic_execution_metrics_id"}
+	// BuildGraphMetricsPrimaryKey and BuildGraphMetricsColumn2 are the table columns denoting the
+	// primary key for the build_graph_metrics relation (M2M).
+	BuildGraphMetricsPrimaryKey = []string{"metrics_id", "build_graph_metrics_id"}
 )
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -283,6 +293,20 @@ func ByDynamicExecutionMetrics(term sql.OrderTerm, terms ...sql.OrderTerm) Order
 		sqlgraph.OrderByNeighborTerms(s, newDynamicExecutionMetricsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByBuildGraphMetricsCount orders the results by build_graph_metrics count.
+func ByBuildGraphMetricsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newBuildGraphMetricsStep(), opts...)
+	}
+}
+
+// ByBuildGraphMetrics orders the results by build_graph_metrics terms.
+func ByBuildGraphMetrics(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newBuildGraphMetricsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newBazelInvocationStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -351,5 +375,12 @@ func newDynamicExecutionMetricsStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(DynamicExecutionMetricsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2M, false, DynamicExecutionMetricsTable, DynamicExecutionMetricsPrimaryKey...),
+	)
+}
+func newBuildGraphMetricsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(BuildGraphMetricsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2M, false, BuildGraphMetricsTable, BuildGraphMetricsPrimaryKey...),
 	)
 }

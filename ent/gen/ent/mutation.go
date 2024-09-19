@@ -20,8 +20,10 @@ import (
 	"github.com/buildbarn/bb-portal/ent/gen/ent/bazelinvocationproblem"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/blob"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/build"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/buildgraphmetrics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/cumulativemetrics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/dynamicexecutionmetrics"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/evaluationstat"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/eventfile"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/filesmetric"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/garbagemetrics"
@@ -58,8 +60,10 @@ const (
 	TypeBazelInvocationProblem  = "BazelInvocationProblem"
 	TypeBlob                    = "Blob"
 	TypeBuild                   = "Build"
+	TypeBuildGraphMetrics       = "BuildGraphMetrics"
 	TypeCumulativeMetrics       = "CumulativeMetrics"
 	TypeDynamicExecutionMetrics = "DynamicExecutionMetrics"
+	TypeEvaluationStat          = "EvaluationStat"
 	TypeEventFile               = "EventFile"
 	TypeFilesMetric             = "FilesMetric"
 	TypeGarbageMetrics          = "GarbageMetrics"
@@ -1080,10 +1084,10 @@ type ActionDataMutation struct {
 	addfirst_started_ms   *int64
 	last_ended_ms         *int64
 	addlast_ended_ms      *int64
-	system_time           *time.Duration
-	addsystem_time        *time.Duration
-	user_time             *time.Duration
-	adduser_time          *time.Duration
+	system_time           *int64
+	addsystem_time        *int64
+	user_time             *int64
+	adduser_time          *int64
 	clearedFields         map[string]struct{}
 	action_summary        map[int]struct{}
 	removedaction_summary map[int]struct{}
@@ -1521,13 +1525,13 @@ func (m *ActionDataMutation) ResetLastEndedMs() {
 }
 
 // SetSystemTime sets the "system_time" field.
-func (m *ActionDataMutation) SetSystemTime(t time.Duration) {
-	m.system_time = &t
+func (m *ActionDataMutation) SetSystemTime(i int64) {
+	m.system_time = &i
 	m.addsystem_time = nil
 }
 
 // SystemTime returns the value of the "system_time" field in the mutation.
-func (m *ActionDataMutation) SystemTime() (r time.Duration, exists bool) {
+func (m *ActionDataMutation) SystemTime() (r int64, exists bool) {
 	v := m.system_time
 	if v == nil {
 		return
@@ -1538,7 +1542,7 @@ func (m *ActionDataMutation) SystemTime() (r time.Duration, exists bool) {
 // OldSystemTime returns the old "system_time" field's value of the ActionData entity.
 // If the ActionData object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ActionDataMutation) OldSystemTime(ctx context.Context) (v time.Duration, err error) {
+func (m *ActionDataMutation) OldSystemTime(ctx context.Context) (v int64, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldSystemTime is only allowed on UpdateOne operations")
 	}
@@ -1552,17 +1556,17 @@ func (m *ActionDataMutation) OldSystemTime(ctx context.Context) (v time.Duration
 	return oldValue.SystemTime, nil
 }
 
-// AddSystemTime adds t to the "system_time" field.
-func (m *ActionDataMutation) AddSystemTime(t time.Duration) {
+// AddSystemTime adds i to the "system_time" field.
+func (m *ActionDataMutation) AddSystemTime(i int64) {
 	if m.addsystem_time != nil {
-		*m.addsystem_time += t
+		*m.addsystem_time += i
 	} else {
-		m.addsystem_time = &t
+		m.addsystem_time = &i
 	}
 }
 
 // AddedSystemTime returns the value that was added to the "system_time" field in this mutation.
-func (m *ActionDataMutation) AddedSystemTime() (r time.Duration, exists bool) {
+func (m *ActionDataMutation) AddedSystemTime() (r int64, exists bool) {
 	v := m.addsystem_time
 	if v == nil {
 		return
@@ -1591,13 +1595,13 @@ func (m *ActionDataMutation) ResetSystemTime() {
 }
 
 // SetUserTime sets the "user_time" field.
-func (m *ActionDataMutation) SetUserTime(t time.Duration) {
-	m.user_time = &t
+func (m *ActionDataMutation) SetUserTime(i int64) {
+	m.user_time = &i
 	m.adduser_time = nil
 }
 
 // UserTime returns the value of the "user_time" field in the mutation.
-func (m *ActionDataMutation) UserTime() (r time.Duration, exists bool) {
+func (m *ActionDataMutation) UserTime() (r int64, exists bool) {
 	v := m.user_time
 	if v == nil {
 		return
@@ -1608,7 +1612,7 @@ func (m *ActionDataMutation) UserTime() (r time.Duration, exists bool) {
 // OldUserTime returns the old "user_time" field's value of the ActionData entity.
 // If the ActionData object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ActionDataMutation) OldUserTime(ctx context.Context) (v time.Duration, err error) {
+func (m *ActionDataMutation) OldUserTime(ctx context.Context) (v int64, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldUserTime is only allowed on UpdateOne operations")
 	}
@@ -1622,17 +1626,17 @@ func (m *ActionDataMutation) OldUserTime(ctx context.Context) (v time.Duration, 
 	return oldValue.UserTime, nil
 }
 
-// AddUserTime adds t to the "user_time" field.
-func (m *ActionDataMutation) AddUserTime(t time.Duration) {
+// AddUserTime adds i to the "user_time" field.
+func (m *ActionDataMutation) AddUserTime(i int64) {
 	if m.adduser_time != nil {
-		*m.adduser_time += t
+		*m.adduser_time += i
 	} else {
-		m.adduser_time = &t
+		m.adduser_time = &i
 	}
 }
 
 // AddedUserTime returns the value that was added to the "user_time" field in this mutation.
-func (m *ActionDataMutation) AddedUserTime() (r time.Duration, exists bool) {
+func (m *ActionDataMutation) AddedUserTime() (r int64, exists bool) {
 	v := m.adduser_time
 	if v == nil {
 		return
@@ -1860,14 +1864,14 @@ func (m *ActionDataMutation) SetField(name string, value ent.Value) error {
 		m.SetLastEndedMs(v)
 		return nil
 	case actiondata.FieldSystemTime:
-		v, ok := value.(time.Duration)
+		v, ok := value.(int64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetSystemTime(v)
 		return nil
 	case actiondata.FieldUserTime:
-		v, ok := value.(time.Duration)
+		v, ok := value.(int64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -1957,14 +1961,14 @@ func (m *ActionDataMutation) AddField(name string, value ent.Value) error {
 		m.AddLastEndedMs(v)
 		return nil
 	case actiondata.FieldSystemTime:
-		v, ok := value.(time.Duration)
+		v, ok := value.(int64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.AddSystemTime(v)
 		return nil
 	case actiondata.FieldUserTime:
-		v, ok := value.(time.Duration)
+		v, ok := value.(int64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -6944,6 +6948,1648 @@ func (m *BuildMutation) ResetEdge(name string) error {
 	return fmt.Errorf("unknown Build edge %s", name)
 }
 
+// BuildGraphMetricsMutation represents an operation that mutates the BuildGraphMetrics nodes in the graph.
+type BuildGraphMetricsMutation struct {
+	config
+	op                                                 Op
+	typ                                                string
+	id                                                 *int
+	action_lookup_value_count                          *int32
+	addaction_lookup_value_count                       *int32
+	action_lookup_value_count_not_including_aspects    *int32
+	addaction_lookup_value_count_not_including_aspects *int32
+	action_count                                       *int32
+	addaction_count                                    *int32
+	input_file_configured_target_count                 *int32
+	addinput_file_configured_target_count              *int32
+	output_file_configured_target_count                *int32
+	addoutput_file_configured_target_count             *int32
+	other_configured_target_count                      *int32
+	addother_configured_target_count                   *int32
+	output_artifact_count                              *int32
+	addoutput_artifact_count                           *int32
+	post_invocation_skyframe_node_count                *int32
+	addpost_invocation_skyframe_node_count             *int32
+	clearedFields                                      map[string]struct{}
+	metrics                                            map[int]struct{}
+	removedmetrics                                     map[int]struct{}
+	clearedmetrics                                     bool
+	dirtied_values                                     map[int]struct{}
+	removeddirtied_values                              map[int]struct{}
+	cleareddirtied_values                              bool
+	changed_values                                     map[int]struct{}
+	removedchanged_values                              map[int]struct{}
+	clearedchanged_values                              bool
+	built_values                                       map[int]struct{}
+	removedbuilt_values                                map[int]struct{}
+	clearedbuilt_values                                bool
+	cleaned_values                                     map[int]struct{}
+	removedcleaned_values                              map[int]struct{}
+	clearedcleaned_values                              bool
+	evaluated_values                                   map[int]struct{}
+	removedevaluated_values                            map[int]struct{}
+	clearedevaluated_values                            bool
+	done                                               bool
+	oldValue                                           func(context.Context) (*BuildGraphMetrics, error)
+	predicates                                         []predicate.BuildGraphMetrics
+}
+
+var _ ent.Mutation = (*BuildGraphMetricsMutation)(nil)
+
+// buildgraphmetricsOption allows management of the mutation configuration using functional options.
+type buildgraphmetricsOption func(*BuildGraphMetricsMutation)
+
+// newBuildGraphMetricsMutation creates new mutation for the BuildGraphMetrics entity.
+func newBuildGraphMetricsMutation(c config, op Op, opts ...buildgraphmetricsOption) *BuildGraphMetricsMutation {
+	m := &BuildGraphMetricsMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeBuildGraphMetrics,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withBuildGraphMetricsID sets the ID field of the mutation.
+func withBuildGraphMetricsID(id int) buildgraphmetricsOption {
+	return func(m *BuildGraphMetricsMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *BuildGraphMetrics
+		)
+		m.oldValue = func(ctx context.Context) (*BuildGraphMetrics, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().BuildGraphMetrics.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withBuildGraphMetrics sets the old BuildGraphMetrics of the mutation.
+func withBuildGraphMetrics(node *BuildGraphMetrics) buildgraphmetricsOption {
+	return func(m *BuildGraphMetricsMutation) {
+		m.oldValue = func(context.Context) (*BuildGraphMetrics, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m BuildGraphMetricsMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m BuildGraphMetricsMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *BuildGraphMetricsMutation) ID() (id int, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *BuildGraphMetricsMutation) IDs(ctx context.Context) ([]int, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []int{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().BuildGraphMetrics.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetActionLookupValueCount sets the "action_lookup_value_count" field.
+func (m *BuildGraphMetricsMutation) SetActionLookupValueCount(i int32) {
+	m.action_lookup_value_count = &i
+	m.addaction_lookup_value_count = nil
+}
+
+// ActionLookupValueCount returns the value of the "action_lookup_value_count" field in the mutation.
+func (m *BuildGraphMetricsMutation) ActionLookupValueCount() (r int32, exists bool) {
+	v := m.action_lookup_value_count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldActionLookupValueCount returns the old "action_lookup_value_count" field's value of the BuildGraphMetrics entity.
+// If the BuildGraphMetrics object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BuildGraphMetricsMutation) OldActionLookupValueCount(ctx context.Context) (v int32, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldActionLookupValueCount is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldActionLookupValueCount requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldActionLookupValueCount: %w", err)
+	}
+	return oldValue.ActionLookupValueCount, nil
+}
+
+// AddActionLookupValueCount adds i to the "action_lookup_value_count" field.
+func (m *BuildGraphMetricsMutation) AddActionLookupValueCount(i int32) {
+	if m.addaction_lookup_value_count != nil {
+		*m.addaction_lookup_value_count += i
+	} else {
+		m.addaction_lookup_value_count = &i
+	}
+}
+
+// AddedActionLookupValueCount returns the value that was added to the "action_lookup_value_count" field in this mutation.
+func (m *BuildGraphMetricsMutation) AddedActionLookupValueCount() (r int32, exists bool) {
+	v := m.addaction_lookup_value_count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearActionLookupValueCount clears the value of the "action_lookup_value_count" field.
+func (m *BuildGraphMetricsMutation) ClearActionLookupValueCount() {
+	m.action_lookup_value_count = nil
+	m.addaction_lookup_value_count = nil
+	m.clearedFields[buildgraphmetrics.FieldActionLookupValueCount] = struct{}{}
+}
+
+// ActionLookupValueCountCleared returns if the "action_lookup_value_count" field was cleared in this mutation.
+func (m *BuildGraphMetricsMutation) ActionLookupValueCountCleared() bool {
+	_, ok := m.clearedFields[buildgraphmetrics.FieldActionLookupValueCount]
+	return ok
+}
+
+// ResetActionLookupValueCount resets all changes to the "action_lookup_value_count" field.
+func (m *BuildGraphMetricsMutation) ResetActionLookupValueCount() {
+	m.action_lookup_value_count = nil
+	m.addaction_lookup_value_count = nil
+	delete(m.clearedFields, buildgraphmetrics.FieldActionLookupValueCount)
+}
+
+// SetActionLookupValueCountNotIncludingAspects sets the "action_lookup_value_count_not_including_aspects" field.
+func (m *BuildGraphMetricsMutation) SetActionLookupValueCountNotIncludingAspects(i int32) {
+	m.action_lookup_value_count_not_including_aspects = &i
+	m.addaction_lookup_value_count_not_including_aspects = nil
+}
+
+// ActionLookupValueCountNotIncludingAspects returns the value of the "action_lookup_value_count_not_including_aspects" field in the mutation.
+func (m *BuildGraphMetricsMutation) ActionLookupValueCountNotIncludingAspects() (r int32, exists bool) {
+	v := m.action_lookup_value_count_not_including_aspects
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldActionLookupValueCountNotIncludingAspects returns the old "action_lookup_value_count_not_including_aspects" field's value of the BuildGraphMetrics entity.
+// If the BuildGraphMetrics object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BuildGraphMetricsMutation) OldActionLookupValueCountNotIncludingAspects(ctx context.Context) (v int32, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldActionLookupValueCountNotIncludingAspects is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldActionLookupValueCountNotIncludingAspects requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldActionLookupValueCountNotIncludingAspects: %w", err)
+	}
+	return oldValue.ActionLookupValueCountNotIncludingAspects, nil
+}
+
+// AddActionLookupValueCountNotIncludingAspects adds i to the "action_lookup_value_count_not_including_aspects" field.
+func (m *BuildGraphMetricsMutation) AddActionLookupValueCountNotIncludingAspects(i int32) {
+	if m.addaction_lookup_value_count_not_including_aspects != nil {
+		*m.addaction_lookup_value_count_not_including_aspects += i
+	} else {
+		m.addaction_lookup_value_count_not_including_aspects = &i
+	}
+}
+
+// AddedActionLookupValueCountNotIncludingAspects returns the value that was added to the "action_lookup_value_count_not_including_aspects" field in this mutation.
+func (m *BuildGraphMetricsMutation) AddedActionLookupValueCountNotIncludingAspects() (r int32, exists bool) {
+	v := m.addaction_lookup_value_count_not_including_aspects
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearActionLookupValueCountNotIncludingAspects clears the value of the "action_lookup_value_count_not_including_aspects" field.
+func (m *BuildGraphMetricsMutation) ClearActionLookupValueCountNotIncludingAspects() {
+	m.action_lookup_value_count_not_including_aspects = nil
+	m.addaction_lookup_value_count_not_including_aspects = nil
+	m.clearedFields[buildgraphmetrics.FieldActionLookupValueCountNotIncludingAspects] = struct{}{}
+}
+
+// ActionLookupValueCountNotIncludingAspectsCleared returns if the "action_lookup_value_count_not_including_aspects" field was cleared in this mutation.
+func (m *BuildGraphMetricsMutation) ActionLookupValueCountNotIncludingAspectsCleared() bool {
+	_, ok := m.clearedFields[buildgraphmetrics.FieldActionLookupValueCountNotIncludingAspects]
+	return ok
+}
+
+// ResetActionLookupValueCountNotIncludingAspects resets all changes to the "action_lookup_value_count_not_including_aspects" field.
+func (m *BuildGraphMetricsMutation) ResetActionLookupValueCountNotIncludingAspects() {
+	m.action_lookup_value_count_not_including_aspects = nil
+	m.addaction_lookup_value_count_not_including_aspects = nil
+	delete(m.clearedFields, buildgraphmetrics.FieldActionLookupValueCountNotIncludingAspects)
+}
+
+// SetActionCount sets the "action_count" field.
+func (m *BuildGraphMetricsMutation) SetActionCount(i int32) {
+	m.action_count = &i
+	m.addaction_count = nil
+}
+
+// ActionCount returns the value of the "action_count" field in the mutation.
+func (m *BuildGraphMetricsMutation) ActionCount() (r int32, exists bool) {
+	v := m.action_count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldActionCount returns the old "action_count" field's value of the BuildGraphMetrics entity.
+// If the BuildGraphMetrics object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BuildGraphMetricsMutation) OldActionCount(ctx context.Context) (v int32, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldActionCount is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldActionCount requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldActionCount: %w", err)
+	}
+	return oldValue.ActionCount, nil
+}
+
+// AddActionCount adds i to the "action_count" field.
+func (m *BuildGraphMetricsMutation) AddActionCount(i int32) {
+	if m.addaction_count != nil {
+		*m.addaction_count += i
+	} else {
+		m.addaction_count = &i
+	}
+}
+
+// AddedActionCount returns the value that was added to the "action_count" field in this mutation.
+func (m *BuildGraphMetricsMutation) AddedActionCount() (r int32, exists bool) {
+	v := m.addaction_count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearActionCount clears the value of the "action_count" field.
+func (m *BuildGraphMetricsMutation) ClearActionCount() {
+	m.action_count = nil
+	m.addaction_count = nil
+	m.clearedFields[buildgraphmetrics.FieldActionCount] = struct{}{}
+}
+
+// ActionCountCleared returns if the "action_count" field was cleared in this mutation.
+func (m *BuildGraphMetricsMutation) ActionCountCleared() bool {
+	_, ok := m.clearedFields[buildgraphmetrics.FieldActionCount]
+	return ok
+}
+
+// ResetActionCount resets all changes to the "action_count" field.
+func (m *BuildGraphMetricsMutation) ResetActionCount() {
+	m.action_count = nil
+	m.addaction_count = nil
+	delete(m.clearedFields, buildgraphmetrics.FieldActionCount)
+}
+
+// SetInputFileConfiguredTargetCount sets the "input_file_configured_target_count" field.
+func (m *BuildGraphMetricsMutation) SetInputFileConfiguredTargetCount(i int32) {
+	m.input_file_configured_target_count = &i
+	m.addinput_file_configured_target_count = nil
+}
+
+// InputFileConfiguredTargetCount returns the value of the "input_file_configured_target_count" field in the mutation.
+func (m *BuildGraphMetricsMutation) InputFileConfiguredTargetCount() (r int32, exists bool) {
+	v := m.input_file_configured_target_count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldInputFileConfiguredTargetCount returns the old "input_file_configured_target_count" field's value of the BuildGraphMetrics entity.
+// If the BuildGraphMetrics object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BuildGraphMetricsMutation) OldInputFileConfiguredTargetCount(ctx context.Context) (v int32, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldInputFileConfiguredTargetCount is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldInputFileConfiguredTargetCount requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldInputFileConfiguredTargetCount: %w", err)
+	}
+	return oldValue.InputFileConfiguredTargetCount, nil
+}
+
+// AddInputFileConfiguredTargetCount adds i to the "input_file_configured_target_count" field.
+func (m *BuildGraphMetricsMutation) AddInputFileConfiguredTargetCount(i int32) {
+	if m.addinput_file_configured_target_count != nil {
+		*m.addinput_file_configured_target_count += i
+	} else {
+		m.addinput_file_configured_target_count = &i
+	}
+}
+
+// AddedInputFileConfiguredTargetCount returns the value that was added to the "input_file_configured_target_count" field in this mutation.
+func (m *BuildGraphMetricsMutation) AddedInputFileConfiguredTargetCount() (r int32, exists bool) {
+	v := m.addinput_file_configured_target_count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearInputFileConfiguredTargetCount clears the value of the "input_file_configured_target_count" field.
+func (m *BuildGraphMetricsMutation) ClearInputFileConfiguredTargetCount() {
+	m.input_file_configured_target_count = nil
+	m.addinput_file_configured_target_count = nil
+	m.clearedFields[buildgraphmetrics.FieldInputFileConfiguredTargetCount] = struct{}{}
+}
+
+// InputFileConfiguredTargetCountCleared returns if the "input_file_configured_target_count" field was cleared in this mutation.
+func (m *BuildGraphMetricsMutation) InputFileConfiguredTargetCountCleared() bool {
+	_, ok := m.clearedFields[buildgraphmetrics.FieldInputFileConfiguredTargetCount]
+	return ok
+}
+
+// ResetInputFileConfiguredTargetCount resets all changes to the "input_file_configured_target_count" field.
+func (m *BuildGraphMetricsMutation) ResetInputFileConfiguredTargetCount() {
+	m.input_file_configured_target_count = nil
+	m.addinput_file_configured_target_count = nil
+	delete(m.clearedFields, buildgraphmetrics.FieldInputFileConfiguredTargetCount)
+}
+
+// SetOutputFileConfiguredTargetCount sets the "output_file_configured_target_count" field.
+func (m *BuildGraphMetricsMutation) SetOutputFileConfiguredTargetCount(i int32) {
+	m.output_file_configured_target_count = &i
+	m.addoutput_file_configured_target_count = nil
+}
+
+// OutputFileConfiguredTargetCount returns the value of the "output_file_configured_target_count" field in the mutation.
+func (m *BuildGraphMetricsMutation) OutputFileConfiguredTargetCount() (r int32, exists bool) {
+	v := m.output_file_configured_target_count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldOutputFileConfiguredTargetCount returns the old "output_file_configured_target_count" field's value of the BuildGraphMetrics entity.
+// If the BuildGraphMetrics object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BuildGraphMetricsMutation) OldOutputFileConfiguredTargetCount(ctx context.Context) (v int32, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldOutputFileConfiguredTargetCount is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldOutputFileConfiguredTargetCount requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldOutputFileConfiguredTargetCount: %w", err)
+	}
+	return oldValue.OutputFileConfiguredTargetCount, nil
+}
+
+// AddOutputFileConfiguredTargetCount adds i to the "output_file_configured_target_count" field.
+func (m *BuildGraphMetricsMutation) AddOutputFileConfiguredTargetCount(i int32) {
+	if m.addoutput_file_configured_target_count != nil {
+		*m.addoutput_file_configured_target_count += i
+	} else {
+		m.addoutput_file_configured_target_count = &i
+	}
+}
+
+// AddedOutputFileConfiguredTargetCount returns the value that was added to the "output_file_configured_target_count" field in this mutation.
+func (m *BuildGraphMetricsMutation) AddedOutputFileConfiguredTargetCount() (r int32, exists bool) {
+	v := m.addoutput_file_configured_target_count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearOutputFileConfiguredTargetCount clears the value of the "output_file_configured_target_count" field.
+func (m *BuildGraphMetricsMutation) ClearOutputFileConfiguredTargetCount() {
+	m.output_file_configured_target_count = nil
+	m.addoutput_file_configured_target_count = nil
+	m.clearedFields[buildgraphmetrics.FieldOutputFileConfiguredTargetCount] = struct{}{}
+}
+
+// OutputFileConfiguredTargetCountCleared returns if the "output_file_configured_target_count" field was cleared in this mutation.
+func (m *BuildGraphMetricsMutation) OutputFileConfiguredTargetCountCleared() bool {
+	_, ok := m.clearedFields[buildgraphmetrics.FieldOutputFileConfiguredTargetCount]
+	return ok
+}
+
+// ResetOutputFileConfiguredTargetCount resets all changes to the "output_file_configured_target_count" field.
+func (m *BuildGraphMetricsMutation) ResetOutputFileConfiguredTargetCount() {
+	m.output_file_configured_target_count = nil
+	m.addoutput_file_configured_target_count = nil
+	delete(m.clearedFields, buildgraphmetrics.FieldOutputFileConfiguredTargetCount)
+}
+
+// SetOtherConfiguredTargetCount sets the "other_configured_target_count" field.
+func (m *BuildGraphMetricsMutation) SetOtherConfiguredTargetCount(i int32) {
+	m.other_configured_target_count = &i
+	m.addother_configured_target_count = nil
+}
+
+// OtherConfiguredTargetCount returns the value of the "other_configured_target_count" field in the mutation.
+func (m *BuildGraphMetricsMutation) OtherConfiguredTargetCount() (r int32, exists bool) {
+	v := m.other_configured_target_count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldOtherConfiguredTargetCount returns the old "other_configured_target_count" field's value of the BuildGraphMetrics entity.
+// If the BuildGraphMetrics object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BuildGraphMetricsMutation) OldOtherConfiguredTargetCount(ctx context.Context) (v int32, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldOtherConfiguredTargetCount is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldOtherConfiguredTargetCount requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldOtherConfiguredTargetCount: %w", err)
+	}
+	return oldValue.OtherConfiguredTargetCount, nil
+}
+
+// AddOtherConfiguredTargetCount adds i to the "other_configured_target_count" field.
+func (m *BuildGraphMetricsMutation) AddOtherConfiguredTargetCount(i int32) {
+	if m.addother_configured_target_count != nil {
+		*m.addother_configured_target_count += i
+	} else {
+		m.addother_configured_target_count = &i
+	}
+}
+
+// AddedOtherConfiguredTargetCount returns the value that was added to the "other_configured_target_count" field in this mutation.
+func (m *BuildGraphMetricsMutation) AddedOtherConfiguredTargetCount() (r int32, exists bool) {
+	v := m.addother_configured_target_count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearOtherConfiguredTargetCount clears the value of the "other_configured_target_count" field.
+func (m *BuildGraphMetricsMutation) ClearOtherConfiguredTargetCount() {
+	m.other_configured_target_count = nil
+	m.addother_configured_target_count = nil
+	m.clearedFields[buildgraphmetrics.FieldOtherConfiguredTargetCount] = struct{}{}
+}
+
+// OtherConfiguredTargetCountCleared returns if the "other_configured_target_count" field was cleared in this mutation.
+func (m *BuildGraphMetricsMutation) OtherConfiguredTargetCountCleared() bool {
+	_, ok := m.clearedFields[buildgraphmetrics.FieldOtherConfiguredTargetCount]
+	return ok
+}
+
+// ResetOtherConfiguredTargetCount resets all changes to the "other_configured_target_count" field.
+func (m *BuildGraphMetricsMutation) ResetOtherConfiguredTargetCount() {
+	m.other_configured_target_count = nil
+	m.addother_configured_target_count = nil
+	delete(m.clearedFields, buildgraphmetrics.FieldOtherConfiguredTargetCount)
+}
+
+// SetOutputArtifactCount sets the "output_artifact_count" field.
+func (m *BuildGraphMetricsMutation) SetOutputArtifactCount(i int32) {
+	m.output_artifact_count = &i
+	m.addoutput_artifact_count = nil
+}
+
+// OutputArtifactCount returns the value of the "output_artifact_count" field in the mutation.
+func (m *BuildGraphMetricsMutation) OutputArtifactCount() (r int32, exists bool) {
+	v := m.output_artifact_count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldOutputArtifactCount returns the old "output_artifact_count" field's value of the BuildGraphMetrics entity.
+// If the BuildGraphMetrics object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BuildGraphMetricsMutation) OldOutputArtifactCount(ctx context.Context) (v int32, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldOutputArtifactCount is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldOutputArtifactCount requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldOutputArtifactCount: %w", err)
+	}
+	return oldValue.OutputArtifactCount, nil
+}
+
+// AddOutputArtifactCount adds i to the "output_artifact_count" field.
+func (m *BuildGraphMetricsMutation) AddOutputArtifactCount(i int32) {
+	if m.addoutput_artifact_count != nil {
+		*m.addoutput_artifact_count += i
+	} else {
+		m.addoutput_artifact_count = &i
+	}
+}
+
+// AddedOutputArtifactCount returns the value that was added to the "output_artifact_count" field in this mutation.
+func (m *BuildGraphMetricsMutation) AddedOutputArtifactCount() (r int32, exists bool) {
+	v := m.addoutput_artifact_count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearOutputArtifactCount clears the value of the "output_artifact_count" field.
+func (m *BuildGraphMetricsMutation) ClearOutputArtifactCount() {
+	m.output_artifact_count = nil
+	m.addoutput_artifact_count = nil
+	m.clearedFields[buildgraphmetrics.FieldOutputArtifactCount] = struct{}{}
+}
+
+// OutputArtifactCountCleared returns if the "output_artifact_count" field was cleared in this mutation.
+func (m *BuildGraphMetricsMutation) OutputArtifactCountCleared() bool {
+	_, ok := m.clearedFields[buildgraphmetrics.FieldOutputArtifactCount]
+	return ok
+}
+
+// ResetOutputArtifactCount resets all changes to the "output_artifact_count" field.
+func (m *BuildGraphMetricsMutation) ResetOutputArtifactCount() {
+	m.output_artifact_count = nil
+	m.addoutput_artifact_count = nil
+	delete(m.clearedFields, buildgraphmetrics.FieldOutputArtifactCount)
+}
+
+// SetPostInvocationSkyframeNodeCount sets the "post_invocation_skyframe_node_count" field.
+func (m *BuildGraphMetricsMutation) SetPostInvocationSkyframeNodeCount(i int32) {
+	m.post_invocation_skyframe_node_count = &i
+	m.addpost_invocation_skyframe_node_count = nil
+}
+
+// PostInvocationSkyframeNodeCount returns the value of the "post_invocation_skyframe_node_count" field in the mutation.
+func (m *BuildGraphMetricsMutation) PostInvocationSkyframeNodeCount() (r int32, exists bool) {
+	v := m.post_invocation_skyframe_node_count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPostInvocationSkyframeNodeCount returns the old "post_invocation_skyframe_node_count" field's value of the BuildGraphMetrics entity.
+// If the BuildGraphMetrics object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BuildGraphMetricsMutation) OldPostInvocationSkyframeNodeCount(ctx context.Context) (v int32, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPostInvocationSkyframeNodeCount is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPostInvocationSkyframeNodeCount requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPostInvocationSkyframeNodeCount: %w", err)
+	}
+	return oldValue.PostInvocationSkyframeNodeCount, nil
+}
+
+// AddPostInvocationSkyframeNodeCount adds i to the "post_invocation_skyframe_node_count" field.
+func (m *BuildGraphMetricsMutation) AddPostInvocationSkyframeNodeCount(i int32) {
+	if m.addpost_invocation_skyframe_node_count != nil {
+		*m.addpost_invocation_skyframe_node_count += i
+	} else {
+		m.addpost_invocation_skyframe_node_count = &i
+	}
+}
+
+// AddedPostInvocationSkyframeNodeCount returns the value that was added to the "post_invocation_skyframe_node_count" field in this mutation.
+func (m *BuildGraphMetricsMutation) AddedPostInvocationSkyframeNodeCount() (r int32, exists bool) {
+	v := m.addpost_invocation_skyframe_node_count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearPostInvocationSkyframeNodeCount clears the value of the "post_invocation_skyframe_node_count" field.
+func (m *BuildGraphMetricsMutation) ClearPostInvocationSkyframeNodeCount() {
+	m.post_invocation_skyframe_node_count = nil
+	m.addpost_invocation_skyframe_node_count = nil
+	m.clearedFields[buildgraphmetrics.FieldPostInvocationSkyframeNodeCount] = struct{}{}
+}
+
+// PostInvocationSkyframeNodeCountCleared returns if the "post_invocation_skyframe_node_count" field was cleared in this mutation.
+func (m *BuildGraphMetricsMutation) PostInvocationSkyframeNodeCountCleared() bool {
+	_, ok := m.clearedFields[buildgraphmetrics.FieldPostInvocationSkyframeNodeCount]
+	return ok
+}
+
+// ResetPostInvocationSkyframeNodeCount resets all changes to the "post_invocation_skyframe_node_count" field.
+func (m *BuildGraphMetricsMutation) ResetPostInvocationSkyframeNodeCount() {
+	m.post_invocation_skyframe_node_count = nil
+	m.addpost_invocation_skyframe_node_count = nil
+	delete(m.clearedFields, buildgraphmetrics.FieldPostInvocationSkyframeNodeCount)
+}
+
+// AddMetricIDs adds the "metrics" edge to the Metrics entity by ids.
+func (m *BuildGraphMetricsMutation) AddMetricIDs(ids ...int) {
+	if m.metrics == nil {
+		m.metrics = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.metrics[ids[i]] = struct{}{}
+	}
+}
+
+// ClearMetrics clears the "metrics" edge to the Metrics entity.
+func (m *BuildGraphMetricsMutation) ClearMetrics() {
+	m.clearedmetrics = true
+}
+
+// MetricsCleared reports if the "metrics" edge to the Metrics entity was cleared.
+func (m *BuildGraphMetricsMutation) MetricsCleared() bool {
+	return m.clearedmetrics
+}
+
+// RemoveMetricIDs removes the "metrics" edge to the Metrics entity by IDs.
+func (m *BuildGraphMetricsMutation) RemoveMetricIDs(ids ...int) {
+	if m.removedmetrics == nil {
+		m.removedmetrics = make(map[int]struct{})
+	}
+	for i := range ids {
+		delete(m.metrics, ids[i])
+		m.removedmetrics[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedMetrics returns the removed IDs of the "metrics" edge to the Metrics entity.
+func (m *BuildGraphMetricsMutation) RemovedMetricsIDs() (ids []int) {
+	for id := range m.removedmetrics {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// MetricsIDs returns the "metrics" edge IDs in the mutation.
+func (m *BuildGraphMetricsMutation) MetricsIDs() (ids []int) {
+	for id := range m.metrics {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetMetrics resets all changes to the "metrics" edge.
+func (m *BuildGraphMetricsMutation) ResetMetrics() {
+	m.metrics = nil
+	m.clearedmetrics = false
+	m.removedmetrics = nil
+}
+
+// AddDirtiedValueIDs adds the "dirtied_values" edge to the EvaluationStat entity by ids.
+func (m *BuildGraphMetricsMutation) AddDirtiedValueIDs(ids ...int) {
+	if m.dirtied_values == nil {
+		m.dirtied_values = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.dirtied_values[ids[i]] = struct{}{}
+	}
+}
+
+// ClearDirtiedValues clears the "dirtied_values" edge to the EvaluationStat entity.
+func (m *BuildGraphMetricsMutation) ClearDirtiedValues() {
+	m.cleareddirtied_values = true
+}
+
+// DirtiedValuesCleared reports if the "dirtied_values" edge to the EvaluationStat entity was cleared.
+func (m *BuildGraphMetricsMutation) DirtiedValuesCleared() bool {
+	return m.cleareddirtied_values
+}
+
+// RemoveDirtiedValueIDs removes the "dirtied_values" edge to the EvaluationStat entity by IDs.
+func (m *BuildGraphMetricsMutation) RemoveDirtiedValueIDs(ids ...int) {
+	if m.removeddirtied_values == nil {
+		m.removeddirtied_values = make(map[int]struct{})
+	}
+	for i := range ids {
+		delete(m.dirtied_values, ids[i])
+		m.removeddirtied_values[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedDirtiedValues returns the removed IDs of the "dirtied_values" edge to the EvaluationStat entity.
+func (m *BuildGraphMetricsMutation) RemovedDirtiedValuesIDs() (ids []int) {
+	for id := range m.removeddirtied_values {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// DirtiedValuesIDs returns the "dirtied_values" edge IDs in the mutation.
+func (m *BuildGraphMetricsMutation) DirtiedValuesIDs() (ids []int) {
+	for id := range m.dirtied_values {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetDirtiedValues resets all changes to the "dirtied_values" edge.
+func (m *BuildGraphMetricsMutation) ResetDirtiedValues() {
+	m.dirtied_values = nil
+	m.cleareddirtied_values = false
+	m.removeddirtied_values = nil
+}
+
+// AddChangedValueIDs adds the "changed_values" edge to the EvaluationStat entity by ids.
+func (m *BuildGraphMetricsMutation) AddChangedValueIDs(ids ...int) {
+	if m.changed_values == nil {
+		m.changed_values = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.changed_values[ids[i]] = struct{}{}
+	}
+}
+
+// ClearChangedValues clears the "changed_values" edge to the EvaluationStat entity.
+func (m *BuildGraphMetricsMutation) ClearChangedValues() {
+	m.clearedchanged_values = true
+}
+
+// ChangedValuesCleared reports if the "changed_values" edge to the EvaluationStat entity was cleared.
+func (m *BuildGraphMetricsMutation) ChangedValuesCleared() bool {
+	return m.clearedchanged_values
+}
+
+// RemoveChangedValueIDs removes the "changed_values" edge to the EvaluationStat entity by IDs.
+func (m *BuildGraphMetricsMutation) RemoveChangedValueIDs(ids ...int) {
+	if m.removedchanged_values == nil {
+		m.removedchanged_values = make(map[int]struct{})
+	}
+	for i := range ids {
+		delete(m.changed_values, ids[i])
+		m.removedchanged_values[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedChangedValues returns the removed IDs of the "changed_values" edge to the EvaluationStat entity.
+func (m *BuildGraphMetricsMutation) RemovedChangedValuesIDs() (ids []int) {
+	for id := range m.removedchanged_values {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ChangedValuesIDs returns the "changed_values" edge IDs in the mutation.
+func (m *BuildGraphMetricsMutation) ChangedValuesIDs() (ids []int) {
+	for id := range m.changed_values {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetChangedValues resets all changes to the "changed_values" edge.
+func (m *BuildGraphMetricsMutation) ResetChangedValues() {
+	m.changed_values = nil
+	m.clearedchanged_values = false
+	m.removedchanged_values = nil
+}
+
+// AddBuiltValueIDs adds the "built_values" edge to the EvaluationStat entity by ids.
+func (m *BuildGraphMetricsMutation) AddBuiltValueIDs(ids ...int) {
+	if m.built_values == nil {
+		m.built_values = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.built_values[ids[i]] = struct{}{}
+	}
+}
+
+// ClearBuiltValues clears the "built_values" edge to the EvaluationStat entity.
+func (m *BuildGraphMetricsMutation) ClearBuiltValues() {
+	m.clearedbuilt_values = true
+}
+
+// BuiltValuesCleared reports if the "built_values" edge to the EvaluationStat entity was cleared.
+func (m *BuildGraphMetricsMutation) BuiltValuesCleared() bool {
+	return m.clearedbuilt_values
+}
+
+// RemoveBuiltValueIDs removes the "built_values" edge to the EvaluationStat entity by IDs.
+func (m *BuildGraphMetricsMutation) RemoveBuiltValueIDs(ids ...int) {
+	if m.removedbuilt_values == nil {
+		m.removedbuilt_values = make(map[int]struct{})
+	}
+	for i := range ids {
+		delete(m.built_values, ids[i])
+		m.removedbuilt_values[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedBuiltValues returns the removed IDs of the "built_values" edge to the EvaluationStat entity.
+func (m *BuildGraphMetricsMutation) RemovedBuiltValuesIDs() (ids []int) {
+	for id := range m.removedbuilt_values {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// BuiltValuesIDs returns the "built_values" edge IDs in the mutation.
+func (m *BuildGraphMetricsMutation) BuiltValuesIDs() (ids []int) {
+	for id := range m.built_values {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetBuiltValues resets all changes to the "built_values" edge.
+func (m *BuildGraphMetricsMutation) ResetBuiltValues() {
+	m.built_values = nil
+	m.clearedbuilt_values = false
+	m.removedbuilt_values = nil
+}
+
+// AddCleanedValueIDs adds the "cleaned_values" edge to the EvaluationStat entity by ids.
+func (m *BuildGraphMetricsMutation) AddCleanedValueIDs(ids ...int) {
+	if m.cleaned_values == nil {
+		m.cleaned_values = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.cleaned_values[ids[i]] = struct{}{}
+	}
+}
+
+// ClearCleanedValues clears the "cleaned_values" edge to the EvaluationStat entity.
+func (m *BuildGraphMetricsMutation) ClearCleanedValues() {
+	m.clearedcleaned_values = true
+}
+
+// CleanedValuesCleared reports if the "cleaned_values" edge to the EvaluationStat entity was cleared.
+func (m *BuildGraphMetricsMutation) CleanedValuesCleared() bool {
+	return m.clearedcleaned_values
+}
+
+// RemoveCleanedValueIDs removes the "cleaned_values" edge to the EvaluationStat entity by IDs.
+func (m *BuildGraphMetricsMutation) RemoveCleanedValueIDs(ids ...int) {
+	if m.removedcleaned_values == nil {
+		m.removedcleaned_values = make(map[int]struct{})
+	}
+	for i := range ids {
+		delete(m.cleaned_values, ids[i])
+		m.removedcleaned_values[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedCleanedValues returns the removed IDs of the "cleaned_values" edge to the EvaluationStat entity.
+func (m *BuildGraphMetricsMutation) RemovedCleanedValuesIDs() (ids []int) {
+	for id := range m.removedcleaned_values {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// CleanedValuesIDs returns the "cleaned_values" edge IDs in the mutation.
+func (m *BuildGraphMetricsMutation) CleanedValuesIDs() (ids []int) {
+	for id := range m.cleaned_values {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetCleanedValues resets all changes to the "cleaned_values" edge.
+func (m *BuildGraphMetricsMutation) ResetCleanedValues() {
+	m.cleaned_values = nil
+	m.clearedcleaned_values = false
+	m.removedcleaned_values = nil
+}
+
+// AddEvaluatedValueIDs adds the "evaluated_values" edge to the EvaluationStat entity by ids.
+func (m *BuildGraphMetricsMutation) AddEvaluatedValueIDs(ids ...int) {
+	if m.evaluated_values == nil {
+		m.evaluated_values = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.evaluated_values[ids[i]] = struct{}{}
+	}
+}
+
+// ClearEvaluatedValues clears the "evaluated_values" edge to the EvaluationStat entity.
+func (m *BuildGraphMetricsMutation) ClearEvaluatedValues() {
+	m.clearedevaluated_values = true
+}
+
+// EvaluatedValuesCleared reports if the "evaluated_values" edge to the EvaluationStat entity was cleared.
+func (m *BuildGraphMetricsMutation) EvaluatedValuesCleared() bool {
+	return m.clearedevaluated_values
+}
+
+// RemoveEvaluatedValueIDs removes the "evaluated_values" edge to the EvaluationStat entity by IDs.
+func (m *BuildGraphMetricsMutation) RemoveEvaluatedValueIDs(ids ...int) {
+	if m.removedevaluated_values == nil {
+		m.removedevaluated_values = make(map[int]struct{})
+	}
+	for i := range ids {
+		delete(m.evaluated_values, ids[i])
+		m.removedevaluated_values[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedEvaluatedValues returns the removed IDs of the "evaluated_values" edge to the EvaluationStat entity.
+func (m *BuildGraphMetricsMutation) RemovedEvaluatedValuesIDs() (ids []int) {
+	for id := range m.removedevaluated_values {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// EvaluatedValuesIDs returns the "evaluated_values" edge IDs in the mutation.
+func (m *BuildGraphMetricsMutation) EvaluatedValuesIDs() (ids []int) {
+	for id := range m.evaluated_values {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetEvaluatedValues resets all changes to the "evaluated_values" edge.
+func (m *BuildGraphMetricsMutation) ResetEvaluatedValues() {
+	m.evaluated_values = nil
+	m.clearedevaluated_values = false
+	m.removedevaluated_values = nil
+}
+
+// Where appends a list predicates to the BuildGraphMetricsMutation builder.
+func (m *BuildGraphMetricsMutation) Where(ps ...predicate.BuildGraphMetrics) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the BuildGraphMetricsMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *BuildGraphMetricsMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.BuildGraphMetrics, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *BuildGraphMetricsMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *BuildGraphMetricsMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (BuildGraphMetrics).
+func (m *BuildGraphMetricsMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *BuildGraphMetricsMutation) Fields() []string {
+	fields := make([]string, 0, 8)
+	if m.action_lookup_value_count != nil {
+		fields = append(fields, buildgraphmetrics.FieldActionLookupValueCount)
+	}
+	if m.action_lookup_value_count_not_including_aspects != nil {
+		fields = append(fields, buildgraphmetrics.FieldActionLookupValueCountNotIncludingAspects)
+	}
+	if m.action_count != nil {
+		fields = append(fields, buildgraphmetrics.FieldActionCount)
+	}
+	if m.input_file_configured_target_count != nil {
+		fields = append(fields, buildgraphmetrics.FieldInputFileConfiguredTargetCount)
+	}
+	if m.output_file_configured_target_count != nil {
+		fields = append(fields, buildgraphmetrics.FieldOutputFileConfiguredTargetCount)
+	}
+	if m.other_configured_target_count != nil {
+		fields = append(fields, buildgraphmetrics.FieldOtherConfiguredTargetCount)
+	}
+	if m.output_artifact_count != nil {
+		fields = append(fields, buildgraphmetrics.FieldOutputArtifactCount)
+	}
+	if m.post_invocation_skyframe_node_count != nil {
+		fields = append(fields, buildgraphmetrics.FieldPostInvocationSkyframeNodeCount)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *BuildGraphMetricsMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case buildgraphmetrics.FieldActionLookupValueCount:
+		return m.ActionLookupValueCount()
+	case buildgraphmetrics.FieldActionLookupValueCountNotIncludingAspects:
+		return m.ActionLookupValueCountNotIncludingAspects()
+	case buildgraphmetrics.FieldActionCount:
+		return m.ActionCount()
+	case buildgraphmetrics.FieldInputFileConfiguredTargetCount:
+		return m.InputFileConfiguredTargetCount()
+	case buildgraphmetrics.FieldOutputFileConfiguredTargetCount:
+		return m.OutputFileConfiguredTargetCount()
+	case buildgraphmetrics.FieldOtherConfiguredTargetCount:
+		return m.OtherConfiguredTargetCount()
+	case buildgraphmetrics.FieldOutputArtifactCount:
+		return m.OutputArtifactCount()
+	case buildgraphmetrics.FieldPostInvocationSkyframeNodeCount:
+		return m.PostInvocationSkyframeNodeCount()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *BuildGraphMetricsMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case buildgraphmetrics.FieldActionLookupValueCount:
+		return m.OldActionLookupValueCount(ctx)
+	case buildgraphmetrics.FieldActionLookupValueCountNotIncludingAspects:
+		return m.OldActionLookupValueCountNotIncludingAspects(ctx)
+	case buildgraphmetrics.FieldActionCount:
+		return m.OldActionCount(ctx)
+	case buildgraphmetrics.FieldInputFileConfiguredTargetCount:
+		return m.OldInputFileConfiguredTargetCount(ctx)
+	case buildgraphmetrics.FieldOutputFileConfiguredTargetCount:
+		return m.OldOutputFileConfiguredTargetCount(ctx)
+	case buildgraphmetrics.FieldOtherConfiguredTargetCount:
+		return m.OldOtherConfiguredTargetCount(ctx)
+	case buildgraphmetrics.FieldOutputArtifactCount:
+		return m.OldOutputArtifactCount(ctx)
+	case buildgraphmetrics.FieldPostInvocationSkyframeNodeCount:
+		return m.OldPostInvocationSkyframeNodeCount(ctx)
+	}
+	return nil, fmt.Errorf("unknown BuildGraphMetrics field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *BuildGraphMetricsMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case buildgraphmetrics.FieldActionLookupValueCount:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetActionLookupValueCount(v)
+		return nil
+	case buildgraphmetrics.FieldActionLookupValueCountNotIncludingAspects:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetActionLookupValueCountNotIncludingAspects(v)
+		return nil
+	case buildgraphmetrics.FieldActionCount:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetActionCount(v)
+		return nil
+	case buildgraphmetrics.FieldInputFileConfiguredTargetCount:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetInputFileConfiguredTargetCount(v)
+		return nil
+	case buildgraphmetrics.FieldOutputFileConfiguredTargetCount:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetOutputFileConfiguredTargetCount(v)
+		return nil
+	case buildgraphmetrics.FieldOtherConfiguredTargetCount:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetOtherConfiguredTargetCount(v)
+		return nil
+	case buildgraphmetrics.FieldOutputArtifactCount:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetOutputArtifactCount(v)
+		return nil
+	case buildgraphmetrics.FieldPostInvocationSkyframeNodeCount:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPostInvocationSkyframeNodeCount(v)
+		return nil
+	}
+	return fmt.Errorf("unknown BuildGraphMetrics field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *BuildGraphMetricsMutation) AddedFields() []string {
+	var fields []string
+	if m.addaction_lookup_value_count != nil {
+		fields = append(fields, buildgraphmetrics.FieldActionLookupValueCount)
+	}
+	if m.addaction_lookup_value_count_not_including_aspects != nil {
+		fields = append(fields, buildgraphmetrics.FieldActionLookupValueCountNotIncludingAspects)
+	}
+	if m.addaction_count != nil {
+		fields = append(fields, buildgraphmetrics.FieldActionCount)
+	}
+	if m.addinput_file_configured_target_count != nil {
+		fields = append(fields, buildgraphmetrics.FieldInputFileConfiguredTargetCount)
+	}
+	if m.addoutput_file_configured_target_count != nil {
+		fields = append(fields, buildgraphmetrics.FieldOutputFileConfiguredTargetCount)
+	}
+	if m.addother_configured_target_count != nil {
+		fields = append(fields, buildgraphmetrics.FieldOtherConfiguredTargetCount)
+	}
+	if m.addoutput_artifact_count != nil {
+		fields = append(fields, buildgraphmetrics.FieldOutputArtifactCount)
+	}
+	if m.addpost_invocation_skyframe_node_count != nil {
+		fields = append(fields, buildgraphmetrics.FieldPostInvocationSkyframeNodeCount)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *BuildGraphMetricsMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case buildgraphmetrics.FieldActionLookupValueCount:
+		return m.AddedActionLookupValueCount()
+	case buildgraphmetrics.FieldActionLookupValueCountNotIncludingAspects:
+		return m.AddedActionLookupValueCountNotIncludingAspects()
+	case buildgraphmetrics.FieldActionCount:
+		return m.AddedActionCount()
+	case buildgraphmetrics.FieldInputFileConfiguredTargetCount:
+		return m.AddedInputFileConfiguredTargetCount()
+	case buildgraphmetrics.FieldOutputFileConfiguredTargetCount:
+		return m.AddedOutputFileConfiguredTargetCount()
+	case buildgraphmetrics.FieldOtherConfiguredTargetCount:
+		return m.AddedOtherConfiguredTargetCount()
+	case buildgraphmetrics.FieldOutputArtifactCount:
+		return m.AddedOutputArtifactCount()
+	case buildgraphmetrics.FieldPostInvocationSkyframeNodeCount:
+		return m.AddedPostInvocationSkyframeNodeCount()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *BuildGraphMetricsMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case buildgraphmetrics.FieldActionLookupValueCount:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddActionLookupValueCount(v)
+		return nil
+	case buildgraphmetrics.FieldActionLookupValueCountNotIncludingAspects:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddActionLookupValueCountNotIncludingAspects(v)
+		return nil
+	case buildgraphmetrics.FieldActionCount:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddActionCount(v)
+		return nil
+	case buildgraphmetrics.FieldInputFileConfiguredTargetCount:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddInputFileConfiguredTargetCount(v)
+		return nil
+	case buildgraphmetrics.FieldOutputFileConfiguredTargetCount:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddOutputFileConfiguredTargetCount(v)
+		return nil
+	case buildgraphmetrics.FieldOtherConfiguredTargetCount:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddOtherConfiguredTargetCount(v)
+		return nil
+	case buildgraphmetrics.FieldOutputArtifactCount:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddOutputArtifactCount(v)
+		return nil
+	case buildgraphmetrics.FieldPostInvocationSkyframeNodeCount:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddPostInvocationSkyframeNodeCount(v)
+		return nil
+	}
+	return fmt.Errorf("unknown BuildGraphMetrics numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *BuildGraphMetricsMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(buildgraphmetrics.FieldActionLookupValueCount) {
+		fields = append(fields, buildgraphmetrics.FieldActionLookupValueCount)
+	}
+	if m.FieldCleared(buildgraphmetrics.FieldActionLookupValueCountNotIncludingAspects) {
+		fields = append(fields, buildgraphmetrics.FieldActionLookupValueCountNotIncludingAspects)
+	}
+	if m.FieldCleared(buildgraphmetrics.FieldActionCount) {
+		fields = append(fields, buildgraphmetrics.FieldActionCount)
+	}
+	if m.FieldCleared(buildgraphmetrics.FieldInputFileConfiguredTargetCount) {
+		fields = append(fields, buildgraphmetrics.FieldInputFileConfiguredTargetCount)
+	}
+	if m.FieldCleared(buildgraphmetrics.FieldOutputFileConfiguredTargetCount) {
+		fields = append(fields, buildgraphmetrics.FieldOutputFileConfiguredTargetCount)
+	}
+	if m.FieldCleared(buildgraphmetrics.FieldOtherConfiguredTargetCount) {
+		fields = append(fields, buildgraphmetrics.FieldOtherConfiguredTargetCount)
+	}
+	if m.FieldCleared(buildgraphmetrics.FieldOutputArtifactCount) {
+		fields = append(fields, buildgraphmetrics.FieldOutputArtifactCount)
+	}
+	if m.FieldCleared(buildgraphmetrics.FieldPostInvocationSkyframeNodeCount) {
+		fields = append(fields, buildgraphmetrics.FieldPostInvocationSkyframeNodeCount)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *BuildGraphMetricsMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *BuildGraphMetricsMutation) ClearField(name string) error {
+	switch name {
+	case buildgraphmetrics.FieldActionLookupValueCount:
+		m.ClearActionLookupValueCount()
+		return nil
+	case buildgraphmetrics.FieldActionLookupValueCountNotIncludingAspects:
+		m.ClearActionLookupValueCountNotIncludingAspects()
+		return nil
+	case buildgraphmetrics.FieldActionCount:
+		m.ClearActionCount()
+		return nil
+	case buildgraphmetrics.FieldInputFileConfiguredTargetCount:
+		m.ClearInputFileConfiguredTargetCount()
+		return nil
+	case buildgraphmetrics.FieldOutputFileConfiguredTargetCount:
+		m.ClearOutputFileConfiguredTargetCount()
+		return nil
+	case buildgraphmetrics.FieldOtherConfiguredTargetCount:
+		m.ClearOtherConfiguredTargetCount()
+		return nil
+	case buildgraphmetrics.FieldOutputArtifactCount:
+		m.ClearOutputArtifactCount()
+		return nil
+	case buildgraphmetrics.FieldPostInvocationSkyframeNodeCount:
+		m.ClearPostInvocationSkyframeNodeCount()
+		return nil
+	}
+	return fmt.Errorf("unknown BuildGraphMetrics nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *BuildGraphMetricsMutation) ResetField(name string) error {
+	switch name {
+	case buildgraphmetrics.FieldActionLookupValueCount:
+		m.ResetActionLookupValueCount()
+		return nil
+	case buildgraphmetrics.FieldActionLookupValueCountNotIncludingAspects:
+		m.ResetActionLookupValueCountNotIncludingAspects()
+		return nil
+	case buildgraphmetrics.FieldActionCount:
+		m.ResetActionCount()
+		return nil
+	case buildgraphmetrics.FieldInputFileConfiguredTargetCount:
+		m.ResetInputFileConfiguredTargetCount()
+		return nil
+	case buildgraphmetrics.FieldOutputFileConfiguredTargetCount:
+		m.ResetOutputFileConfiguredTargetCount()
+		return nil
+	case buildgraphmetrics.FieldOtherConfiguredTargetCount:
+		m.ResetOtherConfiguredTargetCount()
+		return nil
+	case buildgraphmetrics.FieldOutputArtifactCount:
+		m.ResetOutputArtifactCount()
+		return nil
+	case buildgraphmetrics.FieldPostInvocationSkyframeNodeCount:
+		m.ResetPostInvocationSkyframeNodeCount()
+		return nil
+	}
+	return fmt.Errorf("unknown BuildGraphMetrics field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *BuildGraphMetricsMutation) AddedEdges() []string {
+	edges := make([]string, 0, 6)
+	if m.metrics != nil {
+		edges = append(edges, buildgraphmetrics.EdgeMetrics)
+	}
+	if m.dirtied_values != nil {
+		edges = append(edges, buildgraphmetrics.EdgeDirtiedValues)
+	}
+	if m.changed_values != nil {
+		edges = append(edges, buildgraphmetrics.EdgeChangedValues)
+	}
+	if m.built_values != nil {
+		edges = append(edges, buildgraphmetrics.EdgeBuiltValues)
+	}
+	if m.cleaned_values != nil {
+		edges = append(edges, buildgraphmetrics.EdgeCleanedValues)
+	}
+	if m.evaluated_values != nil {
+		edges = append(edges, buildgraphmetrics.EdgeEvaluatedValues)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *BuildGraphMetricsMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case buildgraphmetrics.EdgeMetrics:
+		ids := make([]ent.Value, 0, len(m.metrics))
+		for id := range m.metrics {
+			ids = append(ids, id)
+		}
+		return ids
+	case buildgraphmetrics.EdgeDirtiedValues:
+		ids := make([]ent.Value, 0, len(m.dirtied_values))
+		for id := range m.dirtied_values {
+			ids = append(ids, id)
+		}
+		return ids
+	case buildgraphmetrics.EdgeChangedValues:
+		ids := make([]ent.Value, 0, len(m.changed_values))
+		for id := range m.changed_values {
+			ids = append(ids, id)
+		}
+		return ids
+	case buildgraphmetrics.EdgeBuiltValues:
+		ids := make([]ent.Value, 0, len(m.built_values))
+		for id := range m.built_values {
+			ids = append(ids, id)
+		}
+		return ids
+	case buildgraphmetrics.EdgeCleanedValues:
+		ids := make([]ent.Value, 0, len(m.cleaned_values))
+		for id := range m.cleaned_values {
+			ids = append(ids, id)
+		}
+		return ids
+	case buildgraphmetrics.EdgeEvaluatedValues:
+		ids := make([]ent.Value, 0, len(m.evaluated_values))
+		for id := range m.evaluated_values {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *BuildGraphMetricsMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 6)
+	if m.removedmetrics != nil {
+		edges = append(edges, buildgraphmetrics.EdgeMetrics)
+	}
+	if m.removeddirtied_values != nil {
+		edges = append(edges, buildgraphmetrics.EdgeDirtiedValues)
+	}
+	if m.removedchanged_values != nil {
+		edges = append(edges, buildgraphmetrics.EdgeChangedValues)
+	}
+	if m.removedbuilt_values != nil {
+		edges = append(edges, buildgraphmetrics.EdgeBuiltValues)
+	}
+	if m.removedcleaned_values != nil {
+		edges = append(edges, buildgraphmetrics.EdgeCleanedValues)
+	}
+	if m.removedevaluated_values != nil {
+		edges = append(edges, buildgraphmetrics.EdgeEvaluatedValues)
+	}
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *BuildGraphMetricsMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case buildgraphmetrics.EdgeMetrics:
+		ids := make([]ent.Value, 0, len(m.removedmetrics))
+		for id := range m.removedmetrics {
+			ids = append(ids, id)
+		}
+		return ids
+	case buildgraphmetrics.EdgeDirtiedValues:
+		ids := make([]ent.Value, 0, len(m.removeddirtied_values))
+		for id := range m.removeddirtied_values {
+			ids = append(ids, id)
+		}
+		return ids
+	case buildgraphmetrics.EdgeChangedValues:
+		ids := make([]ent.Value, 0, len(m.removedchanged_values))
+		for id := range m.removedchanged_values {
+			ids = append(ids, id)
+		}
+		return ids
+	case buildgraphmetrics.EdgeBuiltValues:
+		ids := make([]ent.Value, 0, len(m.removedbuilt_values))
+		for id := range m.removedbuilt_values {
+			ids = append(ids, id)
+		}
+		return ids
+	case buildgraphmetrics.EdgeCleanedValues:
+		ids := make([]ent.Value, 0, len(m.removedcleaned_values))
+		for id := range m.removedcleaned_values {
+			ids = append(ids, id)
+		}
+		return ids
+	case buildgraphmetrics.EdgeEvaluatedValues:
+		ids := make([]ent.Value, 0, len(m.removedevaluated_values))
+		for id := range m.removedevaluated_values {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *BuildGraphMetricsMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 6)
+	if m.clearedmetrics {
+		edges = append(edges, buildgraphmetrics.EdgeMetrics)
+	}
+	if m.cleareddirtied_values {
+		edges = append(edges, buildgraphmetrics.EdgeDirtiedValues)
+	}
+	if m.clearedchanged_values {
+		edges = append(edges, buildgraphmetrics.EdgeChangedValues)
+	}
+	if m.clearedbuilt_values {
+		edges = append(edges, buildgraphmetrics.EdgeBuiltValues)
+	}
+	if m.clearedcleaned_values {
+		edges = append(edges, buildgraphmetrics.EdgeCleanedValues)
+	}
+	if m.clearedevaluated_values {
+		edges = append(edges, buildgraphmetrics.EdgeEvaluatedValues)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *BuildGraphMetricsMutation) EdgeCleared(name string) bool {
+	switch name {
+	case buildgraphmetrics.EdgeMetrics:
+		return m.clearedmetrics
+	case buildgraphmetrics.EdgeDirtiedValues:
+		return m.cleareddirtied_values
+	case buildgraphmetrics.EdgeChangedValues:
+		return m.clearedchanged_values
+	case buildgraphmetrics.EdgeBuiltValues:
+		return m.clearedbuilt_values
+	case buildgraphmetrics.EdgeCleanedValues:
+		return m.clearedcleaned_values
+	case buildgraphmetrics.EdgeEvaluatedValues:
+		return m.clearedevaluated_values
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *BuildGraphMetricsMutation) ClearEdge(name string) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown BuildGraphMetrics unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *BuildGraphMetricsMutation) ResetEdge(name string) error {
+	switch name {
+	case buildgraphmetrics.EdgeMetrics:
+		m.ResetMetrics()
+		return nil
+	case buildgraphmetrics.EdgeDirtiedValues:
+		m.ResetDirtiedValues()
+		return nil
+	case buildgraphmetrics.EdgeChangedValues:
+		m.ResetChangedValues()
+		return nil
+	case buildgraphmetrics.EdgeBuiltValues:
+		m.ResetBuiltValues()
+		return nil
+	case buildgraphmetrics.EdgeCleanedValues:
+		m.ResetCleanedValues()
+		return nil
+	case buildgraphmetrics.EdgeEvaluatedValues:
+		m.ResetEvaluatedValues()
+		return nil
+	}
+	return fmt.Errorf("unknown BuildGraphMetrics edge %s", name)
+}
+
 // CumulativeMetricsMutation represents an operation that mutates the CumulativeMetrics nodes in the graph.
 type CumulativeMetricsMutation struct {
 	config
@@ -7967,6 +9613,557 @@ func (m *DynamicExecutionMetricsMutation) ResetEdge(name string) error {
 		return nil
 	}
 	return fmt.Errorf("unknown DynamicExecutionMetrics edge %s", name)
+}
+
+// EvaluationStatMutation represents an operation that mutates the EvaluationStat nodes in the graph.
+type EvaluationStatMutation struct {
+	config
+	op                         Op
+	typ                        string
+	id                         *int
+	skyfunction_name           *string
+	count                      *int64
+	addcount                   *int64
+	clearedFields              map[string]struct{}
+	build_graph_metrics        map[int]struct{}
+	removedbuild_graph_metrics map[int]struct{}
+	clearedbuild_graph_metrics bool
+	done                       bool
+	oldValue                   func(context.Context) (*EvaluationStat, error)
+	predicates                 []predicate.EvaluationStat
+}
+
+var _ ent.Mutation = (*EvaluationStatMutation)(nil)
+
+// evaluationstatOption allows management of the mutation configuration using functional options.
+type evaluationstatOption func(*EvaluationStatMutation)
+
+// newEvaluationStatMutation creates new mutation for the EvaluationStat entity.
+func newEvaluationStatMutation(c config, op Op, opts ...evaluationstatOption) *EvaluationStatMutation {
+	m := &EvaluationStatMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeEvaluationStat,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withEvaluationStatID sets the ID field of the mutation.
+func withEvaluationStatID(id int) evaluationstatOption {
+	return func(m *EvaluationStatMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *EvaluationStat
+		)
+		m.oldValue = func(ctx context.Context) (*EvaluationStat, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().EvaluationStat.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withEvaluationStat sets the old EvaluationStat of the mutation.
+func withEvaluationStat(node *EvaluationStat) evaluationstatOption {
+	return func(m *EvaluationStatMutation) {
+		m.oldValue = func(context.Context) (*EvaluationStat, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m EvaluationStatMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m EvaluationStatMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *EvaluationStatMutation) ID() (id int, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *EvaluationStatMutation) IDs(ctx context.Context) ([]int, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []int{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().EvaluationStat.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetSkyfunctionName sets the "skyfunction_name" field.
+func (m *EvaluationStatMutation) SetSkyfunctionName(s string) {
+	m.skyfunction_name = &s
+}
+
+// SkyfunctionName returns the value of the "skyfunction_name" field in the mutation.
+func (m *EvaluationStatMutation) SkyfunctionName() (r string, exists bool) {
+	v := m.skyfunction_name
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSkyfunctionName returns the old "skyfunction_name" field's value of the EvaluationStat entity.
+// If the EvaluationStat object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *EvaluationStatMutation) OldSkyfunctionName(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSkyfunctionName is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSkyfunctionName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSkyfunctionName: %w", err)
+	}
+	return oldValue.SkyfunctionName, nil
+}
+
+// ClearSkyfunctionName clears the value of the "skyfunction_name" field.
+func (m *EvaluationStatMutation) ClearSkyfunctionName() {
+	m.skyfunction_name = nil
+	m.clearedFields[evaluationstat.FieldSkyfunctionName] = struct{}{}
+}
+
+// SkyfunctionNameCleared returns if the "skyfunction_name" field was cleared in this mutation.
+func (m *EvaluationStatMutation) SkyfunctionNameCleared() bool {
+	_, ok := m.clearedFields[evaluationstat.FieldSkyfunctionName]
+	return ok
+}
+
+// ResetSkyfunctionName resets all changes to the "skyfunction_name" field.
+func (m *EvaluationStatMutation) ResetSkyfunctionName() {
+	m.skyfunction_name = nil
+	delete(m.clearedFields, evaluationstat.FieldSkyfunctionName)
+}
+
+// SetCount sets the "count" field.
+func (m *EvaluationStatMutation) SetCount(i int64) {
+	m.count = &i
+	m.addcount = nil
+}
+
+// Count returns the value of the "count" field in the mutation.
+func (m *EvaluationStatMutation) Count() (r int64, exists bool) {
+	v := m.count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCount returns the old "count" field's value of the EvaluationStat entity.
+// If the EvaluationStat object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *EvaluationStatMutation) OldCount(ctx context.Context) (v int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCount is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCount requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCount: %w", err)
+	}
+	return oldValue.Count, nil
+}
+
+// AddCount adds i to the "count" field.
+func (m *EvaluationStatMutation) AddCount(i int64) {
+	if m.addcount != nil {
+		*m.addcount += i
+	} else {
+		m.addcount = &i
+	}
+}
+
+// AddedCount returns the value that was added to the "count" field in this mutation.
+func (m *EvaluationStatMutation) AddedCount() (r int64, exists bool) {
+	v := m.addcount
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearCount clears the value of the "count" field.
+func (m *EvaluationStatMutation) ClearCount() {
+	m.count = nil
+	m.addcount = nil
+	m.clearedFields[evaluationstat.FieldCount] = struct{}{}
+}
+
+// CountCleared returns if the "count" field was cleared in this mutation.
+func (m *EvaluationStatMutation) CountCleared() bool {
+	_, ok := m.clearedFields[evaluationstat.FieldCount]
+	return ok
+}
+
+// ResetCount resets all changes to the "count" field.
+func (m *EvaluationStatMutation) ResetCount() {
+	m.count = nil
+	m.addcount = nil
+	delete(m.clearedFields, evaluationstat.FieldCount)
+}
+
+// AddBuildGraphMetricIDs adds the "build_graph_metrics" edge to the BuildGraphMetrics entity by ids.
+func (m *EvaluationStatMutation) AddBuildGraphMetricIDs(ids ...int) {
+	if m.build_graph_metrics == nil {
+		m.build_graph_metrics = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.build_graph_metrics[ids[i]] = struct{}{}
+	}
+}
+
+// ClearBuildGraphMetrics clears the "build_graph_metrics" edge to the BuildGraphMetrics entity.
+func (m *EvaluationStatMutation) ClearBuildGraphMetrics() {
+	m.clearedbuild_graph_metrics = true
+}
+
+// BuildGraphMetricsCleared reports if the "build_graph_metrics" edge to the BuildGraphMetrics entity was cleared.
+func (m *EvaluationStatMutation) BuildGraphMetricsCleared() bool {
+	return m.clearedbuild_graph_metrics
+}
+
+// RemoveBuildGraphMetricIDs removes the "build_graph_metrics" edge to the BuildGraphMetrics entity by IDs.
+func (m *EvaluationStatMutation) RemoveBuildGraphMetricIDs(ids ...int) {
+	if m.removedbuild_graph_metrics == nil {
+		m.removedbuild_graph_metrics = make(map[int]struct{})
+	}
+	for i := range ids {
+		delete(m.build_graph_metrics, ids[i])
+		m.removedbuild_graph_metrics[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedBuildGraphMetrics returns the removed IDs of the "build_graph_metrics" edge to the BuildGraphMetrics entity.
+func (m *EvaluationStatMutation) RemovedBuildGraphMetricsIDs() (ids []int) {
+	for id := range m.removedbuild_graph_metrics {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// BuildGraphMetricsIDs returns the "build_graph_metrics" edge IDs in the mutation.
+func (m *EvaluationStatMutation) BuildGraphMetricsIDs() (ids []int) {
+	for id := range m.build_graph_metrics {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetBuildGraphMetrics resets all changes to the "build_graph_metrics" edge.
+func (m *EvaluationStatMutation) ResetBuildGraphMetrics() {
+	m.build_graph_metrics = nil
+	m.clearedbuild_graph_metrics = false
+	m.removedbuild_graph_metrics = nil
+}
+
+// Where appends a list predicates to the EvaluationStatMutation builder.
+func (m *EvaluationStatMutation) Where(ps ...predicate.EvaluationStat) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the EvaluationStatMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *EvaluationStatMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.EvaluationStat, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *EvaluationStatMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *EvaluationStatMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (EvaluationStat).
+func (m *EvaluationStatMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *EvaluationStatMutation) Fields() []string {
+	fields := make([]string, 0, 2)
+	if m.skyfunction_name != nil {
+		fields = append(fields, evaluationstat.FieldSkyfunctionName)
+	}
+	if m.count != nil {
+		fields = append(fields, evaluationstat.FieldCount)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *EvaluationStatMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case evaluationstat.FieldSkyfunctionName:
+		return m.SkyfunctionName()
+	case evaluationstat.FieldCount:
+		return m.Count()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *EvaluationStatMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case evaluationstat.FieldSkyfunctionName:
+		return m.OldSkyfunctionName(ctx)
+	case evaluationstat.FieldCount:
+		return m.OldCount(ctx)
+	}
+	return nil, fmt.Errorf("unknown EvaluationStat field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *EvaluationStatMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case evaluationstat.FieldSkyfunctionName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSkyfunctionName(v)
+		return nil
+	case evaluationstat.FieldCount:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCount(v)
+		return nil
+	}
+	return fmt.Errorf("unknown EvaluationStat field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *EvaluationStatMutation) AddedFields() []string {
+	var fields []string
+	if m.addcount != nil {
+		fields = append(fields, evaluationstat.FieldCount)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *EvaluationStatMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case evaluationstat.FieldCount:
+		return m.AddedCount()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *EvaluationStatMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case evaluationstat.FieldCount:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddCount(v)
+		return nil
+	}
+	return fmt.Errorf("unknown EvaluationStat numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *EvaluationStatMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(evaluationstat.FieldSkyfunctionName) {
+		fields = append(fields, evaluationstat.FieldSkyfunctionName)
+	}
+	if m.FieldCleared(evaluationstat.FieldCount) {
+		fields = append(fields, evaluationstat.FieldCount)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *EvaluationStatMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *EvaluationStatMutation) ClearField(name string) error {
+	switch name {
+	case evaluationstat.FieldSkyfunctionName:
+		m.ClearSkyfunctionName()
+		return nil
+	case evaluationstat.FieldCount:
+		m.ClearCount()
+		return nil
+	}
+	return fmt.Errorf("unknown EvaluationStat nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *EvaluationStatMutation) ResetField(name string) error {
+	switch name {
+	case evaluationstat.FieldSkyfunctionName:
+		m.ResetSkyfunctionName()
+		return nil
+	case evaluationstat.FieldCount:
+		m.ResetCount()
+		return nil
+	}
+	return fmt.Errorf("unknown EvaluationStat field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *EvaluationStatMutation) AddedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.build_graph_metrics != nil {
+		edges = append(edges, evaluationstat.EdgeBuildGraphMetrics)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *EvaluationStatMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case evaluationstat.EdgeBuildGraphMetrics:
+		ids := make([]ent.Value, 0, len(m.build_graph_metrics))
+		for id := range m.build_graph_metrics {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *EvaluationStatMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.removedbuild_graph_metrics != nil {
+		edges = append(edges, evaluationstat.EdgeBuildGraphMetrics)
+	}
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *EvaluationStatMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case evaluationstat.EdgeBuildGraphMetrics:
+		ids := make([]ent.Value, 0, len(m.removedbuild_graph_metrics))
+		for id := range m.removedbuild_graph_metrics {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *EvaluationStatMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.clearedbuild_graph_metrics {
+		edges = append(edges, evaluationstat.EdgeBuildGraphMetrics)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *EvaluationStatMutation) EdgeCleared(name string) bool {
+	switch name {
+	case evaluationstat.EdgeBuildGraphMetrics:
+		return m.clearedbuild_graph_metrics
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *EvaluationStatMutation) ClearEdge(name string) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown EvaluationStat unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *EvaluationStatMutation) ResetEdge(name string) error {
+	switch name {
+	case evaluationstat.EdgeBuildGraphMetrics:
+		m.ResetBuildGraphMetrics()
+		return nil
+	}
+	return fmt.Errorf("unknown EvaluationStat edge %s", name)
 }
 
 // EventFileMutation represents an operation that mutates the EventFile nodes in the graph.
@@ -10601,6 +12798,9 @@ type MetricsMutation struct {
 	dynamic_execution_metrics        map[int]struct{}
 	removeddynamic_execution_metrics map[int]struct{}
 	cleareddynamic_execution_metrics bool
+	build_graph_metrics              map[int]struct{}
+	removedbuild_graph_metrics       map[int]struct{}
+	clearedbuild_graph_metrics       bool
 	done                             bool
 	oldValue                         func(context.Context) (*Metrics, error)
 	predicates                       []predicate.Metrics
@@ -11229,6 +13429,60 @@ func (m *MetricsMutation) ResetDynamicExecutionMetrics() {
 	m.removeddynamic_execution_metrics = nil
 }
 
+// AddBuildGraphMetricIDs adds the "build_graph_metrics" edge to the BuildGraphMetrics entity by ids.
+func (m *MetricsMutation) AddBuildGraphMetricIDs(ids ...int) {
+	if m.build_graph_metrics == nil {
+		m.build_graph_metrics = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.build_graph_metrics[ids[i]] = struct{}{}
+	}
+}
+
+// ClearBuildGraphMetrics clears the "build_graph_metrics" edge to the BuildGraphMetrics entity.
+func (m *MetricsMutation) ClearBuildGraphMetrics() {
+	m.clearedbuild_graph_metrics = true
+}
+
+// BuildGraphMetricsCleared reports if the "build_graph_metrics" edge to the BuildGraphMetrics entity was cleared.
+func (m *MetricsMutation) BuildGraphMetricsCleared() bool {
+	return m.clearedbuild_graph_metrics
+}
+
+// RemoveBuildGraphMetricIDs removes the "build_graph_metrics" edge to the BuildGraphMetrics entity by IDs.
+func (m *MetricsMutation) RemoveBuildGraphMetricIDs(ids ...int) {
+	if m.removedbuild_graph_metrics == nil {
+		m.removedbuild_graph_metrics = make(map[int]struct{})
+	}
+	for i := range ids {
+		delete(m.build_graph_metrics, ids[i])
+		m.removedbuild_graph_metrics[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedBuildGraphMetrics returns the removed IDs of the "build_graph_metrics" edge to the BuildGraphMetrics entity.
+func (m *MetricsMutation) RemovedBuildGraphMetricsIDs() (ids []int) {
+	for id := range m.removedbuild_graph_metrics {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// BuildGraphMetricsIDs returns the "build_graph_metrics" edge IDs in the mutation.
+func (m *MetricsMutation) BuildGraphMetricsIDs() (ids []int) {
+	for id := range m.build_graph_metrics {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetBuildGraphMetrics resets all changes to the "build_graph_metrics" edge.
+func (m *MetricsMutation) ResetBuildGraphMetrics() {
+	m.build_graph_metrics = nil
+	m.clearedbuild_graph_metrics = false
+	m.removedbuild_graph_metrics = nil
+}
+
 // Where appends a list predicates to the MetricsMutation builder.
 func (m *MetricsMutation) Where(ps ...predicate.Metrics) {
 	m.predicates = append(m.predicates, ps...)
@@ -11337,7 +13591,7 @@ func (m *MetricsMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *MetricsMutation) AddedEdges() []string {
-	edges := make([]string, 0, 10)
+	edges := make([]string, 0, 11)
 	if m.bazel_invocation != nil {
 		edges = append(edges, metrics.EdgeBazelInvocation)
 	}
@@ -11367,6 +13621,9 @@ func (m *MetricsMutation) AddedEdges() []string {
 	}
 	if m.dynamic_execution_metrics != nil {
 		edges = append(edges, metrics.EdgeDynamicExecutionMetrics)
+	}
+	if m.build_graph_metrics != nil {
+		edges = append(edges, metrics.EdgeBuildGraphMetrics)
 	}
 	return edges
 }
@@ -11433,13 +13690,19 @@ func (m *MetricsMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case metrics.EdgeBuildGraphMetrics:
+		ids := make([]ent.Value, 0, len(m.build_graph_metrics))
+		for id := range m.build_graph_metrics {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *MetricsMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 10)
+	edges := make([]string, 0, 11)
 	if m.removedaction_summary != nil {
 		edges = append(edges, metrics.EdgeActionSummary)
 	}
@@ -11466,6 +13729,9 @@ func (m *MetricsMutation) RemovedEdges() []string {
 	}
 	if m.removeddynamic_execution_metrics != nil {
 		edges = append(edges, metrics.EdgeDynamicExecutionMetrics)
+	}
+	if m.removedbuild_graph_metrics != nil {
+		edges = append(edges, metrics.EdgeBuildGraphMetrics)
 	}
 	return edges
 }
@@ -11528,13 +13794,19 @@ func (m *MetricsMutation) RemovedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case metrics.EdgeBuildGraphMetrics:
+		ids := make([]ent.Value, 0, len(m.removedbuild_graph_metrics))
+		for id := range m.removedbuild_graph_metrics {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *MetricsMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 10)
+	edges := make([]string, 0, 11)
 	if m.clearedbazel_invocation {
 		edges = append(edges, metrics.EdgeBazelInvocation)
 	}
@@ -11565,6 +13837,9 @@ func (m *MetricsMutation) ClearedEdges() []string {
 	if m.cleareddynamic_execution_metrics {
 		edges = append(edges, metrics.EdgeDynamicExecutionMetrics)
 	}
+	if m.clearedbuild_graph_metrics {
+		edges = append(edges, metrics.EdgeBuildGraphMetrics)
+	}
 	return edges
 }
 
@@ -11592,6 +13867,8 @@ func (m *MetricsMutation) EdgeCleared(name string) bool {
 		return m.clearednetwork_metrics
 	case metrics.EdgeDynamicExecutionMetrics:
 		return m.cleareddynamic_execution_metrics
+	case metrics.EdgeBuildGraphMetrics:
+		return m.clearedbuild_graph_metrics
 	}
 	return false
 }
@@ -11640,6 +13917,9 @@ func (m *MetricsMutation) ResetEdge(name string) error {
 		return nil
 	case metrics.EdgeDynamicExecutionMetrics:
 		m.ResetDynamicExecutionMetrics()
+		return nil
+	case metrics.EdgeBuildGraphMetrics:
+		m.ResetBuildGraphMetrics()
 		return nil
 	}
 	return fmt.Errorf("unknown Metrics edge %s", name)
@@ -12643,8 +14923,8 @@ type PackageLoadMetricsMutation struct {
 	typ                     string
 	id                      *int
 	name                    *string
-	load_duration           *time.Duration
-	addload_duration        *time.Duration
+	load_duration           *int64
+	addload_duration        *int64
 	num_targets             *int64
 	addnum_targets          *int64
 	computation_steps       *int64
@@ -12810,13 +15090,13 @@ func (m *PackageLoadMetricsMutation) ResetName() {
 }
 
 // SetLoadDuration sets the "load_duration" field.
-func (m *PackageLoadMetricsMutation) SetLoadDuration(t time.Duration) {
-	m.load_duration = &t
+func (m *PackageLoadMetricsMutation) SetLoadDuration(i int64) {
+	m.load_duration = &i
 	m.addload_duration = nil
 }
 
 // LoadDuration returns the value of the "load_duration" field in the mutation.
-func (m *PackageLoadMetricsMutation) LoadDuration() (r time.Duration, exists bool) {
+func (m *PackageLoadMetricsMutation) LoadDuration() (r int64, exists bool) {
 	v := m.load_duration
 	if v == nil {
 		return
@@ -12827,7 +15107,7 @@ func (m *PackageLoadMetricsMutation) LoadDuration() (r time.Duration, exists boo
 // OldLoadDuration returns the old "load_duration" field's value of the PackageLoadMetrics entity.
 // If the PackageLoadMetrics object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PackageLoadMetricsMutation) OldLoadDuration(ctx context.Context) (v time.Duration, err error) {
+func (m *PackageLoadMetricsMutation) OldLoadDuration(ctx context.Context) (v int64, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldLoadDuration is only allowed on UpdateOne operations")
 	}
@@ -12841,17 +15121,17 @@ func (m *PackageLoadMetricsMutation) OldLoadDuration(ctx context.Context) (v tim
 	return oldValue.LoadDuration, nil
 }
 
-// AddLoadDuration adds t to the "load_duration" field.
-func (m *PackageLoadMetricsMutation) AddLoadDuration(t time.Duration) {
+// AddLoadDuration adds i to the "load_duration" field.
+func (m *PackageLoadMetricsMutation) AddLoadDuration(i int64) {
 	if m.addload_duration != nil {
-		*m.addload_duration += t
+		*m.addload_duration += i
 	} else {
-		m.addload_duration = &t
+		m.addload_duration = &i
 	}
 }
 
 // AddedLoadDuration returns the value that was added to the "load_duration" field in this mutation.
-func (m *PackageLoadMetricsMutation) AddedLoadDuration() (r time.Duration, exists bool) {
+func (m *PackageLoadMetricsMutation) AddedLoadDuration() (r int64, exists bool) {
 	v := m.addload_duration
 	if v == nil {
 		return
@@ -13324,7 +15604,7 @@ func (m *PackageLoadMetricsMutation) SetField(name string, value ent.Value) erro
 		m.SetName(v)
 		return nil
 	case packageloadmetrics.FieldLoadDuration:
-		v, ok := value.(time.Duration)
+		v, ok := value.(int64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -13409,7 +15689,7 @@ func (m *PackageLoadMetricsMutation) AddedField(name string) (ent.Value, bool) {
 func (m *PackageLoadMetricsMutation) AddField(name string, value ent.Value) error {
 	switch name {
 	case packageloadmetrics.FieldLoadDuration:
-		v, ok := value.(time.Duration)
+		v, ok := value.(int64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -14185,8 +16465,8 @@ type RaceStatisticsMutation struct {
 	mnemonic                         *string
 	local_runner                     *string
 	remote_runner                    *string
-	local_wins                       *int32
-	addlocal_wins                    *int32
+	local_wins                       *int64
+	addlocal_wins                    *int64
 	renote_wins                      *int64
 	addrenote_wins                   *int64
 	clearedFields                    map[string]struct{}
@@ -14444,13 +16724,13 @@ func (m *RaceStatisticsMutation) ResetRemoteRunner() {
 }
 
 // SetLocalWins sets the "local_wins" field.
-func (m *RaceStatisticsMutation) SetLocalWins(i int32) {
+func (m *RaceStatisticsMutation) SetLocalWins(i int64) {
 	m.local_wins = &i
 	m.addlocal_wins = nil
 }
 
 // LocalWins returns the value of the "local_wins" field in the mutation.
-func (m *RaceStatisticsMutation) LocalWins() (r int32, exists bool) {
+func (m *RaceStatisticsMutation) LocalWins() (r int64, exists bool) {
 	v := m.local_wins
 	if v == nil {
 		return
@@ -14461,7 +16741,7 @@ func (m *RaceStatisticsMutation) LocalWins() (r int32, exists bool) {
 // OldLocalWins returns the old "local_wins" field's value of the RaceStatistics entity.
 // If the RaceStatistics object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *RaceStatisticsMutation) OldLocalWins(ctx context.Context) (v int32, err error) {
+func (m *RaceStatisticsMutation) OldLocalWins(ctx context.Context) (v int64, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldLocalWins is only allowed on UpdateOne operations")
 	}
@@ -14476,7 +16756,7 @@ func (m *RaceStatisticsMutation) OldLocalWins(ctx context.Context) (v int32, err
 }
 
 // AddLocalWins adds i to the "local_wins" field.
-func (m *RaceStatisticsMutation) AddLocalWins(i int32) {
+func (m *RaceStatisticsMutation) AddLocalWins(i int64) {
 	if m.addlocal_wins != nil {
 		*m.addlocal_wins += i
 	} else {
@@ -14485,7 +16765,7 @@ func (m *RaceStatisticsMutation) AddLocalWins(i int32) {
 }
 
 // AddedLocalWins returns the value that was added to the "local_wins" field in this mutation.
-func (m *RaceStatisticsMutation) AddedLocalWins() (r int32, exists bool) {
+func (m *RaceStatisticsMutation) AddedLocalWins() (r int64, exists bool) {
 	v := m.addlocal_wins
 	if v == nil {
 		return
@@ -14755,7 +17035,7 @@ func (m *RaceStatisticsMutation) SetField(name string, value ent.Value) error {
 		m.SetRemoteRunner(v)
 		return nil
 	case racestatistics.FieldLocalWins:
-		v, ok := value.(int32)
+		v, ok := value.(int64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -14804,7 +17084,7 @@ func (m *RaceStatisticsMutation) AddedField(name string) (ent.Value, bool) {
 func (m *RaceStatisticsMutation) AddField(name string, value ent.Value) error {
 	switch name {
 	case racestatistics.FieldLocalWins:
-		v, ok := value.(int32)
+		v, ok := value.(int64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}

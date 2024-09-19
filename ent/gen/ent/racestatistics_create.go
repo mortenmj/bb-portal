@@ -62,13 +62,13 @@ func (rsc *RaceStatisticsCreate) SetNillableRemoteRunner(s *string) *RaceStatist
 }
 
 // SetLocalWins sets the "local_wins" field.
-func (rsc *RaceStatisticsCreate) SetLocalWins(i int32) *RaceStatisticsCreate {
+func (rsc *RaceStatisticsCreate) SetLocalWins(i int64) *RaceStatisticsCreate {
 	rsc.mutation.SetLocalWins(i)
 	return rsc
 }
 
 // SetNillableLocalWins sets the "local_wins" field if the given value is not nil.
-func (rsc *RaceStatisticsCreate) SetNillableLocalWins(i *int32) *RaceStatisticsCreate {
+func (rsc *RaceStatisticsCreate) SetNillableLocalWins(i *int64) *RaceStatisticsCreate {
 	if i != nil {
 		rsc.SetLocalWins(*i)
 	}
@@ -177,7 +177,7 @@ func (rsc *RaceStatisticsCreate) createSpec() (*RaceStatistics, *sqlgraph.Create
 		_node.RemoteRunner = value
 	}
 	if value, ok := rsc.mutation.LocalWins(); ok {
-		_spec.SetField(racestatistics.FieldLocalWins, field.TypeInt32, value)
+		_spec.SetField(racestatistics.FieldLocalWins, field.TypeInt64, value)
 		_node.LocalWins = value
 	}
 	if value, ok := rsc.mutation.RenoteWins(); ok {

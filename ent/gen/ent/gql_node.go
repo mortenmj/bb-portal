@@ -21,8 +21,10 @@ import (
 	"github.com/buildbarn/bb-portal/ent/gen/ent/bazelinvocationproblem"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/blob"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/build"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/buildgraphmetrics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/cumulativemetrics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/dynamicexecutionmetrics"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/evaluationstat"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/eventfile"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/filesmetric"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/garbagemetrics"
@@ -86,6 +88,11 @@ var buildImplementors = []string{"Build", "Node"}
 // IsNode implements the Node interface check for GQLGen.
 func (*Build) IsNode() {}
 
+var buildgraphmetricsImplementors = []string{"BuildGraphMetrics", "Node"}
+
+// IsNode implements the Node interface check for GQLGen.
+func (*BuildGraphMetrics) IsNode() {}
+
 var cumulativemetricsImplementors = []string{"CumulativeMetrics", "Node"}
 
 // IsNode implements the Node interface check for GQLGen.
@@ -95,6 +102,11 @@ var dynamicexecutionmetricsImplementors = []string{"DynamicExecutionMetrics", "N
 
 // IsNode implements the Node interface check for GQLGen.
 func (*DynamicExecutionMetrics) IsNode() {}
+
+var evaluationstatImplementors = []string{"EvaluationStat", "Node"}
+
+// IsNode implements the Node interface check for GQLGen.
+func (*EvaluationStat) IsNode() {}
 
 var eventfileImplementors = []string{"EventFile", "Node"}
 
@@ -296,6 +308,15 @@ func (c *Client) noder(ctx context.Context, table string, id int) (Noder, error)
 			}
 		}
 		return query.Only(ctx)
+	case buildgraphmetrics.Table:
+		query := c.BuildGraphMetrics.Query().
+			Where(buildgraphmetrics.ID(id))
+		if fc := graphql.GetFieldContext(ctx); fc != nil {
+			if err := query.collectField(ctx, true, graphql.GetOperationContext(ctx), fc.Field, nil, buildgraphmetricsImplementors...); err != nil {
+				return nil, err
+			}
+		}
+		return query.Only(ctx)
 	case cumulativemetrics.Table:
 		query := c.CumulativeMetrics.Query().
 			Where(cumulativemetrics.ID(id))
@@ -310,6 +331,15 @@ func (c *Client) noder(ctx context.Context, table string, id int) (Noder, error)
 			Where(dynamicexecutionmetrics.ID(id))
 		if fc := graphql.GetFieldContext(ctx); fc != nil {
 			if err := query.collectField(ctx, true, graphql.GetOperationContext(ctx), fc.Field, nil, dynamicexecutionmetricsImplementors...); err != nil {
+				return nil, err
+			}
+		}
+		return query.Only(ctx)
+	case evaluationstat.Table:
+		query := c.EvaluationStat.Query().
+			Where(evaluationstat.ID(id))
+		if fc := graphql.GetFieldContext(ctx); fc != nil {
+			if err := query.collectField(ctx, true, graphql.GetOperationContext(ctx), fc.Field, nil, evaluationstatImplementors...); err != nil {
 				return nil, err
 			}
 		}
@@ -641,6 +671,22 @@ func (c *Client) noders(ctx context.Context, table string, ids []int) ([]Noder, 
 				*noder = node
 			}
 		}
+	case buildgraphmetrics.Table:
+		query := c.BuildGraphMetrics.Query().
+			Where(buildgraphmetrics.IDIn(ids...))
+		query, err := query.CollectFields(ctx, buildgraphmetricsImplementors...)
+		if err != nil {
+			return nil, err
+		}
+		nodes, err := query.All(ctx)
+		if err != nil {
+			return nil, err
+		}
+		for _, node := range nodes {
+			for _, noder := range idmap[node.ID] {
+				*noder = node
+			}
+		}
 	case cumulativemetrics.Table:
 		query := c.CumulativeMetrics.Query().
 			Where(cumulativemetrics.IDIn(ids...))
@@ -661,6 +707,22 @@ func (c *Client) noders(ctx context.Context, table string, ids []int) ([]Noder, 
 		query := c.DynamicExecutionMetrics.Query().
 			Where(dynamicexecutionmetrics.IDIn(ids...))
 		query, err := query.CollectFields(ctx, dynamicexecutionmetricsImplementors...)
+		if err != nil {
+			return nil, err
+		}
+		nodes, err := query.All(ctx)
+		if err != nil {
+			return nil, err
+		}
+		for _, node := range nodes {
+			for _, noder := range idmap[node.ID] {
+				*noder = node
+			}
+		}
+	case evaluationstat.Table:
+		query := c.EvaluationStat.Query().
+			Where(evaluationstat.IDIn(ids...))
+		query, err := query.CollectFields(ctx, evaluationstatImplementors...)
 		if err != nil {
 			return nil, err
 		}

@@ -13,7 +13,9 @@ import (
 	"github.com/buildbarn/bb-portal/ent/gen/ent/bazelinvocationproblem"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/blob"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/build"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/buildgraphmetrics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/cumulativemetrics"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/evaluationstat"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/eventfile"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/filesmetric"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/garbagemetrics"
@@ -899,6 +901,186 @@ func newBuildPaginateArgs(rv map[string]any) *buildPaginateArgs {
 }
 
 // CollectFields tells the query-builder to eagerly load connected nodes by resolver context.
+func (bgm *BuildGraphMetricsQuery) CollectFields(ctx context.Context, satisfies ...string) (*BuildGraphMetricsQuery, error) {
+	fc := graphql.GetFieldContext(ctx)
+	if fc == nil {
+		return bgm, nil
+	}
+	if err := bgm.collectField(ctx, false, graphql.GetOperationContext(ctx), fc.Field, nil, satisfies...); err != nil {
+		return nil, err
+	}
+	return bgm, nil
+}
+
+func (bgm *BuildGraphMetricsQuery) collectField(ctx context.Context, oneNode bool, opCtx *graphql.OperationContext, collected graphql.CollectedField, path []string, satisfies ...string) error {
+	path = append([]string(nil), path...)
+	var (
+		unknownSeen    bool
+		fieldSeen      = make(map[string]struct{}, len(buildgraphmetrics.Columns))
+		selectedFields = []string{buildgraphmetrics.FieldID}
+	)
+	for _, field := range graphql.CollectFields(opCtx, collected.Selections, satisfies) {
+		switch field.Name {
+
+		case "metrics":
+			var (
+				alias = field.Alias
+				path  = append(path, alias)
+				query = (&MetricsClient{config: bgm.config}).Query()
+			)
+			if err := query.collectField(ctx, false, opCtx, field, path, mayAddCondition(satisfies, metricsImplementors)...); err != nil {
+				return err
+			}
+			bgm.WithNamedMetrics(alias, func(wq *MetricsQuery) {
+				*wq = *query
+			})
+
+		case "dirtiedValues":
+			var (
+				alias = field.Alias
+				path  = append(path, alias)
+				query = (&EvaluationStatClient{config: bgm.config}).Query()
+			)
+			if err := query.collectField(ctx, false, opCtx, field, path, mayAddCondition(satisfies, evaluationstatImplementors)...); err != nil {
+				return err
+			}
+			bgm.WithNamedDirtiedValues(alias, func(wq *EvaluationStatQuery) {
+				*wq = *query
+			})
+
+		case "changedValues":
+			var (
+				alias = field.Alias
+				path  = append(path, alias)
+				query = (&EvaluationStatClient{config: bgm.config}).Query()
+			)
+			if err := query.collectField(ctx, false, opCtx, field, path, mayAddCondition(satisfies, evaluationstatImplementors)...); err != nil {
+				return err
+			}
+			bgm.WithNamedChangedValues(alias, func(wq *EvaluationStatQuery) {
+				*wq = *query
+			})
+
+		case "builtValues":
+			var (
+				alias = field.Alias
+				path  = append(path, alias)
+				query = (&EvaluationStatClient{config: bgm.config}).Query()
+			)
+			if err := query.collectField(ctx, false, opCtx, field, path, mayAddCondition(satisfies, evaluationstatImplementors)...); err != nil {
+				return err
+			}
+			bgm.WithNamedBuiltValues(alias, func(wq *EvaluationStatQuery) {
+				*wq = *query
+			})
+
+		case "cleanedValues":
+			var (
+				alias = field.Alias
+				path  = append(path, alias)
+				query = (&EvaluationStatClient{config: bgm.config}).Query()
+			)
+			if err := query.collectField(ctx, false, opCtx, field, path, mayAddCondition(satisfies, evaluationstatImplementors)...); err != nil {
+				return err
+			}
+			bgm.WithNamedCleanedValues(alias, func(wq *EvaluationStatQuery) {
+				*wq = *query
+			})
+
+		case "evaluatedValues":
+			var (
+				alias = field.Alias
+				path  = append(path, alias)
+				query = (&EvaluationStatClient{config: bgm.config}).Query()
+			)
+			if err := query.collectField(ctx, false, opCtx, field, path, mayAddCondition(satisfies, evaluationstatImplementors)...); err != nil {
+				return err
+			}
+			bgm.WithNamedEvaluatedValues(alias, func(wq *EvaluationStatQuery) {
+				*wq = *query
+			})
+		case "actionLookupValueCount":
+			if _, ok := fieldSeen[buildgraphmetrics.FieldActionLookupValueCount]; !ok {
+				selectedFields = append(selectedFields, buildgraphmetrics.FieldActionLookupValueCount)
+				fieldSeen[buildgraphmetrics.FieldActionLookupValueCount] = struct{}{}
+			}
+		case "actionLookupValueCountNotIncludingAspects":
+			if _, ok := fieldSeen[buildgraphmetrics.FieldActionLookupValueCountNotIncludingAspects]; !ok {
+				selectedFields = append(selectedFields, buildgraphmetrics.FieldActionLookupValueCountNotIncludingAspects)
+				fieldSeen[buildgraphmetrics.FieldActionLookupValueCountNotIncludingAspects] = struct{}{}
+			}
+		case "actionCount":
+			if _, ok := fieldSeen[buildgraphmetrics.FieldActionCount]; !ok {
+				selectedFields = append(selectedFields, buildgraphmetrics.FieldActionCount)
+				fieldSeen[buildgraphmetrics.FieldActionCount] = struct{}{}
+			}
+		case "inputFileConfiguredTargetCount":
+			if _, ok := fieldSeen[buildgraphmetrics.FieldInputFileConfiguredTargetCount]; !ok {
+				selectedFields = append(selectedFields, buildgraphmetrics.FieldInputFileConfiguredTargetCount)
+				fieldSeen[buildgraphmetrics.FieldInputFileConfiguredTargetCount] = struct{}{}
+			}
+		case "outputFileConfiguredTargetCount":
+			if _, ok := fieldSeen[buildgraphmetrics.FieldOutputFileConfiguredTargetCount]; !ok {
+				selectedFields = append(selectedFields, buildgraphmetrics.FieldOutputFileConfiguredTargetCount)
+				fieldSeen[buildgraphmetrics.FieldOutputFileConfiguredTargetCount] = struct{}{}
+			}
+		case "otherConfiguredTargetCount":
+			if _, ok := fieldSeen[buildgraphmetrics.FieldOtherConfiguredTargetCount]; !ok {
+				selectedFields = append(selectedFields, buildgraphmetrics.FieldOtherConfiguredTargetCount)
+				fieldSeen[buildgraphmetrics.FieldOtherConfiguredTargetCount] = struct{}{}
+			}
+		case "outputArtifactCount":
+			if _, ok := fieldSeen[buildgraphmetrics.FieldOutputArtifactCount]; !ok {
+				selectedFields = append(selectedFields, buildgraphmetrics.FieldOutputArtifactCount)
+				fieldSeen[buildgraphmetrics.FieldOutputArtifactCount] = struct{}{}
+			}
+		case "postInvocationSkyframeNodeCount":
+			if _, ok := fieldSeen[buildgraphmetrics.FieldPostInvocationSkyframeNodeCount]; !ok {
+				selectedFields = append(selectedFields, buildgraphmetrics.FieldPostInvocationSkyframeNodeCount)
+				fieldSeen[buildgraphmetrics.FieldPostInvocationSkyframeNodeCount] = struct{}{}
+			}
+		case "id":
+		case "__typename":
+		default:
+			unknownSeen = true
+		}
+	}
+	if !unknownSeen {
+		bgm.Select(selectedFields...)
+	}
+	return nil
+}
+
+type buildgraphmetricsPaginateArgs struct {
+	first, last   *int
+	after, before *Cursor
+	opts          []BuildGraphMetricsPaginateOption
+}
+
+func newBuildGraphMetricsPaginateArgs(rv map[string]any) *buildgraphmetricsPaginateArgs {
+	args := &buildgraphmetricsPaginateArgs{}
+	if rv == nil {
+		return args
+	}
+	if v := rv[firstField]; v != nil {
+		args.first = v.(*int)
+	}
+	if v := rv[lastField]; v != nil {
+		args.last = v.(*int)
+	}
+	if v := rv[afterField]; v != nil {
+		args.after = v.(*Cursor)
+	}
+	if v := rv[beforeField]; v != nil {
+		args.before = v.(*Cursor)
+	}
+	if v, ok := rv[whereField].(*BuildGraphMetricsWhereInput); ok {
+		args.opts = append(args.opts, WithBuildGraphMetricsFilter(v.Filter))
+	}
+	return args
+}
+
+// CollectFields tells the query-builder to eagerly load connected nodes by resolver context.
 func (cm *CumulativeMetricsQuery) CollectFields(ctx context.Context, satisfies ...string) (*CumulativeMetricsQuery, error) {
 	fc := graphql.GetFieldContext(ctx)
 	if fc == nil {
@@ -1055,6 +1237,91 @@ func newDynamicExecutionMetricsPaginateArgs(rv map[string]any) *dynamicexecution
 	}
 	if v, ok := rv[whereField].(*DynamicExecutionMetricsWhereInput); ok {
 		args.opts = append(args.opts, WithDynamicExecutionMetricsFilter(v.Filter))
+	}
+	return args
+}
+
+// CollectFields tells the query-builder to eagerly load connected nodes by resolver context.
+func (es *EvaluationStatQuery) CollectFields(ctx context.Context, satisfies ...string) (*EvaluationStatQuery, error) {
+	fc := graphql.GetFieldContext(ctx)
+	if fc == nil {
+		return es, nil
+	}
+	if err := es.collectField(ctx, false, graphql.GetOperationContext(ctx), fc.Field, nil, satisfies...); err != nil {
+		return nil, err
+	}
+	return es, nil
+}
+
+func (es *EvaluationStatQuery) collectField(ctx context.Context, oneNode bool, opCtx *graphql.OperationContext, collected graphql.CollectedField, path []string, satisfies ...string) error {
+	path = append([]string(nil), path...)
+	var (
+		unknownSeen    bool
+		fieldSeen      = make(map[string]struct{}, len(evaluationstat.Columns))
+		selectedFields = []string{evaluationstat.FieldID}
+	)
+	for _, field := range graphql.CollectFields(opCtx, collected.Selections, satisfies) {
+		switch field.Name {
+
+		case "buildGraphMetrics":
+			var (
+				alias = field.Alias
+				path  = append(path, alias)
+				query = (&BuildGraphMetricsClient{config: es.config}).Query()
+			)
+			if err := query.collectField(ctx, false, opCtx, field, path, mayAddCondition(satisfies, buildgraphmetricsImplementors)...); err != nil {
+				return err
+			}
+			es.WithNamedBuildGraphMetrics(alias, func(wq *BuildGraphMetricsQuery) {
+				*wq = *query
+			})
+		case "skyfunctionName":
+			if _, ok := fieldSeen[evaluationstat.FieldSkyfunctionName]; !ok {
+				selectedFields = append(selectedFields, evaluationstat.FieldSkyfunctionName)
+				fieldSeen[evaluationstat.FieldSkyfunctionName] = struct{}{}
+			}
+		case "count":
+			if _, ok := fieldSeen[evaluationstat.FieldCount]; !ok {
+				selectedFields = append(selectedFields, evaluationstat.FieldCount)
+				fieldSeen[evaluationstat.FieldCount] = struct{}{}
+			}
+		case "id":
+		case "__typename":
+		default:
+			unknownSeen = true
+		}
+	}
+	if !unknownSeen {
+		es.Select(selectedFields...)
+	}
+	return nil
+}
+
+type evaluationstatPaginateArgs struct {
+	first, last   *int
+	after, before *Cursor
+	opts          []EvaluationStatPaginateOption
+}
+
+func newEvaluationStatPaginateArgs(rv map[string]any) *evaluationstatPaginateArgs {
+	args := &evaluationstatPaginateArgs{}
+	if rv == nil {
+		return args
+	}
+	if v := rv[firstField]; v != nil {
+		args.first = v.(*int)
+	}
+	if v := rv[lastField]; v != nil {
+		args.last = v.(*int)
+	}
+	if v := rv[afterField]; v != nil {
+		args.after = v.(*Cursor)
+	}
+	if v := rv[beforeField]; v != nil {
+		args.before = v.(*Cursor)
+	}
+	if v, ok := rv[whereField].(*EvaluationStatWhereInput); ok {
+		args.opts = append(args.opts, WithEvaluationStatFilter(v.Filter))
 	}
 	return args
 }
@@ -1577,6 +1844,19 @@ func (m *MetricsQuery) collectField(ctx context.Context, oneNode bool, opCtx *gr
 				return err
 			}
 			m.WithNamedDynamicExecutionMetrics(alias, func(wq *DynamicExecutionMetricsQuery) {
+				*wq = *query
+			})
+
+		case "buildGraphMetrics":
+			var (
+				alias = field.Alias
+				path  = append(path, alias)
+				query = (&BuildGraphMetricsClient{config: m.config}).Query()
+			)
+			if err := query.collectField(ctx, false, opCtx, field, path, mayAddCondition(satisfies, buildgraphmetricsImplementors)...); err != nil {
+				return err
+			}
+			m.WithNamedBuildGraphMetrics(alias, func(wq *BuildGraphMetricsQuery) {
 				*wq = *query
 			})
 		}

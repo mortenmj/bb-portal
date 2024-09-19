@@ -5,7 +5,6 @@ package ent
 import (
 	"fmt"
 	"strings"
-	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
@@ -20,7 +19,7 @@ type PackageLoadMetrics struct {
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
 	// LoadDuration holds the value of the "load_duration" field.
-	LoadDuration time.Duration `json:"load_duration,omitempty"`
+	LoadDuration int64 `json:"load_duration,omitempty"`
 	// NumTargets holds the value of the "num_targets" field.
 	NumTargets int64 `json:"num_targets,omitempty"`
 	// ComputationSteps holds the value of the "computation_steps" field.
@@ -97,7 +96,7 @@ func (plm *PackageLoadMetrics) assignValues(columns []string, values []any) erro
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field load_duration", values[i])
 			} else if value.Valid {
-				plm.LoadDuration = time.Duration(value.Int64)
+				plm.LoadDuration = value.Int64
 			}
 		case packageloadmetrics.FieldNumTargets:
 			if value, ok := values[i].(*sql.NullInt64); !ok {

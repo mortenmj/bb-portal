@@ -269,8 +269,8 @@ func (act SaveActor) CreateMetrics(ctx context.Context, summary *summary.Summary
 			SetMnemonic(ad.Mnemonic).
 			SetFirstStartedMs(ad.FirstStartedMs).
 			SetLastEndedMs(ad.LastEndedMs).
-			SetSystemTime(ad.SystemTime).
-			SetUserTime(ad.UserTime).
+			SetSystemTime(ad.SystemTime.Milliseconds()).
+			SetUserTime(ad.UserTime.Milliseconds()).
 			Save(ctx)
 
 		if err != nil {
@@ -297,6 +297,25 @@ func (act SaveActor) CreateMetrics(ctx context.Context, summary *summary.Summary
 
 	if err != nil {
 		slog.Error("error creating action summary. %w", err)
+		err = nil
+	}
+
+	//TODO:implement EvalutionStats once they exist on the proto
+	//create the build graph metrics
+	slog.Debug("creating memory metrics")
+	var buildGraphMetrics *ent.BuildGraphMetrics
+	buildGraphMetrics, err = act.db.BuildGraphMetrics.Create().
+		SetActionLookupValueCount(summary.Metrics.BuildGraphMetrics.ActionLookupValueCount).
+		SetActionLookupValueCountNotIncludingAspects(summary.Metrics.BuildGraphMetrics.ActionLookupValueCountNotIncludingAspects).
+		SetActionCount(summary.Metrics.BuildGraphMetrics.ActionCount).
+		SetInputFileConfiguredTargetCount(summary.Metrics.BuildGraphMetrics.InputFileConfiguredTargetCount).
+		SetOutputFileConfiguredTargetCount(summary.Metrics.BuildGraphMetrics.OutputFileConfiguredTargetCount).
+		SetOtherConfiguredTargetCount(summary.Metrics.BuildGraphMetrics.OtherConfiguredTargetCount).
+		SetOutputArtifactCount(summary.Metrics.BuildGraphMetrics.OutputArtifactCount).
+		SetPostInvocationSkyframeNodeCount(summary.Metrics.BuildGraphMetrics.PostInvocationSkyframeNodeCount).
+		Save(ctx)
+	if err != nil {
+		slog.Error("error creating buildgraph metrics. %w", err)
 		err = nil
 	}
 
@@ -353,7 +372,7 @@ func (act SaveActor) CreateMetrics(ctx context.Context, summary *summary.Summary
 		var packageLoadMetric *ent.PackageLoadMetrics
 		packageLoadMetric, err = act.db.PackageLoadMetrics.Create().
 			SetName(plm.Name).
-			SetLoadDuration(plm.LoadDuration).
+			SetLoadDuration(plm.LoadDuration.Milliseconds()).
 			SetNumTargets(int64(plm.NumTargets)).
 			SetComputationSteps(int64(plm.ComputationSteps)).
 			SetNumTransitiveLoads(int64(plm.NumTransitiveLoads)).
@@ -497,6 +516,7 @@ func (act SaveActor) CreateMetrics(ctx context.Context, summary *summary.Summary
 	slog.Debug("creating metrics object")
 	metrics, err = act.db.Metrics.Create().
 		AddActionSummary(actionSummary).
+		AddBuildGraphMetrics(buildGraphMetrics).
 		AddMemoryMetrics(memoryMetrics).
 		AddTargetMetrics(targetMetrics).
 		AddPackageMetrics(packageMetrics).

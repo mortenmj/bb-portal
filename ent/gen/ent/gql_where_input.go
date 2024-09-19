@@ -15,8 +15,10 @@ import (
 	"github.com/buildbarn/bb-portal/ent/gen/ent/bazelinvocationproblem"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/blob"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/build"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/buildgraphmetrics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/cumulativemetrics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/dynamicexecutionmetrics"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/evaluationstat"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/eventfile"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/filesmetric"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/garbagemetrics"
@@ -496,28 +498,28 @@ type ActionDataWhereInput struct {
 	LastEndedMsNotNil bool    `json:"lastEndedMsNotNil,omitempty"`
 
 	// "system_time" field predicates.
-	SystemTime       *time.Duration  `json:"systemTime,omitempty"`
-	SystemTimeNEQ    *time.Duration  `json:"systemTimeNEQ,omitempty"`
-	SystemTimeIn     []time.Duration `json:"systemTimeIn,omitempty"`
-	SystemTimeNotIn  []time.Duration `json:"systemTimeNotIn,omitempty"`
-	SystemTimeGT     *time.Duration  `json:"systemTimeGT,omitempty"`
-	SystemTimeGTE    *time.Duration  `json:"systemTimeGTE,omitempty"`
-	SystemTimeLT     *time.Duration  `json:"systemTimeLT,omitempty"`
-	SystemTimeLTE    *time.Duration  `json:"systemTimeLTE,omitempty"`
-	SystemTimeIsNil  bool            `json:"systemTimeIsNil,omitempty"`
-	SystemTimeNotNil bool            `json:"systemTimeNotNil,omitempty"`
+	SystemTime       *int64  `json:"systemTime,omitempty"`
+	SystemTimeNEQ    *int64  `json:"systemTimeNEQ,omitempty"`
+	SystemTimeIn     []int64 `json:"systemTimeIn,omitempty"`
+	SystemTimeNotIn  []int64 `json:"systemTimeNotIn,omitempty"`
+	SystemTimeGT     *int64  `json:"systemTimeGT,omitempty"`
+	SystemTimeGTE    *int64  `json:"systemTimeGTE,omitempty"`
+	SystemTimeLT     *int64  `json:"systemTimeLT,omitempty"`
+	SystemTimeLTE    *int64  `json:"systemTimeLTE,omitempty"`
+	SystemTimeIsNil  bool    `json:"systemTimeIsNil,omitempty"`
+	SystemTimeNotNil bool    `json:"systemTimeNotNil,omitempty"`
 
 	// "user_time" field predicates.
-	UserTime       *time.Duration  `json:"userTime,omitempty"`
-	UserTimeNEQ    *time.Duration  `json:"userTimeNEQ,omitempty"`
-	UserTimeIn     []time.Duration `json:"userTimeIn,omitempty"`
-	UserTimeNotIn  []time.Duration `json:"userTimeNotIn,omitempty"`
-	UserTimeGT     *time.Duration  `json:"userTimeGT,omitempty"`
-	UserTimeGTE    *time.Duration  `json:"userTimeGTE,omitempty"`
-	UserTimeLT     *time.Duration  `json:"userTimeLT,omitempty"`
-	UserTimeLTE    *time.Duration  `json:"userTimeLTE,omitempty"`
-	UserTimeIsNil  bool            `json:"userTimeIsNil,omitempty"`
-	UserTimeNotNil bool            `json:"userTimeNotNil,omitempty"`
+	UserTime       *int64  `json:"userTime,omitempty"`
+	UserTimeNEQ    *int64  `json:"userTimeNEQ,omitempty"`
+	UserTimeIn     []int64 `json:"userTimeIn,omitempty"`
+	UserTimeNotIn  []int64 `json:"userTimeNotIn,omitempty"`
+	UserTimeGT     *int64  `json:"userTimeGT,omitempty"`
+	UserTimeGTE    *int64  `json:"userTimeGTE,omitempty"`
+	UserTimeLT     *int64  `json:"userTimeLT,omitempty"`
+	UserTimeLTE    *int64  `json:"userTimeLTE,omitempty"`
+	UserTimeIsNil  bool    `json:"userTimeIsNil,omitempty"`
+	UserTimeNotNil bool    `json:"userTimeNotNil,omitempty"`
 
 	// "action_summary" edge predicates.
 	HasActionSummary     *bool                      `json:"hasActionSummary,omitempty"`
@@ -3001,6 +3003,598 @@ func (i *BuildWhereInput) P() (predicate.Build, error) {
 	}
 }
 
+// BuildGraphMetricsWhereInput represents a where input for filtering BuildGraphMetrics queries.
+type BuildGraphMetricsWhereInput struct {
+	Predicates []predicate.BuildGraphMetrics  `json:"-"`
+	Not        *BuildGraphMetricsWhereInput   `json:"not,omitempty"`
+	Or         []*BuildGraphMetricsWhereInput `json:"or,omitempty"`
+	And        []*BuildGraphMetricsWhereInput `json:"and,omitempty"`
+
+	// "id" field predicates.
+	ID      *int  `json:"id,omitempty"`
+	IDNEQ   *int  `json:"idNEQ,omitempty"`
+	IDIn    []int `json:"idIn,omitempty"`
+	IDNotIn []int `json:"idNotIn,omitempty"`
+	IDGT    *int  `json:"idGT,omitempty"`
+	IDGTE   *int  `json:"idGTE,omitempty"`
+	IDLT    *int  `json:"idLT,omitempty"`
+	IDLTE   *int  `json:"idLTE,omitempty"`
+
+	// "action_lookup_value_count" field predicates.
+	ActionLookupValueCount       *int32  `json:"actionLookupValueCount,omitempty"`
+	ActionLookupValueCountNEQ    *int32  `json:"actionLookupValueCountNEQ,omitempty"`
+	ActionLookupValueCountIn     []int32 `json:"actionLookupValueCountIn,omitempty"`
+	ActionLookupValueCountNotIn  []int32 `json:"actionLookupValueCountNotIn,omitempty"`
+	ActionLookupValueCountGT     *int32  `json:"actionLookupValueCountGT,omitempty"`
+	ActionLookupValueCountGTE    *int32  `json:"actionLookupValueCountGTE,omitempty"`
+	ActionLookupValueCountLT     *int32  `json:"actionLookupValueCountLT,omitempty"`
+	ActionLookupValueCountLTE    *int32  `json:"actionLookupValueCountLTE,omitempty"`
+	ActionLookupValueCountIsNil  bool    `json:"actionLookupValueCountIsNil,omitempty"`
+	ActionLookupValueCountNotNil bool    `json:"actionLookupValueCountNotNil,omitempty"`
+
+	// "action_lookup_value_count_not_including_aspects" field predicates.
+	ActionLookupValueCountNotIncludingAspects       *int32  `json:"actionLookupValueCountNotIncludingAspects,omitempty"`
+	ActionLookupValueCountNotIncludingAspectsNEQ    *int32  `json:"actionLookupValueCountNotIncludingAspectsNEQ,omitempty"`
+	ActionLookupValueCountNotIncludingAspectsIn     []int32 `json:"actionLookupValueCountNotIncludingAspectsIn,omitempty"`
+	ActionLookupValueCountNotIncludingAspectsNotIn  []int32 `json:"actionLookupValueCountNotIncludingAspectsNotIn,omitempty"`
+	ActionLookupValueCountNotIncludingAspectsGT     *int32  `json:"actionLookupValueCountNotIncludingAspectsGT,omitempty"`
+	ActionLookupValueCountNotIncludingAspectsGTE    *int32  `json:"actionLookupValueCountNotIncludingAspectsGTE,omitempty"`
+	ActionLookupValueCountNotIncludingAspectsLT     *int32  `json:"actionLookupValueCountNotIncludingAspectsLT,omitempty"`
+	ActionLookupValueCountNotIncludingAspectsLTE    *int32  `json:"actionLookupValueCountNotIncludingAspectsLTE,omitempty"`
+	ActionLookupValueCountNotIncludingAspectsIsNil  bool    `json:"actionLookupValueCountNotIncludingAspectsIsNil,omitempty"`
+	ActionLookupValueCountNotIncludingAspectsNotNil bool    `json:"actionLookupValueCountNotIncludingAspectsNotNil,omitempty"`
+
+	// "action_count" field predicates.
+	ActionCount       *int32  `json:"actionCount,omitempty"`
+	ActionCountNEQ    *int32  `json:"actionCountNEQ,omitempty"`
+	ActionCountIn     []int32 `json:"actionCountIn,omitempty"`
+	ActionCountNotIn  []int32 `json:"actionCountNotIn,omitempty"`
+	ActionCountGT     *int32  `json:"actionCountGT,omitempty"`
+	ActionCountGTE    *int32  `json:"actionCountGTE,omitempty"`
+	ActionCountLT     *int32  `json:"actionCountLT,omitempty"`
+	ActionCountLTE    *int32  `json:"actionCountLTE,omitempty"`
+	ActionCountIsNil  bool    `json:"actionCountIsNil,omitempty"`
+	ActionCountNotNil bool    `json:"actionCountNotNil,omitempty"`
+
+	// "input_file_configured_target_count" field predicates.
+	InputFileConfiguredTargetCount       *int32  `json:"inputFileConfiguredTargetCount,omitempty"`
+	InputFileConfiguredTargetCountNEQ    *int32  `json:"inputFileConfiguredTargetCountNEQ,omitempty"`
+	InputFileConfiguredTargetCountIn     []int32 `json:"inputFileConfiguredTargetCountIn,omitempty"`
+	InputFileConfiguredTargetCountNotIn  []int32 `json:"inputFileConfiguredTargetCountNotIn,omitempty"`
+	InputFileConfiguredTargetCountGT     *int32  `json:"inputFileConfiguredTargetCountGT,omitempty"`
+	InputFileConfiguredTargetCountGTE    *int32  `json:"inputFileConfiguredTargetCountGTE,omitempty"`
+	InputFileConfiguredTargetCountLT     *int32  `json:"inputFileConfiguredTargetCountLT,omitempty"`
+	InputFileConfiguredTargetCountLTE    *int32  `json:"inputFileConfiguredTargetCountLTE,omitempty"`
+	InputFileConfiguredTargetCountIsNil  bool    `json:"inputFileConfiguredTargetCountIsNil,omitempty"`
+	InputFileConfiguredTargetCountNotNil bool    `json:"inputFileConfiguredTargetCountNotNil,omitempty"`
+
+	// "output_file_configured_target_count" field predicates.
+	OutputFileConfiguredTargetCount       *int32  `json:"outputFileConfiguredTargetCount,omitempty"`
+	OutputFileConfiguredTargetCountNEQ    *int32  `json:"outputFileConfiguredTargetCountNEQ,omitempty"`
+	OutputFileConfiguredTargetCountIn     []int32 `json:"outputFileConfiguredTargetCountIn,omitempty"`
+	OutputFileConfiguredTargetCountNotIn  []int32 `json:"outputFileConfiguredTargetCountNotIn,omitempty"`
+	OutputFileConfiguredTargetCountGT     *int32  `json:"outputFileConfiguredTargetCountGT,omitempty"`
+	OutputFileConfiguredTargetCountGTE    *int32  `json:"outputFileConfiguredTargetCountGTE,omitempty"`
+	OutputFileConfiguredTargetCountLT     *int32  `json:"outputFileConfiguredTargetCountLT,omitempty"`
+	OutputFileConfiguredTargetCountLTE    *int32  `json:"outputFileConfiguredTargetCountLTE,omitempty"`
+	OutputFileConfiguredTargetCountIsNil  bool    `json:"outputFileConfiguredTargetCountIsNil,omitempty"`
+	OutputFileConfiguredTargetCountNotNil bool    `json:"outputFileConfiguredTargetCountNotNil,omitempty"`
+
+	// "other_configured_target_count" field predicates.
+	OtherConfiguredTargetCount       *int32  `json:"otherConfiguredTargetCount,omitempty"`
+	OtherConfiguredTargetCountNEQ    *int32  `json:"otherConfiguredTargetCountNEQ,omitempty"`
+	OtherConfiguredTargetCountIn     []int32 `json:"otherConfiguredTargetCountIn,omitempty"`
+	OtherConfiguredTargetCountNotIn  []int32 `json:"otherConfiguredTargetCountNotIn,omitempty"`
+	OtherConfiguredTargetCountGT     *int32  `json:"otherConfiguredTargetCountGT,omitempty"`
+	OtherConfiguredTargetCountGTE    *int32  `json:"otherConfiguredTargetCountGTE,omitempty"`
+	OtherConfiguredTargetCountLT     *int32  `json:"otherConfiguredTargetCountLT,omitempty"`
+	OtherConfiguredTargetCountLTE    *int32  `json:"otherConfiguredTargetCountLTE,omitempty"`
+	OtherConfiguredTargetCountIsNil  bool    `json:"otherConfiguredTargetCountIsNil,omitempty"`
+	OtherConfiguredTargetCountNotNil bool    `json:"otherConfiguredTargetCountNotNil,omitempty"`
+
+	// "output_artifact_count" field predicates.
+	OutputArtifactCount       *int32  `json:"outputArtifactCount,omitempty"`
+	OutputArtifactCountNEQ    *int32  `json:"outputArtifactCountNEQ,omitempty"`
+	OutputArtifactCountIn     []int32 `json:"outputArtifactCountIn,omitempty"`
+	OutputArtifactCountNotIn  []int32 `json:"outputArtifactCountNotIn,omitempty"`
+	OutputArtifactCountGT     *int32  `json:"outputArtifactCountGT,omitempty"`
+	OutputArtifactCountGTE    *int32  `json:"outputArtifactCountGTE,omitempty"`
+	OutputArtifactCountLT     *int32  `json:"outputArtifactCountLT,omitempty"`
+	OutputArtifactCountLTE    *int32  `json:"outputArtifactCountLTE,omitempty"`
+	OutputArtifactCountIsNil  bool    `json:"outputArtifactCountIsNil,omitempty"`
+	OutputArtifactCountNotNil bool    `json:"outputArtifactCountNotNil,omitempty"`
+
+	// "post_invocation_skyframe_node_count" field predicates.
+	PostInvocationSkyframeNodeCount       *int32  `json:"postInvocationSkyframeNodeCount,omitempty"`
+	PostInvocationSkyframeNodeCountNEQ    *int32  `json:"postInvocationSkyframeNodeCountNEQ,omitempty"`
+	PostInvocationSkyframeNodeCountIn     []int32 `json:"postInvocationSkyframeNodeCountIn,omitempty"`
+	PostInvocationSkyframeNodeCountNotIn  []int32 `json:"postInvocationSkyframeNodeCountNotIn,omitempty"`
+	PostInvocationSkyframeNodeCountGT     *int32  `json:"postInvocationSkyframeNodeCountGT,omitempty"`
+	PostInvocationSkyframeNodeCountGTE    *int32  `json:"postInvocationSkyframeNodeCountGTE,omitempty"`
+	PostInvocationSkyframeNodeCountLT     *int32  `json:"postInvocationSkyframeNodeCountLT,omitempty"`
+	PostInvocationSkyframeNodeCountLTE    *int32  `json:"postInvocationSkyframeNodeCountLTE,omitempty"`
+	PostInvocationSkyframeNodeCountIsNil  bool    `json:"postInvocationSkyframeNodeCountIsNil,omitempty"`
+	PostInvocationSkyframeNodeCountNotNil bool    `json:"postInvocationSkyframeNodeCountNotNil,omitempty"`
+
+	// "metrics" edge predicates.
+	HasMetrics     *bool                `json:"hasMetrics,omitempty"`
+	HasMetricsWith []*MetricsWhereInput `json:"hasMetricsWith,omitempty"`
+
+	// "dirtied_values" edge predicates.
+	HasDirtiedValues     *bool                       `json:"hasDirtiedValues,omitempty"`
+	HasDirtiedValuesWith []*EvaluationStatWhereInput `json:"hasDirtiedValuesWith,omitempty"`
+
+	// "changed_values" edge predicates.
+	HasChangedValues     *bool                       `json:"hasChangedValues,omitempty"`
+	HasChangedValuesWith []*EvaluationStatWhereInput `json:"hasChangedValuesWith,omitempty"`
+
+	// "built_values" edge predicates.
+	HasBuiltValues     *bool                       `json:"hasBuiltValues,omitempty"`
+	HasBuiltValuesWith []*EvaluationStatWhereInput `json:"hasBuiltValuesWith,omitempty"`
+
+	// "cleaned_values" edge predicates.
+	HasCleanedValues     *bool                       `json:"hasCleanedValues,omitempty"`
+	HasCleanedValuesWith []*EvaluationStatWhereInput `json:"hasCleanedValuesWith,omitempty"`
+
+	// "evaluated_values" edge predicates.
+	HasEvaluatedValues     *bool                       `json:"hasEvaluatedValues,omitempty"`
+	HasEvaluatedValuesWith []*EvaluationStatWhereInput `json:"hasEvaluatedValuesWith,omitempty"`
+}
+
+// AddPredicates adds custom predicates to the where input to be used during the filtering phase.
+func (i *BuildGraphMetricsWhereInput) AddPredicates(predicates ...predicate.BuildGraphMetrics) {
+	i.Predicates = append(i.Predicates, predicates...)
+}
+
+// Filter applies the BuildGraphMetricsWhereInput filter on the BuildGraphMetricsQuery builder.
+func (i *BuildGraphMetricsWhereInput) Filter(q *BuildGraphMetricsQuery) (*BuildGraphMetricsQuery, error) {
+	if i == nil {
+		return q, nil
+	}
+	p, err := i.P()
+	if err != nil {
+		if err == ErrEmptyBuildGraphMetricsWhereInput {
+			return q, nil
+		}
+		return nil, err
+	}
+	return q.Where(p), nil
+}
+
+// ErrEmptyBuildGraphMetricsWhereInput is returned in case the BuildGraphMetricsWhereInput is empty.
+var ErrEmptyBuildGraphMetricsWhereInput = errors.New("ent: empty predicate BuildGraphMetricsWhereInput")
+
+// P returns a predicate for filtering buildgraphmetricsslice.
+// An error is returned if the input is empty or invalid.
+func (i *BuildGraphMetricsWhereInput) P() (predicate.BuildGraphMetrics, error) {
+	var predicates []predicate.BuildGraphMetrics
+	if i.Not != nil {
+		p, err := i.Not.P()
+		if err != nil {
+			return nil, fmt.Errorf("%w: field 'not'", err)
+		}
+		predicates = append(predicates, buildgraphmetrics.Not(p))
+	}
+	switch n := len(i.Or); {
+	case n == 1:
+		p, err := i.Or[0].P()
+		if err != nil {
+			return nil, fmt.Errorf("%w: field 'or'", err)
+		}
+		predicates = append(predicates, p)
+	case n > 1:
+		or := make([]predicate.BuildGraphMetrics, 0, n)
+		for _, w := range i.Or {
+			p, err := w.P()
+			if err != nil {
+				return nil, fmt.Errorf("%w: field 'or'", err)
+			}
+			or = append(or, p)
+		}
+		predicates = append(predicates, buildgraphmetrics.Or(or...))
+	}
+	switch n := len(i.And); {
+	case n == 1:
+		p, err := i.And[0].P()
+		if err != nil {
+			return nil, fmt.Errorf("%w: field 'and'", err)
+		}
+		predicates = append(predicates, p)
+	case n > 1:
+		and := make([]predicate.BuildGraphMetrics, 0, n)
+		for _, w := range i.And {
+			p, err := w.P()
+			if err != nil {
+				return nil, fmt.Errorf("%w: field 'and'", err)
+			}
+			and = append(and, p)
+		}
+		predicates = append(predicates, buildgraphmetrics.And(and...))
+	}
+	predicates = append(predicates, i.Predicates...)
+	if i.ID != nil {
+		predicates = append(predicates, buildgraphmetrics.IDEQ(*i.ID))
+	}
+	if i.IDNEQ != nil {
+		predicates = append(predicates, buildgraphmetrics.IDNEQ(*i.IDNEQ))
+	}
+	if len(i.IDIn) > 0 {
+		predicates = append(predicates, buildgraphmetrics.IDIn(i.IDIn...))
+	}
+	if len(i.IDNotIn) > 0 {
+		predicates = append(predicates, buildgraphmetrics.IDNotIn(i.IDNotIn...))
+	}
+	if i.IDGT != nil {
+		predicates = append(predicates, buildgraphmetrics.IDGT(*i.IDGT))
+	}
+	if i.IDGTE != nil {
+		predicates = append(predicates, buildgraphmetrics.IDGTE(*i.IDGTE))
+	}
+	if i.IDLT != nil {
+		predicates = append(predicates, buildgraphmetrics.IDLT(*i.IDLT))
+	}
+	if i.IDLTE != nil {
+		predicates = append(predicates, buildgraphmetrics.IDLTE(*i.IDLTE))
+	}
+	if i.ActionLookupValueCount != nil {
+		predicates = append(predicates, buildgraphmetrics.ActionLookupValueCountEQ(*i.ActionLookupValueCount))
+	}
+	if i.ActionLookupValueCountNEQ != nil {
+		predicates = append(predicates, buildgraphmetrics.ActionLookupValueCountNEQ(*i.ActionLookupValueCountNEQ))
+	}
+	if len(i.ActionLookupValueCountIn) > 0 {
+		predicates = append(predicates, buildgraphmetrics.ActionLookupValueCountIn(i.ActionLookupValueCountIn...))
+	}
+	if len(i.ActionLookupValueCountNotIn) > 0 {
+		predicates = append(predicates, buildgraphmetrics.ActionLookupValueCountNotIn(i.ActionLookupValueCountNotIn...))
+	}
+	if i.ActionLookupValueCountGT != nil {
+		predicates = append(predicates, buildgraphmetrics.ActionLookupValueCountGT(*i.ActionLookupValueCountGT))
+	}
+	if i.ActionLookupValueCountGTE != nil {
+		predicates = append(predicates, buildgraphmetrics.ActionLookupValueCountGTE(*i.ActionLookupValueCountGTE))
+	}
+	if i.ActionLookupValueCountLT != nil {
+		predicates = append(predicates, buildgraphmetrics.ActionLookupValueCountLT(*i.ActionLookupValueCountLT))
+	}
+	if i.ActionLookupValueCountLTE != nil {
+		predicates = append(predicates, buildgraphmetrics.ActionLookupValueCountLTE(*i.ActionLookupValueCountLTE))
+	}
+	if i.ActionLookupValueCountIsNil {
+		predicates = append(predicates, buildgraphmetrics.ActionLookupValueCountIsNil())
+	}
+	if i.ActionLookupValueCountNotNil {
+		predicates = append(predicates, buildgraphmetrics.ActionLookupValueCountNotNil())
+	}
+	if i.ActionLookupValueCountNotIncludingAspects != nil {
+		predicates = append(predicates, buildgraphmetrics.ActionLookupValueCountNotIncludingAspectsEQ(*i.ActionLookupValueCountNotIncludingAspects))
+	}
+	if i.ActionLookupValueCountNotIncludingAspectsNEQ != nil {
+		predicates = append(predicates, buildgraphmetrics.ActionLookupValueCountNotIncludingAspectsNEQ(*i.ActionLookupValueCountNotIncludingAspectsNEQ))
+	}
+	if len(i.ActionLookupValueCountNotIncludingAspectsIn) > 0 {
+		predicates = append(predicates, buildgraphmetrics.ActionLookupValueCountNotIncludingAspectsIn(i.ActionLookupValueCountNotIncludingAspectsIn...))
+	}
+	if len(i.ActionLookupValueCountNotIncludingAspectsNotIn) > 0 {
+		predicates = append(predicates, buildgraphmetrics.ActionLookupValueCountNotIncludingAspectsNotIn(i.ActionLookupValueCountNotIncludingAspectsNotIn...))
+	}
+	if i.ActionLookupValueCountNotIncludingAspectsGT != nil {
+		predicates = append(predicates, buildgraphmetrics.ActionLookupValueCountNotIncludingAspectsGT(*i.ActionLookupValueCountNotIncludingAspectsGT))
+	}
+	if i.ActionLookupValueCountNotIncludingAspectsGTE != nil {
+		predicates = append(predicates, buildgraphmetrics.ActionLookupValueCountNotIncludingAspectsGTE(*i.ActionLookupValueCountNotIncludingAspectsGTE))
+	}
+	if i.ActionLookupValueCountNotIncludingAspectsLT != nil {
+		predicates = append(predicates, buildgraphmetrics.ActionLookupValueCountNotIncludingAspectsLT(*i.ActionLookupValueCountNotIncludingAspectsLT))
+	}
+	if i.ActionLookupValueCountNotIncludingAspectsLTE != nil {
+		predicates = append(predicates, buildgraphmetrics.ActionLookupValueCountNotIncludingAspectsLTE(*i.ActionLookupValueCountNotIncludingAspectsLTE))
+	}
+	if i.ActionLookupValueCountNotIncludingAspectsIsNil {
+		predicates = append(predicates, buildgraphmetrics.ActionLookupValueCountNotIncludingAspectsIsNil())
+	}
+	if i.ActionLookupValueCountNotIncludingAspectsNotNil {
+		predicates = append(predicates, buildgraphmetrics.ActionLookupValueCountNotIncludingAspectsNotNil())
+	}
+	if i.ActionCount != nil {
+		predicates = append(predicates, buildgraphmetrics.ActionCountEQ(*i.ActionCount))
+	}
+	if i.ActionCountNEQ != nil {
+		predicates = append(predicates, buildgraphmetrics.ActionCountNEQ(*i.ActionCountNEQ))
+	}
+	if len(i.ActionCountIn) > 0 {
+		predicates = append(predicates, buildgraphmetrics.ActionCountIn(i.ActionCountIn...))
+	}
+	if len(i.ActionCountNotIn) > 0 {
+		predicates = append(predicates, buildgraphmetrics.ActionCountNotIn(i.ActionCountNotIn...))
+	}
+	if i.ActionCountGT != nil {
+		predicates = append(predicates, buildgraphmetrics.ActionCountGT(*i.ActionCountGT))
+	}
+	if i.ActionCountGTE != nil {
+		predicates = append(predicates, buildgraphmetrics.ActionCountGTE(*i.ActionCountGTE))
+	}
+	if i.ActionCountLT != nil {
+		predicates = append(predicates, buildgraphmetrics.ActionCountLT(*i.ActionCountLT))
+	}
+	if i.ActionCountLTE != nil {
+		predicates = append(predicates, buildgraphmetrics.ActionCountLTE(*i.ActionCountLTE))
+	}
+	if i.ActionCountIsNil {
+		predicates = append(predicates, buildgraphmetrics.ActionCountIsNil())
+	}
+	if i.ActionCountNotNil {
+		predicates = append(predicates, buildgraphmetrics.ActionCountNotNil())
+	}
+	if i.InputFileConfiguredTargetCount != nil {
+		predicates = append(predicates, buildgraphmetrics.InputFileConfiguredTargetCountEQ(*i.InputFileConfiguredTargetCount))
+	}
+	if i.InputFileConfiguredTargetCountNEQ != nil {
+		predicates = append(predicates, buildgraphmetrics.InputFileConfiguredTargetCountNEQ(*i.InputFileConfiguredTargetCountNEQ))
+	}
+	if len(i.InputFileConfiguredTargetCountIn) > 0 {
+		predicates = append(predicates, buildgraphmetrics.InputFileConfiguredTargetCountIn(i.InputFileConfiguredTargetCountIn...))
+	}
+	if len(i.InputFileConfiguredTargetCountNotIn) > 0 {
+		predicates = append(predicates, buildgraphmetrics.InputFileConfiguredTargetCountNotIn(i.InputFileConfiguredTargetCountNotIn...))
+	}
+	if i.InputFileConfiguredTargetCountGT != nil {
+		predicates = append(predicates, buildgraphmetrics.InputFileConfiguredTargetCountGT(*i.InputFileConfiguredTargetCountGT))
+	}
+	if i.InputFileConfiguredTargetCountGTE != nil {
+		predicates = append(predicates, buildgraphmetrics.InputFileConfiguredTargetCountGTE(*i.InputFileConfiguredTargetCountGTE))
+	}
+	if i.InputFileConfiguredTargetCountLT != nil {
+		predicates = append(predicates, buildgraphmetrics.InputFileConfiguredTargetCountLT(*i.InputFileConfiguredTargetCountLT))
+	}
+	if i.InputFileConfiguredTargetCountLTE != nil {
+		predicates = append(predicates, buildgraphmetrics.InputFileConfiguredTargetCountLTE(*i.InputFileConfiguredTargetCountLTE))
+	}
+	if i.InputFileConfiguredTargetCountIsNil {
+		predicates = append(predicates, buildgraphmetrics.InputFileConfiguredTargetCountIsNil())
+	}
+	if i.InputFileConfiguredTargetCountNotNil {
+		predicates = append(predicates, buildgraphmetrics.InputFileConfiguredTargetCountNotNil())
+	}
+	if i.OutputFileConfiguredTargetCount != nil {
+		predicates = append(predicates, buildgraphmetrics.OutputFileConfiguredTargetCountEQ(*i.OutputFileConfiguredTargetCount))
+	}
+	if i.OutputFileConfiguredTargetCountNEQ != nil {
+		predicates = append(predicates, buildgraphmetrics.OutputFileConfiguredTargetCountNEQ(*i.OutputFileConfiguredTargetCountNEQ))
+	}
+	if len(i.OutputFileConfiguredTargetCountIn) > 0 {
+		predicates = append(predicates, buildgraphmetrics.OutputFileConfiguredTargetCountIn(i.OutputFileConfiguredTargetCountIn...))
+	}
+	if len(i.OutputFileConfiguredTargetCountNotIn) > 0 {
+		predicates = append(predicates, buildgraphmetrics.OutputFileConfiguredTargetCountNotIn(i.OutputFileConfiguredTargetCountNotIn...))
+	}
+	if i.OutputFileConfiguredTargetCountGT != nil {
+		predicates = append(predicates, buildgraphmetrics.OutputFileConfiguredTargetCountGT(*i.OutputFileConfiguredTargetCountGT))
+	}
+	if i.OutputFileConfiguredTargetCountGTE != nil {
+		predicates = append(predicates, buildgraphmetrics.OutputFileConfiguredTargetCountGTE(*i.OutputFileConfiguredTargetCountGTE))
+	}
+	if i.OutputFileConfiguredTargetCountLT != nil {
+		predicates = append(predicates, buildgraphmetrics.OutputFileConfiguredTargetCountLT(*i.OutputFileConfiguredTargetCountLT))
+	}
+	if i.OutputFileConfiguredTargetCountLTE != nil {
+		predicates = append(predicates, buildgraphmetrics.OutputFileConfiguredTargetCountLTE(*i.OutputFileConfiguredTargetCountLTE))
+	}
+	if i.OutputFileConfiguredTargetCountIsNil {
+		predicates = append(predicates, buildgraphmetrics.OutputFileConfiguredTargetCountIsNil())
+	}
+	if i.OutputFileConfiguredTargetCountNotNil {
+		predicates = append(predicates, buildgraphmetrics.OutputFileConfiguredTargetCountNotNil())
+	}
+	if i.OtherConfiguredTargetCount != nil {
+		predicates = append(predicates, buildgraphmetrics.OtherConfiguredTargetCountEQ(*i.OtherConfiguredTargetCount))
+	}
+	if i.OtherConfiguredTargetCountNEQ != nil {
+		predicates = append(predicates, buildgraphmetrics.OtherConfiguredTargetCountNEQ(*i.OtherConfiguredTargetCountNEQ))
+	}
+	if len(i.OtherConfiguredTargetCountIn) > 0 {
+		predicates = append(predicates, buildgraphmetrics.OtherConfiguredTargetCountIn(i.OtherConfiguredTargetCountIn...))
+	}
+	if len(i.OtherConfiguredTargetCountNotIn) > 0 {
+		predicates = append(predicates, buildgraphmetrics.OtherConfiguredTargetCountNotIn(i.OtherConfiguredTargetCountNotIn...))
+	}
+	if i.OtherConfiguredTargetCountGT != nil {
+		predicates = append(predicates, buildgraphmetrics.OtherConfiguredTargetCountGT(*i.OtherConfiguredTargetCountGT))
+	}
+	if i.OtherConfiguredTargetCountGTE != nil {
+		predicates = append(predicates, buildgraphmetrics.OtherConfiguredTargetCountGTE(*i.OtherConfiguredTargetCountGTE))
+	}
+	if i.OtherConfiguredTargetCountLT != nil {
+		predicates = append(predicates, buildgraphmetrics.OtherConfiguredTargetCountLT(*i.OtherConfiguredTargetCountLT))
+	}
+	if i.OtherConfiguredTargetCountLTE != nil {
+		predicates = append(predicates, buildgraphmetrics.OtherConfiguredTargetCountLTE(*i.OtherConfiguredTargetCountLTE))
+	}
+	if i.OtherConfiguredTargetCountIsNil {
+		predicates = append(predicates, buildgraphmetrics.OtherConfiguredTargetCountIsNil())
+	}
+	if i.OtherConfiguredTargetCountNotNil {
+		predicates = append(predicates, buildgraphmetrics.OtherConfiguredTargetCountNotNil())
+	}
+	if i.OutputArtifactCount != nil {
+		predicates = append(predicates, buildgraphmetrics.OutputArtifactCountEQ(*i.OutputArtifactCount))
+	}
+	if i.OutputArtifactCountNEQ != nil {
+		predicates = append(predicates, buildgraphmetrics.OutputArtifactCountNEQ(*i.OutputArtifactCountNEQ))
+	}
+	if len(i.OutputArtifactCountIn) > 0 {
+		predicates = append(predicates, buildgraphmetrics.OutputArtifactCountIn(i.OutputArtifactCountIn...))
+	}
+	if len(i.OutputArtifactCountNotIn) > 0 {
+		predicates = append(predicates, buildgraphmetrics.OutputArtifactCountNotIn(i.OutputArtifactCountNotIn...))
+	}
+	if i.OutputArtifactCountGT != nil {
+		predicates = append(predicates, buildgraphmetrics.OutputArtifactCountGT(*i.OutputArtifactCountGT))
+	}
+	if i.OutputArtifactCountGTE != nil {
+		predicates = append(predicates, buildgraphmetrics.OutputArtifactCountGTE(*i.OutputArtifactCountGTE))
+	}
+	if i.OutputArtifactCountLT != nil {
+		predicates = append(predicates, buildgraphmetrics.OutputArtifactCountLT(*i.OutputArtifactCountLT))
+	}
+	if i.OutputArtifactCountLTE != nil {
+		predicates = append(predicates, buildgraphmetrics.OutputArtifactCountLTE(*i.OutputArtifactCountLTE))
+	}
+	if i.OutputArtifactCountIsNil {
+		predicates = append(predicates, buildgraphmetrics.OutputArtifactCountIsNil())
+	}
+	if i.OutputArtifactCountNotNil {
+		predicates = append(predicates, buildgraphmetrics.OutputArtifactCountNotNil())
+	}
+	if i.PostInvocationSkyframeNodeCount != nil {
+		predicates = append(predicates, buildgraphmetrics.PostInvocationSkyframeNodeCountEQ(*i.PostInvocationSkyframeNodeCount))
+	}
+	if i.PostInvocationSkyframeNodeCountNEQ != nil {
+		predicates = append(predicates, buildgraphmetrics.PostInvocationSkyframeNodeCountNEQ(*i.PostInvocationSkyframeNodeCountNEQ))
+	}
+	if len(i.PostInvocationSkyframeNodeCountIn) > 0 {
+		predicates = append(predicates, buildgraphmetrics.PostInvocationSkyframeNodeCountIn(i.PostInvocationSkyframeNodeCountIn...))
+	}
+	if len(i.PostInvocationSkyframeNodeCountNotIn) > 0 {
+		predicates = append(predicates, buildgraphmetrics.PostInvocationSkyframeNodeCountNotIn(i.PostInvocationSkyframeNodeCountNotIn...))
+	}
+	if i.PostInvocationSkyframeNodeCountGT != nil {
+		predicates = append(predicates, buildgraphmetrics.PostInvocationSkyframeNodeCountGT(*i.PostInvocationSkyframeNodeCountGT))
+	}
+	if i.PostInvocationSkyframeNodeCountGTE != nil {
+		predicates = append(predicates, buildgraphmetrics.PostInvocationSkyframeNodeCountGTE(*i.PostInvocationSkyframeNodeCountGTE))
+	}
+	if i.PostInvocationSkyframeNodeCountLT != nil {
+		predicates = append(predicates, buildgraphmetrics.PostInvocationSkyframeNodeCountLT(*i.PostInvocationSkyframeNodeCountLT))
+	}
+	if i.PostInvocationSkyframeNodeCountLTE != nil {
+		predicates = append(predicates, buildgraphmetrics.PostInvocationSkyframeNodeCountLTE(*i.PostInvocationSkyframeNodeCountLTE))
+	}
+	if i.PostInvocationSkyframeNodeCountIsNil {
+		predicates = append(predicates, buildgraphmetrics.PostInvocationSkyframeNodeCountIsNil())
+	}
+	if i.PostInvocationSkyframeNodeCountNotNil {
+		predicates = append(predicates, buildgraphmetrics.PostInvocationSkyframeNodeCountNotNil())
+	}
+
+	if i.HasMetrics != nil {
+		p := buildgraphmetrics.HasMetrics()
+		if !*i.HasMetrics {
+			p = buildgraphmetrics.Not(p)
+		}
+		predicates = append(predicates, p)
+	}
+	if len(i.HasMetricsWith) > 0 {
+		with := make([]predicate.Metrics, 0, len(i.HasMetricsWith))
+		for _, w := range i.HasMetricsWith {
+			p, err := w.P()
+			if err != nil {
+				return nil, fmt.Errorf("%w: field 'HasMetricsWith'", err)
+			}
+			with = append(with, p)
+		}
+		predicates = append(predicates, buildgraphmetrics.HasMetricsWith(with...))
+	}
+	if i.HasDirtiedValues != nil {
+		p := buildgraphmetrics.HasDirtiedValues()
+		if !*i.HasDirtiedValues {
+			p = buildgraphmetrics.Not(p)
+		}
+		predicates = append(predicates, p)
+	}
+	if len(i.HasDirtiedValuesWith) > 0 {
+		with := make([]predicate.EvaluationStat, 0, len(i.HasDirtiedValuesWith))
+		for _, w := range i.HasDirtiedValuesWith {
+			p, err := w.P()
+			if err != nil {
+				return nil, fmt.Errorf("%w: field 'HasDirtiedValuesWith'", err)
+			}
+			with = append(with, p)
+		}
+		predicates = append(predicates, buildgraphmetrics.HasDirtiedValuesWith(with...))
+	}
+	if i.HasChangedValues != nil {
+		p := buildgraphmetrics.HasChangedValues()
+		if !*i.HasChangedValues {
+			p = buildgraphmetrics.Not(p)
+		}
+		predicates = append(predicates, p)
+	}
+	if len(i.HasChangedValuesWith) > 0 {
+		with := make([]predicate.EvaluationStat, 0, len(i.HasChangedValuesWith))
+		for _, w := range i.HasChangedValuesWith {
+			p, err := w.P()
+			if err != nil {
+				return nil, fmt.Errorf("%w: field 'HasChangedValuesWith'", err)
+			}
+			with = append(with, p)
+		}
+		predicates = append(predicates, buildgraphmetrics.HasChangedValuesWith(with...))
+	}
+	if i.HasBuiltValues != nil {
+		p := buildgraphmetrics.HasBuiltValues()
+		if !*i.HasBuiltValues {
+			p = buildgraphmetrics.Not(p)
+		}
+		predicates = append(predicates, p)
+	}
+	if len(i.HasBuiltValuesWith) > 0 {
+		with := make([]predicate.EvaluationStat, 0, len(i.HasBuiltValuesWith))
+		for _, w := range i.HasBuiltValuesWith {
+			p, err := w.P()
+			if err != nil {
+				return nil, fmt.Errorf("%w: field 'HasBuiltValuesWith'", err)
+			}
+			with = append(with, p)
+		}
+		predicates = append(predicates, buildgraphmetrics.HasBuiltValuesWith(with...))
+	}
+	if i.HasCleanedValues != nil {
+		p := buildgraphmetrics.HasCleanedValues()
+		if !*i.HasCleanedValues {
+			p = buildgraphmetrics.Not(p)
+		}
+		predicates = append(predicates, p)
+	}
+	if len(i.HasCleanedValuesWith) > 0 {
+		with := make([]predicate.EvaluationStat, 0, len(i.HasCleanedValuesWith))
+		for _, w := range i.HasCleanedValuesWith {
+			p, err := w.P()
+			if err != nil {
+				return nil, fmt.Errorf("%w: field 'HasCleanedValuesWith'", err)
+			}
+			with = append(with, p)
+		}
+		predicates = append(predicates, buildgraphmetrics.HasCleanedValuesWith(with...))
+	}
+	if i.HasEvaluatedValues != nil {
+		p := buildgraphmetrics.HasEvaluatedValues()
+		if !*i.HasEvaluatedValues {
+			p = buildgraphmetrics.Not(p)
+		}
+		predicates = append(predicates, p)
+	}
+	if len(i.HasEvaluatedValuesWith) > 0 {
+		with := make([]predicate.EvaluationStat, 0, len(i.HasEvaluatedValuesWith))
+		for _, w := range i.HasEvaluatedValuesWith {
+			p, err := w.P()
+			if err != nil {
+				return nil, fmt.Errorf("%w: field 'HasEvaluatedValuesWith'", err)
+			}
+			with = append(with, p)
+		}
+		predicates = append(predicates, buildgraphmetrics.HasEvaluatedValuesWith(with...))
+	}
+	switch len(predicates) {
+	case 0:
+		return nil, ErrEmptyBuildGraphMetricsWhereInput
+	case 1:
+		return predicates[0], nil
+	default:
+		return buildgraphmetrics.And(predicates...), nil
+	}
+}
+
 // CumulativeMetricsWhereInput represents a where input for filtering CumulativeMetrics queries.
 type CumulativeMetricsWhereInput struct {
 	Predicates []predicate.CumulativeMetrics  `json:"-"`
@@ -3396,6 +3990,256 @@ func (i *DynamicExecutionMetricsWhereInput) P() (predicate.DynamicExecutionMetri
 		return predicates[0], nil
 	default:
 		return dynamicexecutionmetrics.And(predicates...), nil
+	}
+}
+
+// EvaluationStatWhereInput represents a where input for filtering EvaluationStat queries.
+type EvaluationStatWhereInput struct {
+	Predicates []predicate.EvaluationStat  `json:"-"`
+	Not        *EvaluationStatWhereInput   `json:"not,omitempty"`
+	Or         []*EvaluationStatWhereInput `json:"or,omitempty"`
+	And        []*EvaluationStatWhereInput `json:"and,omitempty"`
+
+	// "id" field predicates.
+	ID      *int  `json:"id,omitempty"`
+	IDNEQ   *int  `json:"idNEQ,omitempty"`
+	IDIn    []int `json:"idIn,omitempty"`
+	IDNotIn []int `json:"idNotIn,omitempty"`
+	IDGT    *int  `json:"idGT,omitempty"`
+	IDGTE   *int  `json:"idGTE,omitempty"`
+	IDLT    *int  `json:"idLT,omitempty"`
+	IDLTE   *int  `json:"idLTE,omitempty"`
+
+	// "skyfunction_name" field predicates.
+	SkyfunctionName             *string  `json:"skyfunctionName,omitempty"`
+	SkyfunctionNameNEQ          *string  `json:"skyfunctionNameNEQ,omitempty"`
+	SkyfunctionNameIn           []string `json:"skyfunctionNameIn,omitempty"`
+	SkyfunctionNameNotIn        []string `json:"skyfunctionNameNotIn,omitempty"`
+	SkyfunctionNameGT           *string  `json:"skyfunctionNameGT,omitempty"`
+	SkyfunctionNameGTE          *string  `json:"skyfunctionNameGTE,omitempty"`
+	SkyfunctionNameLT           *string  `json:"skyfunctionNameLT,omitempty"`
+	SkyfunctionNameLTE          *string  `json:"skyfunctionNameLTE,omitempty"`
+	SkyfunctionNameContains     *string  `json:"skyfunctionNameContains,omitempty"`
+	SkyfunctionNameHasPrefix    *string  `json:"skyfunctionNameHasPrefix,omitempty"`
+	SkyfunctionNameHasSuffix    *string  `json:"skyfunctionNameHasSuffix,omitempty"`
+	SkyfunctionNameIsNil        bool     `json:"skyfunctionNameIsNil,omitempty"`
+	SkyfunctionNameNotNil       bool     `json:"skyfunctionNameNotNil,omitempty"`
+	SkyfunctionNameEqualFold    *string  `json:"skyfunctionNameEqualFold,omitempty"`
+	SkyfunctionNameContainsFold *string  `json:"skyfunctionNameContainsFold,omitempty"`
+
+	// "count" field predicates.
+	Count       *int64  `json:"count,omitempty"`
+	CountNEQ    *int64  `json:"countNEQ,omitempty"`
+	CountIn     []int64 `json:"countIn,omitempty"`
+	CountNotIn  []int64 `json:"countNotIn,omitempty"`
+	CountGT     *int64  `json:"countGT,omitempty"`
+	CountGTE    *int64  `json:"countGTE,omitempty"`
+	CountLT     *int64  `json:"countLT,omitempty"`
+	CountLTE    *int64  `json:"countLTE,omitempty"`
+	CountIsNil  bool    `json:"countIsNil,omitempty"`
+	CountNotNil bool    `json:"countNotNil,omitempty"`
+
+	// "build_graph_metrics" edge predicates.
+	HasBuildGraphMetrics     *bool                          `json:"hasBuildGraphMetrics,omitempty"`
+	HasBuildGraphMetricsWith []*BuildGraphMetricsWhereInput `json:"hasBuildGraphMetricsWith,omitempty"`
+}
+
+// AddPredicates adds custom predicates to the where input to be used during the filtering phase.
+func (i *EvaluationStatWhereInput) AddPredicates(predicates ...predicate.EvaluationStat) {
+	i.Predicates = append(i.Predicates, predicates...)
+}
+
+// Filter applies the EvaluationStatWhereInput filter on the EvaluationStatQuery builder.
+func (i *EvaluationStatWhereInput) Filter(q *EvaluationStatQuery) (*EvaluationStatQuery, error) {
+	if i == nil {
+		return q, nil
+	}
+	p, err := i.P()
+	if err != nil {
+		if err == ErrEmptyEvaluationStatWhereInput {
+			return q, nil
+		}
+		return nil, err
+	}
+	return q.Where(p), nil
+}
+
+// ErrEmptyEvaluationStatWhereInput is returned in case the EvaluationStatWhereInput is empty.
+var ErrEmptyEvaluationStatWhereInput = errors.New("ent: empty predicate EvaluationStatWhereInput")
+
+// P returns a predicate for filtering evaluationstats.
+// An error is returned if the input is empty or invalid.
+func (i *EvaluationStatWhereInput) P() (predicate.EvaluationStat, error) {
+	var predicates []predicate.EvaluationStat
+	if i.Not != nil {
+		p, err := i.Not.P()
+		if err != nil {
+			return nil, fmt.Errorf("%w: field 'not'", err)
+		}
+		predicates = append(predicates, evaluationstat.Not(p))
+	}
+	switch n := len(i.Or); {
+	case n == 1:
+		p, err := i.Or[0].P()
+		if err != nil {
+			return nil, fmt.Errorf("%w: field 'or'", err)
+		}
+		predicates = append(predicates, p)
+	case n > 1:
+		or := make([]predicate.EvaluationStat, 0, n)
+		for _, w := range i.Or {
+			p, err := w.P()
+			if err != nil {
+				return nil, fmt.Errorf("%w: field 'or'", err)
+			}
+			or = append(or, p)
+		}
+		predicates = append(predicates, evaluationstat.Or(or...))
+	}
+	switch n := len(i.And); {
+	case n == 1:
+		p, err := i.And[0].P()
+		if err != nil {
+			return nil, fmt.Errorf("%w: field 'and'", err)
+		}
+		predicates = append(predicates, p)
+	case n > 1:
+		and := make([]predicate.EvaluationStat, 0, n)
+		for _, w := range i.And {
+			p, err := w.P()
+			if err != nil {
+				return nil, fmt.Errorf("%w: field 'and'", err)
+			}
+			and = append(and, p)
+		}
+		predicates = append(predicates, evaluationstat.And(and...))
+	}
+	predicates = append(predicates, i.Predicates...)
+	if i.ID != nil {
+		predicates = append(predicates, evaluationstat.IDEQ(*i.ID))
+	}
+	if i.IDNEQ != nil {
+		predicates = append(predicates, evaluationstat.IDNEQ(*i.IDNEQ))
+	}
+	if len(i.IDIn) > 0 {
+		predicates = append(predicates, evaluationstat.IDIn(i.IDIn...))
+	}
+	if len(i.IDNotIn) > 0 {
+		predicates = append(predicates, evaluationstat.IDNotIn(i.IDNotIn...))
+	}
+	if i.IDGT != nil {
+		predicates = append(predicates, evaluationstat.IDGT(*i.IDGT))
+	}
+	if i.IDGTE != nil {
+		predicates = append(predicates, evaluationstat.IDGTE(*i.IDGTE))
+	}
+	if i.IDLT != nil {
+		predicates = append(predicates, evaluationstat.IDLT(*i.IDLT))
+	}
+	if i.IDLTE != nil {
+		predicates = append(predicates, evaluationstat.IDLTE(*i.IDLTE))
+	}
+	if i.SkyfunctionName != nil {
+		predicates = append(predicates, evaluationstat.SkyfunctionNameEQ(*i.SkyfunctionName))
+	}
+	if i.SkyfunctionNameNEQ != nil {
+		predicates = append(predicates, evaluationstat.SkyfunctionNameNEQ(*i.SkyfunctionNameNEQ))
+	}
+	if len(i.SkyfunctionNameIn) > 0 {
+		predicates = append(predicates, evaluationstat.SkyfunctionNameIn(i.SkyfunctionNameIn...))
+	}
+	if len(i.SkyfunctionNameNotIn) > 0 {
+		predicates = append(predicates, evaluationstat.SkyfunctionNameNotIn(i.SkyfunctionNameNotIn...))
+	}
+	if i.SkyfunctionNameGT != nil {
+		predicates = append(predicates, evaluationstat.SkyfunctionNameGT(*i.SkyfunctionNameGT))
+	}
+	if i.SkyfunctionNameGTE != nil {
+		predicates = append(predicates, evaluationstat.SkyfunctionNameGTE(*i.SkyfunctionNameGTE))
+	}
+	if i.SkyfunctionNameLT != nil {
+		predicates = append(predicates, evaluationstat.SkyfunctionNameLT(*i.SkyfunctionNameLT))
+	}
+	if i.SkyfunctionNameLTE != nil {
+		predicates = append(predicates, evaluationstat.SkyfunctionNameLTE(*i.SkyfunctionNameLTE))
+	}
+	if i.SkyfunctionNameContains != nil {
+		predicates = append(predicates, evaluationstat.SkyfunctionNameContains(*i.SkyfunctionNameContains))
+	}
+	if i.SkyfunctionNameHasPrefix != nil {
+		predicates = append(predicates, evaluationstat.SkyfunctionNameHasPrefix(*i.SkyfunctionNameHasPrefix))
+	}
+	if i.SkyfunctionNameHasSuffix != nil {
+		predicates = append(predicates, evaluationstat.SkyfunctionNameHasSuffix(*i.SkyfunctionNameHasSuffix))
+	}
+	if i.SkyfunctionNameIsNil {
+		predicates = append(predicates, evaluationstat.SkyfunctionNameIsNil())
+	}
+	if i.SkyfunctionNameNotNil {
+		predicates = append(predicates, evaluationstat.SkyfunctionNameNotNil())
+	}
+	if i.SkyfunctionNameEqualFold != nil {
+		predicates = append(predicates, evaluationstat.SkyfunctionNameEqualFold(*i.SkyfunctionNameEqualFold))
+	}
+	if i.SkyfunctionNameContainsFold != nil {
+		predicates = append(predicates, evaluationstat.SkyfunctionNameContainsFold(*i.SkyfunctionNameContainsFold))
+	}
+	if i.Count != nil {
+		predicates = append(predicates, evaluationstat.CountEQ(*i.Count))
+	}
+	if i.CountNEQ != nil {
+		predicates = append(predicates, evaluationstat.CountNEQ(*i.CountNEQ))
+	}
+	if len(i.CountIn) > 0 {
+		predicates = append(predicates, evaluationstat.CountIn(i.CountIn...))
+	}
+	if len(i.CountNotIn) > 0 {
+		predicates = append(predicates, evaluationstat.CountNotIn(i.CountNotIn...))
+	}
+	if i.CountGT != nil {
+		predicates = append(predicates, evaluationstat.CountGT(*i.CountGT))
+	}
+	if i.CountGTE != nil {
+		predicates = append(predicates, evaluationstat.CountGTE(*i.CountGTE))
+	}
+	if i.CountLT != nil {
+		predicates = append(predicates, evaluationstat.CountLT(*i.CountLT))
+	}
+	if i.CountLTE != nil {
+		predicates = append(predicates, evaluationstat.CountLTE(*i.CountLTE))
+	}
+	if i.CountIsNil {
+		predicates = append(predicates, evaluationstat.CountIsNil())
+	}
+	if i.CountNotNil {
+		predicates = append(predicates, evaluationstat.CountNotNil())
+	}
+
+	if i.HasBuildGraphMetrics != nil {
+		p := evaluationstat.HasBuildGraphMetrics()
+		if !*i.HasBuildGraphMetrics {
+			p = evaluationstat.Not(p)
+		}
+		predicates = append(predicates, p)
+	}
+	if len(i.HasBuildGraphMetricsWith) > 0 {
+		with := make([]predicate.BuildGraphMetrics, 0, len(i.HasBuildGraphMetricsWith))
+		for _, w := range i.HasBuildGraphMetricsWith {
+			p, err := w.P()
+			if err != nil {
+				return nil, fmt.Errorf("%w: field 'HasBuildGraphMetricsWith'", err)
+			}
+			with = append(with, p)
+		}
+		predicates = append(predicates, evaluationstat.HasBuildGraphMetricsWith(with...))
+	}
+	switch len(predicates) {
+	case 0:
+		return nil, ErrEmptyEvaluationStatWhereInput
+	case 1:
+		return predicates[0], nil
+	default:
+		return evaluationstat.And(predicates...), nil
 	}
 }
 
@@ -4687,6 +5531,10 @@ type MetricsWhereInput struct {
 	// "dynamic_execution_metrics" edge predicates.
 	HasDynamicExecutionMetrics     *bool                                `json:"hasDynamicExecutionMetrics,omitempty"`
 	HasDynamicExecutionMetricsWith []*DynamicExecutionMetricsWhereInput `json:"hasDynamicExecutionMetricsWith,omitempty"`
+
+	// "build_graph_metrics" edge predicates.
+	HasBuildGraphMetrics     *bool                          `json:"hasBuildGraphMetrics,omitempty"`
+	HasBuildGraphMetricsWith []*BuildGraphMetricsWhereInput `json:"hasBuildGraphMetricsWith,omitempty"`
 }
 
 // AddPredicates adds custom predicates to the where input to be used during the filtering phase.
@@ -4964,6 +5812,24 @@ func (i *MetricsWhereInput) P() (predicate.Metrics, error) {
 			with = append(with, p)
 		}
 		predicates = append(predicates, metrics.HasDynamicExecutionMetricsWith(with...))
+	}
+	if i.HasBuildGraphMetrics != nil {
+		p := metrics.HasBuildGraphMetrics()
+		if !*i.HasBuildGraphMetrics {
+			p = metrics.Not(p)
+		}
+		predicates = append(predicates, p)
+	}
+	if len(i.HasBuildGraphMetricsWith) > 0 {
+		with := make([]predicate.BuildGraphMetrics, 0, len(i.HasBuildGraphMetricsWith))
+		for _, w := range i.HasBuildGraphMetricsWith {
+			p, err := w.P()
+			if err != nil {
+				return nil, fmt.Errorf("%w: field 'HasBuildGraphMetricsWith'", err)
+			}
+			with = append(with, p)
+		}
+		predicates = append(predicates, metrics.HasBuildGraphMetricsWith(with...))
 	}
 	switch len(predicates) {
 	case 0:
@@ -5392,16 +6258,16 @@ type PackageLoadMetricsWhereInput struct {
 	NameContainsFold *string  `json:"nameContainsFold,omitempty"`
 
 	// "load_duration" field predicates.
-	LoadDuration       *time.Duration  `json:"loadDuration,omitempty"`
-	LoadDurationNEQ    *time.Duration  `json:"loadDurationNEQ,omitempty"`
-	LoadDurationIn     []time.Duration `json:"loadDurationIn,omitempty"`
-	LoadDurationNotIn  []time.Duration `json:"loadDurationNotIn,omitempty"`
-	LoadDurationGT     *time.Duration  `json:"loadDurationGT,omitempty"`
-	LoadDurationGTE    *time.Duration  `json:"loadDurationGTE,omitempty"`
-	LoadDurationLT     *time.Duration  `json:"loadDurationLT,omitempty"`
-	LoadDurationLTE    *time.Duration  `json:"loadDurationLTE,omitempty"`
-	LoadDurationIsNil  bool            `json:"loadDurationIsNil,omitempty"`
-	LoadDurationNotNil bool            `json:"loadDurationNotNil,omitempty"`
+	LoadDuration       *int64  `json:"loadDuration,omitempty"`
+	LoadDurationNEQ    *int64  `json:"loadDurationNEQ,omitempty"`
+	LoadDurationIn     []int64 `json:"loadDurationIn,omitempty"`
+	LoadDurationNotIn  []int64 `json:"loadDurationNotIn,omitempty"`
+	LoadDurationGT     *int64  `json:"loadDurationGT,omitempty"`
+	LoadDurationGTE    *int64  `json:"loadDurationGTE,omitempty"`
+	LoadDurationLT     *int64  `json:"loadDurationLT,omitempty"`
+	LoadDurationLTE    *int64  `json:"loadDurationLTE,omitempty"`
+	LoadDurationIsNil  bool    `json:"loadDurationIsNil,omitempty"`
+	LoadDurationNotNil bool    `json:"loadDurationNotNil,omitempty"`
 
 	// "num_targets" field predicates.
 	NumTargets       *int64  `json:"numTargets,omitempty"`
@@ -6054,14 +6920,14 @@ type RaceStatisticsWhereInput struct {
 	RemoteRunnerContainsFold *string  `json:"remoteRunnerContainsFold,omitempty"`
 
 	// "local_wins" field predicates.
-	LocalWins       *int32  `json:"localWins,omitempty"`
-	LocalWinsNEQ    *int32  `json:"localWinsNEQ,omitempty"`
-	LocalWinsIn     []int32 `json:"localWinsIn,omitempty"`
-	LocalWinsNotIn  []int32 `json:"localWinsNotIn,omitempty"`
-	LocalWinsGT     *int32  `json:"localWinsGT,omitempty"`
-	LocalWinsGTE    *int32  `json:"localWinsGTE,omitempty"`
-	LocalWinsLT     *int32  `json:"localWinsLT,omitempty"`
-	LocalWinsLTE    *int32  `json:"localWinsLTE,omitempty"`
+	LocalWins       *int64  `json:"localWins,omitempty"`
+	LocalWinsNEQ    *int64  `json:"localWinsNEQ,omitempty"`
+	LocalWinsIn     []int64 `json:"localWinsIn,omitempty"`
+	LocalWinsNotIn  []int64 `json:"localWinsNotIn,omitempty"`
+	LocalWinsGT     *int64  `json:"localWinsGT,omitempty"`
+	LocalWinsGTE    *int64  `json:"localWinsGTE,omitempty"`
+	LocalWinsLT     *int64  `json:"localWinsLT,omitempty"`
+	LocalWinsLTE    *int64  `json:"localWinsLTE,omitempty"`
 	LocalWinsIsNil  bool    `json:"localWinsIsNil,omitempty"`
 	LocalWinsNotNil bool    `json:"localWinsNotNil,omitempty"`
 

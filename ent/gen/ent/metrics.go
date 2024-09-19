@@ -46,11 +46,13 @@ type MetricsEdges struct {
 	NetworkMetrics []*NetworkMetrics `json:"network_metrics,omitempty"`
 	// DynamicExecutionMetrics holds the value of the dynamic_execution_metrics edge.
 	DynamicExecutionMetrics []*DynamicExecutionMetrics `json:"dynamic_execution_metrics,omitempty"`
+	// BuildGraphMetrics holds the value of the build_graph_metrics edge.
+	BuildGraphMetrics []*BuildGraphMetrics `json:"build_graph_metrics,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [10]bool
+	loadedTypes [11]bool
 	// totalCount holds the count of the edges above.
-	totalCount [10]map[string]int
+	totalCount [11]map[string]int
 
 	namedActionSummary           map[string][]*ActionSummary
 	namedMemoryMetrics           map[string][]*MemoryMetrics
@@ -61,6 +63,7 @@ type MetricsEdges struct {
 	namedArtifactMetrics         map[string][]*ArtifactMetrics
 	namedNetworkMetrics          map[string][]*NetworkMetrics
 	namedDynamicExecutionMetrics map[string][]*DynamicExecutionMetrics
+	namedBuildGraphMetrics       map[string][]*BuildGraphMetrics
 }
 
 // BazelInvocationOrErr returns the BazelInvocation value or an error if the edge
@@ -153,6 +156,15 @@ func (e MetricsEdges) DynamicExecutionMetricsOrErr() ([]*DynamicExecutionMetrics
 		return e.DynamicExecutionMetrics, nil
 	}
 	return nil, &NotLoadedError{edge: "dynamic_execution_metrics"}
+}
+
+// BuildGraphMetricsOrErr returns the BuildGraphMetrics value or an error if the edge
+// was not loaded in eager-loading.
+func (e MetricsEdges) BuildGraphMetricsOrErr() ([]*BuildGraphMetrics, error) {
+	if e.loadedTypes[10] {
+		return e.BuildGraphMetrics, nil
+	}
+	return nil, &NotLoadedError{edge: "build_graph_metrics"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -253,6 +265,11 @@ func (m *Metrics) QueryNetworkMetrics() *NetworkMetricsQuery {
 // QueryDynamicExecutionMetrics queries the "dynamic_execution_metrics" edge of the Metrics entity.
 func (m *Metrics) QueryDynamicExecutionMetrics() *DynamicExecutionMetricsQuery {
 	return NewMetricsClient(m.config).QueryDynamicExecutionMetrics(m)
+}
+
+// QueryBuildGraphMetrics queries the "build_graph_metrics" edge of the Metrics entity.
+func (m *Metrics) QueryBuildGraphMetrics() *BuildGraphMetricsQuery {
+	return NewMetricsClient(m.config).QueryBuildGraphMetrics(m)
 }
 
 // Update returns a builder for updating this Metrics.
@@ -495,6 +512,30 @@ func (m *Metrics) appendNamedDynamicExecutionMetrics(name string, edges ...*Dyna
 		m.Edges.namedDynamicExecutionMetrics[name] = []*DynamicExecutionMetrics{}
 	} else {
 		m.Edges.namedDynamicExecutionMetrics[name] = append(m.Edges.namedDynamicExecutionMetrics[name], edges...)
+	}
+}
+
+// NamedBuildGraphMetrics returns the BuildGraphMetrics named value or an error if the edge was not
+// loaded in eager-loading with this name.
+func (m *Metrics) NamedBuildGraphMetrics(name string) ([]*BuildGraphMetrics, error) {
+	if m.Edges.namedBuildGraphMetrics == nil {
+		return nil, &NotLoadedError{edge: name}
+	}
+	nodes, ok := m.Edges.namedBuildGraphMetrics[name]
+	if !ok {
+		return nil, &NotLoadedError{edge: name}
+	}
+	return nodes, nil
+}
+
+func (m *Metrics) appendNamedBuildGraphMetrics(name string, edges ...*BuildGraphMetrics) {
+	if m.Edges.namedBuildGraphMetrics == nil {
+		m.Edges.namedBuildGraphMetrics = make(map[string][]*BuildGraphMetrics)
+	}
+	if len(edges) == 0 {
+		m.Edges.namedBuildGraphMetrics[name] = []*BuildGraphMetrics{}
+	} else {
+		m.Edges.namedBuildGraphMetrics[name] = append(m.Edges.namedBuildGraphMetrics[name], edges...)
 	}
 }
 

@@ -28,16 +28,6 @@ func (r *actionDataResolver) ID(ctx context.Context, obj *ent.ActionData) (strin
 	return helpers.GraphQLIDFromTypeAndID("ActionData", obj.ID), nil
 }
 
-// SystemTime is the resolver for the systemTime field.
-func (r *actionDataResolver) SystemTime(ctx context.Context, obj *ent.ActionData) (*int, error) {
-	panic(fmt.Errorf("not implemented: SystemTime - systemTime"))
-}
-
-// UserTime is the resolver for the userTime field.
-func (r *actionDataResolver) UserTime(ctx context.Context, obj *ent.ActionData) (*int, error) {
-	panic(fmt.Errorf("not implemented: UserTime - userTime"))
-}
-
 // ID is the resolver for the id field.
 func (r *actionSummaryResolver) ID(ctx context.Context, obj *ent.ActionSummary) (string, error) {
 	return helpers.GraphQLIDFromTypeAndID("ActionSummary", obj.ID), nil
@@ -69,6 +59,11 @@ func (r *buildResolver) ID(ctx context.Context, obj *ent.Build) (string, error) 
 }
 
 // ID is the resolver for the id field.
+func (r *buildGraphMetricsResolver) ID(ctx context.Context, obj *ent.BuildGraphMetrics) (string, error) {
+	return helpers.GraphQLIDFromTypeAndID("BuildGraphMetrics", obj.ID), nil
+}
+
+// ID is the resolver for the id field.
 func (r *cumulativeMetricsResolver) ID(ctx context.Context, obj *ent.CumulativeMetrics) (string, error) {
 	return helpers.GraphQLIDFromTypeAndID("CumulativeMetrics", obj.ID), nil
 }
@@ -76,6 +71,11 @@ func (r *cumulativeMetricsResolver) ID(ctx context.Context, obj *ent.CumulativeM
 // ID is the resolver for the id field.
 func (r *dynamicExecutionMetricsResolver) ID(ctx context.Context, obj *ent.DynamicExecutionMetrics) (string, error) {
 	return helpers.GraphQLIDFromTypeAndID("DynamicExecutionMetrics", obj.ID), nil
+}
+
+// ID is the resolver for the id field.
+func (r *evaluationStatResolver) ID(ctx context.Context, obj *ent.EvaluationStat) (string, error) {
+	return helpers.GraphQLIDFromTypeAndID("EvaluationStatResolver", obj.ID), nil
 }
 
 // ID is the resolver for the id field.
@@ -116,11 +116,6 @@ func (r *networkMetricsResolver) ID(ctx context.Context, obj *ent.NetworkMetrics
 // ID is the resolver for the id field.
 func (r *packageLoadMetricsResolver) ID(ctx context.Context, obj *ent.PackageLoadMetrics) (string, error) {
 	return helpers.GraphQLIDFromTypeAndID("PackageLoadMetrics", obj.ID), nil
-}
-
-// LoadDuration is the resolver for the loadDuration field.
-func (r *packageLoadMetricsResolver) LoadDuration(ctx context.Context, obj *ent.PackageLoadMetrics) (*int, error) {
-	panic(fmt.Errorf("not implemented: LoadDuration - loadDuration"))
 }
 
 // ID is the resolver for the id field.
@@ -298,86 +293,6 @@ func (r *actionDataWhereInputResolver) IDLt(ctx context.Context, obj *ent.Action
 // IDLte is the resolver for the idLTE field.
 func (r *actionDataWhereInputResolver) IDLte(ctx context.Context, obj *ent.ActionDataWhereInput, data *string) error {
 	panic(fmt.Errorf("not implemented: IDLte - idLTE"))
-}
-
-// SystemTime is the resolver for the systemTime field.
-func (r *actionDataWhereInputResolver) SystemTime(ctx context.Context, obj *ent.ActionDataWhereInput, data *int) error {
-	panic(fmt.Errorf("not implemented: SystemTime - systemTime"))
-}
-
-// SystemTimeNeq is the resolver for the systemTimeNEQ field.
-func (r *actionDataWhereInputResolver) SystemTimeNeq(ctx context.Context, obj *ent.ActionDataWhereInput, data *int) error {
-	panic(fmt.Errorf("not implemented: SystemTimeNeq - systemTimeNEQ"))
-}
-
-// SystemTimeIn is the resolver for the systemTimeIn field.
-func (r *actionDataWhereInputResolver) SystemTimeIn(ctx context.Context, obj *ent.ActionDataWhereInput, data []int) error {
-	panic(fmt.Errorf("not implemented: SystemTimeIn - systemTimeIn"))
-}
-
-// SystemTimeNotIn is the resolver for the systemTimeNotIn field.
-func (r *actionDataWhereInputResolver) SystemTimeNotIn(ctx context.Context, obj *ent.ActionDataWhereInput, data []int) error {
-	panic(fmt.Errorf("not implemented: SystemTimeNotIn - systemTimeNotIn"))
-}
-
-// SystemTimeGt is the resolver for the systemTimeGT field.
-func (r *actionDataWhereInputResolver) SystemTimeGt(ctx context.Context, obj *ent.ActionDataWhereInput, data *int) error {
-	panic(fmt.Errorf("not implemented: SystemTimeGt - systemTimeGT"))
-}
-
-// SystemTimeGte is the resolver for the systemTimeGTE field.
-func (r *actionDataWhereInputResolver) SystemTimeGte(ctx context.Context, obj *ent.ActionDataWhereInput, data *int) error {
-	panic(fmt.Errorf("not implemented: SystemTimeGte - systemTimeGTE"))
-}
-
-// SystemTimeLt is the resolver for the systemTimeLT field.
-func (r *actionDataWhereInputResolver) SystemTimeLt(ctx context.Context, obj *ent.ActionDataWhereInput, data *int) error {
-	panic(fmt.Errorf("not implemented: SystemTimeLt - systemTimeLT"))
-}
-
-// SystemTimeLte is the resolver for the systemTimeLTE field.
-func (r *actionDataWhereInputResolver) SystemTimeLte(ctx context.Context, obj *ent.ActionDataWhereInput, data *int) error {
-	panic(fmt.Errorf("not implemented: SystemTimeLte - systemTimeLTE"))
-}
-
-// UserTime is the resolver for the userTime field.
-func (r *actionDataWhereInputResolver) UserTime(ctx context.Context, obj *ent.ActionDataWhereInput, data *int) error {
-	panic(fmt.Errorf("not implemented: UserTime - userTime"))
-}
-
-// UserTimeNeq is the resolver for the userTimeNEQ field.
-func (r *actionDataWhereInputResolver) UserTimeNeq(ctx context.Context, obj *ent.ActionDataWhereInput, data *int) error {
-	panic(fmt.Errorf("not implemented: UserTimeNeq - userTimeNEQ"))
-}
-
-// UserTimeIn is the resolver for the userTimeIn field.
-func (r *actionDataWhereInputResolver) UserTimeIn(ctx context.Context, obj *ent.ActionDataWhereInput, data []int) error {
-	panic(fmt.Errorf("not implemented: UserTimeIn - userTimeIn"))
-}
-
-// UserTimeNotIn is the resolver for the userTimeNotIn field.
-func (r *actionDataWhereInputResolver) UserTimeNotIn(ctx context.Context, obj *ent.ActionDataWhereInput, data []int) error {
-	panic(fmt.Errorf("not implemented: UserTimeNotIn - userTimeNotIn"))
-}
-
-// UserTimeGt is the resolver for the userTimeGT field.
-func (r *actionDataWhereInputResolver) UserTimeGt(ctx context.Context, obj *ent.ActionDataWhereInput, data *int) error {
-	panic(fmt.Errorf("not implemented: UserTimeGt - userTimeGT"))
-}
-
-// UserTimeGte is the resolver for the userTimeGTE field.
-func (r *actionDataWhereInputResolver) UserTimeGte(ctx context.Context, obj *ent.ActionDataWhereInput, data *int) error {
-	panic(fmt.Errorf("not implemented: UserTimeGte - userTimeGTE"))
-}
-
-// UserTimeLt is the resolver for the userTimeLT field.
-func (r *actionDataWhereInputResolver) UserTimeLt(ctx context.Context, obj *ent.ActionDataWhereInput, data *int) error {
-	panic(fmt.Errorf("not implemented: UserTimeLt - userTimeLT"))
-}
-
-// UserTimeLte is the resolver for the userTimeLTE field.
-func (r *actionDataWhereInputResolver) UserTimeLte(ctx context.Context, obj *ent.ActionDataWhereInput, data *int) error {
-	panic(fmt.Errorf("not implemented: UserTimeLte - userTimeLTE"))
 }
 
 // ID is the resolver for the id field.
@@ -581,6 +496,46 @@ func (r *blobWhereInputResolver) IDLte(ctx context.Context, obj *ent.BlobWhereIn
 }
 
 // ID is the resolver for the id field.
+func (r *buildGraphMetricsWhereInputResolver) ID(ctx context.Context, obj *ent.BuildGraphMetricsWhereInput, data *string) error {
+	panic(fmt.Errorf("not implemented: ID - id"))
+}
+
+// IDNeq is the resolver for the idNEQ field.
+func (r *buildGraphMetricsWhereInputResolver) IDNeq(ctx context.Context, obj *ent.BuildGraphMetricsWhereInput, data *string) error {
+	panic(fmt.Errorf("not implemented: IDNeq - idNEQ"))
+}
+
+// IDIn is the resolver for the idIn field.
+func (r *buildGraphMetricsWhereInputResolver) IDIn(ctx context.Context, obj *ent.BuildGraphMetricsWhereInput, data []string) error {
+	panic(fmt.Errorf("not implemented: IDIn - idIn"))
+}
+
+// IDNotIn is the resolver for the idNotIn field.
+func (r *buildGraphMetricsWhereInputResolver) IDNotIn(ctx context.Context, obj *ent.BuildGraphMetricsWhereInput, data []string) error {
+	panic(fmt.Errorf("not implemented: IDNotIn - idNotIn"))
+}
+
+// IDGt is the resolver for the idGT field.
+func (r *buildGraphMetricsWhereInputResolver) IDGt(ctx context.Context, obj *ent.BuildGraphMetricsWhereInput, data *string) error {
+	panic(fmt.Errorf("not implemented: IDGt - idGT"))
+}
+
+// IDGte is the resolver for the idGTE field.
+func (r *buildGraphMetricsWhereInputResolver) IDGte(ctx context.Context, obj *ent.BuildGraphMetricsWhereInput, data *string) error {
+	panic(fmt.Errorf("not implemented: IDGte - idGTE"))
+}
+
+// IDLt is the resolver for the idLT field.
+func (r *buildGraphMetricsWhereInputResolver) IDLt(ctx context.Context, obj *ent.BuildGraphMetricsWhereInput, data *string) error {
+	panic(fmt.Errorf("not implemented: IDLt - idLT"))
+}
+
+// IDLte is the resolver for the idLTE field.
+func (r *buildGraphMetricsWhereInputResolver) IDLte(ctx context.Context, obj *ent.BuildGraphMetricsWhereInput, data *string) error {
+	panic(fmt.Errorf("not implemented: IDLte - idLTE"))
+}
+
+// ID is the resolver for the id field.
 func (r *buildWhereInputResolver) ID(ctx context.Context, obj *ent.BuildWhereInput, data *string) error {
 	panic(fmt.Errorf("not implemented: ID - id"))
 }
@@ -697,6 +652,46 @@ func (r *dynamicExecutionMetricsWhereInputResolver) IDLt(ctx context.Context, ob
 
 // IDLte is the resolver for the idLTE field.
 func (r *dynamicExecutionMetricsWhereInputResolver) IDLte(ctx context.Context, obj *ent.DynamicExecutionMetricsWhereInput, data *string) error {
+	panic(fmt.Errorf("not implemented: IDLte - idLTE"))
+}
+
+// ID is the resolver for the id field.
+func (r *evaluationStatWhereInputResolver) ID(ctx context.Context, obj *ent.EvaluationStatWhereInput, data *string) error {
+	panic(fmt.Errorf("not implemented: ID - id"))
+}
+
+// IDNeq is the resolver for the idNEQ field.
+func (r *evaluationStatWhereInputResolver) IDNeq(ctx context.Context, obj *ent.EvaluationStatWhereInput, data *string) error {
+	panic(fmt.Errorf("not implemented: IDNeq - idNEQ"))
+}
+
+// IDIn is the resolver for the idIn field.
+func (r *evaluationStatWhereInputResolver) IDIn(ctx context.Context, obj *ent.EvaluationStatWhereInput, data []string) error {
+	panic(fmt.Errorf("not implemented: IDIn - idIn"))
+}
+
+// IDNotIn is the resolver for the idNotIn field.
+func (r *evaluationStatWhereInputResolver) IDNotIn(ctx context.Context, obj *ent.EvaluationStatWhereInput, data []string) error {
+	panic(fmt.Errorf("not implemented: IDNotIn - idNotIn"))
+}
+
+// IDGt is the resolver for the idGT field.
+func (r *evaluationStatWhereInputResolver) IDGt(ctx context.Context, obj *ent.EvaluationStatWhereInput, data *string) error {
+	panic(fmt.Errorf("not implemented: IDGt - idGT"))
+}
+
+// IDGte is the resolver for the idGTE field.
+func (r *evaluationStatWhereInputResolver) IDGte(ctx context.Context, obj *ent.EvaluationStatWhereInput, data *string) error {
+	panic(fmt.Errorf("not implemented: IDGte - idGTE"))
+}
+
+// IDLt is the resolver for the idLT field.
+func (r *evaluationStatWhereInputResolver) IDLt(ctx context.Context, obj *ent.EvaluationStatWhereInput, data *string) error {
+	panic(fmt.Errorf("not implemented: IDLt - idLT"))
+}
+
+// IDLte is the resolver for the idLTE field.
+func (r *evaluationStatWhereInputResolver) IDLte(ctx context.Context, obj *ent.EvaluationStatWhereInput, data *string) error {
 	panic(fmt.Errorf("not implemented: IDLte - idLTE"))
 }
 
@@ -1020,46 +1015,6 @@ func (r *packageLoadMetricsWhereInputResolver) IDLte(ctx context.Context, obj *e
 	panic(fmt.Errorf("not implemented: IDLte - idLTE"))
 }
 
-// LoadDuration is the resolver for the loadDuration field.
-func (r *packageLoadMetricsWhereInputResolver) LoadDuration(ctx context.Context, obj *ent.PackageLoadMetricsWhereInput, data *int) error {
-	panic(fmt.Errorf("not implemented: LoadDuration - loadDuration"))
-}
-
-// LoadDurationNeq is the resolver for the loadDurationNEQ field.
-func (r *packageLoadMetricsWhereInputResolver) LoadDurationNeq(ctx context.Context, obj *ent.PackageLoadMetricsWhereInput, data *int) error {
-	panic(fmt.Errorf("not implemented: LoadDurationNeq - loadDurationNEQ"))
-}
-
-// LoadDurationIn is the resolver for the loadDurationIn field.
-func (r *packageLoadMetricsWhereInputResolver) LoadDurationIn(ctx context.Context, obj *ent.PackageLoadMetricsWhereInput, data []int) error {
-	panic(fmt.Errorf("not implemented: LoadDurationIn - loadDurationIn"))
-}
-
-// LoadDurationNotIn is the resolver for the loadDurationNotIn field.
-func (r *packageLoadMetricsWhereInputResolver) LoadDurationNotIn(ctx context.Context, obj *ent.PackageLoadMetricsWhereInput, data []int) error {
-	panic(fmt.Errorf("not implemented: LoadDurationNotIn - loadDurationNotIn"))
-}
-
-// LoadDurationGt is the resolver for the loadDurationGT field.
-func (r *packageLoadMetricsWhereInputResolver) LoadDurationGt(ctx context.Context, obj *ent.PackageLoadMetricsWhereInput, data *int) error {
-	panic(fmt.Errorf("not implemented: LoadDurationGt - loadDurationGT"))
-}
-
-// LoadDurationGte is the resolver for the loadDurationGTE field.
-func (r *packageLoadMetricsWhereInputResolver) LoadDurationGte(ctx context.Context, obj *ent.PackageLoadMetricsWhereInput, data *int) error {
-	panic(fmt.Errorf("not implemented: LoadDurationGte - loadDurationGTE"))
-}
-
-// LoadDurationLt is the resolver for the loadDurationLT field.
-func (r *packageLoadMetricsWhereInputResolver) LoadDurationLt(ctx context.Context, obj *ent.PackageLoadMetricsWhereInput, data *int) error {
-	panic(fmt.Errorf("not implemented: LoadDurationLt - loadDurationLT"))
-}
-
-// LoadDurationLte is the resolver for the loadDurationLTE field.
-func (r *packageLoadMetricsWhereInputResolver) LoadDurationLte(ctx context.Context, obj *ent.PackageLoadMetricsWhereInput, data *int) error {
-	panic(fmt.Errorf("not implemented: LoadDurationLte - loadDurationLTE"))
-}
-
 // ID is the resolver for the id field.
 func (r *packageMetricsWhereInputResolver) ID(ctx context.Context, obj *ent.PackageMetricsWhereInput, data *string) error {
 	panic(fmt.Errorf("not implemented: ID - id"))
@@ -1328,6 +1283,11 @@ func (r *Resolver) Blob() BlobResolver { return &blobResolver{r} }
 // Build returns BuildResolver implementation.
 func (r *Resolver) Build() BuildResolver { return &buildResolver{r} }
 
+// BuildGraphMetrics returns BuildGraphMetricsResolver implementation.
+func (r *Resolver) BuildGraphMetrics() BuildGraphMetricsResolver {
+	return &buildGraphMetricsResolver{r}
+}
+
 // CumulativeMetrics returns CumulativeMetricsResolver implementation.
 func (r *Resolver) CumulativeMetrics() CumulativeMetricsResolver {
 	return &cumulativeMetricsResolver{r}
@@ -1337,6 +1297,9 @@ func (r *Resolver) CumulativeMetrics() CumulativeMetricsResolver {
 func (r *Resolver) DynamicExecutionMetrics() DynamicExecutionMetricsResolver {
 	return &dynamicExecutionMetricsResolver{r}
 }
+
+// EvaluationStat returns EvaluationStatResolver implementation.
+func (r *Resolver) EvaluationStat() EvaluationStatResolver { return &evaluationStatResolver{r} }
 
 // EventFile returns EventFileResolver implementation.
 func (r *Resolver) EventFile() EventFileResolver { return &eventFileResolver{r} }
@@ -1420,6 +1383,11 @@ func (r *Resolver) BazelInvocationWhereInput() BazelInvocationWhereInputResolver
 // BlobWhereInput returns BlobWhereInputResolver implementation.
 func (r *Resolver) BlobWhereInput() BlobWhereInputResolver { return &blobWhereInputResolver{r} }
 
+// BuildGraphMetricsWhereInput returns BuildGraphMetricsWhereInputResolver implementation.
+func (r *Resolver) BuildGraphMetricsWhereInput() BuildGraphMetricsWhereInputResolver {
+	return &buildGraphMetricsWhereInputResolver{r}
+}
+
 // BuildWhereInput returns BuildWhereInputResolver implementation.
 func (r *Resolver) BuildWhereInput() BuildWhereInputResolver { return &buildWhereInputResolver{r} }
 
@@ -1431,6 +1399,11 @@ func (r *Resolver) CumulativeMetricsWhereInput() CumulativeMetricsWhereInputReso
 // DynamicExecutionMetricsWhereInput returns DynamicExecutionMetricsWhereInputResolver implementation.
 func (r *Resolver) DynamicExecutionMetricsWhereInput() DynamicExecutionMetricsWhereInputResolver {
 	return &dynamicExecutionMetricsWhereInputResolver{r}
+}
+
+// EvaluationStatWhereInput returns EvaluationStatWhereInputResolver implementation.
+func (r *Resolver) EvaluationStatWhereInput() EvaluationStatWhereInputResolver {
+	return &evaluationStatWhereInputResolver{r}
 }
 
 // EventFileWhereInput returns EventFileWhereInputResolver implementation.
@@ -1511,8 +1484,10 @@ type bazelInvocationResolver struct{ *Resolver }
 type bazelInvocationProblemResolver struct{ *Resolver }
 type blobResolver struct{ *Resolver }
 type buildResolver struct{ *Resolver }
+type buildGraphMetricsResolver struct{ *Resolver }
 type cumulativeMetricsResolver struct{ *Resolver }
 type dynamicExecutionMetricsResolver struct{ *Resolver }
+type evaluationStatResolver struct{ *Resolver }
 type eventFileResolver struct{ *Resolver }
 type filesMetricResolver struct{ *Resolver }
 type garbageMetricsResolver struct{ *Resolver }
@@ -1535,9 +1510,11 @@ type artifactMetricsWhereInputResolver struct{ *Resolver }
 type bazelInvocationProblemWhereInputResolver struct{ *Resolver }
 type bazelInvocationWhereInputResolver struct{ *Resolver }
 type blobWhereInputResolver struct{ *Resolver }
+type buildGraphMetricsWhereInputResolver struct{ *Resolver }
 type buildWhereInputResolver struct{ *Resolver }
 type cumulativeMetricsWhereInputResolver struct{ *Resolver }
 type dynamicExecutionMetricsWhereInputResolver struct{ *Resolver }
+type evaluationStatWhereInputResolver struct{ *Resolver }
 type eventFileWhereInputResolver struct{ *Resolver }
 type filesMetricWhereInputResolver struct{ *Resolver }
 type garbageMetricsWhereInputResolver struct{ *Resolver }
@@ -1552,3 +1529,91 @@ type runnerCountWhereInputResolver struct{ *Resolver }
 type systemNetworkStatsWhereInputResolver struct{ *Resolver }
 type targetMetricsWhereInputResolver struct{ *Resolver }
 type timingMetricsWhereInputResolver struct{ *Resolver }
+
+// !!! WARNING !!!
+// The code below was going to be deleted when updating resolvers. It has been copied here so you have
+// one last chance to move it out of harms way if you want. There are two reasons this happens:
+//   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
+//     it when you're done.
+//   - You have helper methods in this file. Move them out to keep these resolver files clean.
+func (r *packageLoadMetricsResolver) LoadDuration(ctx context.Context, obj *ent.PackageLoadMetrics) (*int, error) {
+	panic(fmt.Errorf("not implemented: LoadDuration - loadDuration"))
+}
+func (r *packageLoadMetricsWhereInputResolver) LoadDuration(ctx context.Context, obj *ent.PackageLoadMetricsWhereInput, data *int) error {
+	panic(fmt.Errorf("not implemented: LoadDuration - loadDuration"))
+}
+func (r *packageLoadMetricsWhereInputResolver) LoadDurationNeq(ctx context.Context, obj *ent.PackageLoadMetricsWhereInput, data *int) error {
+	panic(fmt.Errorf("not implemented: LoadDurationNeq - loadDurationNEQ"))
+}
+func (r *packageLoadMetricsWhereInputResolver) LoadDurationIn(ctx context.Context, obj *ent.PackageLoadMetricsWhereInput, data []int) error {
+	panic(fmt.Errorf("not implemented: LoadDurationIn - loadDurationIn"))
+}
+func (r *packageLoadMetricsWhereInputResolver) LoadDurationNotIn(ctx context.Context, obj *ent.PackageLoadMetricsWhereInput, data []int) error {
+	panic(fmt.Errorf("not implemented: LoadDurationNotIn - loadDurationNotIn"))
+}
+func (r *packageLoadMetricsWhereInputResolver) LoadDurationGt(ctx context.Context, obj *ent.PackageLoadMetricsWhereInput, data *int) error {
+	panic(fmt.Errorf("not implemented: LoadDurationGt - loadDurationGT"))
+}
+func (r *packageLoadMetricsWhereInputResolver) LoadDurationGte(ctx context.Context, obj *ent.PackageLoadMetricsWhereInput, data *int) error {
+	panic(fmt.Errorf("not implemented: LoadDurationGte - loadDurationGTE"))
+}
+func (r *packageLoadMetricsWhereInputResolver) LoadDurationLt(ctx context.Context, obj *ent.PackageLoadMetricsWhereInput, data *int) error {
+	panic(fmt.Errorf("not implemented: LoadDurationLt - loadDurationLT"))
+}
+func (r *packageLoadMetricsWhereInputResolver) LoadDurationLte(ctx context.Context, obj *ent.PackageLoadMetricsWhereInput, data *int) error {
+	panic(fmt.Errorf("not implemented: LoadDurationLte - loadDurationLTE"))
+}
+func (r *actionDataResolver) SystemTime(ctx context.Context, obj *ent.ActionData) (*int, error) {
+	panic(fmt.Errorf("not implemented: SystemTime - systemTime"))
+}
+func (r *actionDataResolver) UserTime(ctx context.Context, obj *ent.ActionData) (*int, error) {
+	panic(fmt.Errorf("not implemented: UserTime - userTime"))
+}
+func (r *actionDataWhereInputResolver) SystemTime(ctx context.Context, obj *ent.ActionDataWhereInput, data *int) error {
+	panic(fmt.Errorf("not implemented: SystemTime - systemTime"))
+}
+func (r *actionDataWhereInputResolver) SystemTimeNeq(ctx context.Context, obj *ent.ActionDataWhereInput, data *int) error {
+	panic(fmt.Errorf("not implemented: SystemTimeNeq - systemTimeNEQ"))
+}
+func (r *actionDataWhereInputResolver) SystemTimeIn(ctx context.Context, obj *ent.ActionDataWhereInput, data []int) error {
+	panic(fmt.Errorf("not implemented: SystemTimeIn - systemTimeIn"))
+}
+func (r *actionDataWhereInputResolver) SystemTimeNotIn(ctx context.Context, obj *ent.ActionDataWhereInput, data []int) error {
+	panic(fmt.Errorf("not implemented: SystemTimeNotIn - systemTimeNotIn"))
+}
+func (r *actionDataWhereInputResolver) SystemTimeGt(ctx context.Context, obj *ent.ActionDataWhereInput, data *int) error {
+	panic(fmt.Errorf("not implemented: SystemTimeGt - systemTimeGT"))
+}
+func (r *actionDataWhereInputResolver) SystemTimeGte(ctx context.Context, obj *ent.ActionDataWhereInput, data *int) error {
+	panic(fmt.Errorf("not implemented: SystemTimeGte - systemTimeGTE"))
+}
+func (r *actionDataWhereInputResolver) SystemTimeLt(ctx context.Context, obj *ent.ActionDataWhereInput, data *int) error {
+	panic(fmt.Errorf("not implemented: SystemTimeLt - systemTimeLT"))
+}
+func (r *actionDataWhereInputResolver) SystemTimeLte(ctx context.Context, obj *ent.ActionDataWhereInput, data *int) error {
+	panic(fmt.Errorf("not implemented: SystemTimeLte - systemTimeLTE"))
+}
+func (r *actionDataWhereInputResolver) UserTime(ctx context.Context, obj *ent.ActionDataWhereInput, data *int) error {
+	panic(fmt.Errorf("not implemented: UserTime - userTime"))
+}
+func (r *actionDataWhereInputResolver) UserTimeNeq(ctx context.Context, obj *ent.ActionDataWhereInput, data *int) error {
+	panic(fmt.Errorf("not implemented: UserTimeNeq - userTimeNEQ"))
+}
+func (r *actionDataWhereInputResolver) UserTimeIn(ctx context.Context, obj *ent.ActionDataWhereInput, data []int) error {
+	panic(fmt.Errorf("not implemented: UserTimeIn - userTimeIn"))
+}
+func (r *actionDataWhereInputResolver) UserTimeNotIn(ctx context.Context, obj *ent.ActionDataWhereInput, data []int) error {
+	panic(fmt.Errorf("not implemented: UserTimeNotIn - userTimeNotIn"))
+}
+func (r *actionDataWhereInputResolver) UserTimeGt(ctx context.Context, obj *ent.ActionDataWhereInput, data *int) error {
+	panic(fmt.Errorf("not implemented: UserTimeGt - userTimeGT"))
+}
+func (r *actionDataWhereInputResolver) UserTimeGte(ctx context.Context, obj *ent.ActionDataWhereInput, data *int) error {
+	panic(fmt.Errorf("not implemented: UserTimeGte - userTimeGTE"))
+}
+func (r *actionDataWhereInputResolver) UserTimeLt(ctx context.Context, obj *ent.ActionDataWhereInput, data *int) error {
+	panic(fmt.Errorf("not implemented: UserTimeLt - userTimeLT"))
+}
+func (r *actionDataWhereInputResolver) UserTimeLte(ctx context.Context, obj *ent.ActionDataWhereInput, data *int) error {
+	panic(fmt.Errorf("not implemented: UserTimeLte - userTimeLTE"))
+}

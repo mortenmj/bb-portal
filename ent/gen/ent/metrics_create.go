@@ -11,6 +11,7 @@ import (
 	"github.com/buildbarn/bb-portal/ent/gen/ent/actionsummary"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/artifactmetrics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/bazelinvocation"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/buildgraphmetrics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/cumulativemetrics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/dynamicexecutionmetrics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/memorymetrics"
@@ -180,6 +181,21 @@ func (mc *MetricsCreate) AddDynamicExecutionMetrics(d ...*DynamicExecutionMetric
 		ids[i] = d[i].ID
 	}
 	return mc.AddDynamicExecutionMetricIDs(ids...)
+}
+
+// AddBuildGraphMetricIDs adds the "build_graph_metrics" edge to the BuildGraphMetrics entity by IDs.
+func (mc *MetricsCreate) AddBuildGraphMetricIDs(ids ...int) *MetricsCreate {
+	mc.mutation.AddBuildGraphMetricIDs(ids...)
+	return mc
+}
+
+// AddBuildGraphMetrics adds the "build_graph_metrics" edges to the BuildGraphMetrics entity.
+func (mc *MetricsCreate) AddBuildGraphMetrics(b ...*BuildGraphMetrics) *MetricsCreate {
+	ids := make([]int, len(b))
+	for i := range b {
+		ids[i] = b[i].ID
+	}
+	return mc.AddBuildGraphMetricIDs(ids...)
 }
 
 // Mutation returns the MetricsMutation object of the builder.
@@ -396,6 +412,22 @@ func (mc *MetricsCreate) createSpec() (*Metrics, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(dynamicexecutionmetrics.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := mc.mutation.BuildGraphMetricsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   metrics.BuildGraphMetricsTable,
+			Columns: metrics.BuildGraphMetricsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(buildgraphmetrics.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

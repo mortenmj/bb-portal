@@ -23,7 +23,7 @@ type RaceStatistics struct {
 	// RemoteRunner holds the value of the "remote_runner" field.
 	RemoteRunner string `json:"remote_runner,omitempty"`
 	// LocalWins holds the value of the "local_wins" field.
-	LocalWins int32 `json:"local_wins,omitempty"`
+	LocalWins int64 `json:"local_wins,omitempty"`
 	// RenoteWins holds the value of the "renote_wins" field.
 	RenoteWins int64 `json:"renote_wins,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -106,7 +106,7 @@ func (rs *RaceStatistics) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field local_wins", values[i])
 			} else if value.Valid {
-				rs.LocalWins = int32(value.Int64)
+				rs.LocalWins = value.Int64
 			}
 		case racestatistics.FieldRenoteWins:
 			if value, ok := values[i].(*sql.NullInt64); !ok {

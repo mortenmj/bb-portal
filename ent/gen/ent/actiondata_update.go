@@ -6,7 +6,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -158,23 +157,23 @@ func (adu *ActionDataUpdate) ClearLastEndedMs() *ActionDataUpdate {
 }
 
 // SetSystemTime sets the "system_time" field.
-func (adu *ActionDataUpdate) SetSystemTime(t time.Duration) *ActionDataUpdate {
+func (adu *ActionDataUpdate) SetSystemTime(i int64) *ActionDataUpdate {
 	adu.mutation.ResetSystemTime()
-	adu.mutation.SetSystemTime(t)
+	adu.mutation.SetSystemTime(i)
 	return adu
 }
 
 // SetNillableSystemTime sets the "system_time" field if the given value is not nil.
-func (adu *ActionDataUpdate) SetNillableSystemTime(t *time.Duration) *ActionDataUpdate {
-	if t != nil {
-		adu.SetSystemTime(*t)
+func (adu *ActionDataUpdate) SetNillableSystemTime(i *int64) *ActionDataUpdate {
+	if i != nil {
+		adu.SetSystemTime(*i)
 	}
 	return adu
 }
 
-// AddSystemTime adds t to the "system_time" field.
-func (adu *ActionDataUpdate) AddSystemTime(t time.Duration) *ActionDataUpdate {
-	adu.mutation.AddSystemTime(t)
+// AddSystemTime adds i to the "system_time" field.
+func (adu *ActionDataUpdate) AddSystemTime(i int64) *ActionDataUpdate {
+	adu.mutation.AddSystemTime(i)
 	return adu
 }
 
@@ -185,23 +184,23 @@ func (adu *ActionDataUpdate) ClearSystemTime() *ActionDataUpdate {
 }
 
 // SetUserTime sets the "user_time" field.
-func (adu *ActionDataUpdate) SetUserTime(t time.Duration) *ActionDataUpdate {
+func (adu *ActionDataUpdate) SetUserTime(i int64) *ActionDataUpdate {
 	adu.mutation.ResetUserTime()
-	adu.mutation.SetUserTime(t)
+	adu.mutation.SetUserTime(i)
 	return adu
 }
 
 // SetNillableUserTime sets the "user_time" field if the given value is not nil.
-func (adu *ActionDataUpdate) SetNillableUserTime(t *time.Duration) *ActionDataUpdate {
-	if t != nil {
-		adu.SetUserTime(*t)
+func (adu *ActionDataUpdate) SetNillableUserTime(i *int64) *ActionDataUpdate {
+	if i != nil {
+		adu.SetUserTime(*i)
 	}
 	return adu
 }
 
-// AddUserTime adds t to the "user_time" field.
-func (adu *ActionDataUpdate) AddUserTime(t time.Duration) *ActionDataUpdate {
-	adu.mutation.AddUserTime(t)
+// AddUserTime adds i to the "user_time" field.
+func (adu *ActionDataUpdate) AddUserTime(i int64) *ActionDataUpdate {
+	adu.mutation.AddUserTime(i)
 	return adu
 }
 
@@ -542,23 +541,23 @@ func (aduo *ActionDataUpdateOne) ClearLastEndedMs() *ActionDataUpdateOne {
 }
 
 // SetSystemTime sets the "system_time" field.
-func (aduo *ActionDataUpdateOne) SetSystemTime(t time.Duration) *ActionDataUpdateOne {
+func (aduo *ActionDataUpdateOne) SetSystemTime(i int64) *ActionDataUpdateOne {
 	aduo.mutation.ResetSystemTime()
-	aduo.mutation.SetSystemTime(t)
+	aduo.mutation.SetSystemTime(i)
 	return aduo
 }
 
 // SetNillableSystemTime sets the "system_time" field if the given value is not nil.
-func (aduo *ActionDataUpdateOne) SetNillableSystemTime(t *time.Duration) *ActionDataUpdateOne {
-	if t != nil {
-		aduo.SetSystemTime(*t)
+func (aduo *ActionDataUpdateOne) SetNillableSystemTime(i *int64) *ActionDataUpdateOne {
+	if i != nil {
+		aduo.SetSystemTime(*i)
 	}
 	return aduo
 }
 
-// AddSystemTime adds t to the "system_time" field.
-func (aduo *ActionDataUpdateOne) AddSystemTime(t time.Duration) *ActionDataUpdateOne {
-	aduo.mutation.AddSystemTime(t)
+// AddSystemTime adds i to the "system_time" field.
+func (aduo *ActionDataUpdateOne) AddSystemTime(i int64) *ActionDataUpdateOne {
+	aduo.mutation.AddSystemTime(i)
 	return aduo
 }
 
@@ -569,23 +568,23 @@ func (aduo *ActionDataUpdateOne) ClearSystemTime() *ActionDataUpdateOne {
 }
 
 // SetUserTime sets the "user_time" field.
-func (aduo *ActionDataUpdateOne) SetUserTime(t time.Duration) *ActionDataUpdateOne {
+func (aduo *ActionDataUpdateOne) SetUserTime(i int64) *ActionDataUpdateOne {
 	aduo.mutation.ResetUserTime()
-	aduo.mutation.SetUserTime(t)
+	aduo.mutation.SetUserTime(i)
 	return aduo
 }
 
 // SetNillableUserTime sets the "user_time" field if the given value is not nil.
-func (aduo *ActionDataUpdateOne) SetNillableUserTime(t *time.Duration) *ActionDataUpdateOne {
-	if t != nil {
-		aduo.SetUserTime(*t)
+func (aduo *ActionDataUpdateOne) SetNillableUserTime(i *int64) *ActionDataUpdateOne {
+	if i != nil {
+		aduo.SetUserTime(*i)
 	}
 	return aduo
 }
 
-// AddUserTime adds t to the "user_time" field.
-func (aduo *ActionDataUpdateOne) AddUserTime(t time.Duration) *ActionDataUpdateOne {
-	aduo.mutation.AddUserTime(t)
+// AddUserTime adds i to the "user_time" field.
+func (aduo *ActionDataUpdateOne) AddUserTime(i int64) *ActionDataUpdateOne {
+	aduo.mutation.AddUserTime(i)
 	return aduo
 }
 

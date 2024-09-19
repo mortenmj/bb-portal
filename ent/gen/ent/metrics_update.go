@@ -13,6 +13,7 @@ import (
 	"github.com/buildbarn/bb-portal/ent/gen/ent/actionsummary"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/artifactmetrics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/bazelinvocation"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/buildgraphmetrics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/cumulativemetrics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/dynamicexecutionmetrics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/memorymetrics"
@@ -189,6 +190,21 @@ func (mu *MetricsUpdate) AddDynamicExecutionMetrics(d ...*DynamicExecutionMetric
 		ids[i] = d[i].ID
 	}
 	return mu.AddDynamicExecutionMetricIDs(ids...)
+}
+
+// AddBuildGraphMetricIDs adds the "build_graph_metrics" edge to the BuildGraphMetrics entity by IDs.
+func (mu *MetricsUpdate) AddBuildGraphMetricIDs(ids ...int) *MetricsUpdate {
+	mu.mutation.AddBuildGraphMetricIDs(ids...)
+	return mu
+}
+
+// AddBuildGraphMetrics adds the "build_graph_metrics" edges to the BuildGraphMetrics entity.
+func (mu *MetricsUpdate) AddBuildGraphMetrics(b ...*BuildGraphMetrics) *MetricsUpdate {
+	ids := make([]int, len(b))
+	for i := range b {
+		ids[i] = b[i].ID
+	}
+	return mu.AddBuildGraphMetricIDs(ids...)
 }
 
 // Mutation returns the MetricsMutation object of the builder.
@@ -389,6 +405,27 @@ func (mu *MetricsUpdate) RemoveDynamicExecutionMetrics(d ...*DynamicExecutionMet
 		ids[i] = d[i].ID
 	}
 	return mu.RemoveDynamicExecutionMetricIDs(ids...)
+}
+
+// ClearBuildGraphMetrics clears all "build_graph_metrics" edges to the BuildGraphMetrics entity.
+func (mu *MetricsUpdate) ClearBuildGraphMetrics() *MetricsUpdate {
+	mu.mutation.ClearBuildGraphMetrics()
+	return mu
+}
+
+// RemoveBuildGraphMetricIDs removes the "build_graph_metrics" edge to BuildGraphMetrics entities by IDs.
+func (mu *MetricsUpdate) RemoveBuildGraphMetricIDs(ids ...int) *MetricsUpdate {
+	mu.mutation.RemoveBuildGraphMetricIDs(ids...)
+	return mu
+}
+
+// RemoveBuildGraphMetrics removes "build_graph_metrics" edges to BuildGraphMetrics entities.
+func (mu *MetricsUpdate) RemoveBuildGraphMetrics(b ...*BuildGraphMetrics) *MetricsUpdate {
+	ids := make([]int, len(b))
+	for i := range b {
+		ids[i] = b[i].ID
+	}
+	return mu.RemoveBuildGraphMetricIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -861,6 +898,51 @@ func (mu *MetricsUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if mu.mutation.BuildGraphMetricsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   metrics.BuildGraphMetricsTable,
+			Columns: metrics.BuildGraphMetricsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(buildgraphmetrics.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := mu.mutation.RemovedBuildGraphMetricsIDs(); len(nodes) > 0 && !mu.mutation.BuildGraphMetricsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   metrics.BuildGraphMetricsTable,
+			Columns: metrics.BuildGraphMetricsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(buildgraphmetrics.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := mu.mutation.BuildGraphMetricsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   metrics.BuildGraphMetricsTable,
+			Columns: metrics.BuildGraphMetricsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(buildgraphmetrics.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, mu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{metrics.Label}
@@ -1033,6 +1115,21 @@ func (muo *MetricsUpdateOne) AddDynamicExecutionMetrics(d ...*DynamicExecutionMe
 		ids[i] = d[i].ID
 	}
 	return muo.AddDynamicExecutionMetricIDs(ids...)
+}
+
+// AddBuildGraphMetricIDs adds the "build_graph_metrics" edge to the BuildGraphMetrics entity by IDs.
+func (muo *MetricsUpdateOne) AddBuildGraphMetricIDs(ids ...int) *MetricsUpdateOne {
+	muo.mutation.AddBuildGraphMetricIDs(ids...)
+	return muo
+}
+
+// AddBuildGraphMetrics adds the "build_graph_metrics" edges to the BuildGraphMetrics entity.
+func (muo *MetricsUpdateOne) AddBuildGraphMetrics(b ...*BuildGraphMetrics) *MetricsUpdateOne {
+	ids := make([]int, len(b))
+	for i := range b {
+		ids[i] = b[i].ID
+	}
+	return muo.AddBuildGraphMetricIDs(ids...)
 }
 
 // Mutation returns the MetricsMutation object of the builder.
@@ -1233,6 +1330,27 @@ func (muo *MetricsUpdateOne) RemoveDynamicExecutionMetrics(d ...*DynamicExecutio
 		ids[i] = d[i].ID
 	}
 	return muo.RemoveDynamicExecutionMetricIDs(ids...)
+}
+
+// ClearBuildGraphMetrics clears all "build_graph_metrics" edges to the BuildGraphMetrics entity.
+func (muo *MetricsUpdateOne) ClearBuildGraphMetrics() *MetricsUpdateOne {
+	muo.mutation.ClearBuildGraphMetrics()
+	return muo
+}
+
+// RemoveBuildGraphMetricIDs removes the "build_graph_metrics" edge to BuildGraphMetrics entities by IDs.
+func (muo *MetricsUpdateOne) RemoveBuildGraphMetricIDs(ids ...int) *MetricsUpdateOne {
+	muo.mutation.RemoveBuildGraphMetricIDs(ids...)
+	return muo
+}
+
+// RemoveBuildGraphMetrics removes "build_graph_metrics" edges to BuildGraphMetrics entities.
+func (muo *MetricsUpdateOne) RemoveBuildGraphMetrics(b ...*BuildGraphMetrics) *MetricsUpdateOne {
+	ids := make([]int, len(b))
+	for i := range b {
+		ids[i] = b[i].ID
+	}
+	return muo.RemoveBuildGraphMetricIDs(ids...)
 }
 
 // Where appends a list predicates to the MetricsUpdate builder.
@@ -1728,6 +1846,51 @@ func (muo *MetricsUpdateOne) sqlSave(ctx context.Context) (_node *Metrics, err e
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(dynamicexecutionmetrics.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if muo.mutation.BuildGraphMetricsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   metrics.BuildGraphMetricsTable,
+			Columns: metrics.BuildGraphMetricsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(buildgraphmetrics.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := muo.mutation.RemovedBuildGraphMetricsIDs(); len(nodes) > 0 && !muo.mutation.BuildGraphMetricsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   metrics.BuildGraphMetricsTable,
+			Columns: metrics.BuildGraphMetricsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(buildgraphmetrics.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := muo.mutation.BuildGraphMetricsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   metrics.BuildGraphMetricsTable,
+			Columns: metrics.BuildGraphMetricsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(buildgraphmetrics.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

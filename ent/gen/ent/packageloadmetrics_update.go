@@ -6,7 +6,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -50,23 +49,23 @@ func (plmu *PackageLoadMetricsUpdate) ClearName() *PackageLoadMetricsUpdate {
 }
 
 // SetLoadDuration sets the "load_duration" field.
-func (plmu *PackageLoadMetricsUpdate) SetLoadDuration(t time.Duration) *PackageLoadMetricsUpdate {
+func (plmu *PackageLoadMetricsUpdate) SetLoadDuration(i int64) *PackageLoadMetricsUpdate {
 	plmu.mutation.ResetLoadDuration()
-	plmu.mutation.SetLoadDuration(t)
+	plmu.mutation.SetLoadDuration(i)
 	return plmu
 }
 
 // SetNillableLoadDuration sets the "load_duration" field if the given value is not nil.
-func (plmu *PackageLoadMetricsUpdate) SetNillableLoadDuration(t *time.Duration) *PackageLoadMetricsUpdate {
-	if t != nil {
-		plmu.SetLoadDuration(*t)
+func (plmu *PackageLoadMetricsUpdate) SetNillableLoadDuration(i *int64) *PackageLoadMetricsUpdate {
+	if i != nil {
+		plmu.SetLoadDuration(*i)
 	}
 	return plmu
 }
 
-// AddLoadDuration adds t to the "load_duration" field.
-func (plmu *PackageLoadMetricsUpdate) AddLoadDuration(t time.Duration) *PackageLoadMetricsUpdate {
-	plmu.mutation.AddLoadDuration(t)
+// AddLoadDuration adds i to the "load_duration" field.
+func (plmu *PackageLoadMetricsUpdate) AddLoadDuration(i int64) *PackageLoadMetricsUpdate {
+	plmu.mutation.AddLoadDuration(i)
 	return plmu
 }
 
@@ -398,23 +397,23 @@ func (plmuo *PackageLoadMetricsUpdateOne) ClearName() *PackageLoadMetricsUpdateO
 }
 
 // SetLoadDuration sets the "load_duration" field.
-func (plmuo *PackageLoadMetricsUpdateOne) SetLoadDuration(t time.Duration) *PackageLoadMetricsUpdateOne {
+func (plmuo *PackageLoadMetricsUpdateOne) SetLoadDuration(i int64) *PackageLoadMetricsUpdateOne {
 	plmuo.mutation.ResetLoadDuration()
-	plmuo.mutation.SetLoadDuration(t)
+	plmuo.mutation.SetLoadDuration(i)
 	return plmuo
 }
 
 // SetNillableLoadDuration sets the "load_duration" field if the given value is not nil.
-func (plmuo *PackageLoadMetricsUpdateOne) SetNillableLoadDuration(t *time.Duration) *PackageLoadMetricsUpdateOne {
-	if t != nil {
-		plmuo.SetLoadDuration(*t)
+func (plmuo *PackageLoadMetricsUpdateOne) SetNillableLoadDuration(i *int64) *PackageLoadMetricsUpdateOne {
+	if i != nil {
+		plmuo.SetLoadDuration(*i)
 	}
 	return plmuo
 }
 
-// AddLoadDuration adds t to the "load_duration" field.
-func (plmuo *PackageLoadMetricsUpdateOne) AddLoadDuration(t time.Duration) *PackageLoadMetricsUpdateOne {
-	plmuo.mutation.AddLoadDuration(t)
+// AddLoadDuration adds i to the "load_duration" field.
+func (plmuo *PackageLoadMetricsUpdateOne) AddLoadDuration(i int64) *PackageLoadMetricsUpdateOne {
+	plmuo.mutation.AddLoadDuration(i)
 	return plmuo
 }
 
