@@ -14,15 +14,13 @@ import {
     DeploymentUnitOutlined,
     ExperimentOutlined,
 } from "@ant-design/icons";
-import internal from "stream";
 
-interface MissDetailDisplayDataType {
+interface ActionDataGraphDisplayType {
     key: React.Key;
     name: string;
     value: number;
-    rate: string;
+    color: string;
 }
-
 
 const formatter: StatisticProps['formatter'] = (value) => (
     <CountUp end={value as number} separator="," />
@@ -45,25 +43,44 @@ const generateColor = () => {
 const colorMap: Map<number, string> = new Map();
 const selectedColors: Map<string, boolean> = new Map();
 
-var ac_colors = ["#00cc66", "#0099ff", "#9900cc", "#ff9900", "#ff5050", "#ffff66", "#ff00ff"]
 
-
-const ac_columns: TableColumnsType<MissDetailDisplayDataType> = [
+const ad_columns: TableColumnsType<ActionData> = [
     {
-        title: "Miss Reason",
-        dataIndex: "name",
+        title: "Mnemonic",
+        dataIndex: "mnemonic"
     },
     {
-        title: "Count",
-        dataIndex: "value",
-        sorter: (a, b) => a.value - b.value,
+        title: "Actions Executed",
+        dataIndex: "actionsExecuted",
+        sorter: (a, b) => (a.actionsExecuted ?? 0) - (b.actionsExecuted ?? 0),
     },
     {
-        title: "Rate (%)",
-        dataIndex: "rate",
-        sorter: (a, b) => parseFloat(a.rate) - parseFloat(b.rate),
-    }
+        title: "Actions Created",
+        dataIndex: "actionsCreated",
+        sorter: (a, b) => (a.actionsCreated ?? 0) - (b.actionsCreated ?? 0),
+    },
+    {
+        title: "First Started(ms)",
+        dataIndex: "firstStartedMs",
+        sorter: (a, b) => (a.firstStartedMs ?? 0) - (b.firstStartedMs ?? 0),
+    },
+    {
+        title: "Last Ended(ms)",
+        dataIndex: "lastEndedMs",
+        sorter: (a, b) => (a.lastEndedMs ?? 0) - (b.lastEndedMs ?? 0),
+    },
+    {
+        title: "System Time(ms)",
+        dataIndex: "systemTime",
+        sorter: (a, b) => (a.systemTime ?? 0) - (b.systemTime ?? 0),
+    },
+    {
+        title: "User Time(ms)",
+        dataIndex: "userTime",
+        sorter: (a, b) => (a.userTime ?? 0) - (b.userTime ?? 0),
+    },
 ]
+
 
 function nullPercent(val: number | null | undefined, total: number | null | undefined, fixed: number = 2) {
     return String((((val ?? 0) / (total ?? 1)) * 100).toFixed(fixed)) + "%";
@@ -141,7 +158,6 @@ const renderActiveShape = (props: any) => {
         </g>
     );
 };
-
 const newColorFind = (id: number) => {
     // If already generated and assigned, return
     if (colorMap.get(id)) return colorMap.get(id);
@@ -160,39 +176,23 @@ const newColorFind = (id: number) => {
     // Return next new color
     return newColor;
 }
-const AcMetrics: React.FC<{ acMetrics: ActionSummary | undefined; }> = ({ acMetrics }) => {
 
+const ActionDataMetrics: React.FC<{ acMetrics: ActionSummary | undefined; }> = ({ acMetrics }) => {
 
-
-
-
-    const acMetricsData: ActionCacheStatistics | undefined = acMetrics?.actionCacheStatistics?.at(0)
-
-    var hitMissTotal: number = (acMetricsData?.misses ?? 0) + (acMetricsData?.hits ?? 0);
-
-    const hits_data = [
-        {
-            key: "hitMissBarChart",
-            Hit: acMetricsData?.hits,
-            Miss: acMetricsData?.misses,
-            hit_label: nullPercent(acMetricsData?.hits, hitMissTotal, 0),
-            miss_label: nullPercent(acMetricsData?.misses, hitMissTotal, 0)
-        },
-    ]
-
-    const ac_data: MissDetailDisplayDataType[] = [];
-    var missTotal: number = acMetricsData?.misses ?? 0;
-
-    acMetricsData?.missDetails?.map((item: MissDetail, index) => {
-        var acd: MissDetailDisplayDataType = {
-            key: index,
-            name: item.reason ?? "",
-            value: item.count ?? 0,
-            rate: nullPercent(item.count, missTotal),
-
+    const actions_data: ActionData[] = [];
+    const actions_graph_data: ActionDataGraphDisplayType[] = [];
+    acMetrics?.actionData?.map((ad: ActionData, idx) => {
+        actions_data.push(ad)
+        var agd: ActionDataGraphDisplayType = {
+            key: "actiondatagraphdisplaytype-" + String(idx),
+            name: ad.mnemonic ?? "",
+            value: ad.userTime ?? 0,
+            color: newColorFind(idx) ?? "#333333"
         }
-        ac_data.push(acd)
+        actions_graph_data.push(agd)
     });
+
+
 
 
     const [activeIndexRunner, setActiveIndexRunner] = useState(0);
@@ -208,61 +208,45 @@ const AcMetrics: React.FC<{ acMetrics: ActionSummary | undefined; }> = ({ acMetr
 
     return (
         <Space direction="vertical" size="middle" style={{ display: 'flex' }} >
-
-
-            <PortalCard icon={<PieChartOutlined />} titleBits={acTitle} >
-                <Row justify="space-around" align="middle" >
-                    <Col span="2">
-                        <BarChart width={170} height={150} data={hits_data} margin={{ top: 0, left: 10, bottom: 10, right: 10 }}>
-                            <Bar dataKey="Miss" fill={"#8884d8"} stackId="a">
-                                <LabelList dataKey="miss_label" position="center" />
-                            </Bar>
-                            <Bar dataKey="Hit" fill={"#82ca9d"} stackId="a">
-                                <LabelList dataKey="hit_label" position="center" />
-                            </Bar>
-                            <Tooltip />
-                            <Legend />
-                        </BarChart>
-                        <Statistic title="Hits" value={acMetricsData?.hits ?? 0} formatter={formatter} />
-                        <Statistic title="Misses" value={acMetricsData?.misses ?? 0} formatter={formatter} />
-                        <Statistic title="Size (bytes)" value={acMetricsData?.sizeInBytes ?? 0} formatter={formatter} />
-                        {/* <Statistic title="Load Time(ms)" value={acMetricsData.loadTimeInMs ?? 0} formatter={formatter} /> */}
-                        <Statistic title="Save Time(ms)" value={acMetricsData?.saveTimeInMs ?? 0} formatter={formatter} />
-                    </Col>
-                    <Col span="8">
-
-                        <PieChart width={500} height={500}>
-
-                            <Pie
-                                activeIndex={activeIndexRunner}
-                                activeShape={renderActiveShape}
-                                data={ac_data}
-                                dataKey="value"
-                                nameKey="name"
-                                cx="50%"
-                                cy="50%"
-                                innerRadius={70}
-                                outerRadius={90}
-                                onMouseEnter={onRunnerPieEnter}>
-                                {
-                                    ac_data.map((entry, runner_index) => (
-                                        <Cell key={`cell-${runner_index}`} fill={ac_colors[runner_index]} />
-                                    ))
-                                }
-                            </Pie>
-                            <Legend layout="vertical" />
-                        </PieChart>
-                    </Col>
-                    <Col span="12">
+            <PortalCard icon={<BuildOutlined />} titleBits={actionsTitle}>
+                <Row justify="space-around" align="middle">
+                    <Col span="18">
                         <Table
-                            columns={ac_columns}
-                            dataSource={ac_data}
+                            columns={ad_columns}
+                            dataSource={actions_data}
                             showSorterTooltip={{ target: 'sorter-icon' }}
                         />
                     </Col>
-                    <Col span="2" />
-                </Row >
+                    <Col span="6">
+                        <PortalCard icon={<PieChartOutlined />} titleBits={userTimeTitle}>
+
+                            <PieChart width={600} height={556}>
+
+                                <Pie
+                                    activeIndex={activeIndexRunner}
+                                    activeShape={renderActiveShape}
+
+                                    data={actions_graph_data}
+                                    dataKey="value"
+                                    cx="50%"
+                                    cy="50%"
+                                    innerRadius={50}
+                                    outerRadius={90}
+                                    onMouseEnter={onRunnerPieEnter}
+                                >
+                                    {
+                                        actions_graph_data.map((entry, actions_index) => (
+                                            <Cell key={`cell-${actions_index}`} fill={entry.color} />
+                                        ))
+                                    }
+                                </Pie>
+                            </PieChart>
+
+                        </PortalCard>
+                    </Col>
+                </Row>
             </PortalCard>
+
         </Space>
 
 
@@ -270,4 +254,4 @@ const AcMetrics: React.FC<{ acMetrics: ActionSummary | undefined; }> = ({ acMetr
     )
 }
 
-export default AcMetrics;
+export default ActionDataMetrics;

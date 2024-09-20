@@ -1,5 +1,6 @@
 import {
   ActionSummary,
+  ArtifactMetrics,
   BazelInvocationInfoFragment,
   ProblemInfoFragment,
   RunnerCount,
@@ -20,6 +21,11 @@ import {
   NodeCollapseOutlined,
   DeploymentUnitOutlined,
   ExperimentOutlined,
+  RadiusUprightOutlined,
+  AreaChartOutlined,
+  FieldTimeOutlined,
+  WifiOutlined,
+  ThunderboltOutlined,
 } from "@ant-design/icons";
 import themeStyles from '@/theme/theme.module.css';
 import { debugMode } from "@/components/Utilities/debugMode";
@@ -30,6 +36,8 @@ import { LogViewerCard } from "../LogViewer";
 import RunnerMetrics from "../RunnerMetrics";
 import AcMetrics from "../ActionCacheMetrics";
 import TargetMetricsDisplay from "../TargetMetrics";
+import ActionDataMetrics from "../ActionDataMetrics";
+import ArtifactsDataMetrics from "../Artifacts";
 
 
 
@@ -59,6 +67,8 @@ const BazelInvocation: React.FC<{
   //data for ac metrics
   var acMetrics: ActionSummary | undefined = metrics?.actionSummary?.at(0);
 
+  //artifact metrics
+  var artifactMetrics: ArtifactMetrics | undefined = metrics?.artifactMetrics?.at(0);
 
   //data for target metrics
   var targetMetrics: TargetMetrics | undefined = metrics?.targetMetrics?.at(0)
@@ -95,7 +105,7 @@ const BazelInvocation: React.FC<{
     },
     {
       key: '2',
-      label: 'Build Logs',
+      label: 'Logs',
       icon: <FileSearchOutlined />,
       children: <Space direction="vertical" size="middle" className={themeStyles.space}>
         <PortalCard type="inner" icon={<FileSearchOutlined />} titleBits={["Build Logs"]} extraBits={["test"]}>
@@ -105,7 +115,7 @@ const BazelInvocation: React.FC<{
     },
     {
       key: '3',
-      label: 'Runner Metrics',
+      label: 'Runners',
       icon: <PieChartOutlined />,
       children: <Space direction="vertical" size="middle" className={themeStyles.space}>
         <RunnerMetrics runnerMetrics={runnerMetrics} />
@@ -113,7 +123,7 @@ const BazelInvocation: React.FC<{
     },
     {
       key: '4',
-      label: 'Actions',
+      label: 'Action Cache',
       icon: <NodeCollapseOutlined />,
       children: <Space direction="vertical" size="middle" className={themeStyles.space}>
 
@@ -123,6 +133,16 @@ const BazelInvocation: React.FC<{
     },
     {
       key: '5',
+      label: 'Actions Data',
+      icon: <NodeCollapseOutlined />,
+      children: <Space direction="vertical" size="middle" className={themeStyles.space}>
+
+        <ActionDataMetrics acMetrics={acMetrics} />
+
+      </Space>,
+    },
+    {
+      key: '6',
       label: 'Targets',
       icon: <DeploymentUnitOutlined />,
       children: <Space direction="vertical" size="middle" className={themeStyles.space}>
@@ -131,9 +151,75 @@ const BazelInvocation: React.FC<{
       </Space>,
     },
     {
-      key: '6',
+      key: '7',
       label: 'Tests',
       icon: <ExperimentOutlined />,
+      children: <Space direction="vertical" size="middle" className={themeStyles.space}>
+
+        {/* <TargetMetrics
+          targetsLoaded={targetsLoaded}
+          targetsConfigured={targetsConfigured}
+          targetsConfiguredNotIncludingAspects={targetsConfiguredNotIncludingAspects}
+        /> */}
+
+      </Space>,
+    },
+    {
+      key: '8',
+      label: 'Artifacts',
+      icon: <RadiusUprightOutlined />,
+      children: <Space direction="vertical" size="middle" className={themeStyles.space}>
+
+        <ArtifactsDataMetrics artifactMetrics={artifactMetrics} />
+
+      </Space>,
+    },
+    {
+      key: '9',
+      label: 'Memory',
+      icon: <AreaChartOutlined />,
+      children: <Space direction="vertical" size="middle" className={themeStyles.space}>
+
+        {/* <TargetMetrics
+          targetsLoaded={targetsLoaded}
+          targetsConfigured={targetsConfigured}
+          targetsConfiguredNotIncludingAspects={targetsConfiguredNotIncludingAspects}
+        /> */}
+
+      </Space>,
+    },
+    {
+      key: '10',
+      label: 'Timing',
+      icon: <FieldTimeOutlined />,
+      children: <Space direction="vertical" size="middle" className={themeStyles.space}>
+
+        {/* <TargetMetrics
+          targetsLoaded={targetsLoaded}
+          targetsConfigured={targetsConfigured}
+          targetsConfiguredNotIncludingAspects={targetsConfiguredNotIncludingAspects}
+        /> */}
+
+      </Space>,
+    },
+    {
+      key: '11',
+      label: 'Network',
+      icon: <WifiOutlined />,
+      children: <Space direction="vertical" size="middle" className={themeStyles.space}>
+
+        {/* <TargetMetrics
+          targetsLoaded={targetsLoaded}
+          targetsConfigured={targetsConfigured}
+          targetsConfiguredNotIncludingAspects={targetsConfiguredNotIncludingAspects}
+        /> */}
+
+      </Space>,
+    },
+    {
+      key: '12',
+      label: 'Dynamic Execution',
+      icon: <ThunderboltOutlined />,
       children: <Space direction="vertical" size="middle" className={themeStyles.space}>
 
         {/* <TargetMetrics
