@@ -190,6 +190,11 @@ func (r *queryResolver) FindMetrics(ctx context.Context, after *entgql.Cursor[in
 	return r.client.Metrics.Query().Paginate(ctx, after, first, before, last, ent.WithMetricsFilter(where.Filter))
 }
 
+// FindRunnerCounts is the resolver for the findRunnerCounts field.
+func (r *queryResolver) FindRunnerCounts(ctx context.Context, after *entgql.Cursor[int], first *int, before *entgql.Cursor[int], last *int, where *ent.RunnerCountWhereInput) (*ent.RunnerCountConnection, error) {
+	return r.client.RunnerCount.Query().Paginate(ctx, after, first, before, last, ent.WithRunnerCountFilter(where.Filter))
+}
+
 // ID is the resolver for the id field.
 func (r *raceStatisticsResolver) ID(ctx context.Context, obj *ent.RaceStatistics) (string, error) {
 	return helpers.GraphQLIDFromTypeAndID("RaceStatistics", obj.ID), nil

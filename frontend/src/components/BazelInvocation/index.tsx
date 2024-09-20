@@ -1,6 +1,9 @@
 import {
+  ActionSummary,
   BazelInvocationInfoFragment,
   ProblemInfoFragment,
+  RunnerCount,
+  TargetMetrics,
 } from "@/graphql/__generated__/graphql";
 import React from "react";
 import PortalDuration from "@/components/PortalDuration";
@@ -9,15 +12,25 @@ import { Space, Tabs } from "antd";
 import type { TabsProps } from "antd/lib";
 import CopyTextButton from "@/components/CopyTextButton";
 import PortalAlert from "@/components/PortalAlert";
-import { BuildOutlined, FileSearchOutlined, PieChartOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
+import {
+  BuildOutlined,
+  FileSearchOutlined,
+  PieChartOutlined,
+  ExclamationCircleOutlined,
+  NodeCollapseOutlined,
+  DeploymentUnitOutlined,
+  ExperimentOutlined,
+} from "@ant-design/icons";
 import themeStyles from '@/theme/theme.module.css';
 import { debugMode } from "@/components/Utilities/debugMode";
 import DebugInfo from "@/components/DebugInfo";
 import BuildStepResultTag, { BuildStepResultEnum } from "@/components/BuildStepResultTag";
 import Link from '@/components/Link';
-import Collapsible from 'react-collapsible';
 import { LogViewerCard } from "../LogViewer";
-import LogOutput from "../Problems/LogOutput";
+import RunnerMetrics from "../RunnerMetrics";
+import AcMetrics from "../ActionCacheMetrics";
+import TargetMetricsDisplay from "../TargetMetrics";
+
 
 
 const BazelInvocation: React.FC<{
@@ -26,11 +39,32 @@ const BazelInvocation: React.FC<{
   children?: React.ReactNode;
   isNestedWithinBuildCard?: boolean;
 }> = ({ invocationOverview, problems, children, isNestedWithinBuildCard }) => {
-  const { invocationID, build, state, stepLabel, bazelCommand, relatedFiles, user, buildLogs } = invocationOverview;
+  const {
+    invocationID,
+    build,
+    state,
+    stepLabel,
+    bazelCommand,
+    relatedFiles,
+    user,
+    metrics,
+
+  } = invocationOverview;
+
+  var buildLogs = "tmp"
+  //data for runner metrics
+  var runnerMetrics: RunnerCount[] = [];
+  metrics?.actionSummary?.at(0)?.runnerCount?.map((item: RunnerCount) => runnerMetrics.push(item));
+
+  //data for ac metrics
+  var acMetrics: ActionSummary | undefined = metrics?.actionSummary?.at(0);
+
+
+  //data for target metrics
+  var targetMetrics: TargetMetrics | undefined = metrics?.targetMetrics?.at(0)
+
   let { exitCode } = state;
-
   exitCode = exitCode ?? null;
-
   const titleBits: React.ReactNode[] = [<span key="label">User: {user?.LDAP}</span>];
   titleBits.push(<span key="label">Invocation: {invocationID}</span>)
   if (exitCode?.name) {
@@ -49,12 +83,14 @@ const BazelInvocation: React.FC<{
         {exitCode === null || exitCode.code !== 0 ? (
           children
         ) : (
+
           <PortalAlert
             message="There is no debug information to display because there are no reported failures with the build step"
             type="success"
             showIcon
           />
         )}
+
       </Space>,
     },
     {
@@ -69,12 +105,43 @@ const BazelInvocation: React.FC<{
     },
     {
       key: '3',
-      label: 'Metrics',
+      label: 'Runner Metrics',
       icon: <PieChartOutlined />,
       children: <Space direction="vertical" size="middle" className={themeStyles.space}>
-        <PortalCard type="inner" icon={<PieChartOutlined />} titleBits={["Metrics"]} extraBits={["tbd"]}>
-          metrics go here
-        </PortalCard>
+        <RunnerMetrics runnerMetrics={runnerMetrics} />
+      </Space>,
+    },
+    {
+      key: '4',
+      label: 'Actions',
+      icon: <NodeCollapseOutlined />,
+      children: <Space direction="vertical" size="middle" className={themeStyles.space}>
+
+        <AcMetrics acMetrics={acMetrics} />
+
+      </Space>,
+    },
+    {
+      key: '5',
+      label: 'Targets',
+      icon: <DeploymentUnitOutlined />,
+      children: <Space direction="vertical" size="middle" className={themeStyles.space}>
+
+        <TargetMetricsDisplay targetMetrics={targetMetrics} />
+      </Space>,
+    },
+    {
+      key: '6',
+      label: 'Tests',
+      icon: <ExperimentOutlined />,
+      children: <Space direction="vertical" size="middle" className={themeStyles.space}>
+
+        {/* <TargetMetrics
+          targetsLoaded={targetsLoaded}
+          targetsConfigured={targetsConfigured}
+          targetsConfiguredNotIncludingAspects={targetsConfiguredNotIncludingAspects}
+        /> */}
+
       </Space>,
     },
   ];

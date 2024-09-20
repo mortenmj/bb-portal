@@ -8,8 +8,167 @@ export const LOAD_FULL_BAZEL_INVOCATION_DETAILS = gql(/* GraphQL */ `
   }
 `);
 
+export const RUNNER_FRAGMENT = gql(/* GraphQL */ `
+  fragment RunnerMetricsInfo on BazelInvocation {
+    id
+    metrics {
+      id
+      actionSummary {
+        id
+        runnerCount{
+            id
+            actionsExecuted
+            name
+            execKind
+        }
+      }
+    }
+  }
+`);
+
 export const BAZEL_INVOCATION_FRAGMENT = gql(/* GraphQL */ `
 fragment BazelInvocationInfo on BazelInvocation {
+  metrics {
+    id
+    actionSummary {
+      id
+      actionsCreated
+      actionsExecuted
+      actionsCreatedNotIncludingAspects
+      remoteCacheHits
+      actionCacheStatistics {
+        id
+        loadTimeInMs
+        saveTimeInMs
+        hits
+        misses
+        sizeInBytes
+        missDetails {
+          id
+          count
+          reason
+        }
+      }
+      runnerCount {
+        id
+        actionsExecuted
+        name
+        execKind
+      }
+      actionData {
+        id
+        mnemonic
+        userTime
+        systemTime
+        lastEndedMs
+        actionsCreated
+        actionsExecuted
+        firstStartedMs
+      }
+    }
+    artifactMetrics {
+      id
+      sourceArtifactsRead {
+        id
+        sizeInBytes
+        count
+      }
+      outputArtifactsSeen {
+        id
+        sizeInBytes
+        count
+      }
+      outputArtifactsFromActionCache {
+        id
+        sizeInBytes
+        count
+      }
+      topLevelArtifacts {
+        id
+        sizeInBytes
+        count
+      }
+    }
+    cumulativeMetrics {
+      id
+      numBuilds
+      numAnalyses
+    }
+    dynamicExecutionMetrics {
+      id
+      raceStatistics {
+        id
+        localWins
+        mnemonic
+        renoteWins
+        localRunner
+        remoteRunner
+      }
+    }
+    buildGraphMetrics {
+      id
+      actionLookupValueCount
+      actionLookupValueCountNotIncludingAspects
+      actionCount
+      inputFileConfiguredTargetCount
+      outputFileConfiguredTargetCount
+      otherConfiguredTargetCount
+      outputArtifactCount
+      postInvocationSkyframeNodeCount
+    }
+    memoryMetrics {
+      id
+      usedHeapSizePostBuild
+      peakPostGcHeapSize
+      peakPostGcTenuredSpaceHeapSize
+      garbageMetrics {
+        id
+        garbageCollected
+        type
+      }
+    }
+    targetMetrics {
+      id
+      targetsLoaded
+      targetsConfigured
+      targetsConfiguredNotIncludingAspects
+    }
+    timingMetrics {
+      id
+      cpuTimeInMs
+      wallTimeInMs
+      analysisPhaseTimeInMs
+      executionPhaseTimeInMs
+      actionsExecutionStartInMs
+    }
+    networkMetrics {
+      id
+      systemNetworkStats {
+        id
+        bytesSent
+        bytesRecv
+        packetsSent
+        packetsRecv
+        peakBytesSentPerSec
+        peakBytesRecvPerSec
+        peakPacketsSentPerSec
+        peakPacketsRecvPerSec
+      }
+    }
+    packageMetrics {
+      id
+      packagesLoaded
+      packageLoadMetrics {
+        id
+        name
+        numTargets
+        loadDuration
+        packageOverhead
+        computationSteps
+        numTransitiveLoads
+      }
+    }
+  }
   bazelCommand {
     command
     executable
@@ -23,7 +182,7 @@ fragment BazelInvocationInfo on BazelInvocation {
     id
     buildUUID
   }
-  buildLogs
+
   relatedFiles {
     name
     url
@@ -32,6 +191,7 @@ fragment BazelInvocationInfo on BazelInvocation {
     Email
     LDAP
   }
+
   startedAt
   endedAt
   state {
