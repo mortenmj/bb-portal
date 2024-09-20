@@ -5,6 +5,9 @@ import {
   ProblemInfoFragment,
   RunnerCount,
   TargetMetrics,
+  MemoryMetrics,
+  TimingMetrics,
+  NetworkMetrics,
 } from "@/graphql/__generated__/graphql";
 import React from "react";
 import PortalDuration from "@/components/PortalDuration";
@@ -38,7 +41,9 @@ import AcMetrics from "../ActionCacheMetrics";
 import TargetMetricsDisplay from "../TargetMetrics";
 import ActionDataMetrics from "../ActionDataMetrics";
 import ArtifactsDataMetrics from "../Artifacts";
-
+import MemoryMetricsDisplay from "../MemoryMetrics";
+import TimingMetricsDisplay from "../TimingMetrics";
+import NetworkMetricsDisplay from "../NetworkMetrics";
 
 
 const BazelInvocation: React.FC<{
@@ -73,6 +78,15 @@ const BazelInvocation: React.FC<{
   //data for target metrics
   var targetMetrics: TargetMetrics | undefined = metrics?.targetMetrics?.at(0)
 
+  //memory metrics
+  var memoryMetrics: MemoryMetrics | undefined = metrics?.memoryMetrics?.at(0)
+
+  //timing metrics
+  var timingMetrics: TimingMetrics | undefined = metrics?.timingMetrics?.at(0)
+
+  //netowrk metrics
+  var networkMetrics: NetworkMetrics | undefined = metrics?.networkMetrics?.at(0)
+
   let { exitCode } = state;
   exitCode = exitCode ?? null;
   const titleBits: React.ReactNode[] = [<span key="label">User: {user?.LDAP}</span>];
@@ -85,7 +99,7 @@ const BazelInvocation: React.FC<{
 
   const items: TabsProps['items'] = [
     {
-      key: '1',
+      key: 'BazelInvocationTabs-1',
       label: 'Problems',
       icon: <ExclamationCircleOutlined />,
       children: <Space direction="vertical" size="middle" className={themeStyles.space}>
@@ -104,7 +118,7 @@ const BazelInvocation: React.FC<{
       </Space>,
     },
     {
-      key: '2',
+      key: 'BazelInvocationTabs-2',
       label: 'Logs',
       icon: <FileSearchOutlined />,
       children: <Space direction="vertical" size="middle" className={themeStyles.space}>
@@ -114,7 +128,7 @@ const BazelInvocation: React.FC<{
       </Space>,
     },
     {
-      key: '3',
+      key: 'BazelInvocationTabs-3',
       label: 'Runners',
       icon: <PieChartOutlined />,
       children: <Space direction="vertical" size="middle" className={themeStyles.space}>
@@ -122,7 +136,7 @@ const BazelInvocation: React.FC<{
       </Space>,
     },
     {
-      key: '4',
+      key: 'BazelInvocationTabs-4',
       label: 'Action Cache',
       icon: <NodeCollapseOutlined />,
       children: <Space direction="vertical" size="middle" className={themeStyles.space}>
@@ -132,7 +146,7 @@ const BazelInvocation: React.FC<{
       </Space>,
     },
     {
-      key: '5',
+      key: 'BazelInvocationTabs-5',
       label: 'Actions Data',
       icon: <NodeCollapseOutlined />,
       children: <Space direction="vertical" size="middle" className={themeStyles.space}>
@@ -141,31 +155,9 @@ const BazelInvocation: React.FC<{
 
       </Space>,
     },
-    {
-      key: '6',
-      label: 'Targets',
-      icon: <DeploymentUnitOutlined />,
-      children: <Space direction="vertical" size="middle" className={themeStyles.space}>
 
-        <TargetMetricsDisplay targetMetrics={targetMetrics} />
-      </Space>,
-    },
     {
-      key: '7',
-      label: 'Tests',
-      icon: <ExperimentOutlined />,
-      children: <Space direction="vertical" size="middle" className={themeStyles.space}>
-
-        {/* <TargetMetrics
-          targetsLoaded={targetsLoaded}
-          targetsConfigured={targetsConfigured}
-          targetsConfiguredNotIncludingAspects={targetsConfiguredNotIncludingAspects}
-        /> */}
-
-      </Space>,
-    },
-    {
-      key: '8',
+      key: 'BazelInvocationTabs-8',
       label: 'Artifacts',
       icon: <RadiusUprightOutlined />,
       children: <Space direction="vertical" size="middle" className={themeStyles.space}>
@@ -175,37 +167,39 @@ const BazelInvocation: React.FC<{
       </Space>,
     },
     {
-      key: '9',
+      key: 'BazelInvocationTabs-9',
       label: 'Memory',
       icon: <AreaChartOutlined />,
       children: <Space direction="vertical" size="middle" className={themeStyles.space}>
 
-        {/* <TargetMetrics
-          targetsLoaded={targetsLoaded}
-          targetsConfigured={targetsConfigured}
-          targetsConfiguredNotIncludingAspects={targetsConfiguredNotIncludingAspects}
-        /> */}
+        <MemoryMetricsDisplay memoryMetrics={memoryMetrics} />
 
       </Space>,
     },
     {
-      key: '10',
+      key: 'BazelInvocationTabs-10',
       label: 'Timing',
       icon: <FieldTimeOutlined />,
       children: <Space direction="vertical" size="middle" className={themeStyles.space}>
 
-        {/* <TargetMetrics
-          targetsLoaded={targetsLoaded}
-          targetsConfigured={targetsConfigured}
-          targetsConfiguredNotIncludingAspects={targetsConfiguredNotIncludingAspects}
-        /> */}
+        <TimingMetricsDisplay timingMetrics={timingMetrics} />
 
       </Space>,
     },
     {
-      key: '11',
+      key: 'BazelInvocationTabs-11',
       label: 'Network',
       icon: <WifiOutlined />,
+      children: <Space direction="vertical" size="middle" className={themeStyles.space}>
+
+        <NetworkMetricsDisplay networkMetrics={networkMetrics} />
+
+      </Space>,
+    },
+    {
+      key: 'BazelInvocationTabs-12',
+      label: 'Dynamic Execution',
+      icon: <ThunderboltOutlined />,
       children: <Space direction="vertical" size="middle" className={themeStyles.space}>
 
         {/* <TargetMetrics
@@ -217,9 +211,18 @@ const BazelInvocation: React.FC<{
       </Space>,
     },
     {
-      key: '12',
-      label: 'Dynamic Execution',
-      icon: <ThunderboltOutlined />,
+      key: 'BazelInvocationTabs-6',
+      label: 'Targets',
+      icon: <DeploymentUnitOutlined />,
+      children: <Space direction="vertical" size="middle" className={themeStyles.space}>
+
+        <TargetMetricsDisplay targetMetrics={targetMetrics} />
+      </Space>,
+    },
+    {
+      key: 'BazelInvocationTabs-7',
+      label: 'Tests',
+      icon: <ExperimentOutlined />,
       children: <Space direction="vertical" size="middle" className={themeStyles.space}>
 
         {/* <TargetMetrics

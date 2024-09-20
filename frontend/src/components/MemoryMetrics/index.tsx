@@ -3,7 +3,7 @@ import { PieChart, Pie, Sector, Cell, Legend, BarChart, Bar, LabelList } from 'r
 import { Table, Row, Col, Statistic, Tooltip, Space } from 'antd';
 import type { StatisticProps, TableColumnsType } from "antd/lib";
 import CountUp from 'react-countup';
-import { ActionCacheStatistics, ActionSummary, MissDetail, ActionData } from "@/graphql/__generated__/graphql";
+import { ActionCacheStatistics, ActionSummary, MissDetail, ActionData, MemoryMetrics, GarbageMetrics } from "@/graphql/__generated__/graphql";
 import PortalCard from "../PortalCard";
 import {
     BuildOutlined,
@@ -14,13 +14,13 @@ import {
     DeploymentUnitOutlined,
     ExperimentOutlined,
 } from "@ant-design/icons";
-import internal from "stream";
 
-interface MissDetailDisplayDataType {
+interface GarbageMetricDetailDisplayType {
     key: React.Key;
     name: string;
     value: number;
-    rate: string;
+    color: string;
+    //    rate: string;
 }
 
 
@@ -48,21 +48,16 @@ const selectedColors: Map<string, boolean> = new Map();
 var ac_colors = ["#00cc66", "#0099ff", "#9900cc", "#ff9900", "#ff5050", "#ffff66", "#ff00ff"]
 
 
-const ac_columns: TableColumnsType<MissDetailDisplayDataType> = [
+const garbage_columns: TableColumnsType<GarbageMetricDetailDisplayType> = [
     {
-        title: "Miss Reason",
+        title: "Type",
         dataIndex: "name",
     },
     {
-        title: "Count",
+        title: "Garbage Collected",
         dataIndex: "value",
         sorter: (a, b) => a.value - b.value,
     },
-    {
-        title: "Rate (%)",
-        dataIndex: "rate",
-        sorter: (a, b) => parseFloat(a.rate) - parseFloat(b.rate),
-    }
 ]
 
 function nullPercent(val: number | null | undefined, total: number | null | undefined, fixed: number = 2) {
@@ -160,38 +155,21 @@ const newColorFind = (id: number) => {
     // Return next new color
     return newColor;
 }
-const AcMetrics: React.FC<{ acMetrics: ActionSummary | undefined; }> = ({ acMetrics }) => {
+const MemoryMetricsDisplay: React.FC<{ memoryMetrics: MemoryMetrics | undefined; }> = ({ memoryMetrics }) => {
 
 
 
 
 
-    const acMetricsData: ActionCacheStatistics | undefined = acMetrics?.actionCacheStatistics?.at(0)
-
-    var hitMissTotal: number = (acMetricsData?.misses ?? 0) + (acMetricsData?.hits ?? 0);
-
-    const hits_data = [
-        {
-            key: "hitMissBarChart",
-            Hit: acMetricsData?.hits,
-            Miss: acMetricsData?.misses,
-            hit_label: nullPercent(acMetricsData?.hits, hitMissTotal, 0),
-            miss_label: nullPercent(acMetricsData?.misses, hitMissTotal, 0)
-        },
-    ]
-
-    const ac_data: MissDetailDisplayDataType[] = [];
-    var missTotal: number = acMetricsData?.misses ?? 0;
-
-    acMetricsData?.missDetails?.map((item: MissDetail, index) => {
-        var acd: MissDetailDisplayDataType = {
+    const garbage_data: GarbageMetricDetailDisplayType[] = [];
+    memoryMetrics?.garbageMetrics?.map((item: GarbageMetrics, index) => {
+        var gm: GarbageMetricDetailDisplayType = {
             key: index,
-            name: item.reason ?? "",
-            value: item.count ?? 0,
-            rate: nullPercent(item.count, missTotal),
-
+            name: item.type ?? "",
+            value: item.garbageCollected ?? 0,
+            color: newColorFind(index) ?? "#333333"
         }
-        ac_data.push(acd)
+        garbage_data.push(gm)
     });
 
 
@@ -202,41 +180,27 @@ const AcMetrics: React.FC<{ acMetrics: ActionSummary | undefined; }> = ({ acMetr
         },
         [setActiveIndexRunner]
     );
-    const acTitle: React.ReactNode[] = [<span key="label">Action Cache Statitics</span>];
-    const actionsTitle: React.ReactNode[] = [<span key="label">Actions Data</span>];
-    const userTimeTitle: React.ReactNode[] = [<span key="label">User Time</span>];
 
     return (
         <Space direction="vertical" size="middle" style={{ display: 'flex' }} >
 
 
-            <PortalCard icon={<PieChartOutlined />} titleBits={acTitle} >
+            <PortalCard icon={<PieChartOutlined />} titleBits={["Memory Metrics"]} >
                 <Row justify="space-around" align="middle" >
                     <Col span="2">
-                        <BarChart width={170} height={150} data={hits_data} margin={{ top: 0, left: 10, bottom: 10, right: 10 }}>
-                            <Bar dataKey="Miss" fill={"#8884d8"} stackId="a">
-                                <LabelList dataKey="miss_label" position="center" />
-                            </Bar>
-                            <Bar dataKey="Hit" fill={"#82ca9d"} stackId="a">
-                                <LabelList dataKey="hit_label" position="center" />
-                            </Bar>
-                            <Tooltip />
-                            <Legend />
-                        </BarChart>
-                        <Statistic title="Hits" value={acMetricsData?.hits ?? 0} formatter={formatter} />
-                        <Statistic title="Misses" value={acMetricsData?.misses ?? 0} formatter={formatter} />
-                        <Statistic title="Size (bytes)" value={acMetricsData?.sizeInBytes ?? 0} formatter={formatter} />
-                        {/* <Statistic title="Load Time(ms)" value={acMetricsData.loadTimeInMs ?? 0} formatter={formatter} /> */}
-                        <Statistic title="Save Time(ms)" value={acMetricsData?.saveTimeInMs ?? 0} formatter={formatter} />
+
+                        <Statistic title="Peak Post GC Heap Size" value={memoryMetrics?.peakPostGcHeapSize ?? 0} formatter={formatter} />
+                        <Statistic title="Peak Post TC Tenured Space Heap Size" value={memoryMetrics?.peakPostGcTenuredSpaceHeapSize ?? 0} formatter={formatter} />
+                        <Statistic title="Used Heap Size Post Build" value={memoryMetrics?.usedHeapSizePostBuild ?? 0} formatter={formatter} />
                     </Col>
                     <Col span="8">
 
-                        <PieChart width={600} height={500}>
+                        <PieChart width={500} height={500}>
 
                             <Pie
                                 activeIndex={activeIndexRunner}
                                 activeShape={renderActiveShape}
-                                data={ac_data}
+                                data={garbage_data}
                                 dataKey="value"
                                 nameKey="name"
                                 cx="50%"
@@ -245,8 +209,8 @@ const AcMetrics: React.FC<{ acMetrics: ActionSummary | undefined; }> = ({ acMetr
                                 outerRadius={90}
                                 onMouseEnter={onRunnerPieEnter}>
                                 {
-                                    ac_data.map((entry, runner_index) => (
-                                        <Cell key={`cell-${runner_index}`} fill={ac_colors[runner_index]} />
+                                    garbage_data.map((entry, runner_index) => (
+                                        <Cell key={`cell-${runner_index}`} fill={entry.color} />
                                     ))
                                 }
                             </Pie>
@@ -255,8 +219,8 @@ const AcMetrics: React.FC<{ acMetrics: ActionSummary | undefined; }> = ({ acMetr
                     </Col>
                     <Col span="12">
                         <Table
-                            columns={ac_columns}
-                            dataSource={ac_data}
+                            columns={garbage_columns}
+                            dataSource={garbage_data}
                             showSorterTooltip={{ target: 'sorter-icon' }}
                         />
                     </Col>
@@ -270,4 +234,4 @@ const AcMetrics: React.FC<{ acMetrics: ActionSummary | undefined; }> = ({ acMetr
     )
 }
 
-export default AcMetrics;
+export default MemoryMetricsDisplay;
