@@ -24,6 +24,7 @@ import (
 	"github.com/buildbarn/bb-portal/ent/gen/ent/dynamicexecutionmetrics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/evaluationstat"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/eventfile"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/exectioninfo"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/filesmetric"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/garbagemetrics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/memorymetrics"
@@ -33,9 +34,16 @@ import (
 	"github.com/buildbarn/bb-portal/ent/gen/ent/packageloadmetrics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/packagemetrics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/racestatistics"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/resourceusage"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/runnercount"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/systemnetworkstats"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/targetmetrics"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/testcollection"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/testfile"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/testresultbes"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/testsummary"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/timingbreakdown"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/timingchild"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/timingmetrics"
 	"github.com/vektah/gqlparser/v2/gqlerror"
 )
@@ -3357,6 +3365,255 @@ func (ef *EventFile) ToEdge(order *EventFileOrder) *EventFileEdge {
 	}
 }
 
+// ExectionInfoEdge is the edge representation of ExectionInfo.
+type ExectionInfoEdge struct {
+	Node   *ExectionInfo `json:"node"`
+	Cursor Cursor        `json:"cursor"`
+}
+
+// ExectionInfoConnection is the connection containing edges to ExectionInfo.
+type ExectionInfoConnection struct {
+	Edges      []*ExectionInfoEdge `json:"edges"`
+	PageInfo   PageInfo            `json:"pageInfo"`
+	TotalCount int                 `json:"totalCount"`
+}
+
+func (c *ExectionInfoConnection) build(nodes []*ExectionInfo, pager *exectioninfoPager, after *Cursor, first *int, before *Cursor, last *int) {
+	c.PageInfo.HasNextPage = before != nil
+	c.PageInfo.HasPreviousPage = after != nil
+	if first != nil && *first+1 == len(nodes) {
+		c.PageInfo.HasNextPage = true
+		nodes = nodes[:len(nodes)-1]
+	} else if last != nil && *last+1 == len(nodes) {
+		c.PageInfo.HasPreviousPage = true
+		nodes = nodes[:len(nodes)-1]
+	}
+	var nodeAt func(int) *ExectionInfo
+	if last != nil {
+		n := len(nodes) - 1
+		nodeAt = func(i int) *ExectionInfo {
+			return nodes[n-i]
+		}
+	} else {
+		nodeAt = func(i int) *ExectionInfo {
+			return nodes[i]
+		}
+	}
+	c.Edges = make([]*ExectionInfoEdge, len(nodes))
+	for i := range nodes {
+		node := nodeAt(i)
+		c.Edges[i] = &ExectionInfoEdge{
+			Node:   node,
+			Cursor: pager.toCursor(node),
+		}
+	}
+	if l := len(c.Edges); l > 0 {
+		c.PageInfo.StartCursor = &c.Edges[0].Cursor
+		c.PageInfo.EndCursor = &c.Edges[l-1].Cursor
+	}
+	if c.TotalCount == 0 {
+		c.TotalCount = len(nodes)
+	}
+}
+
+// ExectionInfoPaginateOption enables pagination customization.
+type ExectionInfoPaginateOption func(*exectioninfoPager) error
+
+// WithExectionInfoOrder configures pagination ordering.
+func WithExectionInfoOrder(order *ExectionInfoOrder) ExectionInfoPaginateOption {
+	if order == nil {
+		order = DefaultExectionInfoOrder
+	}
+	o := *order
+	return func(pager *exectioninfoPager) error {
+		if err := o.Direction.Validate(); err != nil {
+			return err
+		}
+		if o.Field == nil {
+			o.Field = DefaultExectionInfoOrder.Field
+		}
+		pager.order = &o
+		return nil
+	}
+}
+
+// WithExectionInfoFilter configures pagination filter.
+func WithExectionInfoFilter(filter func(*ExectionInfoQuery) (*ExectionInfoQuery, error)) ExectionInfoPaginateOption {
+	return func(pager *exectioninfoPager) error {
+		if filter == nil {
+			return errors.New("ExectionInfoQuery filter cannot be nil")
+		}
+		pager.filter = filter
+		return nil
+	}
+}
+
+type exectioninfoPager struct {
+	reverse bool
+	order   *ExectionInfoOrder
+	filter  func(*ExectionInfoQuery) (*ExectionInfoQuery, error)
+}
+
+func newExectionInfoPager(opts []ExectionInfoPaginateOption, reverse bool) (*exectioninfoPager, error) {
+	pager := &exectioninfoPager{reverse: reverse}
+	for _, opt := range opts {
+		if err := opt(pager); err != nil {
+			return nil, err
+		}
+	}
+	if pager.order == nil {
+		pager.order = DefaultExectionInfoOrder
+	}
+	return pager, nil
+}
+
+func (p *exectioninfoPager) applyFilter(query *ExectionInfoQuery) (*ExectionInfoQuery, error) {
+	if p.filter != nil {
+		return p.filter(query)
+	}
+	return query, nil
+}
+
+func (p *exectioninfoPager) toCursor(ei *ExectionInfo) Cursor {
+	return p.order.Field.toCursor(ei)
+}
+
+func (p *exectioninfoPager) applyCursors(query *ExectionInfoQuery, after, before *Cursor) (*ExectionInfoQuery, error) {
+	direction := p.order.Direction
+	if p.reverse {
+		direction = direction.Reverse()
+	}
+	for _, predicate := range entgql.CursorsPredicate(after, before, DefaultExectionInfoOrder.Field.column, p.order.Field.column, direction) {
+		query = query.Where(predicate)
+	}
+	return query, nil
+}
+
+func (p *exectioninfoPager) applyOrder(query *ExectionInfoQuery) *ExectionInfoQuery {
+	direction := p.order.Direction
+	if p.reverse {
+		direction = direction.Reverse()
+	}
+	query = query.Order(p.order.Field.toTerm(direction.OrderTermOption()))
+	if p.order.Field != DefaultExectionInfoOrder.Field {
+		query = query.Order(DefaultExectionInfoOrder.Field.toTerm(direction.OrderTermOption()))
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(p.order.Field.column)
+	}
+	return query
+}
+
+func (p *exectioninfoPager) orderExpr(query *ExectionInfoQuery) sql.Querier {
+	direction := p.order.Direction
+	if p.reverse {
+		direction = direction.Reverse()
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(p.order.Field.column)
+	}
+	return sql.ExprFunc(func(b *sql.Builder) {
+		b.Ident(p.order.Field.column).Pad().WriteString(string(direction))
+		if p.order.Field != DefaultExectionInfoOrder.Field {
+			b.Comma().Ident(DefaultExectionInfoOrder.Field.column).Pad().WriteString(string(direction))
+		}
+	})
+}
+
+// Paginate executes the query and returns a relay based cursor connection to ExectionInfo.
+func (ei *ExectionInfoQuery) Paginate(
+	ctx context.Context, after *Cursor, first *int,
+	before *Cursor, last *int, opts ...ExectionInfoPaginateOption,
+) (*ExectionInfoConnection, error) {
+	if err := validateFirstLast(first, last); err != nil {
+		return nil, err
+	}
+	pager, err := newExectionInfoPager(opts, last != nil)
+	if err != nil {
+		return nil, err
+	}
+	if ei, err = pager.applyFilter(ei); err != nil {
+		return nil, err
+	}
+	conn := &ExectionInfoConnection{Edges: []*ExectionInfoEdge{}}
+	ignoredEdges := !hasCollectedField(ctx, edgesField)
+	if hasCollectedField(ctx, totalCountField) || hasCollectedField(ctx, pageInfoField) {
+		hasPagination := after != nil || first != nil || before != nil || last != nil
+		if hasPagination || ignoredEdges {
+			c := ei.Clone()
+			c.ctx.Fields = nil
+			if conn.TotalCount, err = c.Count(ctx); err != nil {
+				return nil, err
+			}
+			conn.PageInfo.HasNextPage = first != nil && conn.TotalCount > 0
+			conn.PageInfo.HasPreviousPage = last != nil && conn.TotalCount > 0
+		}
+	}
+	if ignoredEdges || (first != nil && *first == 0) || (last != nil && *last == 0) {
+		return conn, nil
+	}
+	if ei, err = pager.applyCursors(ei, after, before); err != nil {
+		return nil, err
+	}
+	limit := paginateLimit(first, last)
+	if limit != 0 {
+		ei.Limit(limit)
+	}
+	if field := collectedField(ctx, edgesField, nodeField); field != nil {
+		if err := ei.collectField(ctx, limit == 1, graphql.GetOperationContext(ctx), *field, []string{edgesField, nodeField}); err != nil {
+			return nil, err
+		}
+	}
+	ei = pager.applyOrder(ei)
+	nodes, err := ei.All(ctx)
+	if err != nil {
+		return nil, err
+	}
+	conn.build(nodes, pager, after, first, before, last)
+	return conn, nil
+}
+
+// ExectionInfoOrderField defines the ordering field of ExectionInfo.
+type ExectionInfoOrderField struct {
+	// Value extracts the ordering value from the given ExectionInfo.
+	Value    func(*ExectionInfo) (ent.Value, error)
+	column   string // field or computed.
+	toTerm   func(...sql.OrderTermOption) exectioninfo.OrderOption
+	toCursor func(*ExectionInfo) Cursor
+}
+
+// ExectionInfoOrder defines the ordering of ExectionInfo.
+type ExectionInfoOrder struct {
+	Direction OrderDirection          `json:"direction"`
+	Field     *ExectionInfoOrderField `json:"field"`
+}
+
+// DefaultExectionInfoOrder is the default ordering of ExectionInfo.
+var DefaultExectionInfoOrder = &ExectionInfoOrder{
+	Direction: entgql.OrderDirectionAsc,
+	Field: &ExectionInfoOrderField{
+		Value: func(ei *ExectionInfo) (ent.Value, error) {
+			return ei.ID, nil
+		},
+		column: exectioninfo.FieldID,
+		toTerm: exectioninfo.ByID,
+		toCursor: func(ei *ExectionInfo) Cursor {
+			return Cursor{ID: ei.ID}
+		},
+	},
+}
+
+// ToEdge converts ExectionInfo into ExectionInfoEdge.
+func (ei *ExectionInfo) ToEdge(order *ExectionInfoOrder) *ExectionInfoEdge {
+	if order == nil {
+		order = DefaultExectionInfoOrder
+	}
+	return &ExectionInfoEdge{
+		Node:   ei,
+		Cursor: order.Field.toCursor(ei),
+	}
+}
+
 // FilesMetricEdge is the edge representation of FilesMetric.
 type FilesMetricEdge struct {
 	Node   *FilesMetric `json:"node"`
@@ -5598,6 +5855,255 @@ func (rs *RaceStatistics) ToEdge(order *RaceStatisticsOrder) *RaceStatisticsEdge
 	}
 }
 
+// ResourceUsageEdge is the edge representation of ResourceUsage.
+type ResourceUsageEdge struct {
+	Node   *ResourceUsage `json:"node"`
+	Cursor Cursor         `json:"cursor"`
+}
+
+// ResourceUsageConnection is the connection containing edges to ResourceUsage.
+type ResourceUsageConnection struct {
+	Edges      []*ResourceUsageEdge `json:"edges"`
+	PageInfo   PageInfo             `json:"pageInfo"`
+	TotalCount int                  `json:"totalCount"`
+}
+
+func (c *ResourceUsageConnection) build(nodes []*ResourceUsage, pager *resourceusagePager, after *Cursor, first *int, before *Cursor, last *int) {
+	c.PageInfo.HasNextPage = before != nil
+	c.PageInfo.HasPreviousPage = after != nil
+	if first != nil && *first+1 == len(nodes) {
+		c.PageInfo.HasNextPage = true
+		nodes = nodes[:len(nodes)-1]
+	} else if last != nil && *last+1 == len(nodes) {
+		c.PageInfo.HasPreviousPage = true
+		nodes = nodes[:len(nodes)-1]
+	}
+	var nodeAt func(int) *ResourceUsage
+	if last != nil {
+		n := len(nodes) - 1
+		nodeAt = func(i int) *ResourceUsage {
+			return nodes[n-i]
+		}
+	} else {
+		nodeAt = func(i int) *ResourceUsage {
+			return nodes[i]
+		}
+	}
+	c.Edges = make([]*ResourceUsageEdge, len(nodes))
+	for i := range nodes {
+		node := nodeAt(i)
+		c.Edges[i] = &ResourceUsageEdge{
+			Node:   node,
+			Cursor: pager.toCursor(node),
+		}
+	}
+	if l := len(c.Edges); l > 0 {
+		c.PageInfo.StartCursor = &c.Edges[0].Cursor
+		c.PageInfo.EndCursor = &c.Edges[l-1].Cursor
+	}
+	if c.TotalCount == 0 {
+		c.TotalCount = len(nodes)
+	}
+}
+
+// ResourceUsagePaginateOption enables pagination customization.
+type ResourceUsagePaginateOption func(*resourceusagePager) error
+
+// WithResourceUsageOrder configures pagination ordering.
+func WithResourceUsageOrder(order *ResourceUsageOrder) ResourceUsagePaginateOption {
+	if order == nil {
+		order = DefaultResourceUsageOrder
+	}
+	o := *order
+	return func(pager *resourceusagePager) error {
+		if err := o.Direction.Validate(); err != nil {
+			return err
+		}
+		if o.Field == nil {
+			o.Field = DefaultResourceUsageOrder.Field
+		}
+		pager.order = &o
+		return nil
+	}
+}
+
+// WithResourceUsageFilter configures pagination filter.
+func WithResourceUsageFilter(filter func(*ResourceUsageQuery) (*ResourceUsageQuery, error)) ResourceUsagePaginateOption {
+	return func(pager *resourceusagePager) error {
+		if filter == nil {
+			return errors.New("ResourceUsageQuery filter cannot be nil")
+		}
+		pager.filter = filter
+		return nil
+	}
+}
+
+type resourceusagePager struct {
+	reverse bool
+	order   *ResourceUsageOrder
+	filter  func(*ResourceUsageQuery) (*ResourceUsageQuery, error)
+}
+
+func newResourceUsagePager(opts []ResourceUsagePaginateOption, reverse bool) (*resourceusagePager, error) {
+	pager := &resourceusagePager{reverse: reverse}
+	for _, opt := range opts {
+		if err := opt(pager); err != nil {
+			return nil, err
+		}
+	}
+	if pager.order == nil {
+		pager.order = DefaultResourceUsageOrder
+	}
+	return pager, nil
+}
+
+func (p *resourceusagePager) applyFilter(query *ResourceUsageQuery) (*ResourceUsageQuery, error) {
+	if p.filter != nil {
+		return p.filter(query)
+	}
+	return query, nil
+}
+
+func (p *resourceusagePager) toCursor(ru *ResourceUsage) Cursor {
+	return p.order.Field.toCursor(ru)
+}
+
+func (p *resourceusagePager) applyCursors(query *ResourceUsageQuery, after, before *Cursor) (*ResourceUsageQuery, error) {
+	direction := p.order.Direction
+	if p.reverse {
+		direction = direction.Reverse()
+	}
+	for _, predicate := range entgql.CursorsPredicate(after, before, DefaultResourceUsageOrder.Field.column, p.order.Field.column, direction) {
+		query = query.Where(predicate)
+	}
+	return query, nil
+}
+
+func (p *resourceusagePager) applyOrder(query *ResourceUsageQuery) *ResourceUsageQuery {
+	direction := p.order.Direction
+	if p.reverse {
+		direction = direction.Reverse()
+	}
+	query = query.Order(p.order.Field.toTerm(direction.OrderTermOption()))
+	if p.order.Field != DefaultResourceUsageOrder.Field {
+		query = query.Order(DefaultResourceUsageOrder.Field.toTerm(direction.OrderTermOption()))
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(p.order.Field.column)
+	}
+	return query
+}
+
+func (p *resourceusagePager) orderExpr(query *ResourceUsageQuery) sql.Querier {
+	direction := p.order.Direction
+	if p.reverse {
+		direction = direction.Reverse()
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(p.order.Field.column)
+	}
+	return sql.ExprFunc(func(b *sql.Builder) {
+		b.Ident(p.order.Field.column).Pad().WriteString(string(direction))
+		if p.order.Field != DefaultResourceUsageOrder.Field {
+			b.Comma().Ident(DefaultResourceUsageOrder.Field.column).Pad().WriteString(string(direction))
+		}
+	})
+}
+
+// Paginate executes the query and returns a relay based cursor connection to ResourceUsage.
+func (ru *ResourceUsageQuery) Paginate(
+	ctx context.Context, after *Cursor, first *int,
+	before *Cursor, last *int, opts ...ResourceUsagePaginateOption,
+) (*ResourceUsageConnection, error) {
+	if err := validateFirstLast(first, last); err != nil {
+		return nil, err
+	}
+	pager, err := newResourceUsagePager(opts, last != nil)
+	if err != nil {
+		return nil, err
+	}
+	if ru, err = pager.applyFilter(ru); err != nil {
+		return nil, err
+	}
+	conn := &ResourceUsageConnection{Edges: []*ResourceUsageEdge{}}
+	ignoredEdges := !hasCollectedField(ctx, edgesField)
+	if hasCollectedField(ctx, totalCountField) || hasCollectedField(ctx, pageInfoField) {
+		hasPagination := after != nil || first != nil || before != nil || last != nil
+		if hasPagination || ignoredEdges {
+			c := ru.Clone()
+			c.ctx.Fields = nil
+			if conn.TotalCount, err = c.Count(ctx); err != nil {
+				return nil, err
+			}
+			conn.PageInfo.HasNextPage = first != nil && conn.TotalCount > 0
+			conn.PageInfo.HasPreviousPage = last != nil && conn.TotalCount > 0
+		}
+	}
+	if ignoredEdges || (first != nil && *first == 0) || (last != nil && *last == 0) {
+		return conn, nil
+	}
+	if ru, err = pager.applyCursors(ru, after, before); err != nil {
+		return nil, err
+	}
+	limit := paginateLimit(first, last)
+	if limit != 0 {
+		ru.Limit(limit)
+	}
+	if field := collectedField(ctx, edgesField, nodeField); field != nil {
+		if err := ru.collectField(ctx, limit == 1, graphql.GetOperationContext(ctx), *field, []string{edgesField, nodeField}); err != nil {
+			return nil, err
+		}
+	}
+	ru = pager.applyOrder(ru)
+	nodes, err := ru.All(ctx)
+	if err != nil {
+		return nil, err
+	}
+	conn.build(nodes, pager, after, first, before, last)
+	return conn, nil
+}
+
+// ResourceUsageOrderField defines the ordering field of ResourceUsage.
+type ResourceUsageOrderField struct {
+	// Value extracts the ordering value from the given ResourceUsage.
+	Value    func(*ResourceUsage) (ent.Value, error)
+	column   string // field or computed.
+	toTerm   func(...sql.OrderTermOption) resourceusage.OrderOption
+	toCursor func(*ResourceUsage) Cursor
+}
+
+// ResourceUsageOrder defines the ordering of ResourceUsage.
+type ResourceUsageOrder struct {
+	Direction OrderDirection           `json:"direction"`
+	Field     *ResourceUsageOrderField `json:"field"`
+}
+
+// DefaultResourceUsageOrder is the default ordering of ResourceUsage.
+var DefaultResourceUsageOrder = &ResourceUsageOrder{
+	Direction: entgql.OrderDirectionAsc,
+	Field: &ResourceUsageOrderField{
+		Value: func(ru *ResourceUsage) (ent.Value, error) {
+			return ru.ID, nil
+		},
+		column: resourceusage.FieldID,
+		toTerm: resourceusage.ByID,
+		toCursor: func(ru *ResourceUsage) Cursor {
+			return Cursor{ID: ru.ID}
+		},
+	},
+}
+
+// ToEdge converts ResourceUsage into ResourceUsageEdge.
+func (ru *ResourceUsage) ToEdge(order *ResourceUsageOrder) *ResourceUsageEdge {
+	if order == nil {
+		order = DefaultResourceUsageOrder
+	}
+	return &ResourceUsageEdge{
+		Node:   ru,
+		Cursor: order.Field.toCursor(ru),
+	}
+}
+
 // RunnerCountEdge is the edge representation of RunnerCount.
 type RunnerCountEdge struct {
 	Node   *RunnerCount `json:"node"`
@@ -6342,6 +6848,1500 @@ func (tm *TargetMetrics) ToEdge(order *TargetMetricsOrder) *TargetMetricsEdge {
 	return &TargetMetricsEdge{
 		Node:   tm,
 		Cursor: order.Field.toCursor(tm),
+	}
+}
+
+// TestCollectionEdge is the edge representation of TestCollection.
+type TestCollectionEdge struct {
+	Node   *TestCollection `json:"node"`
+	Cursor Cursor          `json:"cursor"`
+}
+
+// TestCollectionConnection is the connection containing edges to TestCollection.
+type TestCollectionConnection struct {
+	Edges      []*TestCollectionEdge `json:"edges"`
+	PageInfo   PageInfo              `json:"pageInfo"`
+	TotalCount int                   `json:"totalCount"`
+}
+
+func (c *TestCollectionConnection) build(nodes []*TestCollection, pager *testcollectionPager, after *Cursor, first *int, before *Cursor, last *int) {
+	c.PageInfo.HasNextPage = before != nil
+	c.PageInfo.HasPreviousPage = after != nil
+	if first != nil && *first+1 == len(nodes) {
+		c.PageInfo.HasNextPage = true
+		nodes = nodes[:len(nodes)-1]
+	} else if last != nil && *last+1 == len(nodes) {
+		c.PageInfo.HasPreviousPage = true
+		nodes = nodes[:len(nodes)-1]
+	}
+	var nodeAt func(int) *TestCollection
+	if last != nil {
+		n := len(nodes) - 1
+		nodeAt = func(i int) *TestCollection {
+			return nodes[n-i]
+		}
+	} else {
+		nodeAt = func(i int) *TestCollection {
+			return nodes[i]
+		}
+	}
+	c.Edges = make([]*TestCollectionEdge, len(nodes))
+	for i := range nodes {
+		node := nodeAt(i)
+		c.Edges[i] = &TestCollectionEdge{
+			Node:   node,
+			Cursor: pager.toCursor(node),
+		}
+	}
+	if l := len(c.Edges); l > 0 {
+		c.PageInfo.StartCursor = &c.Edges[0].Cursor
+		c.PageInfo.EndCursor = &c.Edges[l-1].Cursor
+	}
+	if c.TotalCount == 0 {
+		c.TotalCount = len(nodes)
+	}
+}
+
+// TestCollectionPaginateOption enables pagination customization.
+type TestCollectionPaginateOption func(*testcollectionPager) error
+
+// WithTestCollectionOrder configures pagination ordering.
+func WithTestCollectionOrder(order *TestCollectionOrder) TestCollectionPaginateOption {
+	if order == nil {
+		order = DefaultTestCollectionOrder
+	}
+	o := *order
+	return func(pager *testcollectionPager) error {
+		if err := o.Direction.Validate(); err != nil {
+			return err
+		}
+		if o.Field == nil {
+			o.Field = DefaultTestCollectionOrder.Field
+		}
+		pager.order = &o
+		return nil
+	}
+}
+
+// WithTestCollectionFilter configures pagination filter.
+func WithTestCollectionFilter(filter func(*TestCollectionQuery) (*TestCollectionQuery, error)) TestCollectionPaginateOption {
+	return func(pager *testcollectionPager) error {
+		if filter == nil {
+			return errors.New("TestCollectionQuery filter cannot be nil")
+		}
+		pager.filter = filter
+		return nil
+	}
+}
+
+type testcollectionPager struct {
+	reverse bool
+	order   *TestCollectionOrder
+	filter  func(*TestCollectionQuery) (*TestCollectionQuery, error)
+}
+
+func newTestCollectionPager(opts []TestCollectionPaginateOption, reverse bool) (*testcollectionPager, error) {
+	pager := &testcollectionPager{reverse: reverse}
+	for _, opt := range opts {
+		if err := opt(pager); err != nil {
+			return nil, err
+		}
+	}
+	if pager.order == nil {
+		pager.order = DefaultTestCollectionOrder
+	}
+	return pager, nil
+}
+
+func (p *testcollectionPager) applyFilter(query *TestCollectionQuery) (*TestCollectionQuery, error) {
+	if p.filter != nil {
+		return p.filter(query)
+	}
+	return query, nil
+}
+
+func (p *testcollectionPager) toCursor(tc *TestCollection) Cursor {
+	return p.order.Field.toCursor(tc)
+}
+
+func (p *testcollectionPager) applyCursors(query *TestCollectionQuery, after, before *Cursor) (*TestCollectionQuery, error) {
+	direction := p.order.Direction
+	if p.reverse {
+		direction = direction.Reverse()
+	}
+	for _, predicate := range entgql.CursorsPredicate(after, before, DefaultTestCollectionOrder.Field.column, p.order.Field.column, direction) {
+		query = query.Where(predicate)
+	}
+	return query, nil
+}
+
+func (p *testcollectionPager) applyOrder(query *TestCollectionQuery) *TestCollectionQuery {
+	direction := p.order.Direction
+	if p.reverse {
+		direction = direction.Reverse()
+	}
+	query = query.Order(p.order.Field.toTerm(direction.OrderTermOption()))
+	if p.order.Field != DefaultTestCollectionOrder.Field {
+		query = query.Order(DefaultTestCollectionOrder.Field.toTerm(direction.OrderTermOption()))
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(p.order.Field.column)
+	}
+	return query
+}
+
+func (p *testcollectionPager) orderExpr(query *TestCollectionQuery) sql.Querier {
+	direction := p.order.Direction
+	if p.reverse {
+		direction = direction.Reverse()
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(p.order.Field.column)
+	}
+	return sql.ExprFunc(func(b *sql.Builder) {
+		b.Ident(p.order.Field.column).Pad().WriteString(string(direction))
+		if p.order.Field != DefaultTestCollectionOrder.Field {
+			b.Comma().Ident(DefaultTestCollectionOrder.Field.column).Pad().WriteString(string(direction))
+		}
+	})
+}
+
+// Paginate executes the query and returns a relay based cursor connection to TestCollection.
+func (tc *TestCollectionQuery) Paginate(
+	ctx context.Context, after *Cursor, first *int,
+	before *Cursor, last *int, opts ...TestCollectionPaginateOption,
+) (*TestCollectionConnection, error) {
+	if err := validateFirstLast(first, last); err != nil {
+		return nil, err
+	}
+	pager, err := newTestCollectionPager(opts, last != nil)
+	if err != nil {
+		return nil, err
+	}
+	if tc, err = pager.applyFilter(tc); err != nil {
+		return nil, err
+	}
+	conn := &TestCollectionConnection{Edges: []*TestCollectionEdge{}}
+	ignoredEdges := !hasCollectedField(ctx, edgesField)
+	if hasCollectedField(ctx, totalCountField) || hasCollectedField(ctx, pageInfoField) {
+		hasPagination := after != nil || first != nil || before != nil || last != nil
+		if hasPagination || ignoredEdges {
+			c := tc.Clone()
+			c.ctx.Fields = nil
+			if conn.TotalCount, err = c.Count(ctx); err != nil {
+				return nil, err
+			}
+			conn.PageInfo.HasNextPage = first != nil && conn.TotalCount > 0
+			conn.PageInfo.HasPreviousPage = last != nil && conn.TotalCount > 0
+		}
+	}
+	if ignoredEdges || (first != nil && *first == 0) || (last != nil && *last == 0) {
+		return conn, nil
+	}
+	if tc, err = pager.applyCursors(tc, after, before); err != nil {
+		return nil, err
+	}
+	limit := paginateLimit(first, last)
+	if limit != 0 {
+		tc.Limit(limit)
+	}
+	if field := collectedField(ctx, edgesField, nodeField); field != nil {
+		if err := tc.collectField(ctx, limit == 1, graphql.GetOperationContext(ctx), *field, []string{edgesField, nodeField}); err != nil {
+			return nil, err
+		}
+	}
+	tc = pager.applyOrder(tc)
+	nodes, err := tc.All(ctx)
+	if err != nil {
+		return nil, err
+	}
+	conn.build(nodes, pager, after, first, before, last)
+	return conn, nil
+}
+
+// TestCollectionOrderField defines the ordering field of TestCollection.
+type TestCollectionOrderField struct {
+	// Value extracts the ordering value from the given TestCollection.
+	Value    func(*TestCollection) (ent.Value, error)
+	column   string // field or computed.
+	toTerm   func(...sql.OrderTermOption) testcollection.OrderOption
+	toCursor func(*TestCollection) Cursor
+}
+
+// TestCollectionOrder defines the ordering of TestCollection.
+type TestCollectionOrder struct {
+	Direction OrderDirection            `json:"direction"`
+	Field     *TestCollectionOrderField `json:"field"`
+}
+
+// DefaultTestCollectionOrder is the default ordering of TestCollection.
+var DefaultTestCollectionOrder = &TestCollectionOrder{
+	Direction: entgql.OrderDirectionAsc,
+	Field: &TestCollectionOrderField{
+		Value: func(tc *TestCollection) (ent.Value, error) {
+			return tc.ID, nil
+		},
+		column: testcollection.FieldID,
+		toTerm: testcollection.ByID,
+		toCursor: func(tc *TestCollection) Cursor {
+			return Cursor{ID: tc.ID}
+		},
+	},
+}
+
+// ToEdge converts TestCollection into TestCollectionEdge.
+func (tc *TestCollection) ToEdge(order *TestCollectionOrder) *TestCollectionEdge {
+	if order == nil {
+		order = DefaultTestCollectionOrder
+	}
+	return &TestCollectionEdge{
+		Node:   tc,
+		Cursor: order.Field.toCursor(tc),
+	}
+}
+
+// TestFileEdge is the edge representation of TestFile.
+type TestFileEdge struct {
+	Node   *TestFile `json:"node"`
+	Cursor Cursor    `json:"cursor"`
+}
+
+// TestFileConnection is the connection containing edges to TestFile.
+type TestFileConnection struct {
+	Edges      []*TestFileEdge `json:"edges"`
+	PageInfo   PageInfo        `json:"pageInfo"`
+	TotalCount int             `json:"totalCount"`
+}
+
+func (c *TestFileConnection) build(nodes []*TestFile, pager *testfilePager, after *Cursor, first *int, before *Cursor, last *int) {
+	c.PageInfo.HasNextPage = before != nil
+	c.PageInfo.HasPreviousPage = after != nil
+	if first != nil && *first+1 == len(nodes) {
+		c.PageInfo.HasNextPage = true
+		nodes = nodes[:len(nodes)-1]
+	} else if last != nil && *last+1 == len(nodes) {
+		c.PageInfo.HasPreviousPage = true
+		nodes = nodes[:len(nodes)-1]
+	}
+	var nodeAt func(int) *TestFile
+	if last != nil {
+		n := len(nodes) - 1
+		nodeAt = func(i int) *TestFile {
+			return nodes[n-i]
+		}
+	} else {
+		nodeAt = func(i int) *TestFile {
+			return nodes[i]
+		}
+	}
+	c.Edges = make([]*TestFileEdge, len(nodes))
+	for i := range nodes {
+		node := nodeAt(i)
+		c.Edges[i] = &TestFileEdge{
+			Node:   node,
+			Cursor: pager.toCursor(node),
+		}
+	}
+	if l := len(c.Edges); l > 0 {
+		c.PageInfo.StartCursor = &c.Edges[0].Cursor
+		c.PageInfo.EndCursor = &c.Edges[l-1].Cursor
+	}
+	if c.TotalCount == 0 {
+		c.TotalCount = len(nodes)
+	}
+}
+
+// TestFilePaginateOption enables pagination customization.
+type TestFilePaginateOption func(*testfilePager) error
+
+// WithTestFileOrder configures pagination ordering.
+func WithTestFileOrder(order *TestFileOrder) TestFilePaginateOption {
+	if order == nil {
+		order = DefaultTestFileOrder
+	}
+	o := *order
+	return func(pager *testfilePager) error {
+		if err := o.Direction.Validate(); err != nil {
+			return err
+		}
+		if o.Field == nil {
+			o.Field = DefaultTestFileOrder.Field
+		}
+		pager.order = &o
+		return nil
+	}
+}
+
+// WithTestFileFilter configures pagination filter.
+func WithTestFileFilter(filter func(*TestFileQuery) (*TestFileQuery, error)) TestFilePaginateOption {
+	return func(pager *testfilePager) error {
+		if filter == nil {
+			return errors.New("TestFileQuery filter cannot be nil")
+		}
+		pager.filter = filter
+		return nil
+	}
+}
+
+type testfilePager struct {
+	reverse bool
+	order   *TestFileOrder
+	filter  func(*TestFileQuery) (*TestFileQuery, error)
+}
+
+func newTestFilePager(opts []TestFilePaginateOption, reverse bool) (*testfilePager, error) {
+	pager := &testfilePager{reverse: reverse}
+	for _, opt := range opts {
+		if err := opt(pager); err != nil {
+			return nil, err
+		}
+	}
+	if pager.order == nil {
+		pager.order = DefaultTestFileOrder
+	}
+	return pager, nil
+}
+
+func (p *testfilePager) applyFilter(query *TestFileQuery) (*TestFileQuery, error) {
+	if p.filter != nil {
+		return p.filter(query)
+	}
+	return query, nil
+}
+
+func (p *testfilePager) toCursor(tf *TestFile) Cursor {
+	return p.order.Field.toCursor(tf)
+}
+
+func (p *testfilePager) applyCursors(query *TestFileQuery, after, before *Cursor) (*TestFileQuery, error) {
+	direction := p.order.Direction
+	if p.reverse {
+		direction = direction.Reverse()
+	}
+	for _, predicate := range entgql.CursorsPredicate(after, before, DefaultTestFileOrder.Field.column, p.order.Field.column, direction) {
+		query = query.Where(predicate)
+	}
+	return query, nil
+}
+
+func (p *testfilePager) applyOrder(query *TestFileQuery) *TestFileQuery {
+	direction := p.order.Direction
+	if p.reverse {
+		direction = direction.Reverse()
+	}
+	query = query.Order(p.order.Field.toTerm(direction.OrderTermOption()))
+	if p.order.Field != DefaultTestFileOrder.Field {
+		query = query.Order(DefaultTestFileOrder.Field.toTerm(direction.OrderTermOption()))
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(p.order.Field.column)
+	}
+	return query
+}
+
+func (p *testfilePager) orderExpr(query *TestFileQuery) sql.Querier {
+	direction := p.order.Direction
+	if p.reverse {
+		direction = direction.Reverse()
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(p.order.Field.column)
+	}
+	return sql.ExprFunc(func(b *sql.Builder) {
+		b.Ident(p.order.Field.column).Pad().WriteString(string(direction))
+		if p.order.Field != DefaultTestFileOrder.Field {
+			b.Comma().Ident(DefaultTestFileOrder.Field.column).Pad().WriteString(string(direction))
+		}
+	})
+}
+
+// Paginate executes the query and returns a relay based cursor connection to TestFile.
+func (tf *TestFileQuery) Paginate(
+	ctx context.Context, after *Cursor, first *int,
+	before *Cursor, last *int, opts ...TestFilePaginateOption,
+) (*TestFileConnection, error) {
+	if err := validateFirstLast(first, last); err != nil {
+		return nil, err
+	}
+	pager, err := newTestFilePager(opts, last != nil)
+	if err != nil {
+		return nil, err
+	}
+	if tf, err = pager.applyFilter(tf); err != nil {
+		return nil, err
+	}
+	conn := &TestFileConnection{Edges: []*TestFileEdge{}}
+	ignoredEdges := !hasCollectedField(ctx, edgesField)
+	if hasCollectedField(ctx, totalCountField) || hasCollectedField(ctx, pageInfoField) {
+		hasPagination := after != nil || first != nil || before != nil || last != nil
+		if hasPagination || ignoredEdges {
+			c := tf.Clone()
+			c.ctx.Fields = nil
+			if conn.TotalCount, err = c.Count(ctx); err != nil {
+				return nil, err
+			}
+			conn.PageInfo.HasNextPage = first != nil && conn.TotalCount > 0
+			conn.PageInfo.HasPreviousPage = last != nil && conn.TotalCount > 0
+		}
+	}
+	if ignoredEdges || (first != nil && *first == 0) || (last != nil && *last == 0) {
+		return conn, nil
+	}
+	if tf, err = pager.applyCursors(tf, after, before); err != nil {
+		return nil, err
+	}
+	limit := paginateLimit(first, last)
+	if limit != 0 {
+		tf.Limit(limit)
+	}
+	if field := collectedField(ctx, edgesField, nodeField); field != nil {
+		if err := tf.collectField(ctx, limit == 1, graphql.GetOperationContext(ctx), *field, []string{edgesField, nodeField}); err != nil {
+			return nil, err
+		}
+	}
+	tf = pager.applyOrder(tf)
+	nodes, err := tf.All(ctx)
+	if err != nil {
+		return nil, err
+	}
+	conn.build(nodes, pager, after, first, before, last)
+	return conn, nil
+}
+
+// TestFileOrderField defines the ordering field of TestFile.
+type TestFileOrderField struct {
+	// Value extracts the ordering value from the given TestFile.
+	Value    func(*TestFile) (ent.Value, error)
+	column   string // field or computed.
+	toTerm   func(...sql.OrderTermOption) testfile.OrderOption
+	toCursor func(*TestFile) Cursor
+}
+
+// TestFileOrder defines the ordering of TestFile.
+type TestFileOrder struct {
+	Direction OrderDirection      `json:"direction"`
+	Field     *TestFileOrderField `json:"field"`
+}
+
+// DefaultTestFileOrder is the default ordering of TestFile.
+var DefaultTestFileOrder = &TestFileOrder{
+	Direction: entgql.OrderDirectionAsc,
+	Field: &TestFileOrderField{
+		Value: func(tf *TestFile) (ent.Value, error) {
+			return tf.ID, nil
+		},
+		column: testfile.FieldID,
+		toTerm: testfile.ByID,
+		toCursor: func(tf *TestFile) Cursor {
+			return Cursor{ID: tf.ID}
+		},
+	},
+}
+
+// ToEdge converts TestFile into TestFileEdge.
+func (tf *TestFile) ToEdge(order *TestFileOrder) *TestFileEdge {
+	if order == nil {
+		order = DefaultTestFileOrder
+	}
+	return &TestFileEdge{
+		Node:   tf,
+		Cursor: order.Field.toCursor(tf),
+	}
+}
+
+// TestResultBESEdge is the edge representation of TestResultBES.
+type TestResultBESEdge struct {
+	Node   *TestResultBES `json:"node"`
+	Cursor Cursor         `json:"cursor"`
+}
+
+// TestResultBESConnection is the connection containing edges to TestResultBES.
+type TestResultBESConnection struct {
+	Edges      []*TestResultBESEdge `json:"edges"`
+	PageInfo   PageInfo             `json:"pageInfo"`
+	TotalCount int                  `json:"totalCount"`
+}
+
+func (c *TestResultBESConnection) build(nodes []*TestResultBES, pager *testresultbesPager, after *Cursor, first *int, before *Cursor, last *int) {
+	c.PageInfo.HasNextPage = before != nil
+	c.PageInfo.HasPreviousPage = after != nil
+	if first != nil && *first+1 == len(nodes) {
+		c.PageInfo.HasNextPage = true
+		nodes = nodes[:len(nodes)-1]
+	} else if last != nil && *last+1 == len(nodes) {
+		c.PageInfo.HasPreviousPage = true
+		nodes = nodes[:len(nodes)-1]
+	}
+	var nodeAt func(int) *TestResultBES
+	if last != nil {
+		n := len(nodes) - 1
+		nodeAt = func(i int) *TestResultBES {
+			return nodes[n-i]
+		}
+	} else {
+		nodeAt = func(i int) *TestResultBES {
+			return nodes[i]
+		}
+	}
+	c.Edges = make([]*TestResultBESEdge, len(nodes))
+	for i := range nodes {
+		node := nodeAt(i)
+		c.Edges[i] = &TestResultBESEdge{
+			Node:   node,
+			Cursor: pager.toCursor(node),
+		}
+	}
+	if l := len(c.Edges); l > 0 {
+		c.PageInfo.StartCursor = &c.Edges[0].Cursor
+		c.PageInfo.EndCursor = &c.Edges[l-1].Cursor
+	}
+	if c.TotalCount == 0 {
+		c.TotalCount = len(nodes)
+	}
+}
+
+// TestResultBESPaginateOption enables pagination customization.
+type TestResultBESPaginateOption func(*testresultbesPager) error
+
+// WithTestResultBESOrder configures pagination ordering.
+func WithTestResultBESOrder(order *TestResultBESOrder) TestResultBESPaginateOption {
+	if order == nil {
+		order = DefaultTestResultBESOrder
+	}
+	o := *order
+	return func(pager *testresultbesPager) error {
+		if err := o.Direction.Validate(); err != nil {
+			return err
+		}
+		if o.Field == nil {
+			o.Field = DefaultTestResultBESOrder.Field
+		}
+		pager.order = &o
+		return nil
+	}
+}
+
+// WithTestResultBESFilter configures pagination filter.
+func WithTestResultBESFilter(filter func(*TestResultBESQuery) (*TestResultBESQuery, error)) TestResultBESPaginateOption {
+	return func(pager *testresultbesPager) error {
+		if filter == nil {
+			return errors.New("TestResultBESQuery filter cannot be nil")
+		}
+		pager.filter = filter
+		return nil
+	}
+}
+
+type testresultbesPager struct {
+	reverse bool
+	order   *TestResultBESOrder
+	filter  func(*TestResultBESQuery) (*TestResultBESQuery, error)
+}
+
+func newTestResultBESPager(opts []TestResultBESPaginateOption, reverse bool) (*testresultbesPager, error) {
+	pager := &testresultbesPager{reverse: reverse}
+	for _, opt := range opts {
+		if err := opt(pager); err != nil {
+			return nil, err
+		}
+	}
+	if pager.order == nil {
+		pager.order = DefaultTestResultBESOrder
+	}
+	return pager, nil
+}
+
+func (p *testresultbesPager) applyFilter(query *TestResultBESQuery) (*TestResultBESQuery, error) {
+	if p.filter != nil {
+		return p.filter(query)
+	}
+	return query, nil
+}
+
+func (p *testresultbesPager) toCursor(trb *TestResultBES) Cursor {
+	return p.order.Field.toCursor(trb)
+}
+
+func (p *testresultbesPager) applyCursors(query *TestResultBESQuery, after, before *Cursor) (*TestResultBESQuery, error) {
+	direction := p.order.Direction
+	if p.reverse {
+		direction = direction.Reverse()
+	}
+	for _, predicate := range entgql.CursorsPredicate(after, before, DefaultTestResultBESOrder.Field.column, p.order.Field.column, direction) {
+		query = query.Where(predicate)
+	}
+	return query, nil
+}
+
+func (p *testresultbesPager) applyOrder(query *TestResultBESQuery) *TestResultBESQuery {
+	direction := p.order.Direction
+	if p.reverse {
+		direction = direction.Reverse()
+	}
+	query = query.Order(p.order.Field.toTerm(direction.OrderTermOption()))
+	if p.order.Field != DefaultTestResultBESOrder.Field {
+		query = query.Order(DefaultTestResultBESOrder.Field.toTerm(direction.OrderTermOption()))
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(p.order.Field.column)
+	}
+	return query
+}
+
+func (p *testresultbesPager) orderExpr(query *TestResultBESQuery) sql.Querier {
+	direction := p.order.Direction
+	if p.reverse {
+		direction = direction.Reverse()
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(p.order.Field.column)
+	}
+	return sql.ExprFunc(func(b *sql.Builder) {
+		b.Ident(p.order.Field.column).Pad().WriteString(string(direction))
+		if p.order.Field != DefaultTestResultBESOrder.Field {
+			b.Comma().Ident(DefaultTestResultBESOrder.Field.column).Pad().WriteString(string(direction))
+		}
+	})
+}
+
+// Paginate executes the query and returns a relay based cursor connection to TestResultBES.
+func (trb *TestResultBESQuery) Paginate(
+	ctx context.Context, after *Cursor, first *int,
+	before *Cursor, last *int, opts ...TestResultBESPaginateOption,
+) (*TestResultBESConnection, error) {
+	if err := validateFirstLast(first, last); err != nil {
+		return nil, err
+	}
+	pager, err := newTestResultBESPager(opts, last != nil)
+	if err != nil {
+		return nil, err
+	}
+	if trb, err = pager.applyFilter(trb); err != nil {
+		return nil, err
+	}
+	conn := &TestResultBESConnection{Edges: []*TestResultBESEdge{}}
+	ignoredEdges := !hasCollectedField(ctx, edgesField)
+	if hasCollectedField(ctx, totalCountField) || hasCollectedField(ctx, pageInfoField) {
+		hasPagination := after != nil || first != nil || before != nil || last != nil
+		if hasPagination || ignoredEdges {
+			c := trb.Clone()
+			c.ctx.Fields = nil
+			if conn.TotalCount, err = c.Count(ctx); err != nil {
+				return nil, err
+			}
+			conn.PageInfo.HasNextPage = first != nil && conn.TotalCount > 0
+			conn.PageInfo.HasPreviousPage = last != nil && conn.TotalCount > 0
+		}
+	}
+	if ignoredEdges || (first != nil && *first == 0) || (last != nil && *last == 0) {
+		return conn, nil
+	}
+	if trb, err = pager.applyCursors(trb, after, before); err != nil {
+		return nil, err
+	}
+	limit := paginateLimit(first, last)
+	if limit != 0 {
+		trb.Limit(limit)
+	}
+	if field := collectedField(ctx, edgesField, nodeField); field != nil {
+		if err := trb.collectField(ctx, limit == 1, graphql.GetOperationContext(ctx), *field, []string{edgesField, nodeField}); err != nil {
+			return nil, err
+		}
+	}
+	trb = pager.applyOrder(trb)
+	nodes, err := trb.All(ctx)
+	if err != nil {
+		return nil, err
+	}
+	conn.build(nodes, pager, after, first, before, last)
+	return conn, nil
+}
+
+// TestResultBESOrderField defines the ordering field of TestResultBES.
+type TestResultBESOrderField struct {
+	// Value extracts the ordering value from the given TestResultBES.
+	Value    func(*TestResultBES) (ent.Value, error)
+	column   string // field or computed.
+	toTerm   func(...sql.OrderTermOption) testresultbes.OrderOption
+	toCursor func(*TestResultBES) Cursor
+}
+
+// TestResultBESOrder defines the ordering of TestResultBES.
+type TestResultBESOrder struct {
+	Direction OrderDirection           `json:"direction"`
+	Field     *TestResultBESOrderField `json:"field"`
+}
+
+// DefaultTestResultBESOrder is the default ordering of TestResultBES.
+var DefaultTestResultBESOrder = &TestResultBESOrder{
+	Direction: entgql.OrderDirectionAsc,
+	Field: &TestResultBESOrderField{
+		Value: func(trb *TestResultBES) (ent.Value, error) {
+			return trb.ID, nil
+		},
+		column: testresultbes.FieldID,
+		toTerm: testresultbes.ByID,
+		toCursor: func(trb *TestResultBES) Cursor {
+			return Cursor{ID: trb.ID}
+		},
+	},
+}
+
+// ToEdge converts TestResultBES into TestResultBESEdge.
+func (trb *TestResultBES) ToEdge(order *TestResultBESOrder) *TestResultBESEdge {
+	if order == nil {
+		order = DefaultTestResultBESOrder
+	}
+	return &TestResultBESEdge{
+		Node:   trb,
+		Cursor: order.Field.toCursor(trb),
+	}
+}
+
+// TestSummaryEdge is the edge representation of TestSummary.
+type TestSummaryEdge struct {
+	Node   *TestSummary `json:"node"`
+	Cursor Cursor       `json:"cursor"`
+}
+
+// TestSummaryConnection is the connection containing edges to TestSummary.
+type TestSummaryConnection struct {
+	Edges      []*TestSummaryEdge `json:"edges"`
+	PageInfo   PageInfo           `json:"pageInfo"`
+	TotalCount int                `json:"totalCount"`
+}
+
+func (c *TestSummaryConnection) build(nodes []*TestSummary, pager *testsummaryPager, after *Cursor, first *int, before *Cursor, last *int) {
+	c.PageInfo.HasNextPage = before != nil
+	c.PageInfo.HasPreviousPage = after != nil
+	if first != nil && *first+1 == len(nodes) {
+		c.PageInfo.HasNextPage = true
+		nodes = nodes[:len(nodes)-1]
+	} else if last != nil && *last+1 == len(nodes) {
+		c.PageInfo.HasPreviousPage = true
+		nodes = nodes[:len(nodes)-1]
+	}
+	var nodeAt func(int) *TestSummary
+	if last != nil {
+		n := len(nodes) - 1
+		nodeAt = func(i int) *TestSummary {
+			return nodes[n-i]
+		}
+	} else {
+		nodeAt = func(i int) *TestSummary {
+			return nodes[i]
+		}
+	}
+	c.Edges = make([]*TestSummaryEdge, len(nodes))
+	for i := range nodes {
+		node := nodeAt(i)
+		c.Edges[i] = &TestSummaryEdge{
+			Node:   node,
+			Cursor: pager.toCursor(node),
+		}
+	}
+	if l := len(c.Edges); l > 0 {
+		c.PageInfo.StartCursor = &c.Edges[0].Cursor
+		c.PageInfo.EndCursor = &c.Edges[l-1].Cursor
+	}
+	if c.TotalCount == 0 {
+		c.TotalCount = len(nodes)
+	}
+}
+
+// TestSummaryPaginateOption enables pagination customization.
+type TestSummaryPaginateOption func(*testsummaryPager) error
+
+// WithTestSummaryOrder configures pagination ordering.
+func WithTestSummaryOrder(order *TestSummaryOrder) TestSummaryPaginateOption {
+	if order == nil {
+		order = DefaultTestSummaryOrder
+	}
+	o := *order
+	return func(pager *testsummaryPager) error {
+		if err := o.Direction.Validate(); err != nil {
+			return err
+		}
+		if o.Field == nil {
+			o.Field = DefaultTestSummaryOrder.Field
+		}
+		pager.order = &o
+		return nil
+	}
+}
+
+// WithTestSummaryFilter configures pagination filter.
+func WithTestSummaryFilter(filter func(*TestSummaryQuery) (*TestSummaryQuery, error)) TestSummaryPaginateOption {
+	return func(pager *testsummaryPager) error {
+		if filter == nil {
+			return errors.New("TestSummaryQuery filter cannot be nil")
+		}
+		pager.filter = filter
+		return nil
+	}
+}
+
+type testsummaryPager struct {
+	reverse bool
+	order   *TestSummaryOrder
+	filter  func(*TestSummaryQuery) (*TestSummaryQuery, error)
+}
+
+func newTestSummaryPager(opts []TestSummaryPaginateOption, reverse bool) (*testsummaryPager, error) {
+	pager := &testsummaryPager{reverse: reverse}
+	for _, opt := range opts {
+		if err := opt(pager); err != nil {
+			return nil, err
+		}
+	}
+	if pager.order == nil {
+		pager.order = DefaultTestSummaryOrder
+	}
+	return pager, nil
+}
+
+func (p *testsummaryPager) applyFilter(query *TestSummaryQuery) (*TestSummaryQuery, error) {
+	if p.filter != nil {
+		return p.filter(query)
+	}
+	return query, nil
+}
+
+func (p *testsummaryPager) toCursor(ts *TestSummary) Cursor {
+	return p.order.Field.toCursor(ts)
+}
+
+func (p *testsummaryPager) applyCursors(query *TestSummaryQuery, after, before *Cursor) (*TestSummaryQuery, error) {
+	direction := p.order.Direction
+	if p.reverse {
+		direction = direction.Reverse()
+	}
+	for _, predicate := range entgql.CursorsPredicate(after, before, DefaultTestSummaryOrder.Field.column, p.order.Field.column, direction) {
+		query = query.Where(predicate)
+	}
+	return query, nil
+}
+
+func (p *testsummaryPager) applyOrder(query *TestSummaryQuery) *TestSummaryQuery {
+	direction := p.order.Direction
+	if p.reverse {
+		direction = direction.Reverse()
+	}
+	query = query.Order(p.order.Field.toTerm(direction.OrderTermOption()))
+	if p.order.Field != DefaultTestSummaryOrder.Field {
+		query = query.Order(DefaultTestSummaryOrder.Field.toTerm(direction.OrderTermOption()))
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(p.order.Field.column)
+	}
+	return query
+}
+
+func (p *testsummaryPager) orderExpr(query *TestSummaryQuery) sql.Querier {
+	direction := p.order.Direction
+	if p.reverse {
+		direction = direction.Reverse()
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(p.order.Field.column)
+	}
+	return sql.ExprFunc(func(b *sql.Builder) {
+		b.Ident(p.order.Field.column).Pad().WriteString(string(direction))
+		if p.order.Field != DefaultTestSummaryOrder.Field {
+			b.Comma().Ident(DefaultTestSummaryOrder.Field.column).Pad().WriteString(string(direction))
+		}
+	})
+}
+
+// Paginate executes the query and returns a relay based cursor connection to TestSummary.
+func (ts *TestSummaryQuery) Paginate(
+	ctx context.Context, after *Cursor, first *int,
+	before *Cursor, last *int, opts ...TestSummaryPaginateOption,
+) (*TestSummaryConnection, error) {
+	if err := validateFirstLast(first, last); err != nil {
+		return nil, err
+	}
+	pager, err := newTestSummaryPager(opts, last != nil)
+	if err != nil {
+		return nil, err
+	}
+	if ts, err = pager.applyFilter(ts); err != nil {
+		return nil, err
+	}
+	conn := &TestSummaryConnection{Edges: []*TestSummaryEdge{}}
+	ignoredEdges := !hasCollectedField(ctx, edgesField)
+	if hasCollectedField(ctx, totalCountField) || hasCollectedField(ctx, pageInfoField) {
+		hasPagination := after != nil || first != nil || before != nil || last != nil
+		if hasPagination || ignoredEdges {
+			c := ts.Clone()
+			c.ctx.Fields = nil
+			if conn.TotalCount, err = c.Count(ctx); err != nil {
+				return nil, err
+			}
+			conn.PageInfo.HasNextPage = first != nil && conn.TotalCount > 0
+			conn.PageInfo.HasPreviousPage = last != nil && conn.TotalCount > 0
+		}
+	}
+	if ignoredEdges || (first != nil && *first == 0) || (last != nil && *last == 0) {
+		return conn, nil
+	}
+	if ts, err = pager.applyCursors(ts, after, before); err != nil {
+		return nil, err
+	}
+	limit := paginateLimit(first, last)
+	if limit != 0 {
+		ts.Limit(limit)
+	}
+	if field := collectedField(ctx, edgesField, nodeField); field != nil {
+		if err := ts.collectField(ctx, limit == 1, graphql.GetOperationContext(ctx), *field, []string{edgesField, nodeField}); err != nil {
+			return nil, err
+		}
+	}
+	ts = pager.applyOrder(ts)
+	nodes, err := ts.All(ctx)
+	if err != nil {
+		return nil, err
+	}
+	conn.build(nodes, pager, after, first, before, last)
+	return conn, nil
+}
+
+// TestSummaryOrderField defines the ordering field of TestSummary.
+type TestSummaryOrderField struct {
+	// Value extracts the ordering value from the given TestSummary.
+	Value    func(*TestSummary) (ent.Value, error)
+	column   string // field or computed.
+	toTerm   func(...sql.OrderTermOption) testsummary.OrderOption
+	toCursor func(*TestSummary) Cursor
+}
+
+// TestSummaryOrder defines the ordering of TestSummary.
+type TestSummaryOrder struct {
+	Direction OrderDirection         `json:"direction"`
+	Field     *TestSummaryOrderField `json:"field"`
+}
+
+// DefaultTestSummaryOrder is the default ordering of TestSummary.
+var DefaultTestSummaryOrder = &TestSummaryOrder{
+	Direction: entgql.OrderDirectionAsc,
+	Field: &TestSummaryOrderField{
+		Value: func(ts *TestSummary) (ent.Value, error) {
+			return ts.ID, nil
+		},
+		column: testsummary.FieldID,
+		toTerm: testsummary.ByID,
+		toCursor: func(ts *TestSummary) Cursor {
+			return Cursor{ID: ts.ID}
+		},
+	},
+}
+
+// ToEdge converts TestSummary into TestSummaryEdge.
+func (ts *TestSummary) ToEdge(order *TestSummaryOrder) *TestSummaryEdge {
+	if order == nil {
+		order = DefaultTestSummaryOrder
+	}
+	return &TestSummaryEdge{
+		Node:   ts,
+		Cursor: order.Field.toCursor(ts),
+	}
+}
+
+// TimingBreakdownEdge is the edge representation of TimingBreakdown.
+type TimingBreakdownEdge struct {
+	Node   *TimingBreakdown `json:"node"`
+	Cursor Cursor           `json:"cursor"`
+}
+
+// TimingBreakdownConnection is the connection containing edges to TimingBreakdown.
+type TimingBreakdownConnection struct {
+	Edges      []*TimingBreakdownEdge `json:"edges"`
+	PageInfo   PageInfo               `json:"pageInfo"`
+	TotalCount int                    `json:"totalCount"`
+}
+
+func (c *TimingBreakdownConnection) build(nodes []*TimingBreakdown, pager *timingbreakdownPager, after *Cursor, first *int, before *Cursor, last *int) {
+	c.PageInfo.HasNextPage = before != nil
+	c.PageInfo.HasPreviousPage = after != nil
+	if first != nil && *first+1 == len(nodes) {
+		c.PageInfo.HasNextPage = true
+		nodes = nodes[:len(nodes)-1]
+	} else if last != nil && *last+1 == len(nodes) {
+		c.PageInfo.HasPreviousPage = true
+		nodes = nodes[:len(nodes)-1]
+	}
+	var nodeAt func(int) *TimingBreakdown
+	if last != nil {
+		n := len(nodes) - 1
+		nodeAt = func(i int) *TimingBreakdown {
+			return nodes[n-i]
+		}
+	} else {
+		nodeAt = func(i int) *TimingBreakdown {
+			return nodes[i]
+		}
+	}
+	c.Edges = make([]*TimingBreakdownEdge, len(nodes))
+	for i := range nodes {
+		node := nodeAt(i)
+		c.Edges[i] = &TimingBreakdownEdge{
+			Node:   node,
+			Cursor: pager.toCursor(node),
+		}
+	}
+	if l := len(c.Edges); l > 0 {
+		c.PageInfo.StartCursor = &c.Edges[0].Cursor
+		c.PageInfo.EndCursor = &c.Edges[l-1].Cursor
+	}
+	if c.TotalCount == 0 {
+		c.TotalCount = len(nodes)
+	}
+}
+
+// TimingBreakdownPaginateOption enables pagination customization.
+type TimingBreakdownPaginateOption func(*timingbreakdownPager) error
+
+// WithTimingBreakdownOrder configures pagination ordering.
+func WithTimingBreakdownOrder(order *TimingBreakdownOrder) TimingBreakdownPaginateOption {
+	if order == nil {
+		order = DefaultTimingBreakdownOrder
+	}
+	o := *order
+	return func(pager *timingbreakdownPager) error {
+		if err := o.Direction.Validate(); err != nil {
+			return err
+		}
+		if o.Field == nil {
+			o.Field = DefaultTimingBreakdownOrder.Field
+		}
+		pager.order = &o
+		return nil
+	}
+}
+
+// WithTimingBreakdownFilter configures pagination filter.
+func WithTimingBreakdownFilter(filter func(*TimingBreakdownQuery) (*TimingBreakdownQuery, error)) TimingBreakdownPaginateOption {
+	return func(pager *timingbreakdownPager) error {
+		if filter == nil {
+			return errors.New("TimingBreakdownQuery filter cannot be nil")
+		}
+		pager.filter = filter
+		return nil
+	}
+}
+
+type timingbreakdownPager struct {
+	reverse bool
+	order   *TimingBreakdownOrder
+	filter  func(*TimingBreakdownQuery) (*TimingBreakdownQuery, error)
+}
+
+func newTimingBreakdownPager(opts []TimingBreakdownPaginateOption, reverse bool) (*timingbreakdownPager, error) {
+	pager := &timingbreakdownPager{reverse: reverse}
+	for _, opt := range opts {
+		if err := opt(pager); err != nil {
+			return nil, err
+		}
+	}
+	if pager.order == nil {
+		pager.order = DefaultTimingBreakdownOrder
+	}
+	return pager, nil
+}
+
+func (p *timingbreakdownPager) applyFilter(query *TimingBreakdownQuery) (*TimingBreakdownQuery, error) {
+	if p.filter != nil {
+		return p.filter(query)
+	}
+	return query, nil
+}
+
+func (p *timingbreakdownPager) toCursor(tb *TimingBreakdown) Cursor {
+	return p.order.Field.toCursor(tb)
+}
+
+func (p *timingbreakdownPager) applyCursors(query *TimingBreakdownQuery, after, before *Cursor) (*TimingBreakdownQuery, error) {
+	direction := p.order.Direction
+	if p.reverse {
+		direction = direction.Reverse()
+	}
+	for _, predicate := range entgql.CursorsPredicate(after, before, DefaultTimingBreakdownOrder.Field.column, p.order.Field.column, direction) {
+		query = query.Where(predicate)
+	}
+	return query, nil
+}
+
+func (p *timingbreakdownPager) applyOrder(query *TimingBreakdownQuery) *TimingBreakdownQuery {
+	direction := p.order.Direction
+	if p.reverse {
+		direction = direction.Reverse()
+	}
+	query = query.Order(p.order.Field.toTerm(direction.OrderTermOption()))
+	if p.order.Field != DefaultTimingBreakdownOrder.Field {
+		query = query.Order(DefaultTimingBreakdownOrder.Field.toTerm(direction.OrderTermOption()))
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(p.order.Field.column)
+	}
+	return query
+}
+
+func (p *timingbreakdownPager) orderExpr(query *TimingBreakdownQuery) sql.Querier {
+	direction := p.order.Direction
+	if p.reverse {
+		direction = direction.Reverse()
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(p.order.Field.column)
+	}
+	return sql.ExprFunc(func(b *sql.Builder) {
+		b.Ident(p.order.Field.column).Pad().WriteString(string(direction))
+		if p.order.Field != DefaultTimingBreakdownOrder.Field {
+			b.Comma().Ident(DefaultTimingBreakdownOrder.Field.column).Pad().WriteString(string(direction))
+		}
+	})
+}
+
+// Paginate executes the query and returns a relay based cursor connection to TimingBreakdown.
+func (tb *TimingBreakdownQuery) Paginate(
+	ctx context.Context, after *Cursor, first *int,
+	before *Cursor, last *int, opts ...TimingBreakdownPaginateOption,
+) (*TimingBreakdownConnection, error) {
+	if err := validateFirstLast(first, last); err != nil {
+		return nil, err
+	}
+	pager, err := newTimingBreakdownPager(opts, last != nil)
+	if err != nil {
+		return nil, err
+	}
+	if tb, err = pager.applyFilter(tb); err != nil {
+		return nil, err
+	}
+	conn := &TimingBreakdownConnection{Edges: []*TimingBreakdownEdge{}}
+	ignoredEdges := !hasCollectedField(ctx, edgesField)
+	if hasCollectedField(ctx, totalCountField) || hasCollectedField(ctx, pageInfoField) {
+		hasPagination := after != nil || first != nil || before != nil || last != nil
+		if hasPagination || ignoredEdges {
+			c := tb.Clone()
+			c.ctx.Fields = nil
+			if conn.TotalCount, err = c.Count(ctx); err != nil {
+				return nil, err
+			}
+			conn.PageInfo.HasNextPage = first != nil && conn.TotalCount > 0
+			conn.PageInfo.HasPreviousPage = last != nil && conn.TotalCount > 0
+		}
+	}
+	if ignoredEdges || (first != nil && *first == 0) || (last != nil && *last == 0) {
+		return conn, nil
+	}
+	if tb, err = pager.applyCursors(tb, after, before); err != nil {
+		return nil, err
+	}
+	limit := paginateLimit(first, last)
+	if limit != 0 {
+		tb.Limit(limit)
+	}
+	if field := collectedField(ctx, edgesField, nodeField); field != nil {
+		if err := tb.collectField(ctx, limit == 1, graphql.GetOperationContext(ctx), *field, []string{edgesField, nodeField}); err != nil {
+			return nil, err
+		}
+	}
+	tb = pager.applyOrder(tb)
+	nodes, err := tb.All(ctx)
+	if err != nil {
+		return nil, err
+	}
+	conn.build(nodes, pager, after, first, before, last)
+	return conn, nil
+}
+
+// TimingBreakdownOrderField defines the ordering field of TimingBreakdown.
+type TimingBreakdownOrderField struct {
+	// Value extracts the ordering value from the given TimingBreakdown.
+	Value    func(*TimingBreakdown) (ent.Value, error)
+	column   string // field or computed.
+	toTerm   func(...sql.OrderTermOption) timingbreakdown.OrderOption
+	toCursor func(*TimingBreakdown) Cursor
+}
+
+// TimingBreakdownOrder defines the ordering of TimingBreakdown.
+type TimingBreakdownOrder struct {
+	Direction OrderDirection             `json:"direction"`
+	Field     *TimingBreakdownOrderField `json:"field"`
+}
+
+// DefaultTimingBreakdownOrder is the default ordering of TimingBreakdown.
+var DefaultTimingBreakdownOrder = &TimingBreakdownOrder{
+	Direction: entgql.OrderDirectionAsc,
+	Field: &TimingBreakdownOrderField{
+		Value: func(tb *TimingBreakdown) (ent.Value, error) {
+			return tb.ID, nil
+		},
+		column: timingbreakdown.FieldID,
+		toTerm: timingbreakdown.ByID,
+		toCursor: func(tb *TimingBreakdown) Cursor {
+			return Cursor{ID: tb.ID}
+		},
+	},
+}
+
+// ToEdge converts TimingBreakdown into TimingBreakdownEdge.
+func (tb *TimingBreakdown) ToEdge(order *TimingBreakdownOrder) *TimingBreakdownEdge {
+	if order == nil {
+		order = DefaultTimingBreakdownOrder
+	}
+	return &TimingBreakdownEdge{
+		Node:   tb,
+		Cursor: order.Field.toCursor(tb),
+	}
+}
+
+// TimingChildEdge is the edge representation of TimingChild.
+type TimingChildEdge struct {
+	Node   *TimingChild `json:"node"`
+	Cursor Cursor       `json:"cursor"`
+}
+
+// TimingChildConnection is the connection containing edges to TimingChild.
+type TimingChildConnection struct {
+	Edges      []*TimingChildEdge `json:"edges"`
+	PageInfo   PageInfo           `json:"pageInfo"`
+	TotalCount int                `json:"totalCount"`
+}
+
+func (c *TimingChildConnection) build(nodes []*TimingChild, pager *timingchildPager, after *Cursor, first *int, before *Cursor, last *int) {
+	c.PageInfo.HasNextPage = before != nil
+	c.PageInfo.HasPreviousPage = after != nil
+	if first != nil && *first+1 == len(nodes) {
+		c.PageInfo.HasNextPage = true
+		nodes = nodes[:len(nodes)-1]
+	} else if last != nil && *last+1 == len(nodes) {
+		c.PageInfo.HasPreviousPage = true
+		nodes = nodes[:len(nodes)-1]
+	}
+	var nodeAt func(int) *TimingChild
+	if last != nil {
+		n := len(nodes) - 1
+		nodeAt = func(i int) *TimingChild {
+			return nodes[n-i]
+		}
+	} else {
+		nodeAt = func(i int) *TimingChild {
+			return nodes[i]
+		}
+	}
+	c.Edges = make([]*TimingChildEdge, len(nodes))
+	for i := range nodes {
+		node := nodeAt(i)
+		c.Edges[i] = &TimingChildEdge{
+			Node:   node,
+			Cursor: pager.toCursor(node),
+		}
+	}
+	if l := len(c.Edges); l > 0 {
+		c.PageInfo.StartCursor = &c.Edges[0].Cursor
+		c.PageInfo.EndCursor = &c.Edges[l-1].Cursor
+	}
+	if c.TotalCount == 0 {
+		c.TotalCount = len(nodes)
+	}
+}
+
+// TimingChildPaginateOption enables pagination customization.
+type TimingChildPaginateOption func(*timingchildPager) error
+
+// WithTimingChildOrder configures pagination ordering.
+func WithTimingChildOrder(order *TimingChildOrder) TimingChildPaginateOption {
+	if order == nil {
+		order = DefaultTimingChildOrder
+	}
+	o := *order
+	return func(pager *timingchildPager) error {
+		if err := o.Direction.Validate(); err != nil {
+			return err
+		}
+		if o.Field == nil {
+			o.Field = DefaultTimingChildOrder.Field
+		}
+		pager.order = &o
+		return nil
+	}
+}
+
+// WithTimingChildFilter configures pagination filter.
+func WithTimingChildFilter(filter func(*TimingChildQuery) (*TimingChildQuery, error)) TimingChildPaginateOption {
+	return func(pager *timingchildPager) error {
+		if filter == nil {
+			return errors.New("TimingChildQuery filter cannot be nil")
+		}
+		pager.filter = filter
+		return nil
+	}
+}
+
+type timingchildPager struct {
+	reverse bool
+	order   *TimingChildOrder
+	filter  func(*TimingChildQuery) (*TimingChildQuery, error)
+}
+
+func newTimingChildPager(opts []TimingChildPaginateOption, reverse bool) (*timingchildPager, error) {
+	pager := &timingchildPager{reverse: reverse}
+	for _, opt := range opts {
+		if err := opt(pager); err != nil {
+			return nil, err
+		}
+	}
+	if pager.order == nil {
+		pager.order = DefaultTimingChildOrder
+	}
+	return pager, nil
+}
+
+func (p *timingchildPager) applyFilter(query *TimingChildQuery) (*TimingChildQuery, error) {
+	if p.filter != nil {
+		return p.filter(query)
+	}
+	return query, nil
+}
+
+func (p *timingchildPager) toCursor(tc *TimingChild) Cursor {
+	return p.order.Field.toCursor(tc)
+}
+
+func (p *timingchildPager) applyCursors(query *TimingChildQuery, after, before *Cursor) (*TimingChildQuery, error) {
+	direction := p.order.Direction
+	if p.reverse {
+		direction = direction.Reverse()
+	}
+	for _, predicate := range entgql.CursorsPredicate(after, before, DefaultTimingChildOrder.Field.column, p.order.Field.column, direction) {
+		query = query.Where(predicate)
+	}
+	return query, nil
+}
+
+func (p *timingchildPager) applyOrder(query *TimingChildQuery) *TimingChildQuery {
+	direction := p.order.Direction
+	if p.reverse {
+		direction = direction.Reverse()
+	}
+	query = query.Order(p.order.Field.toTerm(direction.OrderTermOption()))
+	if p.order.Field != DefaultTimingChildOrder.Field {
+		query = query.Order(DefaultTimingChildOrder.Field.toTerm(direction.OrderTermOption()))
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(p.order.Field.column)
+	}
+	return query
+}
+
+func (p *timingchildPager) orderExpr(query *TimingChildQuery) sql.Querier {
+	direction := p.order.Direction
+	if p.reverse {
+		direction = direction.Reverse()
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(p.order.Field.column)
+	}
+	return sql.ExprFunc(func(b *sql.Builder) {
+		b.Ident(p.order.Field.column).Pad().WriteString(string(direction))
+		if p.order.Field != DefaultTimingChildOrder.Field {
+			b.Comma().Ident(DefaultTimingChildOrder.Field.column).Pad().WriteString(string(direction))
+		}
+	})
+}
+
+// Paginate executes the query and returns a relay based cursor connection to TimingChild.
+func (tc *TimingChildQuery) Paginate(
+	ctx context.Context, after *Cursor, first *int,
+	before *Cursor, last *int, opts ...TimingChildPaginateOption,
+) (*TimingChildConnection, error) {
+	if err := validateFirstLast(first, last); err != nil {
+		return nil, err
+	}
+	pager, err := newTimingChildPager(opts, last != nil)
+	if err != nil {
+		return nil, err
+	}
+	if tc, err = pager.applyFilter(tc); err != nil {
+		return nil, err
+	}
+	conn := &TimingChildConnection{Edges: []*TimingChildEdge{}}
+	ignoredEdges := !hasCollectedField(ctx, edgesField)
+	if hasCollectedField(ctx, totalCountField) || hasCollectedField(ctx, pageInfoField) {
+		hasPagination := after != nil || first != nil || before != nil || last != nil
+		if hasPagination || ignoredEdges {
+			c := tc.Clone()
+			c.ctx.Fields = nil
+			if conn.TotalCount, err = c.Count(ctx); err != nil {
+				return nil, err
+			}
+			conn.PageInfo.HasNextPage = first != nil && conn.TotalCount > 0
+			conn.PageInfo.HasPreviousPage = last != nil && conn.TotalCount > 0
+		}
+	}
+	if ignoredEdges || (first != nil && *first == 0) || (last != nil && *last == 0) {
+		return conn, nil
+	}
+	if tc, err = pager.applyCursors(tc, after, before); err != nil {
+		return nil, err
+	}
+	limit := paginateLimit(first, last)
+	if limit != 0 {
+		tc.Limit(limit)
+	}
+	if field := collectedField(ctx, edgesField, nodeField); field != nil {
+		if err := tc.collectField(ctx, limit == 1, graphql.GetOperationContext(ctx), *field, []string{edgesField, nodeField}); err != nil {
+			return nil, err
+		}
+	}
+	tc = pager.applyOrder(tc)
+	nodes, err := tc.All(ctx)
+	if err != nil {
+		return nil, err
+	}
+	conn.build(nodes, pager, after, first, before, last)
+	return conn, nil
+}
+
+// TimingChildOrderField defines the ordering field of TimingChild.
+type TimingChildOrderField struct {
+	// Value extracts the ordering value from the given TimingChild.
+	Value    func(*TimingChild) (ent.Value, error)
+	column   string // field or computed.
+	toTerm   func(...sql.OrderTermOption) timingchild.OrderOption
+	toCursor func(*TimingChild) Cursor
+}
+
+// TimingChildOrder defines the ordering of TimingChild.
+type TimingChildOrder struct {
+	Direction OrderDirection         `json:"direction"`
+	Field     *TimingChildOrderField `json:"field"`
+}
+
+// DefaultTimingChildOrder is the default ordering of TimingChild.
+var DefaultTimingChildOrder = &TimingChildOrder{
+	Direction: entgql.OrderDirectionAsc,
+	Field: &TimingChildOrderField{
+		Value: func(tc *TimingChild) (ent.Value, error) {
+			return tc.ID, nil
+		},
+		column: timingchild.FieldID,
+		toTerm: timingchild.ByID,
+		toCursor: func(tc *TimingChild) Cursor {
+			return Cursor{ID: tc.ID}
+		},
+	},
+}
+
+// ToEdge converts TimingChild into TimingChildEdge.
+func (tc *TimingChild) ToEdge(order *TimingChildOrder) *TimingChildEdge {
+	if order == nil {
+		order = DefaultTimingChildOrder
+	}
+	return &TimingChildEdge{
+		Node:   tc,
+		Cursor: order.Field.toCursor(tc),
 	}
 }
 

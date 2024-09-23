@@ -28,6 +28,7 @@ import (
 	"github.com/buildbarn/bb-portal/ent/gen/ent/dynamicexecutionmetrics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/evaluationstat"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/eventfile"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/exectioninfo"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/filesmetric"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/garbagemetrics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/memorymetrics"
@@ -37,9 +38,16 @@ import (
 	"github.com/buildbarn/bb-portal/ent/gen/ent/packageloadmetrics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/packagemetrics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/racestatistics"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/resourceusage"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/runnercount"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/systemnetworkstats"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/targetmetrics"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/testcollection"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/testfile"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/testresultbes"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/testsummary"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/timingbreakdown"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/timingchild"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/timingmetrics"
 )
 
@@ -74,6 +82,8 @@ type Client struct {
 	EvaluationStat *EvaluationStatClient
 	// EventFile is the client for interacting with the EventFile builders.
 	EventFile *EventFileClient
+	// ExectionInfo is the client for interacting with the ExectionInfo builders.
+	ExectionInfo *ExectionInfoClient
 	// FilesMetric is the client for interacting with the FilesMetric builders.
 	FilesMetric *FilesMetricClient
 	// GarbageMetrics is the client for interacting with the GarbageMetrics builders.
@@ -92,12 +102,26 @@ type Client struct {
 	PackageMetrics *PackageMetricsClient
 	// RaceStatistics is the client for interacting with the RaceStatistics builders.
 	RaceStatistics *RaceStatisticsClient
+	// ResourceUsage is the client for interacting with the ResourceUsage builders.
+	ResourceUsage *ResourceUsageClient
 	// RunnerCount is the client for interacting with the RunnerCount builders.
 	RunnerCount *RunnerCountClient
 	// SystemNetworkStats is the client for interacting with the SystemNetworkStats builders.
 	SystemNetworkStats *SystemNetworkStatsClient
 	// TargetMetrics is the client for interacting with the TargetMetrics builders.
 	TargetMetrics *TargetMetricsClient
+	// TestCollection is the client for interacting with the TestCollection builders.
+	TestCollection *TestCollectionClient
+	// TestFile is the client for interacting with the TestFile builders.
+	TestFile *TestFileClient
+	// TestResultBES is the client for interacting with the TestResultBES builders.
+	TestResultBES *TestResultBESClient
+	// TestSummary is the client for interacting with the TestSummary builders.
+	TestSummary *TestSummaryClient
+	// TimingBreakdown is the client for interacting with the TimingBreakdown builders.
+	TimingBreakdown *TimingBreakdownClient
+	// TimingChild is the client for interacting with the TimingChild builders.
+	TimingChild *TimingChildClient
 	// TimingMetrics is the client for interacting with the TimingMetrics builders.
 	TimingMetrics *TimingMetricsClient
 	// additional fields for node api
@@ -126,6 +150,7 @@ func (c *Client) init() {
 	c.DynamicExecutionMetrics = NewDynamicExecutionMetricsClient(c.config)
 	c.EvaluationStat = NewEvaluationStatClient(c.config)
 	c.EventFile = NewEventFileClient(c.config)
+	c.ExectionInfo = NewExectionInfoClient(c.config)
 	c.FilesMetric = NewFilesMetricClient(c.config)
 	c.GarbageMetrics = NewGarbageMetricsClient(c.config)
 	c.MemoryMetrics = NewMemoryMetricsClient(c.config)
@@ -135,9 +160,16 @@ func (c *Client) init() {
 	c.PackageLoadMetrics = NewPackageLoadMetricsClient(c.config)
 	c.PackageMetrics = NewPackageMetricsClient(c.config)
 	c.RaceStatistics = NewRaceStatisticsClient(c.config)
+	c.ResourceUsage = NewResourceUsageClient(c.config)
 	c.RunnerCount = NewRunnerCountClient(c.config)
 	c.SystemNetworkStats = NewSystemNetworkStatsClient(c.config)
 	c.TargetMetrics = NewTargetMetricsClient(c.config)
+	c.TestCollection = NewTestCollectionClient(c.config)
+	c.TestFile = NewTestFileClient(c.config)
+	c.TestResultBES = NewTestResultBESClient(c.config)
+	c.TestSummary = NewTestSummaryClient(c.config)
+	c.TimingBreakdown = NewTimingBreakdownClient(c.config)
+	c.TimingChild = NewTimingChildClient(c.config)
 	c.TimingMetrics = NewTimingMetricsClient(c.config)
 }
 
@@ -244,6 +276,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		DynamicExecutionMetrics: NewDynamicExecutionMetricsClient(cfg),
 		EvaluationStat:          NewEvaluationStatClient(cfg),
 		EventFile:               NewEventFileClient(cfg),
+		ExectionInfo:            NewExectionInfoClient(cfg),
 		FilesMetric:             NewFilesMetricClient(cfg),
 		GarbageMetrics:          NewGarbageMetricsClient(cfg),
 		MemoryMetrics:           NewMemoryMetricsClient(cfg),
@@ -253,9 +286,16 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		PackageLoadMetrics:      NewPackageLoadMetricsClient(cfg),
 		PackageMetrics:          NewPackageMetricsClient(cfg),
 		RaceStatistics:          NewRaceStatisticsClient(cfg),
+		ResourceUsage:           NewResourceUsageClient(cfg),
 		RunnerCount:             NewRunnerCountClient(cfg),
 		SystemNetworkStats:      NewSystemNetworkStatsClient(cfg),
 		TargetMetrics:           NewTargetMetricsClient(cfg),
+		TestCollection:          NewTestCollectionClient(cfg),
+		TestFile:                NewTestFileClient(cfg),
+		TestResultBES:           NewTestResultBESClient(cfg),
+		TestSummary:             NewTestSummaryClient(cfg),
+		TimingBreakdown:         NewTimingBreakdownClient(cfg),
+		TimingChild:             NewTimingChildClient(cfg),
 		TimingMetrics:           NewTimingMetricsClient(cfg),
 	}, nil
 }
@@ -289,6 +329,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		DynamicExecutionMetrics: NewDynamicExecutionMetricsClient(cfg),
 		EvaluationStat:          NewEvaluationStatClient(cfg),
 		EventFile:               NewEventFileClient(cfg),
+		ExectionInfo:            NewExectionInfoClient(cfg),
 		FilesMetric:             NewFilesMetricClient(cfg),
 		GarbageMetrics:          NewGarbageMetricsClient(cfg),
 		MemoryMetrics:           NewMemoryMetricsClient(cfg),
@@ -298,9 +339,16 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		PackageLoadMetrics:      NewPackageLoadMetricsClient(cfg),
 		PackageMetrics:          NewPackageMetricsClient(cfg),
 		RaceStatistics:          NewRaceStatisticsClient(cfg),
+		ResourceUsage:           NewResourceUsageClient(cfg),
 		RunnerCount:             NewRunnerCountClient(cfg),
 		SystemNetworkStats:      NewSystemNetworkStatsClient(cfg),
 		TargetMetrics:           NewTargetMetricsClient(cfg),
+		TestCollection:          NewTestCollectionClient(cfg),
+		TestFile:                NewTestFileClient(cfg),
+		TestResultBES:           NewTestResultBESClient(cfg),
+		TestSummary:             NewTestSummaryClient(cfg),
+		TimingBreakdown:         NewTimingBreakdownClient(cfg),
+		TimingChild:             NewTimingChildClient(cfg),
 		TimingMetrics:           NewTimingMetricsClient(cfg),
 	}, nil
 }
@@ -334,10 +382,12 @@ func (c *Client) Use(hooks ...Hook) {
 		c.ActionCacheStatistics, c.ActionData, c.ActionSummary, c.ArtifactMetrics,
 		c.BazelInvocation, c.BazelInvocationProblem, c.Blob, c.Build,
 		c.BuildGraphMetrics, c.CumulativeMetrics, c.DynamicExecutionMetrics,
-		c.EvaluationStat, c.EventFile, c.FilesMetric, c.GarbageMetrics,
+		c.EvaluationStat, c.EventFile, c.ExectionInfo, c.FilesMetric, c.GarbageMetrics,
 		c.MemoryMetrics, c.Metrics, c.MissDetail, c.NetworkMetrics,
-		c.PackageLoadMetrics, c.PackageMetrics, c.RaceStatistics, c.RunnerCount,
-		c.SystemNetworkStats, c.TargetMetrics, c.TimingMetrics,
+		c.PackageLoadMetrics, c.PackageMetrics, c.RaceStatistics, c.ResourceUsage,
+		c.RunnerCount, c.SystemNetworkStats, c.TargetMetrics, c.TestCollection,
+		c.TestFile, c.TestResultBES, c.TestSummary, c.TimingBreakdown, c.TimingChild,
+		c.TimingMetrics,
 	} {
 		n.Use(hooks...)
 	}
@@ -350,10 +400,12 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 		c.ActionCacheStatistics, c.ActionData, c.ActionSummary, c.ArtifactMetrics,
 		c.BazelInvocation, c.BazelInvocationProblem, c.Blob, c.Build,
 		c.BuildGraphMetrics, c.CumulativeMetrics, c.DynamicExecutionMetrics,
-		c.EvaluationStat, c.EventFile, c.FilesMetric, c.GarbageMetrics,
+		c.EvaluationStat, c.EventFile, c.ExectionInfo, c.FilesMetric, c.GarbageMetrics,
 		c.MemoryMetrics, c.Metrics, c.MissDetail, c.NetworkMetrics,
-		c.PackageLoadMetrics, c.PackageMetrics, c.RaceStatistics, c.RunnerCount,
-		c.SystemNetworkStats, c.TargetMetrics, c.TimingMetrics,
+		c.PackageLoadMetrics, c.PackageMetrics, c.RaceStatistics, c.ResourceUsage,
+		c.RunnerCount, c.SystemNetworkStats, c.TargetMetrics, c.TestCollection,
+		c.TestFile, c.TestResultBES, c.TestSummary, c.TimingBreakdown, c.TimingChild,
+		c.TimingMetrics,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -388,6 +440,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.EvaluationStat.mutate(ctx, m)
 	case *EventFileMutation:
 		return c.EventFile.mutate(ctx, m)
+	case *ExectionInfoMutation:
+		return c.ExectionInfo.mutate(ctx, m)
 	case *FilesMetricMutation:
 		return c.FilesMetric.mutate(ctx, m)
 	case *GarbageMetricsMutation:
@@ -406,12 +460,26 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.PackageMetrics.mutate(ctx, m)
 	case *RaceStatisticsMutation:
 		return c.RaceStatistics.mutate(ctx, m)
+	case *ResourceUsageMutation:
+		return c.ResourceUsage.mutate(ctx, m)
 	case *RunnerCountMutation:
 		return c.RunnerCount.mutate(ctx, m)
 	case *SystemNetworkStatsMutation:
 		return c.SystemNetworkStats.mutate(ctx, m)
 	case *TargetMetricsMutation:
 		return c.TargetMetrics.mutate(ctx, m)
+	case *TestCollectionMutation:
+		return c.TestCollection.mutate(ctx, m)
+	case *TestFileMutation:
+		return c.TestFile.mutate(ctx, m)
+	case *TestResultBESMutation:
+		return c.TestResultBES.mutate(ctx, m)
+	case *TestSummaryMutation:
+		return c.TestSummary.mutate(ctx, m)
+	case *TimingBreakdownMutation:
+		return c.TimingBreakdown.mutate(ctx, m)
+	case *TimingChildMutation:
+		return c.TimingChild.mutate(ctx, m)
 	case *TimingMetricsMutation:
 		return c.TimingMetrics.mutate(ctx, m)
 	default:
@@ -1308,6 +1376,22 @@ func (c *BazelInvocationClient) QueryProblems(bi *BazelInvocation) *BazelInvocat
 			sqlgraph.From(bazelinvocation.Table, bazelinvocation.FieldID, id),
 			sqlgraph.To(bazelinvocationproblem.Table, bazelinvocationproblem.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, bazelinvocation.ProblemsTable, bazelinvocation.ProblemsColumn),
+		)
+		fromV = sqlgraph.Neighbors(bi.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryTestCollection queries the test_collection edge of a BazelInvocation.
+func (c *BazelInvocationClient) QueryTestCollection(bi *BazelInvocation) *TestCollectionQuery {
+	query := (&TestCollectionClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := bi.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(bazelinvocation.Table, bazelinvocation.FieldID, id),
+			sqlgraph.To(testcollection.Table, testcollection.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, bazelinvocation.TestCollectionTable, bazelinvocation.TestCollectionPrimaryKey...),
 		)
 		fromV = sqlgraph.Neighbors(bi.driver.Dialect(), step)
 		return fromV, nil
@@ -2612,6 +2696,187 @@ func (c *EventFileClient) mutate(ctx context.Context, m *EventFileMutation) (Val
 	}
 }
 
+// ExectionInfoClient is a client for the ExectionInfo schema.
+type ExectionInfoClient struct {
+	config
+}
+
+// NewExectionInfoClient returns a client for the ExectionInfo from the given config.
+func NewExectionInfoClient(c config) *ExectionInfoClient {
+	return &ExectionInfoClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `exectioninfo.Hooks(f(g(h())))`.
+func (c *ExectionInfoClient) Use(hooks ...Hook) {
+	c.hooks.ExectionInfo = append(c.hooks.ExectionInfo, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `exectioninfo.Intercept(f(g(h())))`.
+func (c *ExectionInfoClient) Intercept(interceptors ...Interceptor) {
+	c.inters.ExectionInfo = append(c.inters.ExectionInfo, interceptors...)
+}
+
+// Create returns a builder for creating a ExectionInfo entity.
+func (c *ExectionInfoClient) Create() *ExectionInfoCreate {
+	mutation := newExectionInfoMutation(c.config, OpCreate)
+	return &ExectionInfoCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of ExectionInfo entities.
+func (c *ExectionInfoClient) CreateBulk(builders ...*ExectionInfoCreate) *ExectionInfoCreateBulk {
+	return &ExectionInfoCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *ExectionInfoClient) MapCreateBulk(slice any, setFunc func(*ExectionInfoCreate, int)) *ExectionInfoCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &ExectionInfoCreateBulk{err: fmt.Errorf("calling to ExectionInfoClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*ExectionInfoCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &ExectionInfoCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for ExectionInfo.
+func (c *ExectionInfoClient) Update() *ExectionInfoUpdate {
+	mutation := newExectionInfoMutation(c.config, OpUpdate)
+	return &ExectionInfoUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *ExectionInfoClient) UpdateOne(ei *ExectionInfo) *ExectionInfoUpdateOne {
+	mutation := newExectionInfoMutation(c.config, OpUpdateOne, withExectionInfo(ei))
+	return &ExectionInfoUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *ExectionInfoClient) UpdateOneID(id int) *ExectionInfoUpdateOne {
+	mutation := newExectionInfoMutation(c.config, OpUpdateOne, withExectionInfoID(id))
+	return &ExectionInfoUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for ExectionInfo.
+func (c *ExectionInfoClient) Delete() *ExectionInfoDelete {
+	mutation := newExectionInfoMutation(c.config, OpDelete)
+	return &ExectionInfoDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *ExectionInfoClient) DeleteOne(ei *ExectionInfo) *ExectionInfoDeleteOne {
+	return c.DeleteOneID(ei.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *ExectionInfoClient) DeleteOneID(id int) *ExectionInfoDeleteOne {
+	builder := c.Delete().Where(exectioninfo.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &ExectionInfoDeleteOne{builder}
+}
+
+// Query returns a query builder for ExectionInfo.
+func (c *ExectionInfoClient) Query() *ExectionInfoQuery {
+	return &ExectionInfoQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeExectionInfo},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a ExectionInfo entity by its id.
+func (c *ExectionInfoClient) Get(ctx context.Context, id int) (*ExectionInfo, error) {
+	return c.Query().Where(exectioninfo.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *ExectionInfoClient) GetX(ctx context.Context, id int) *ExectionInfo {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryTestResult queries the test_result edge of a ExectionInfo.
+func (c *ExectionInfoClient) QueryTestResult(ei *ExectionInfo) *TestResultBESQuery {
+	query := (&TestResultBESClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := ei.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(exectioninfo.Table, exectioninfo.FieldID, id),
+			sqlgraph.To(testresultbes.Table, testresultbes.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, true, exectioninfo.TestResultTable, exectioninfo.TestResultColumn),
+		)
+		fromV = sqlgraph.Neighbors(ei.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryTimingBreakdown queries the timing_breakdown edge of a ExectionInfo.
+func (c *ExectionInfoClient) QueryTimingBreakdown(ei *ExectionInfo) *TimingBreakdownQuery {
+	query := (&TimingBreakdownClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := ei.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(exectioninfo.Table, exectioninfo.FieldID, id),
+			sqlgraph.To(timingbreakdown.Table, timingbreakdown.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, exectioninfo.TimingBreakdownTable, exectioninfo.TimingBreakdownColumn),
+		)
+		fromV = sqlgraph.Neighbors(ei.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryResourceUsage queries the resource_usage edge of a ExectionInfo.
+func (c *ExectionInfoClient) QueryResourceUsage(ei *ExectionInfo) *ResourceUsageQuery {
+	query := (&ResourceUsageClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := ei.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(exectioninfo.Table, exectioninfo.FieldID, id),
+			sqlgraph.To(resourceusage.Table, resourceusage.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, exectioninfo.ResourceUsageTable, exectioninfo.ResourceUsagePrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(ei.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *ExectionInfoClient) Hooks() []Hook {
+	return c.hooks.ExectionInfo
+}
+
+// Interceptors returns the client interceptors.
+func (c *ExectionInfoClient) Interceptors() []Interceptor {
+	return c.inters.ExectionInfo
+}
+
+func (c *ExectionInfoClient) mutate(ctx context.Context, m *ExectionInfoMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&ExectionInfoCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&ExectionInfoUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&ExectionInfoUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&ExectionInfoDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown ExectionInfo mutation op: %q", m.Op())
+	}
+}
+
 // FilesMetricClient is a client for the FilesMetric schema.
 type FilesMetricClient struct {
 	config
@@ -3352,6 +3617,38 @@ func (c *MetricsClient) QueryBuildGraphMetrics(m *Metrics) *BuildGraphMetricsQue
 			sqlgraph.From(metrics.Table, metrics.FieldID, id),
 			sqlgraph.To(buildgraphmetrics.Table, buildgraphmetrics.FieldID),
 			sqlgraph.Edge(sqlgraph.M2M, false, metrics.BuildGraphMetricsTable, metrics.BuildGraphMetricsPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryTestResults queries the test_results edge of a Metrics.
+func (c *MetricsClient) QueryTestResults(m *Metrics) *TestResultBESQuery {
+	query := (&TestResultBESClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(metrics.Table, metrics.FieldID, id),
+			sqlgraph.To(testresultbes.Table, testresultbes.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, metrics.TestResultsTable, metrics.TestResultsColumn),
+		)
+		fromV = sqlgraph.Neighbors(m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryTestSummary queries the test_summary edge of a Metrics.
+func (c *MetricsClient) QueryTestSummary(m *Metrics) *TestSummaryQuery {
+	query := (&TestSummaryClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(metrics.Table, metrics.FieldID, id),
+			sqlgraph.To(testsummary.Table, testsummary.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, metrics.TestSummaryTable, metrics.TestSummaryColumn),
 		)
 		fromV = sqlgraph.Neighbors(m.driver.Dialect(), step)
 		return fromV, nil
@@ -4161,6 +4458,155 @@ func (c *RaceStatisticsClient) mutate(ctx context.Context, m *RaceStatisticsMuta
 	}
 }
 
+// ResourceUsageClient is a client for the ResourceUsage schema.
+type ResourceUsageClient struct {
+	config
+}
+
+// NewResourceUsageClient returns a client for the ResourceUsage from the given config.
+func NewResourceUsageClient(c config) *ResourceUsageClient {
+	return &ResourceUsageClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `resourceusage.Hooks(f(g(h())))`.
+func (c *ResourceUsageClient) Use(hooks ...Hook) {
+	c.hooks.ResourceUsage = append(c.hooks.ResourceUsage, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `resourceusage.Intercept(f(g(h())))`.
+func (c *ResourceUsageClient) Intercept(interceptors ...Interceptor) {
+	c.inters.ResourceUsage = append(c.inters.ResourceUsage, interceptors...)
+}
+
+// Create returns a builder for creating a ResourceUsage entity.
+func (c *ResourceUsageClient) Create() *ResourceUsageCreate {
+	mutation := newResourceUsageMutation(c.config, OpCreate)
+	return &ResourceUsageCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of ResourceUsage entities.
+func (c *ResourceUsageClient) CreateBulk(builders ...*ResourceUsageCreate) *ResourceUsageCreateBulk {
+	return &ResourceUsageCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *ResourceUsageClient) MapCreateBulk(slice any, setFunc func(*ResourceUsageCreate, int)) *ResourceUsageCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &ResourceUsageCreateBulk{err: fmt.Errorf("calling to ResourceUsageClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*ResourceUsageCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &ResourceUsageCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for ResourceUsage.
+func (c *ResourceUsageClient) Update() *ResourceUsageUpdate {
+	mutation := newResourceUsageMutation(c.config, OpUpdate)
+	return &ResourceUsageUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *ResourceUsageClient) UpdateOne(ru *ResourceUsage) *ResourceUsageUpdateOne {
+	mutation := newResourceUsageMutation(c.config, OpUpdateOne, withResourceUsage(ru))
+	return &ResourceUsageUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *ResourceUsageClient) UpdateOneID(id int) *ResourceUsageUpdateOne {
+	mutation := newResourceUsageMutation(c.config, OpUpdateOne, withResourceUsageID(id))
+	return &ResourceUsageUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for ResourceUsage.
+func (c *ResourceUsageClient) Delete() *ResourceUsageDelete {
+	mutation := newResourceUsageMutation(c.config, OpDelete)
+	return &ResourceUsageDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *ResourceUsageClient) DeleteOne(ru *ResourceUsage) *ResourceUsageDeleteOne {
+	return c.DeleteOneID(ru.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *ResourceUsageClient) DeleteOneID(id int) *ResourceUsageDeleteOne {
+	builder := c.Delete().Where(resourceusage.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &ResourceUsageDeleteOne{builder}
+}
+
+// Query returns a query builder for ResourceUsage.
+func (c *ResourceUsageClient) Query() *ResourceUsageQuery {
+	return &ResourceUsageQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeResourceUsage},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a ResourceUsage entity by its id.
+func (c *ResourceUsageClient) Get(ctx context.Context, id int) (*ResourceUsage, error) {
+	return c.Query().Where(resourceusage.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *ResourceUsageClient) GetX(ctx context.Context, id int) *ResourceUsage {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryExecutionInfo queries the execution_info edge of a ResourceUsage.
+func (c *ResourceUsageClient) QueryExecutionInfo(ru *ResourceUsage) *ExectionInfoQuery {
+	query := (&ExectionInfoClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := ru.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(resourceusage.Table, resourceusage.FieldID, id),
+			sqlgraph.To(exectioninfo.Table, exectioninfo.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, resourceusage.ExecutionInfoTable, resourceusage.ExecutionInfoPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(ru.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *ResourceUsageClient) Hooks() []Hook {
+	return c.hooks.ResourceUsage
+}
+
+// Interceptors returns the client interceptors.
+func (c *ResourceUsageClient) Interceptors() []Interceptor {
+	return c.inters.ResourceUsage
+}
+
+func (c *ResourceUsageClient) mutate(ctx context.Context, m *ResourceUsageMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&ResourceUsageCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&ResourceUsageUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&ResourceUsageUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&ResourceUsageDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown ResourceUsage mutation op: %q", m.Op())
+	}
+}
+
 // RunnerCountClient is a client for the RunnerCount schema.
 type RunnerCountClient struct {
 	config
@@ -4608,6 +5054,1012 @@ func (c *TargetMetricsClient) mutate(ctx context.Context, m *TargetMetricsMutati
 	}
 }
 
+// TestCollectionClient is a client for the TestCollection schema.
+type TestCollectionClient struct {
+	config
+}
+
+// NewTestCollectionClient returns a client for the TestCollection from the given config.
+func NewTestCollectionClient(c config) *TestCollectionClient {
+	return &TestCollectionClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `testcollection.Hooks(f(g(h())))`.
+func (c *TestCollectionClient) Use(hooks ...Hook) {
+	c.hooks.TestCollection = append(c.hooks.TestCollection, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `testcollection.Intercept(f(g(h())))`.
+func (c *TestCollectionClient) Intercept(interceptors ...Interceptor) {
+	c.inters.TestCollection = append(c.inters.TestCollection, interceptors...)
+}
+
+// Create returns a builder for creating a TestCollection entity.
+func (c *TestCollectionClient) Create() *TestCollectionCreate {
+	mutation := newTestCollectionMutation(c.config, OpCreate)
+	return &TestCollectionCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of TestCollection entities.
+func (c *TestCollectionClient) CreateBulk(builders ...*TestCollectionCreate) *TestCollectionCreateBulk {
+	return &TestCollectionCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *TestCollectionClient) MapCreateBulk(slice any, setFunc func(*TestCollectionCreate, int)) *TestCollectionCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &TestCollectionCreateBulk{err: fmt.Errorf("calling to TestCollectionClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*TestCollectionCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &TestCollectionCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for TestCollection.
+func (c *TestCollectionClient) Update() *TestCollectionUpdate {
+	mutation := newTestCollectionMutation(c.config, OpUpdate)
+	return &TestCollectionUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *TestCollectionClient) UpdateOne(tc *TestCollection) *TestCollectionUpdateOne {
+	mutation := newTestCollectionMutation(c.config, OpUpdateOne, withTestCollection(tc))
+	return &TestCollectionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *TestCollectionClient) UpdateOneID(id int) *TestCollectionUpdateOne {
+	mutation := newTestCollectionMutation(c.config, OpUpdateOne, withTestCollectionID(id))
+	return &TestCollectionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for TestCollection.
+func (c *TestCollectionClient) Delete() *TestCollectionDelete {
+	mutation := newTestCollectionMutation(c.config, OpDelete)
+	return &TestCollectionDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *TestCollectionClient) DeleteOne(tc *TestCollection) *TestCollectionDeleteOne {
+	return c.DeleteOneID(tc.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *TestCollectionClient) DeleteOneID(id int) *TestCollectionDeleteOne {
+	builder := c.Delete().Where(testcollection.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &TestCollectionDeleteOne{builder}
+}
+
+// Query returns a query builder for TestCollection.
+func (c *TestCollectionClient) Query() *TestCollectionQuery {
+	return &TestCollectionQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeTestCollection},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a TestCollection entity by its id.
+func (c *TestCollectionClient) Get(ctx context.Context, id int) (*TestCollection, error) {
+	return c.Query().Where(testcollection.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *TestCollectionClient) GetX(ctx context.Context, id int) *TestCollection {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryBazelInvocation queries the bazel_invocation edge of a TestCollection.
+func (c *TestCollectionClient) QueryBazelInvocation(tc *TestCollection) *BazelInvocationQuery {
+	query := (&BazelInvocationClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := tc.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(testcollection.Table, testcollection.FieldID, id),
+			sqlgraph.To(bazelinvocation.Table, bazelinvocation.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, testcollection.BazelInvocationTable, testcollection.BazelInvocationPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(tc.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryTestSummary queries the test_summary edge of a TestCollection.
+func (c *TestCollectionClient) QueryTestSummary(tc *TestCollection) *TestSummaryQuery {
+	query := (&TestSummaryClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := tc.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(testcollection.Table, testcollection.FieldID, id),
+			sqlgraph.To(testsummary.Table, testsummary.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, testcollection.TestSummaryTable, testcollection.TestSummaryColumn),
+		)
+		fromV = sqlgraph.Neighbors(tc.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryTestResults queries the test_results edge of a TestCollection.
+func (c *TestCollectionClient) QueryTestResults(tc *TestCollection) *TestResultBESQuery {
+	query := (&TestResultBESClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := tc.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(testcollection.Table, testcollection.FieldID, id),
+			sqlgraph.To(testresultbes.Table, testresultbes.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, testcollection.TestResultsTable, testcollection.TestResultsColumn),
+		)
+		fromV = sqlgraph.Neighbors(tc.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *TestCollectionClient) Hooks() []Hook {
+	return c.hooks.TestCollection
+}
+
+// Interceptors returns the client interceptors.
+func (c *TestCollectionClient) Interceptors() []Interceptor {
+	return c.inters.TestCollection
+}
+
+func (c *TestCollectionClient) mutate(ctx context.Context, m *TestCollectionMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&TestCollectionCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&TestCollectionUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&TestCollectionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&TestCollectionDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown TestCollection mutation op: %q", m.Op())
+	}
+}
+
+// TestFileClient is a client for the TestFile schema.
+type TestFileClient struct {
+	config
+}
+
+// NewTestFileClient returns a client for the TestFile from the given config.
+func NewTestFileClient(c config) *TestFileClient {
+	return &TestFileClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `testfile.Hooks(f(g(h())))`.
+func (c *TestFileClient) Use(hooks ...Hook) {
+	c.hooks.TestFile = append(c.hooks.TestFile, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `testfile.Intercept(f(g(h())))`.
+func (c *TestFileClient) Intercept(interceptors ...Interceptor) {
+	c.inters.TestFile = append(c.inters.TestFile, interceptors...)
+}
+
+// Create returns a builder for creating a TestFile entity.
+func (c *TestFileClient) Create() *TestFileCreate {
+	mutation := newTestFileMutation(c.config, OpCreate)
+	return &TestFileCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of TestFile entities.
+func (c *TestFileClient) CreateBulk(builders ...*TestFileCreate) *TestFileCreateBulk {
+	return &TestFileCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *TestFileClient) MapCreateBulk(slice any, setFunc func(*TestFileCreate, int)) *TestFileCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &TestFileCreateBulk{err: fmt.Errorf("calling to TestFileClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*TestFileCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &TestFileCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for TestFile.
+func (c *TestFileClient) Update() *TestFileUpdate {
+	mutation := newTestFileMutation(c.config, OpUpdate)
+	return &TestFileUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *TestFileClient) UpdateOne(tf *TestFile) *TestFileUpdateOne {
+	mutation := newTestFileMutation(c.config, OpUpdateOne, withTestFile(tf))
+	return &TestFileUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *TestFileClient) UpdateOneID(id int) *TestFileUpdateOne {
+	mutation := newTestFileMutation(c.config, OpUpdateOne, withTestFileID(id))
+	return &TestFileUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for TestFile.
+func (c *TestFileClient) Delete() *TestFileDelete {
+	mutation := newTestFileMutation(c.config, OpDelete)
+	return &TestFileDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *TestFileClient) DeleteOne(tf *TestFile) *TestFileDeleteOne {
+	return c.DeleteOneID(tf.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *TestFileClient) DeleteOneID(id int) *TestFileDeleteOne {
+	builder := c.Delete().Where(testfile.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &TestFileDeleteOne{builder}
+}
+
+// Query returns a query builder for TestFile.
+func (c *TestFileClient) Query() *TestFileQuery {
+	return &TestFileQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeTestFile},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a TestFile entity by its id.
+func (c *TestFileClient) Get(ctx context.Context, id int) (*TestFile, error) {
+	return c.Query().Where(testfile.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *TestFileClient) GetX(ctx context.Context, id int) *TestFile {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryTestResult queries the test_result edge of a TestFile.
+func (c *TestFileClient) QueryTestResult(tf *TestFile) *TestResultBESQuery {
+	query := (&TestResultBESClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := tf.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(testfile.Table, testfile.FieldID, id),
+			sqlgraph.To(testresultbes.Table, testresultbes.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, testfile.TestResultTable, testfile.TestResultPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(tf.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *TestFileClient) Hooks() []Hook {
+	return c.hooks.TestFile
+}
+
+// Interceptors returns the client interceptors.
+func (c *TestFileClient) Interceptors() []Interceptor {
+	return c.inters.TestFile
+}
+
+func (c *TestFileClient) mutate(ctx context.Context, m *TestFileMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&TestFileCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&TestFileUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&TestFileUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&TestFileDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown TestFile mutation op: %q", m.Op())
+	}
+}
+
+// TestResultBESClient is a client for the TestResultBES schema.
+type TestResultBESClient struct {
+	config
+}
+
+// NewTestResultBESClient returns a client for the TestResultBES from the given config.
+func NewTestResultBESClient(c config) *TestResultBESClient {
+	return &TestResultBESClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `testresultbes.Hooks(f(g(h())))`.
+func (c *TestResultBESClient) Use(hooks ...Hook) {
+	c.hooks.TestResultBES = append(c.hooks.TestResultBES, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `testresultbes.Intercept(f(g(h())))`.
+func (c *TestResultBESClient) Intercept(interceptors ...Interceptor) {
+	c.inters.TestResultBES = append(c.inters.TestResultBES, interceptors...)
+}
+
+// Create returns a builder for creating a TestResultBES entity.
+func (c *TestResultBESClient) Create() *TestResultBESCreate {
+	mutation := newTestResultBESMutation(c.config, OpCreate)
+	return &TestResultBESCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of TestResultBES entities.
+func (c *TestResultBESClient) CreateBulk(builders ...*TestResultBESCreate) *TestResultBESCreateBulk {
+	return &TestResultBESCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *TestResultBESClient) MapCreateBulk(slice any, setFunc func(*TestResultBESCreate, int)) *TestResultBESCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &TestResultBESCreateBulk{err: fmt.Errorf("calling to TestResultBESClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*TestResultBESCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &TestResultBESCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for TestResultBES.
+func (c *TestResultBESClient) Update() *TestResultBESUpdate {
+	mutation := newTestResultBESMutation(c.config, OpUpdate)
+	return &TestResultBESUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *TestResultBESClient) UpdateOne(trb *TestResultBES) *TestResultBESUpdateOne {
+	mutation := newTestResultBESMutation(c.config, OpUpdateOne, withTestResultBES(trb))
+	return &TestResultBESUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *TestResultBESClient) UpdateOneID(id int) *TestResultBESUpdateOne {
+	mutation := newTestResultBESMutation(c.config, OpUpdateOne, withTestResultBESID(id))
+	return &TestResultBESUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for TestResultBES.
+func (c *TestResultBESClient) Delete() *TestResultBESDelete {
+	mutation := newTestResultBESMutation(c.config, OpDelete)
+	return &TestResultBESDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *TestResultBESClient) DeleteOne(trb *TestResultBES) *TestResultBESDeleteOne {
+	return c.DeleteOneID(trb.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *TestResultBESClient) DeleteOneID(id int) *TestResultBESDeleteOne {
+	builder := c.Delete().Where(testresultbes.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &TestResultBESDeleteOne{builder}
+}
+
+// Query returns a query builder for TestResultBES.
+func (c *TestResultBESClient) Query() *TestResultBESQuery {
+	return &TestResultBESQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeTestResultBES},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a TestResultBES entity by its id.
+func (c *TestResultBESClient) Get(ctx context.Context, id int) (*TestResultBES, error) {
+	return c.Query().Where(testresultbes.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *TestResultBESClient) GetX(ctx context.Context, id int) *TestResultBES {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryTestCollection queries the test_collection edge of a TestResultBES.
+func (c *TestResultBESClient) QueryTestCollection(trb *TestResultBES) *TestCollectionQuery {
+	query := (&TestCollectionClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := trb.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(testresultbes.Table, testresultbes.FieldID, id),
+			sqlgraph.To(testcollection.Table, testcollection.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, testresultbes.TestCollectionTable, testresultbes.TestCollectionColumn),
+		)
+		fromV = sqlgraph.Neighbors(trb.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryTestActionOutput queries the test_action_output edge of a TestResultBES.
+func (c *TestResultBESClient) QueryTestActionOutput(trb *TestResultBES) *TestFileQuery {
+	query := (&TestFileClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := trb.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(testresultbes.Table, testresultbes.FieldID, id),
+			sqlgraph.To(testfile.Table, testfile.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, testresultbes.TestActionOutputTable, testresultbes.TestActionOutputPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(trb.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryExecutionInfo queries the execution_info edge of a TestResultBES.
+func (c *TestResultBESClient) QueryExecutionInfo(trb *TestResultBES) *ExectionInfoQuery {
+	query := (&ExectionInfoClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := trb.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(testresultbes.Table, testresultbes.FieldID, id),
+			sqlgraph.To(exectioninfo.Table, exectioninfo.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, testresultbes.ExecutionInfoTable, testresultbes.ExecutionInfoColumn),
+		)
+		fromV = sqlgraph.Neighbors(trb.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *TestResultBESClient) Hooks() []Hook {
+	return c.hooks.TestResultBES
+}
+
+// Interceptors returns the client interceptors.
+func (c *TestResultBESClient) Interceptors() []Interceptor {
+	return c.inters.TestResultBES
+}
+
+func (c *TestResultBESClient) mutate(ctx context.Context, m *TestResultBESMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&TestResultBESCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&TestResultBESUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&TestResultBESUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&TestResultBESDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown TestResultBES mutation op: %q", m.Op())
+	}
+}
+
+// TestSummaryClient is a client for the TestSummary schema.
+type TestSummaryClient struct {
+	config
+}
+
+// NewTestSummaryClient returns a client for the TestSummary from the given config.
+func NewTestSummaryClient(c config) *TestSummaryClient {
+	return &TestSummaryClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `testsummary.Hooks(f(g(h())))`.
+func (c *TestSummaryClient) Use(hooks ...Hook) {
+	c.hooks.TestSummary = append(c.hooks.TestSummary, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `testsummary.Intercept(f(g(h())))`.
+func (c *TestSummaryClient) Intercept(interceptors ...Interceptor) {
+	c.inters.TestSummary = append(c.inters.TestSummary, interceptors...)
+}
+
+// Create returns a builder for creating a TestSummary entity.
+func (c *TestSummaryClient) Create() *TestSummaryCreate {
+	mutation := newTestSummaryMutation(c.config, OpCreate)
+	return &TestSummaryCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of TestSummary entities.
+func (c *TestSummaryClient) CreateBulk(builders ...*TestSummaryCreate) *TestSummaryCreateBulk {
+	return &TestSummaryCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *TestSummaryClient) MapCreateBulk(slice any, setFunc func(*TestSummaryCreate, int)) *TestSummaryCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &TestSummaryCreateBulk{err: fmt.Errorf("calling to TestSummaryClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*TestSummaryCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &TestSummaryCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for TestSummary.
+func (c *TestSummaryClient) Update() *TestSummaryUpdate {
+	mutation := newTestSummaryMutation(c.config, OpUpdate)
+	return &TestSummaryUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *TestSummaryClient) UpdateOne(ts *TestSummary) *TestSummaryUpdateOne {
+	mutation := newTestSummaryMutation(c.config, OpUpdateOne, withTestSummary(ts))
+	return &TestSummaryUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *TestSummaryClient) UpdateOneID(id int) *TestSummaryUpdateOne {
+	mutation := newTestSummaryMutation(c.config, OpUpdateOne, withTestSummaryID(id))
+	return &TestSummaryUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for TestSummary.
+func (c *TestSummaryClient) Delete() *TestSummaryDelete {
+	mutation := newTestSummaryMutation(c.config, OpDelete)
+	return &TestSummaryDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *TestSummaryClient) DeleteOne(ts *TestSummary) *TestSummaryDeleteOne {
+	return c.DeleteOneID(ts.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *TestSummaryClient) DeleteOneID(id int) *TestSummaryDeleteOne {
+	builder := c.Delete().Where(testsummary.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &TestSummaryDeleteOne{builder}
+}
+
+// Query returns a query builder for TestSummary.
+func (c *TestSummaryClient) Query() *TestSummaryQuery {
+	return &TestSummaryQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeTestSummary},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a TestSummary entity by its id.
+func (c *TestSummaryClient) Get(ctx context.Context, id int) (*TestSummary, error) {
+	return c.Query().Where(testsummary.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *TestSummaryClient) GetX(ctx context.Context, id int) *TestSummary {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryTestCollection queries the test_collection edge of a TestSummary.
+func (c *TestSummaryClient) QueryTestCollection(ts *TestSummary) *TestCollectionQuery {
+	query := (&TestCollectionClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := ts.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(testsummary.Table, testsummary.FieldID, id),
+			sqlgraph.To(testcollection.Table, testcollection.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, true, testsummary.TestCollectionTable, testsummary.TestCollectionColumn),
+		)
+		fromV = sqlgraph.Neighbors(ts.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryPassed queries the passed edge of a TestSummary.
+func (c *TestSummaryClient) QueryPassed(ts *TestSummary) *TestFileQuery {
+	query := (&TestFileClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := ts.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(testsummary.Table, testsummary.FieldID, id),
+			sqlgraph.To(testfile.Table, testfile.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, testsummary.PassedTable, testsummary.PassedColumn),
+		)
+		fromV = sqlgraph.Neighbors(ts.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryFailed queries the failed edge of a TestSummary.
+func (c *TestSummaryClient) QueryFailed(ts *TestSummary) *TestFileQuery {
+	query := (&TestFileClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := ts.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(testsummary.Table, testsummary.FieldID, id),
+			sqlgraph.To(testfile.Table, testfile.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, testsummary.FailedTable, testsummary.FailedColumn),
+		)
+		fromV = sqlgraph.Neighbors(ts.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *TestSummaryClient) Hooks() []Hook {
+	return c.hooks.TestSummary
+}
+
+// Interceptors returns the client interceptors.
+func (c *TestSummaryClient) Interceptors() []Interceptor {
+	return c.inters.TestSummary
+}
+
+func (c *TestSummaryClient) mutate(ctx context.Context, m *TestSummaryMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&TestSummaryCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&TestSummaryUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&TestSummaryUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&TestSummaryDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown TestSummary mutation op: %q", m.Op())
+	}
+}
+
+// TimingBreakdownClient is a client for the TimingBreakdown schema.
+type TimingBreakdownClient struct {
+	config
+}
+
+// NewTimingBreakdownClient returns a client for the TimingBreakdown from the given config.
+func NewTimingBreakdownClient(c config) *TimingBreakdownClient {
+	return &TimingBreakdownClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `timingbreakdown.Hooks(f(g(h())))`.
+func (c *TimingBreakdownClient) Use(hooks ...Hook) {
+	c.hooks.TimingBreakdown = append(c.hooks.TimingBreakdown, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `timingbreakdown.Intercept(f(g(h())))`.
+func (c *TimingBreakdownClient) Intercept(interceptors ...Interceptor) {
+	c.inters.TimingBreakdown = append(c.inters.TimingBreakdown, interceptors...)
+}
+
+// Create returns a builder for creating a TimingBreakdown entity.
+func (c *TimingBreakdownClient) Create() *TimingBreakdownCreate {
+	mutation := newTimingBreakdownMutation(c.config, OpCreate)
+	return &TimingBreakdownCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of TimingBreakdown entities.
+func (c *TimingBreakdownClient) CreateBulk(builders ...*TimingBreakdownCreate) *TimingBreakdownCreateBulk {
+	return &TimingBreakdownCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *TimingBreakdownClient) MapCreateBulk(slice any, setFunc func(*TimingBreakdownCreate, int)) *TimingBreakdownCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &TimingBreakdownCreateBulk{err: fmt.Errorf("calling to TimingBreakdownClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*TimingBreakdownCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &TimingBreakdownCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for TimingBreakdown.
+func (c *TimingBreakdownClient) Update() *TimingBreakdownUpdate {
+	mutation := newTimingBreakdownMutation(c.config, OpUpdate)
+	return &TimingBreakdownUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *TimingBreakdownClient) UpdateOne(tb *TimingBreakdown) *TimingBreakdownUpdateOne {
+	mutation := newTimingBreakdownMutation(c.config, OpUpdateOne, withTimingBreakdown(tb))
+	return &TimingBreakdownUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *TimingBreakdownClient) UpdateOneID(id int) *TimingBreakdownUpdateOne {
+	mutation := newTimingBreakdownMutation(c.config, OpUpdateOne, withTimingBreakdownID(id))
+	return &TimingBreakdownUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for TimingBreakdown.
+func (c *TimingBreakdownClient) Delete() *TimingBreakdownDelete {
+	mutation := newTimingBreakdownMutation(c.config, OpDelete)
+	return &TimingBreakdownDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *TimingBreakdownClient) DeleteOne(tb *TimingBreakdown) *TimingBreakdownDeleteOne {
+	return c.DeleteOneID(tb.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *TimingBreakdownClient) DeleteOneID(id int) *TimingBreakdownDeleteOne {
+	builder := c.Delete().Where(timingbreakdown.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &TimingBreakdownDeleteOne{builder}
+}
+
+// Query returns a query builder for TimingBreakdown.
+func (c *TimingBreakdownClient) Query() *TimingBreakdownQuery {
+	return &TimingBreakdownQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeTimingBreakdown},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a TimingBreakdown entity by its id.
+func (c *TimingBreakdownClient) Get(ctx context.Context, id int) (*TimingBreakdown, error) {
+	return c.Query().Where(timingbreakdown.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *TimingBreakdownClient) GetX(ctx context.Context, id int) *TimingBreakdown {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryExectionInfo queries the exection_info edge of a TimingBreakdown.
+func (c *TimingBreakdownClient) QueryExectionInfo(tb *TimingBreakdown) *ExectionInfoQuery {
+	query := (&ExectionInfoClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := tb.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(timingbreakdown.Table, timingbreakdown.FieldID, id),
+			sqlgraph.To(exectioninfo.Table, exectioninfo.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, true, timingbreakdown.ExectionInfoTable, timingbreakdown.ExectionInfoColumn),
+		)
+		fromV = sqlgraph.Neighbors(tb.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryChild queries the child edge of a TimingBreakdown.
+func (c *TimingBreakdownClient) QueryChild(tb *TimingBreakdown) *TimingChildQuery {
+	query := (&TimingChildClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := tb.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(timingbreakdown.Table, timingbreakdown.FieldID, id),
+			sqlgraph.To(timingchild.Table, timingchild.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, timingbreakdown.ChildTable, timingbreakdown.ChildPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(tb.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *TimingBreakdownClient) Hooks() []Hook {
+	return c.hooks.TimingBreakdown
+}
+
+// Interceptors returns the client interceptors.
+func (c *TimingBreakdownClient) Interceptors() []Interceptor {
+	return c.inters.TimingBreakdown
+}
+
+func (c *TimingBreakdownClient) mutate(ctx context.Context, m *TimingBreakdownMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&TimingBreakdownCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&TimingBreakdownUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&TimingBreakdownUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&TimingBreakdownDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown TimingBreakdown mutation op: %q", m.Op())
+	}
+}
+
+// TimingChildClient is a client for the TimingChild schema.
+type TimingChildClient struct {
+	config
+}
+
+// NewTimingChildClient returns a client for the TimingChild from the given config.
+func NewTimingChildClient(c config) *TimingChildClient {
+	return &TimingChildClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `timingchild.Hooks(f(g(h())))`.
+func (c *TimingChildClient) Use(hooks ...Hook) {
+	c.hooks.TimingChild = append(c.hooks.TimingChild, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `timingchild.Intercept(f(g(h())))`.
+func (c *TimingChildClient) Intercept(interceptors ...Interceptor) {
+	c.inters.TimingChild = append(c.inters.TimingChild, interceptors...)
+}
+
+// Create returns a builder for creating a TimingChild entity.
+func (c *TimingChildClient) Create() *TimingChildCreate {
+	mutation := newTimingChildMutation(c.config, OpCreate)
+	return &TimingChildCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of TimingChild entities.
+func (c *TimingChildClient) CreateBulk(builders ...*TimingChildCreate) *TimingChildCreateBulk {
+	return &TimingChildCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *TimingChildClient) MapCreateBulk(slice any, setFunc func(*TimingChildCreate, int)) *TimingChildCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &TimingChildCreateBulk{err: fmt.Errorf("calling to TimingChildClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*TimingChildCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &TimingChildCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for TimingChild.
+func (c *TimingChildClient) Update() *TimingChildUpdate {
+	mutation := newTimingChildMutation(c.config, OpUpdate)
+	return &TimingChildUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *TimingChildClient) UpdateOne(tc *TimingChild) *TimingChildUpdateOne {
+	mutation := newTimingChildMutation(c.config, OpUpdateOne, withTimingChild(tc))
+	return &TimingChildUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *TimingChildClient) UpdateOneID(id int) *TimingChildUpdateOne {
+	mutation := newTimingChildMutation(c.config, OpUpdateOne, withTimingChildID(id))
+	return &TimingChildUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for TimingChild.
+func (c *TimingChildClient) Delete() *TimingChildDelete {
+	mutation := newTimingChildMutation(c.config, OpDelete)
+	return &TimingChildDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *TimingChildClient) DeleteOne(tc *TimingChild) *TimingChildDeleteOne {
+	return c.DeleteOneID(tc.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *TimingChildClient) DeleteOneID(id int) *TimingChildDeleteOne {
+	builder := c.Delete().Where(timingchild.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &TimingChildDeleteOne{builder}
+}
+
+// Query returns a query builder for TimingChild.
+func (c *TimingChildClient) Query() *TimingChildQuery {
+	return &TimingChildQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeTimingChild},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a TimingChild entity by its id.
+func (c *TimingChildClient) Get(ctx context.Context, id int) (*TimingChild, error) {
+	return c.Query().Where(timingchild.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *TimingChildClient) GetX(ctx context.Context, id int) *TimingChild {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryTimingBreakdown queries the timing_breakdown edge of a TimingChild.
+func (c *TimingChildClient) QueryTimingBreakdown(tc *TimingChild) *TimingBreakdownQuery {
+	query := (&TimingBreakdownClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := tc.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(timingchild.Table, timingchild.FieldID, id),
+			sqlgraph.To(timingbreakdown.Table, timingbreakdown.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, timingchild.TimingBreakdownTable, timingchild.TimingBreakdownPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(tc.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *TimingChildClient) Hooks() []Hook {
+	return c.hooks.TimingChild
+}
+
+// Interceptors returns the client interceptors.
+func (c *TimingChildClient) Interceptors() []Interceptor {
+	return c.inters.TimingChild
+}
+
+func (c *TimingChildClient) mutate(ctx context.Context, m *TimingChildMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&TimingChildCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&TimingChildUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&TimingChildUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&TimingChildDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown TimingChild mutation op: %q", m.Op())
+	}
+}
+
 // TimingMetricsClient is a client for the TimingMetrics schema.
 type TimingMetricsClient struct {
 	config
@@ -4763,16 +6215,20 @@ type (
 		ActionCacheStatistics, ActionData, ActionSummary, ArtifactMetrics,
 		BazelInvocation, BazelInvocationProblem, Blob, Build, BuildGraphMetrics,
 		CumulativeMetrics, DynamicExecutionMetrics, EvaluationStat, EventFile,
-		FilesMetric, GarbageMetrics, MemoryMetrics, Metrics, MissDetail,
+		ExectionInfo, FilesMetric, GarbageMetrics, MemoryMetrics, Metrics, MissDetail,
 		NetworkMetrics, PackageLoadMetrics, PackageMetrics, RaceStatistics,
-		RunnerCount, SystemNetworkStats, TargetMetrics, TimingMetrics []ent.Hook
+		ResourceUsage, RunnerCount, SystemNetworkStats, TargetMetrics, TestCollection,
+		TestFile, TestResultBES, TestSummary, TimingBreakdown, TimingChild,
+		TimingMetrics []ent.Hook
 	}
 	inters struct {
 		ActionCacheStatistics, ActionData, ActionSummary, ArtifactMetrics,
 		BazelInvocation, BazelInvocationProblem, Blob, Build, BuildGraphMetrics,
 		CumulativeMetrics, DynamicExecutionMetrics, EvaluationStat, EventFile,
-		FilesMetric, GarbageMetrics, MemoryMetrics, Metrics, MissDetail,
+		ExectionInfo, FilesMetric, GarbageMetrics, MemoryMetrics, Metrics, MissDetail,
 		NetworkMetrics, PackageLoadMetrics, PackageMetrics, RaceStatistics,
-		RunnerCount, SystemNetworkStats, TargetMetrics, TimingMetrics []ent.Interceptor
+		ResourceUsage, RunnerCount, SystemNetworkStats, TargetMetrics, TestCollection,
+		TestFile, TestResultBES, TestSummary, TimingBreakdown, TimingChild,
+		TimingMetrics []ent.Interceptor
 	}
 )

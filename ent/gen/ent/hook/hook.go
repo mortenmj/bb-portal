@@ -165,6 +165,18 @@ func (f EventFileFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, e
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.EventFileMutation", m)
 }
 
+// The ExectionInfoFunc type is an adapter to allow the use of ordinary
+// function as ExectionInfo mutator.
+type ExectionInfoFunc func(context.Context, *ent.ExectionInfoMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ExectionInfoFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.ExectionInfoMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ExectionInfoMutation", m)
+}
+
 // The FilesMetricFunc type is an adapter to allow the use of ordinary
 // function as FilesMetric mutator.
 type FilesMetricFunc func(context.Context, *ent.FilesMetricMutation) (ent.Value, error)
@@ -273,6 +285,18 @@ func (f RaceStatisticsFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Val
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.RaceStatisticsMutation", m)
 }
 
+// The ResourceUsageFunc type is an adapter to allow the use of ordinary
+// function as ResourceUsage mutator.
+type ResourceUsageFunc func(context.Context, *ent.ResourceUsageMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ResourceUsageFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.ResourceUsageMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ResourceUsageMutation", m)
+}
+
 // The RunnerCountFunc type is an adapter to allow the use of ordinary
 // function as RunnerCount mutator.
 type RunnerCountFunc func(context.Context, *ent.RunnerCountMutation) (ent.Value, error)
@@ -307,6 +331,78 @@ func (f TargetMetricsFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Valu
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.TargetMetricsMutation", m)
+}
+
+// The TestCollectionFunc type is an adapter to allow the use of ordinary
+// function as TestCollection mutator.
+type TestCollectionFunc func(context.Context, *ent.TestCollectionMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f TestCollectionFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.TestCollectionMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.TestCollectionMutation", m)
+}
+
+// The TestFileFunc type is an adapter to allow the use of ordinary
+// function as TestFile mutator.
+type TestFileFunc func(context.Context, *ent.TestFileMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f TestFileFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.TestFileMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.TestFileMutation", m)
+}
+
+// The TestResultBESFunc type is an adapter to allow the use of ordinary
+// function as TestResultBES mutator.
+type TestResultBESFunc func(context.Context, *ent.TestResultBESMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f TestResultBESFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.TestResultBESMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.TestResultBESMutation", m)
+}
+
+// The TestSummaryFunc type is an adapter to allow the use of ordinary
+// function as TestSummary mutator.
+type TestSummaryFunc func(context.Context, *ent.TestSummaryMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f TestSummaryFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.TestSummaryMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.TestSummaryMutation", m)
+}
+
+// The TimingBreakdownFunc type is an adapter to allow the use of ordinary
+// function as TimingBreakdown mutator.
+type TimingBreakdownFunc func(context.Context, *ent.TimingBreakdownMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f TimingBreakdownFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.TimingBreakdownMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.TimingBreakdownMutation", m)
+}
+
+// The TimingChildFunc type is an adapter to allow the use of ordinary
+// function as TimingChild mutator.
+type TimingChildFunc func(context.Context, *ent.TimingChildMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f TimingChildFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.TimingChildMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.TimingChildMutation", m)
 }
 
 // The TimingMetricsFunc type is an adapter to allow the use of ordinary

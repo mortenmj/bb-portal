@@ -22,6 +22,8 @@ import (
 	"github.com/buildbarn/bb-portal/ent/gen/ent/packagemetrics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/predicate"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/targetmetrics"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/testresultbes"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/testsummary"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/timingmetrics"
 )
 
@@ -205,6 +207,36 @@ func (mu *MetricsUpdate) AddBuildGraphMetrics(b ...*BuildGraphMetrics) *MetricsU
 		ids[i] = b[i].ID
 	}
 	return mu.AddBuildGraphMetricIDs(ids...)
+}
+
+// AddTestResultIDs adds the "test_results" edge to the TestResultBES entity by IDs.
+func (mu *MetricsUpdate) AddTestResultIDs(ids ...int) *MetricsUpdate {
+	mu.mutation.AddTestResultIDs(ids...)
+	return mu
+}
+
+// AddTestResults adds the "test_results" edges to the TestResultBES entity.
+func (mu *MetricsUpdate) AddTestResults(t ...*TestResultBES) *MetricsUpdate {
+	ids := make([]int, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return mu.AddTestResultIDs(ids...)
+}
+
+// AddTestSummaryIDs adds the "test_summary" edge to the TestSummary entity by IDs.
+func (mu *MetricsUpdate) AddTestSummaryIDs(ids ...int) *MetricsUpdate {
+	mu.mutation.AddTestSummaryIDs(ids...)
+	return mu
+}
+
+// AddTestSummary adds the "test_summary" edges to the TestSummary entity.
+func (mu *MetricsUpdate) AddTestSummary(t ...*TestSummary) *MetricsUpdate {
+	ids := make([]int, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return mu.AddTestSummaryIDs(ids...)
 }
 
 // Mutation returns the MetricsMutation object of the builder.
@@ -426,6 +458,48 @@ func (mu *MetricsUpdate) RemoveBuildGraphMetrics(b ...*BuildGraphMetrics) *Metri
 		ids[i] = b[i].ID
 	}
 	return mu.RemoveBuildGraphMetricIDs(ids...)
+}
+
+// ClearTestResults clears all "test_results" edges to the TestResultBES entity.
+func (mu *MetricsUpdate) ClearTestResults() *MetricsUpdate {
+	mu.mutation.ClearTestResults()
+	return mu
+}
+
+// RemoveTestResultIDs removes the "test_results" edge to TestResultBES entities by IDs.
+func (mu *MetricsUpdate) RemoveTestResultIDs(ids ...int) *MetricsUpdate {
+	mu.mutation.RemoveTestResultIDs(ids...)
+	return mu
+}
+
+// RemoveTestResults removes "test_results" edges to TestResultBES entities.
+func (mu *MetricsUpdate) RemoveTestResults(t ...*TestResultBES) *MetricsUpdate {
+	ids := make([]int, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return mu.RemoveTestResultIDs(ids...)
+}
+
+// ClearTestSummary clears all "test_summary" edges to the TestSummary entity.
+func (mu *MetricsUpdate) ClearTestSummary() *MetricsUpdate {
+	mu.mutation.ClearTestSummary()
+	return mu
+}
+
+// RemoveTestSummaryIDs removes the "test_summary" edge to TestSummary entities by IDs.
+func (mu *MetricsUpdate) RemoveTestSummaryIDs(ids ...int) *MetricsUpdate {
+	mu.mutation.RemoveTestSummaryIDs(ids...)
+	return mu
+}
+
+// RemoveTestSummary removes "test_summary" edges to TestSummary entities.
+func (mu *MetricsUpdate) RemoveTestSummary(t ...*TestSummary) *MetricsUpdate {
+	ids := make([]int, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return mu.RemoveTestSummaryIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -943,6 +1017,96 @@ func (mu *MetricsUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if mu.mutation.TestResultsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   metrics.TestResultsTable,
+			Columns: []string{metrics.TestResultsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(testresultbes.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := mu.mutation.RemovedTestResultsIDs(); len(nodes) > 0 && !mu.mutation.TestResultsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   metrics.TestResultsTable,
+			Columns: []string{metrics.TestResultsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(testresultbes.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := mu.mutation.TestResultsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   metrics.TestResultsTable,
+			Columns: []string{metrics.TestResultsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(testresultbes.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if mu.mutation.TestSummaryCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   metrics.TestSummaryTable,
+			Columns: []string{metrics.TestSummaryColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(testsummary.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := mu.mutation.RemovedTestSummaryIDs(); len(nodes) > 0 && !mu.mutation.TestSummaryCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   metrics.TestSummaryTable,
+			Columns: []string{metrics.TestSummaryColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(testsummary.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := mu.mutation.TestSummaryIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   metrics.TestSummaryTable,
+			Columns: []string{metrics.TestSummaryColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(testsummary.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, mu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{metrics.Label}
@@ -1130,6 +1294,36 @@ func (muo *MetricsUpdateOne) AddBuildGraphMetrics(b ...*BuildGraphMetrics) *Metr
 		ids[i] = b[i].ID
 	}
 	return muo.AddBuildGraphMetricIDs(ids...)
+}
+
+// AddTestResultIDs adds the "test_results" edge to the TestResultBES entity by IDs.
+func (muo *MetricsUpdateOne) AddTestResultIDs(ids ...int) *MetricsUpdateOne {
+	muo.mutation.AddTestResultIDs(ids...)
+	return muo
+}
+
+// AddTestResults adds the "test_results" edges to the TestResultBES entity.
+func (muo *MetricsUpdateOne) AddTestResults(t ...*TestResultBES) *MetricsUpdateOne {
+	ids := make([]int, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return muo.AddTestResultIDs(ids...)
+}
+
+// AddTestSummaryIDs adds the "test_summary" edge to the TestSummary entity by IDs.
+func (muo *MetricsUpdateOne) AddTestSummaryIDs(ids ...int) *MetricsUpdateOne {
+	muo.mutation.AddTestSummaryIDs(ids...)
+	return muo
+}
+
+// AddTestSummary adds the "test_summary" edges to the TestSummary entity.
+func (muo *MetricsUpdateOne) AddTestSummary(t ...*TestSummary) *MetricsUpdateOne {
+	ids := make([]int, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return muo.AddTestSummaryIDs(ids...)
 }
 
 // Mutation returns the MetricsMutation object of the builder.
@@ -1351,6 +1545,48 @@ func (muo *MetricsUpdateOne) RemoveBuildGraphMetrics(b ...*BuildGraphMetrics) *M
 		ids[i] = b[i].ID
 	}
 	return muo.RemoveBuildGraphMetricIDs(ids...)
+}
+
+// ClearTestResults clears all "test_results" edges to the TestResultBES entity.
+func (muo *MetricsUpdateOne) ClearTestResults() *MetricsUpdateOne {
+	muo.mutation.ClearTestResults()
+	return muo
+}
+
+// RemoveTestResultIDs removes the "test_results" edge to TestResultBES entities by IDs.
+func (muo *MetricsUpdateOne) RemoveTestResultIDs(ids ...int) *MetricsUpdateOne {
+	muo.mutation.RemoveTestResultIDs(ids...)
+	return muo
+}
+
+// RemoveTestResults removes "test_results" edges to TestResultBES entities.
+func (muo *MetricsUpdateOne) RemoveTestResults(t ...*TestResultBES) *MetricsUpdateOne {
+	ids := make([]int, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return muo.RemoveTestResultIDs(ids...)
+}
+
+// ClearTestSummary clears all "test_summary" edges to the TestSummary entity.
+func (muo *MetricsUpdateOne) ClearTestSummary() *MetricsUpdateOne {
+	muo.mutation.ClearTestSummary()
+	return muo
+}
+
+// RemoveTestSummaryIDs removes the "test_summary" edge to TestSummary entities by IDs.
+func (muo *MetricsUpdateOne) RemoveTestSummaryIDs(ids ...int) *MetricsUpdateOne {
+	muo.mutation.RemoveTestSummaryIDs(ids...)
+	return muo
+}
+
+// RemoveTestSummary removes "test_summary" edges to TestSummary entities.
+func (muo *MetricsUpdateOne) RemoveTestSummary(t ...*TestSummary) *MetricsUpdateOne {
+	ids := make([]int, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return muo.RemoveTestSummaryIDs(ids...)
 }
 
 // Where appends a list predicates to the MetricsUpdate builder.
@@ -1891,6 +2127,96 @@ func (muo *MetricsUpdateOne) sqlSave(ctx context.Context) (_node *Metrics, err e
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(buildgraphmetrics.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if muo.mutation.TestResultsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   metrics.TestResultsTable,
+			Columns: []string{metrics.TestResultsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(testresultbes.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := muo.mutation.RemovedTestResultsIDs(); len(nodes) > 0 && !muo.mutation.TestResultsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   metrics.TestResultsTable,
+			Columns: []string{metrics.TestResultsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(testresultbes.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := muo.mutation.TestResultsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   metrics.TestResultsTable,
+			Columns: []string{metrics.TestResultsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(testresultbes.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if muo.mutation.TestSummaryCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   metrics.TestSummaryTable,
+			Columns: []string{metrics.TestSummaryColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(testsummary.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := muo.mutation.RemovedTestSummaryIDs(); len(nodes) > 0 && !muo.mutation.TestSummaryCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   metrics.TestSummaryTable,
+			Columns: []string{metrics.TestSummaryColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(testsummary.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := muo.mutation.TestSummaryIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   metrics.TestSummaryTable,
+			Columns: []string{metrics.TestSummaryColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(testsummary.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

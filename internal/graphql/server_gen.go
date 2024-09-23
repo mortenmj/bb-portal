@@ -19,6 +19,8 @@ import (
 	"github.com/buildbarn/bb-portal/ent/gen/ent"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/blob"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/missdetail"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/testresultbes"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/testsummary"
 	"github.com/buildbarn/bb-portal/internal/graphql/model"
 	"github.com/buildbarn/bb-portal/pkg/uuidgql"
 	"github.com/google/uuid"
@@ -61,6 +63,7 @@ type ResolverRoot interface {
 	DynamicExecutionMetrics() DynamicExecutionMetricsResolver
 	EvaluationStat() EvaluationStatResolver
 	EventFile() EventFileResolver
+	ExectionInfo() ExectionInfoResolver
 	FilesMetric() FilesMetricResolver
 	GarbageMetrics() GarbageMetricsResolver
 	MemoryMetrics() MemoryMetricsResolver
@@ -71,10 +74,17 @@ type ResolverRoot interface {
 	PackageMetrics() PackageMetricsResolver
 	Query() QueryResolver
 	RaceStatistics() RaceStatisticsResolver
+	ResourceUsage() ResourceUsageResolver
 	RunnerCount() RunnerCountResolver
 	SystemNetworkStats() SystemNetworkStatsResolver
 	TargetMetrics() TargetMetricsResolver
+	TestCollection() TestCollectionResolver
+	TestFile() TestFileResolver
 	TestResult() TestResultResolver
+	TestResultBES() TestResultBESResolver
+	TestSummary() TestSummaryResolver
+	TimingBreakdown() TimingBreakdownResolver
+	TimingChild() TimingChildResolver
 	TimingMetrics() TimingMetricsResolver
 	ActionCacheStatisticsWhereInput() ActionCacheStatisticsWhereInputResolver
 	ActionDataWhereInput() ActionDataWhereInputResolver
@@ -89,6 +99,7 @@ type ResolverRoot interface {
 	DynamicExecutionMetricsWhereInput() DynamicExecutionMetricsWhereInputResolver
 	EvaluationStatWhereInput() EvaluationStatWhereInputResolver
 	EventFileWhereInput() EventFileWhereInputResolver
+	ExectionInfoWhereInput() ExectionInfoWhereInputResolver
 	FilesMetricWhereInput() FilesMetricWhereInputResolver
 	GarbageMetricsWhereInput() GarbageMetricsWhereInputResolver
 	MemoryMetricsWhereInput() MemoryMetricsWhereInputResolver
@@ -98,9 +109,16 @@ type ResolverRoot interface {
 	PackageLoadMetricsWhereInput() PackageLoadMetricsWhereInputResolver
 	PackageMetricsWhereInput() PackageMetricsWhereInputResolver
 	RaceStatisticsWhereInput() RaceStatisticsWhereInputResolver
+	ResourceUsageWhereInput() ResourceUsageWhereInputResolver
 	RunnerCountWhereInput() RunnerCountWhereInputResolver
 	SystemNetworkStatsWhereInput() SystemNetworkStatsWhereInputResolver
 	TargetMetricsWhereInput() TargetMetricsWhereInputResolver
+	TestCollectionWhereInput() TestCollectionWhereInputResolver
+	TestFileWhereInput() TestFileWhereInputResolver
+	TestResultBESWhereInput() TestResultBESWhereInputResolver
+	TestSummaryWhereInput() TestSummaryWhereInputResolver
+	TimingBreakdownWhereInput() TimingBreakdownWhereInputResolver
+	TimingChildWhereInput() TimingChildWhereInputResolver
 	TimingMetricsWhereInput() TimingMetricsWhereInputResolver
 }
 
@@ -185,6 +203,7 @@ type ComplexityRoot struct {
 		StartedAt      func(childComplexity int) int
 		State          func(childComplexity int) int
 		StepLabel      func(childComplexity int) int
+		TestCollection func(childComplexity int) int
 		User           func(childComplexity int) int
 		UserEmail      func(childComplexity int) int
 		UserLdap       func(childComplexity int) int
@@ -305,6 +324,17 @@ type ComplexityRoot struct {
 		URL             func(childComplexity int) int
 	}
 
+	ExectionInfo struct {
+		CachedRemotely  func(childComplexity int) int
+		ExitCode        func(childComplexity int) int
+		Hostname        func(childComplexity int) int
+		ID              func(childComplexity int) int
+		ResourceUsage   func(childComplexity int) int
+		Strategy        func(childComplexity int) int
+		TestResult      func(childComplexity int) int
+		TimingBreakdown func(childComplexity int) int
+	}
+
 	ExitCode struct {
 		Code func(childComplexity int) int
 		ID   func(childComplexity int) int
@@ -346,6 +376,8 @@ type ComplexityRoot struct {
 		NetworkMetrics          func(childComplexity int) int
 		PackageMetrics          func(childComplexity int) int
 		TargetMetrics           func(childComplexity int) int
+		TestResults             func(childComplexity int) int
+		TestSummary             func(childComplexity int) int
 		TimingMetrics           func(childComplexity int) int
 	}
 
@@ -430,6 +462,13 @@ type ComplexityRoot struct {
 		RenoteWins              func(childComplexity int) int
 	}
 
+	ResourceUsage struct {
+		ExecutionInfo func(childComplexity int) int
+		ID            func(childComplexity int) int
+		Name          func(childComplexity int) int
+		Value         func(childComplexity int) int
+	}
+
 	RunnerCount struct {
 		ActionSummary   func(childComplexity int) int
 		ActionsExecuted func(childComplexity int) int
@@ -475,6 +514,24 @@ type ComplexityRoot struct {
 		Label func(childComplexity int) int
 	}
 
+	TestCollection struct {
+		BazelInvocation func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Label           func(childComplexity int) int
+		TestResults     func(childComplexity int) int
+		TestSummary     func(childComplexity int) int
+	}
+
+	TestFile struct {
+		Digest     func(childComplexity int) int
+		File       func(childComplexity int) int
+		ID         func(childComplexity int) int
+		Length     func(childComplexity int) int
+		Name       func(childComplexity int) int
+		Prefix     func(childComplexity int) int
+		TestResult func(childComplexity int) int
+	}
+
 	TestProblem struct {
 		ID      func(childComplexity int) int
 		Label   func(childComplexity int) int
@@ -490,6 +547,56 @@ type ComplexityRoot struct {
 		Shard                 func(childComplexity int) int
 		Status                func(childComplexity int) int
 		UndeclaredTestOutputs func(childComplexity int) int
+	}
+
+	TestResultBES struct {
+		Attempt                              func(childComplexity int) int
+		CachedLocally                        func(childComplexity int) int
+		ExecutionInfo                        func(childComplexity int) int
+		ID                                   func(childComplexity int) int
+		Label                                func(childComplexity int) int
+		Run                                  func(childComplexity int) int
+		Shard                                func(childComplexity int) int
+		StatusDetails                        func(childComplexity int) int
+		TargetsConfiguredNotIncludingAspects func(childComplexity int) int
+		TestActionOutput                     func(childComplexity int) int
+		TestAttemptDurationMillis            func(childComplexity int) int
+		TestAttemptStartMillisEpoch          func(childComplexity int) int
+		TestCollection                       func(childComplexity int) int
+		TestStatus                           func(childComplexity int) int
+		Warning                              func(childComplexity int) int
+	}
+
+	TestSummary struct {
+		AttemptCount     func(childComplexity int) int
+		Failed           func(childComplexity int) int
+		FirstStartTime   func(childComplexity int) int
+		ID               func(childComplexity int) int
+		Label            func(childComplexity int) int
+		LastStopTime     func(childComplexity int) int
+		OverallStatus    func(childComplexity int) int
+		Passed           func(childComplexity int) int
+		RunCount         func(childComplexity int) int
+		ShardCount       func(childComplexity int) int
+		TestCollection   func(childComplexity int) int
+		TotalNumCached   func(childComplexity int) int
+		TotalRunCount    func(childComplexity int) int
+		TotalRunDuration func(childComplexity int) int
+	}
+
+	TimingBreakdown struct {
+		Child        func(childComplexity int) int
+		ExectionInfo func(childComplexity int) int
+		ID           func(childComplexity int) int
+		Name         func(childComplexity int) int
+		Time         func(childComplexity int) int
+	}
+
+	TimingChild struct {
+		ID              func(childComplexity int) int
+		Name            func(childComplexity int) int
+		Time            func(childComplexity int) int
+		TimingBreakdown func(childComplexity int) int
 	}
 
 	TimingMetrics struct {
@@ -565,6 +672,9 @@ type EvaluationStatResolver interface {
 type EventFileResolver interface {
 	ID(ctx context.Context, obj *ent.EventFile) (string, error)
 }
+type ExectionInfoResolver interface {
+	ID(ctx context.Context, obj *ent.ExectionInfo) (string, error)
+}
 type FilesMetricResolver interface {
 	ID(ctx context.Context, obj *ent.FilesMetric) (string, error)
 }
@@ -602,6 +712,9 @@ type QueryResolver interface {
 type RaceStatisticsResolver interface {
 	ID(ctx context.Context, obj *ent.RaceStatistics) (string, error)
 }
+type ResourceUsageResolver interface {
+	ID(ctx context.Context, obj *ent.ResourceUsage) (string, error)
+}
 type RunnerCountResolver interface {
 	ID(ctx context.Context, obj *ent.RunnerCount) (string, error)
 }
@@ -611,9 +724,27 @@ type SystemNetworkStatsResolver interface {
 type TargetMetricsResolver interface {
 	ID(ctx context.Context, obj *ent.TargetMetrics) (string, error)
 }
+type TestCollectionResolver interface {
+	ID(ctx context.Context, obj *ent.TestCollection) (string, error)
+}
+type TestFileResolver interface {
+	ID(ctx context.Context, obj *ent.TestFile) (string, error)
+}
 type TestResultResolver interface {
 	ActionLogOutput(ctx context.Context, obj *model.TestResult) (*model.BlobReference, error)
 	UndeclaredTestOutputs(ctx context.Context, obj *model.TestResult) (*model.BlobReference, error)
+}
+type TestResultBESResolver interface {
+	ID(ctx context.Context, obj *ent.TestResultBES) (string, error)
+}
+type TestSummaryResolver interface {
+	ID(ctx context.Context, obj *ent.TestSummary) (string, error)
+}
+type TimingBreakdownResolver interface {
+	ID(ctx context.Context, obj *ent.TimingBreakdown) (string, error)
+}
+type TimingChildResolver interface {
+	ID(ctx context.Context, obj *ent.TimingChild) (string, error)
 }
 type TimingMetricsResolver interface {
 	ID(ctx context.Context, obj *ent.TimingMetrics) (string, error)
@@ -749,6 +880,16 @@ type EventFileWhereInputResolver interface {
 	IDLt(ctx context.Context, obj *ent.EventFileWhereInput, data *string) error
 	IDLte(ctx context.Context, obj *ent.EventFileWhereInput, data *string) error
 }
+type ExectionInfoWhereInputResolver interface {
+	ID(ctx context.Context, obj *ent.ExectionInfoWhereInput, data *string) error
+	IDNeq(ctx context.Context, obj *ent.ExectionInfoWhereInput, data *string) error
+	IDIn(ctx context.Context, obj *ent.ExectionInfoWhereInput, data []string) error
+	IDNotIn(ctx context.Context, obj *ent.ExectionInfoWhereInput, data []string) error
+	IDGt(ctx context.Context, obj *ent.ExectionInfoWhereInput, data *string) error
+	IDGte(ctx context.Context, obj *ent.ExectionInfoWhereInput, data *string) error
+	IDLt(ctx context.Context, obj *ent.ExectionInfoWhereInput, data *string) error
+	IDLte(ctx context.Context, obj *ent.ExectionInfoWhereInput, data *string) error
+}
 type FilesMetricWhereInputResolver interface {
 	ID(ctx context.Context, obj *ent.FilesMetricWhereInput, data *string) error
 	IDNeq(ctx context.Context, obj *ent.FilesMetricWhereInput, data *string) error
@@ -839,6 +980,16 @@ type RaceStatisticsWhereInputResolver interface {
 	IDLt(ctx context.Context, obj *ent.RaceStatisticsWhereInput, data *string) error
 	IDLte(ctx context.Context, obj *ent.RaceStatisticsWhereInput, data *string) error
 }
+type ResourceUsageWhereInputResolver interface {
+	ID(ctx context.Context, obj *ent.ResourceUsageWhereInput, data *string) error
+	IDNeq(ctx context.Context, obj *ent.ResourceUsageWhereInput, data *string) error
+	IDIn(ctx context.Context, obj *ent.ResourceUsageWhereInput, data []string) error
+	IDNotIn(ctx context.Context, obj *ent.ResourceUsageWhereInput, data []string) error
+	IDGt(ctx context.Context, obj *ent.ResourceUsageWhereInput, data *string) error
+	IDGte(ctx context.Context, obj *ent.ResourceUsageWhereInput, data *string) error
+	IDLt(ctx context.Context, obj *ent.ResourceUsageWhereInput, data *string) error
+	IDLte(ctx context.Context, obj *ent.ResourceUsageWhereInput, data *string) error
+}
 type RunnerCountWhereInputResolver interface {
 	ID(ctx context.Context, obj *ent.RunnerCountWhereInput, data *string) error
 	IDNeq(ctx context.Context, obj *ent.RunnerCountWhereInput, data *string) error
@@ -868,6 +1019,66 @@ type TargetMetricsWhereInputResolver interface {
 	IDGte(ctx context.Context, obj *ent.TargetMetricsWhereInput, data *string) error
 	IDLt(ctx context.Context, obj *ent.TargetMetricsWhereInput, data *string) error
 	IDLte(ctx context.Context, obj *ent.TargetMetricsWhereInput, data *string) error
+}
+type TestCollectionWhereInputResolver interface {
+	ID(ctx context.Context, obj *ent.TestCollectionWhereInput, data *string) error
+	IDNeq(ctx context.Context, obj *ent.TestCollectionWhereInput, data *string) error
+	IDIn(ctx context.Context, obj *ent.TestCollectionWhereInput, data []string) error
+	IDNotIn(ctx context.Context, obj *ent.TestCollectionWhereInput, data []string) error
+	IDGt(ctx context.Context, obj *ent.TestCollectionWhereInput, data *string) error
+	IDGte(ctx context.Context, obj *ent.TestCollectionWhereInput, data *string) error
+	IDLt(ctx context.Context, obj *ent.TestCollectionWhereInput, data *string) error
+	IDLte(ctx context.Context, obj *ent.TestCollectionWhereInput, data *string) error
+}
+type TestFileWhereInputResolver interface {
+	ID(ctx context.Context, obj *ent.TestFileWhereInput, data *string) error
+	IDNeq(ctx context.Context, obj *ent.TestFileWhereInput, data *string) error
+	IDIn(ctx context.Context, obj *ent.TestFileWhereInput, data []string) error
+	IDNotIn(ctx context.Context, obj *ent.TestFileWhereInput, data []string) error
+	IDGt(ctx context.Context, obj *ent.TestFileWhereInput, data *string) error
+	IDGte(ctx context.Context, obj *ent.TestFileWhereInput, data *string) error
+	IDLt(ctx context.Context, obj *ent.TestFileWhereInput, data *string) error
+	IDLte(ctx context.Context, obj *ent.TestFileWhereInput, data *string) error
+}
+type TestResultBESWhereInputResolver interface {
+	ID(ctx context.Context, obj *ent.TestResultBESWhereInput, data *string) error
+	IDNeq(ctx context.Context, obj *ent.TestResultBESWhereInput, data *string) error
+	IDIn(ctx context.Context, obj *ent.TestResultBESWhereInput, data []string) error
+	IDNotIn(ctx context.Context, obj *ent.TestResultBESWhereInput, data []string) error
+	IDGt(ctx context.Context, obj *ent.TestResultBESWhereInput, data *string) error
+	IDGte(ctx context.Context, obj *ent.TestResultBESWhereInput, data *string) error
+	IDLt(ctx context.Context, obj *ent.TestResultBESWhereInput, data *string) error
+	IDLte(ctx context.Context, obj *ent.TestResultBESWhereInput, data *string) error
+}
+type TestSummaryWhereInputResolver interface {
+	ID(ctx context.Context, obj *ent.TestSummaryWhereInput, data *string) error
+	IDNeq(ctx context.Context, obj *ent.TestSummaryWhereInput, data *string) error
+	IDIn(ctx context.Context, obj *ent.TestSummaryWhereInput, data []string) error
+	IDNotIn(ctx context.Context, obj *ent.TestSummaryWhereInput, data []string) error
+	IDGt(ctx context.Context, obj *ent.TestSummaryWhereInput, data *string) error
+	IDGte(ctx context.Context, obj *ent.TestSummaryWhereInput, data *string) error
+	IDLt(ctx context.Context, obj *ent.TestSummaryWhereInput, data *string) error
+	IDLte(ctx context.Context, obj *ent.TestSummaryWhereInput, data *string) error
+}
+type TimingBreakdownWhereInputResolver interface {
+	ID(ctx context.Context, obj *ent.TimingBreakdownWhereInput, data *string) error
+	IDNeq(ctx context.Context, obj *ent.TimingBreakdownWhereInput, data *string) error
+	IDIn(ctx context.Context, obj *ent.TimingBreakdownWhereInput, data []string) error
+	IDNotIn(ctx context.Context, obj *ent.TimingBreakdownWhereInput, data []string) error
+	IDGt(ctx context.Context, obj *ent.TimingBreakdownWhereInput, data *string) error
+	IDGte(ctx context.Context, obj *ent.TimingBreakdownWhereInput, data *string) error
+	IDLt(ctx context.Context, obj *ent.TimingBreakdownWhereInput, data *string) error
+	IDLte(ctx context.Context, obj *ent.TimingBreakdownWhereInput, data *string) error
+}
+type TimingChildWhereInputResolver interface {
+	ID(ctx context.Context, obj *ent.TimingChildWhereInput, data *string) error
+	IDNeq(ctx context.Context, obj *ent.TimingChildWhereInput, data *string) error
+	IDIn(ctx context.Context, obj *ent.TimingChildWhereInput, data []string) error
+	IDNotIn(ctx context.Context, obj *ent.TimingChildWhereInput, data []string) error
+	IDGt(ctx context.Context, obj *ent.TimingChildWhereInput, data *string) error
+	IDGte(ctx context.Context, obj *ent.TimingChildWhereInput, data *string) error
+	IDLt(ctx context.Context, obj *ent.TimingChildWhereInput, data *string) error
+	IDLte(ctx context.Context, obj *ent.TimingChildWhereInput, data *string) error
 }
 type TimingMetricsWhereInputResolver interface {
 	ID(ctx context.Context, obj *ent.TimingMetricsWhereInput, data *string) error
@@ -1304,6 +1515,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.BazelInvocation.StepLabel(childComplexity), true
+
+	case "BazelInvocation.testCollection":
+		if e.complexity.BazelInvocation.TestCollection == nil {
+			break
+		}
+
+		return e.complexity.BazelInvocation.TestCollection(childComplexity), true
 
 	case "BazelInvocation.user":
 		if e.complexity.BazelInvocation.User == nil {
@@ -1816,6 +2034,62 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.EventFile.URL(childComplexity), true
 
+	case "ExectionInfo.cachedRemotely":
+		if e.complexity.ExectionInfo.CachedRemotely == nil {
+			break
+		}
+
+		return e.complexity.ExectionInfo.CachedRemotely(childComplexity), true
+
+	case "ExectionInfo.exitCode":
+		if e.complexity.ExectionInfo.ExitCode == nil {
+			break
+		}
+
+		return e.complexity.ExectionInfo.ExitCode(childComplexity), true
+
+	case "ExectionInfo.hostname":
+		if e.complexity.ExectionInfo.Hostname == nil {
+			break
+		}
+
+		return e.complexity.ExectionInfo.Hostname(childComplexity), true
+
+	case "ExectionInfo.id":
+		if e.complexity.ExectionInfo.ID == nil {
+			break
+		}
+
+		return e.complexity.ExectionInfo.ID(childComplexity), true
+
+	case "ExectionInfo.resourceUsage":
+		if e.complexity.ExectionInfo.ResourceUsage == nil {
+			break
+		}
+
+		return e.complexity.ExectionInfo.ResourceUsage(childComplexity), true
+
+	case "ExectionInfo.strategy":
+		if e.complexity.ExectionInfo.Strategy == nil {
+			break
+		}
+
+		return e.complexity.ExectionInfo.Strategy(childComplexity), true
+
+	case "ExectionInfo.testResult":
+		if e.complexity.ExectionInfo.TestResult == nil {
+			break
+		}
+
+		return e.complexity.ExectionInfo.TestResult(childComplexity), true
+
+	case "ExectionInfo.timingBreakdown":
+		if e.complexity.ExectionInfo.TimingBreakdown == nil {
+			break
+		}
+
+		return e.complexity.ExectionInfo.TimingBreakdown(childComplexity), true
+
 	case "ExitCode.code":
 		if e.complexity.ExitCode.Code == nil {
 			break
@@ -2011,6 +2285,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Metrics.TargetMetrics(childComplexity), true
+
+	case "Metrics.testResults":
+		if e.complexity.Metrics.TestResults == nil {
+			break
+		}
+
+		return e.complexity.Metrics.TestResults(childComplexity), true
+
+	case "Metrics.testSummary":
+		if e.complexity.Metrics.TestSummary == nil {
+			break
+		}
+
+		return e.complexity.Metrics.TestSummary(childComplexity), true
 
 	case "Metrics.timingMetrics":
 		if e.complexity.Metrics.TimingMetrics == nil {
@@ -2395,6 +2683,34 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.RaceStatistics.RenoteWins(childComplexity), true
 
+	case "ResourceUsage.executionInfo":
+		if e.complexity.ResourceUsage.ExecutionInfo == nil {
+			break
+		}
+
+		return e.complexity.ResourceUsage.ExecutionInfo(childComplexity), true
+
+	case "ResourceUsage.id":
+		if e.complexity.ResourceUsage.ID == nil {
+			break
+		}
+
+		return e.complexity.ResourceUsage.ID(childComplexity), true
+
+	case "ResourceUsage.name":
+		if e.complexity.ResourceUsage.Name == nil {
+			break
+		}
+
+		return e.complexity.ResourceUsage.Name(childComplexity), true
+
+	case "ResourceUsage.value":
+		if e.complexity.ResourceUsage.Value == nil {
+			break
+		}
+
+		return e.complexity.ResourceUsage.Value(childComplexity), true
+
 	case "RunnerCount.actionSummary":
 		if e.complexity.RunnerCount.ActionSummary == nil {
 			break
@@ -2584,6 +2900,90 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TargetProblem.Label(childComplexity), true
 
+	case "TestCollection.bazelInvocation":
+		if e.complexity.TestCollection.BazelInvocation == nil {
+			break
+		}
+
+		return e.complexity.TestCollection.BazelInvocation(childComplexity), true
+
+	case "TestCollection.id":
+		if e.complexity.TestCollection.ID == nil {
+			break
+		}
+
+		return e.complexity.TestCollection.ID(childComplexity), true
+
+	case "TestCollection.label":
+		if e.complexity.TestCollection.Label == nil {
+			break
+		}
+
+		return e.complexity.TestCollection.Label(childComplexity), true
+
+	case "TestCollection.testResults":
+		if e.complexity.TestCollection.TestResults == nil {
+			break
+		}
+
+		return e.complexity.TestCollection.TestResults(childComplexity), true
+
+	case "TestCollection.testSummary":
+		if e.complexity.TestCollection.TestSummary == nil {
+			break
+		}
+
+		return e.complexity.TestCollection.TestSummary(childComplexity), true
+
+	case "TestFile.digest":
+		if e.complexity.TestFile.Digest == nil {
+			break
+		}
+
+		return e.complexity.TestFile.Digest(childComplexity), true
+
+	case "TestFile.file":
+		if e.complexity.TestFile.File == nil {
+			break
+		}
+
+		return e.complexity.TestFile.File(childComplexity), true
+
+	case "TestFile.id":
+		if e.complexity.TestFile.ID == nil {
+			break
+		}
+
+		return e.complexity.TestFile.ID(childComplexity), true
+
+	case "TestFile.length":
+		if e.complexity.TestFile.Length == nil {
+			break
+		}
+
+		return e.complexity.TestFile.Length(childComplexity), true
+
+	case "TestFile.name":
+		if e.complexity.TestFile.Name == nil {
+			break
+		}
+
+		return e.complexity.TestFile.Name(childComplexity), true
+
+	case "TestFile.prefix":
+		if e.complexity.TestFile.Prefix == nil {
+			break
+		}
+
+		return e.complexity.TestFile.Prefix(childComplexity), true
+
+	case "TestFile.testResult":
+		if e.complexity.TestFile.TestResult == nil {
+			break
+		}
+
+		return e.complexity.TestFile.TestResult(childComplexity), true
+
 	case "TestProblem.id":
 		if e.complexity.TestProblem.ID == nil {
 			break
@@ -2660,6 +3060,272 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.TestResult.UndeclaredTestOutputs(childComplexity), true
+
+	case "TestResultBES.attempt":
+		if e.complexity.TestResultBES.Attempt == nil {
+			break
+		}
+
+		return e.complexity.TestResultBES.Attempt(childComplexity), true
+
+	case "TestResultBES.cachedLocally":
+		if e.complexity.TestResultBES.CachedLocally == nil {
+			break
+		}
+
+		return e.complexity.TestResultBES.CachedLocally(childComplexity), true
+
+	case "TestResultBES.executionInfo":
+		if e.complexity.TestResultBES.ExecutionInfo == nil {
+			break
+		}
+
+		return e.complexity.TestResultBES.ExecutionInfo(childComplexity), true
+
+	case "TestResultBES.id":
+		if e.complexity.TestResultBES.ID == nil {
+			break
+		}
+
+		return e.complexity.TestResultBES.ID(childComplexity), true
+
+	case "TestResultBES.label":
+		if e.complexity.TestResultBES.Label == nil {
+			break
+		}
+
+		return e.complexity.TestResultBES.Label(childComplexity), true
+
+	case "TestResultBES.run":
+		if e.complexity.TestResultBES.Run == nil {
+			break
+		}
+
+		return e.complexity.TestResultBES.Run(childComplexity), true
+
+	case "TestResultBES.shard":
+		if e.complexity.TestResultBES.Shard == nil {
+			break
+		}
+
+		return e.complexity.TestResultBES.Shard(childComplexity), true
+
+	case "TestResultBES.statusDetails":
+		if e.complexity.TestResultBES.StatusDetails == nil {
+			break
+		}
+
+		return e.complexity.TestResultBES.StatusDetails(childComplexity), true
+
+	case "TestResultBES.targetsConfiguredNotIncludingAspects":
+		if e.complexity.TestResultBES.TargetsConfiguredNotIncludingAspects == nil {
+			break
+		}
+
+		return e.complexity.TestResultBES.TargetsConfiguredNotIncludingAspects(childComplexity), true
+
+	case "TestResultBES.testActionOutput":
+		if e.complexity.TestResultBES.TestActionOutput == nil {
+			break
+		}
+
+		return e.complexity.TestResultBES.TestActionOutput(childComplexity), true
+
+	case "TestResultBES.testAttemptDurationMillis":
+		if e.complexity.TestResultBES.TestAttemptDurationMillis == nil {
+			break
+		}
+
+		return e.complexity.TestResultBES.TestAttemptDurationMillis(childComplexity), true
+
+	case "TestResultBES.testAttemptStartMillisEpoch":
+		if e.complexity.TestResultBES.TestAttemptStartMillisEpoch == nil {
+			break
+		}
+
+		return e.complexity.TestResultBES.TestAttemptStartMillisEpoch(childComplexity), true
+
+	case "TestResultBES.testCollection":
+		if e.complexity.TestResultBES.TestCollection == nil {
+			break
+		}
+
+		return e.complexity.TestResultBES.TestCollection(childComplexity), true
+
+	case "TestResultBES.testStatus":
+		if e.complexity.TestResultBES.TestStatus == nil {
+			break
+		}
+
+		return e.complexity.TestResultBES.TestStatus(childComplexity), true
+
+	case "TestResultBES.warning":
+		if e.complexity.TestResultBES.Warning == nil {
+			break
+		}
+
+		return e.complexity.TestResultBES.Warning(childComplexity), true
+
+	case "TestSummary.attemptCount":
+		if e.complexity.TestSummary.AttemptCount == nil {
+			break
+		}
+
+		return e.complexity.TestSummary.AttemptCount(childComplexity), true
+
+	case "TestSummary.failed":
+		if e.complexity.TestSummary.Failed == nil {
+			break
+		}
+
+		return e.complexity.TestSummary.Failed(childComplexity), true
+
+	case "TestSummary.firstStartTime":
+		if e.complexity.TestSummary.FirstStartTime == nil {
+			break
+		}
+
+		return e.complexity.TestSummary.FirstStartTime(childComplexity), true
+
+	case "TestSummary.id":
+		if e.complexity.TestSummary.ID == nil {
+			break
+		}
+
+		return e.complexity.TestSummary.ID(childComplexity), true
+
+	case "TestSummary.label":
+		if e.complexity.TestSummary.Label == nil {
+			break
+		}
+
+		return e.complexity.TestSummary.Label(childComplexity), true
+
+	case "TestSummary.lastStopTime":
+		if e.complexity.TestSummary.LastStopTime == nil {
+			break
+		}
+
+		return e.complexity.TestSummary.LastStopTime(childComplexity), true
+
+	case "TestSummary.overallStatus":
+		if e.complexity.TestSummary.OverallStatus == nil {
+			break
+		}
+
+		return e.complexity.TestSummary.OverallStatus(childComplexity), true
+
+	case "TestSummary.passed":
+		if e.complexity.TestSummary.Passed == nil {
+			break
+		}
+
+		return e.complexity.TestSummary.Passed(childComplexity), true
+
+	case "TestSummary.runCount":
+		if e.complexity.TestSummary.RunCount == nil {
+			break
+		}
+
+		return e.complexity.TestSummary.RunCount(childComplexity), true
+
+	case "TestSummary.shardCount":
+		if e.complexity.TestSummary.ShardCount == nil {
+			break
+		}
+
+		return e.complexity.TestSummary.ShardCount(childComplexity), true
+
+	case "TestSummary.testCollection":
+		if e.complexity.TestSummary.TestCollection == nil {
+			break
+		}
+
+		return e.complexity.TestSummary.TestCollection(childComplexity), true
+
+	case "TestSummary.totalNumCached":
+		if e.complexity.TestSummary.TotalNumCached == nil {
+			break
+		}
+
+		return e.complexity.TestSummary.TotalNumCached(childComplexity), true
+
+	case "TestSummary.totalRunCount":
+		if e.complexity.TestSummary.TotalRunCount == nil {
+			break
+		}
+
+		return e.complexity.TestSummary.TotalRunCount(childComplexity), true
+
+	case "TestSummary.totalRunDuration":
+		if e.complexity.TestSummary.TotalRunDuration == nil {
+			break
+		}
+
+		return e.complexity.TestSummary.TotalRunDuration(childComplexity), true
+
+	case "TimingBreakdown.child":
+		if e.complexity.TimingBreakdown.Child == nil {
+			break
+		}
+
+		return e.complexity.TimingBreakdown.Child(childComplexity), true
+
+	case "TimingBreakdown.exectionInfo":
+		if e.complexity.TimingBreakdown.ExectionInfo == nil {
+			break
+		}
+
+		return e.complexity.TimingBreakdown.ExectionInfo(childComplexity), true
+
+	case "TimingBreakdown.id":
+		if e.complexity.TimingBreakdown.ID == nil {
+			break
+		}
+
+		return e.complexity.TimingBreakdown.ID(childComplexity), true
+
+	case "TimingBreakdown.name":
+		if e.complexity.TimingBreakdown.Name == nil {
+			break
+		}
+
+		return e.complexity.TimingBreakdown.Name(childComplexity), true
+
+	case "TimingBreakdown.time":
+		if e.complexity.TimingBreakdown.Time == nil {
+			break
+		}
+
+		return e.complexity.TimingBreakdown.Time(childComplexity), true
+
+	case "TimingChild.id":
+		if e.complexity.TimingChild.ID == nil {
+			break
+		}
+
+		return e.complexity.TimingChild.ID(childComplexity), true
+
+	case "TimingChild.name":
+		if e.complexity.TimingChild.Name == nil {
+			break
+		}
+
+		return e.complexity.TimingChild.Name(childComplexity), true
+
+	case "TimingChild.time":
+		if e.complexity.TimingChild.Time == nil {
+			break
+		}
+
+		return e.complexity.TimingChild.Time(childComplexity), true
+
+	case "TimingChild.timingBreakdown":
+		if e.complexity.TimingChild.TimingBreakdown == nil {
+			break
+		}
+
+		return e.complexity.TimingChild.TimingBreakdown(childComplexity), true
 
 	case "TimingMetrics.actionsExecutionStartInMs":
 		if e.complexity.TimingMetrics.ActionsExecutionStartInMs == nil {
@@ -2752,6 +3418,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputDynamicExecutionMetricsWhereInput,
 		ec.unmarshalInputEvaluationStatWhereInput,
 		ec.unmarshalInputEventFileWhereInput,
+		ec.unmarshalInputExectionInfoWhereInput,
 		ec.unmarshalInputFilesMetricWhereInput,
 		ec.unmarshalInputGarbageMetricsWhereInput,
 		ec.unmarshalInputMemoryMetricsWhereInput,
@@ -2761,9 +3428,16 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputPackageLoadMetricsWhereInput,
 		ec.unmarshalInputPackageMetricsWhereInput,
 		ec.unmarshalInputRaceStatisticsWhereInput,
+		ec.unmarshalInputResourceUsageWhereInput,
 		ec.unmarshalInputRunnerCountWhereInput,
 		ec.unmarshalInputSystemNetworkStatsWhereInput,
 		ec.unmarshalInputTargetMetricsWhereInput,
+		ec.unmarshalInputTestCollectionWhereInput,
+		ec.unmarshalInputTestFileWhereInput,
+		ec.unmarshalInputTestResultBESWhereInput,
+		ec.unmarshalInputTestSummaryWhereInput,
+		ec.unmarshalInputTimingBreakdownWhereInput,
+		ec.unmarshalInputTimingChildWhereInput,
 		ec.unmarshalInputTimingMetricsWhereInput,
 	)
 	first := true
@@ -4622,6 +5296,10 @@ func (ec *executionContext) fieldContext_ActionSummary_metrics(_ context.Context
 				return ec.fieldContext_Metrics_dynamicExecutionMetrics(ctx, field)
 			case "buildGraphMetrics":
 				return ec.fieldContext_Metrics_buildGraphMetrics(ctx, field)
+			case "testResults":
+				return ec.fieldContext_Metrics_testResults(ctx, field)
+			case "testSummary":
+				return ec.fieldContext_Metrics_testSummary(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Metrics", field.Name)
 		},
@@ -4733,6 +5411,10 @@ func (ec *executionContext) fieldContext_ArtifactMetrics_metrics(_ context.Conte
 				return ec.fieldContext_Metrics_dynamicExecutionMetrics(ctx, field)
 			case "buildGraphMetrics":
 				return ec.fieldContext_Metrics_buildGraphMetrics(ctx, field)
+			case "testResults":
+				return ec.fieldContext_Metrics_testResults(ctx, field)
+			case "testSummary":
+				return ec.fieldContext_Metrics_testSummary(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Metrics", field.Name)
 		},
@@ -5802,8 +6484,65 @@ func (ec *executionContext) fieldContext_BazelInvocation_metrics(_ context.Conte
 				return ec.fieldContext_Metrics_dynamicExecutionMetrics(ctx, field)
 			case "buildGraphMetrics":
 				return ec.fieldContext_Metrics_buildGraphMetrics(ctx, field)
+			case "testResults":
+				return ec.fieldContext_Metrics_testResults(ctx, field)
+			case "testSummary":
+				return ec.fieldContext_Metrics_testSummary(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Metrics", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BazelInvocation_testCollection(ctx context.Context, field graphql.CollectedField, obj *ent.BazelInvocation) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BazelInvocation_testCollection(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TestCollection(ctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*ent.TestCollection)
+	fc.Result = res
+	return ec.marshalOTestCollection2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTestCollectionᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BazelInvocation_testCollection(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BazelInvocation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_TestCollection_id(ctx, field)
+			case "label":
+				return ec.fieldContext_TestCollection_label(ctx, field)
+			case "bazelInvocation":
+				return ec.fieldContext_TestCollection_bazelInvocation(ctx, field)
+			case "testSummary":
+				return ec.fieldContext_TestCollection_testSummary(ctx, field)
+			case "testResults":
+				return ec.fieldContext_TestCollection_testResults(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TestCollection", field.Name)
 		},
 	}
 	return fc, nil
@@ -6273,6 +7012,8 @@ func (ec *executionContext) fieldContext_BazelInvocationEdge_node(_ context.Cont
 				return ec.fieldContext_BazelInvocation_build(ctx, field)
 			case "metrics":
 				return ec.fieldContext_BazelInvocation_metrics(ctx, field)
+			case "testCollection":
+				return ec.fieldContext_BazelInvocation_testCollection(ctx, field)
 			case "bazelCommand":
 				return ec.fieldContext_BazelInvocation_bazelCommand(ctx, field)
 			case "state":
@@ -6530,6 +7271,8 @@ func (ec *executionContext) fieldContext_BazelInvocationProblem_bazelInvocation(
 				return ec.fieldContext_BazelInvocation_build(ctx, field)
 			case "metrics":
 				return ec.fieldContext_BazelInvocation_metrics(ctx, field)
+			case "testCollection":
+				return ec.fieldContext_BazelInvocation_testCollection(ctx, field)
 			case "bazelCommand":
 				return ec.fieldContext_BazelInvocation_bazelCommand(ctx, field)
 			case "state":
@@ -7396,6 +8139,8 @@ func (ec *executionContext) fieldContext_Build_invocations(_ context.Context, fi
 				return ec.fieldContext_BazelInvocation_build(ctx, field)
 			case "metrics":
 				return ec.fieldContext_BazelInvocation_metrics(ctx, field)
+			case "testCollection":
+				return ec.fieldContext_BazelInvocation_testCollection(ctx, field)
 			case "bazelCommand":
 				return ec.fieldContext_BazelInvocation_bazelCommand(ctx, field)
 			case "state":
@@ -8137,6 +8882,10 @@ func (ec *executionContext) fieldContext_BuildGraphMetrics_metrics(_ context.Con
 				return ec.fieldContext_Metrics_dynamicExecutionMetrics(ctx, field)
 			case "buildGraphMetrics":
 				return ec.fieldContext_Metrics_buildGraphMetrics(ctx, field)
+			case "testResults":
+				return ec.fieldContext_Metrics_testResults(ctx, field)
+			case "testSummary":
+				return ec.fieldContext_Metrics_testSummary(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Metrics", field.Name)
 		},
@@ -8585,6 +9334,10 @@ func (ec *executionContext) fieldContext_CumulativeMetrics_metrics(_ context.Con
 				return ec.fieldContext_Metrics_dynamicExecutionMetrics(ctx, field)
 			case "buildGraphMetrics":
 				return ec.fieldContext_Metrics_buildGraphMetrics(ctx, field)
+			case "testResults":
+				return ec.fieldContext_Metrics_testResults(ctx, field)
+			case "testSummary":
+				return ec.fieldContext_Metrics_testSummary(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Metrics", field.Name)
 		},
@@ -8696,6 +9449,10 @@ func (ec *executionContext) fieldContext_DynamicExecutionMetrics_metrics(_ conte
 				return ec.fieldContext_Metrics_dynamicExecutionMetrics(ctx, field)
 			case "buildGraphMetrics":
 				return ec.fieldContext_Metrics_buildGraphMetrics(ctx, field)
+			case "testResults":
+				return ec.fieldContext_Metrics_testResults(ctx, field)
+			case "testSummary":
+				return ec.fieldContext_Metrics_testSummary(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Metrics", field.Name)
 		},
@@ -9416,6 +10173,8 @@ func (ec *executionContext) fieldContext_EventFile_bazelInvocation(_ context.Con
 				return ec.fieldContext_BazelInvocation_build(ctx, field)
 			case "metrics":
 				return ec.fieldContext_BazelInvocation_metrics(ctx, field)
+			case "testCollection":
+				return ec.fieldContext_BazelInvocation_testCollection(ctx, field)
 			case "bazelCommand":
 				return ec.fieldContext_BazelInvocation_bazelCommand(ctx, field)
 			case "state":
@@ -9428,6 +10187,391 @@ func (ec *executionContext) fieldContext_EventFile_bazelInvocation(_ context.Con
 				return ec.fieldContext_BazelInvocation_problems(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type BazelInvocation", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ExectionInfo_id(ctx context.Context, field graphql.CollectedField, obj *ent.ExectionInfo) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ExectionInfo_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.ExectionInfo().ID(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ExectionInfo_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ExectionInfo",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ExectionInfo_strategy(ctx context.Context, field graphql.CollectedField, obj *ent.ExectionInfo) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ExectionInfo_strategy(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Strategy, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalOString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ExectionInfo_strategy(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ExectionInfo",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ExectionInfo_cachedRemotely(ctx context.Context, field graphql.CollectedField, obj *ent.ExectionInfo) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ExectionInfo_cachedRemotely(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CachedRemotely, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalOBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ExectionInfo_cachedRemotely(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ExectionInfo",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ExectionInfo_exitCode(ctx context.Context, field graphql.CollectedField, obj *ent.ExectionInfo) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ExectionInfo_exitCode(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ExitCode, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(int32)
+	fc.Result = res
+	return ec.marshalOInt2int32(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ExectionInfo_exitCode(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ExectionInfo",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ExectionInfo_hostname(ctx context.Context, field graphql.CollectedField, obj *ent.ExectionInfo) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ExectionInfo_hostname(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Hostname, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalOString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ExectionInfo_hostname(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ExectionInfo",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ExectionInfo_testResult(ctx context.Context, field graphql.CollectedField, obj *ent.ExectionInfo) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ExectionInfo_testResult(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TestResult(ctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*ent.TestResultBES)
+	fc.Result = res
+	return ec.marshalOTestResultBES2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTestResultBESᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ExectionInfo_testResult(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ExectionInfo",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_TestResultBES_id(ctx, field)
+			case "testStatus":
+				return ec.fieldContext_TestResultBES_testStatus(ctx, field)
+			case "statusDetails":
+				return ec.fieldContext_TestResultBES_statusDetails(ctx, field)
+			case "label":
+				return ec.fieldContext_TestResultBES_label(ctx, field)
+			case "warning":
+				return ec.fieldContext_TestResultBES_warning(ctx, field)
+			case "cachedLocally":
+				return ec.fieldContext_TestResultBES_cachedLocally(ctx, field)
+			case "testAttemptStartMillisEpoch":
+				return ec.fieldContext_TestResultBES_testAttemptStartMillisEpoch(ctx, field)
+			case "testAttemptDurationMillis":
+				return ec.fieldContext_TestResultBES_testAttemptDurationMillis(ctx, field)
+			case "targetsConfiguredNotIncludingAspects":
+				return ec.fieldContext_TestResultBES_targetsConfiguredNotIncludingAspects(ctx, field)
+			case "run":
+				return ec.fieldContext_TestResultBES_run(ctx, field)
+			case "shard":
+				return ec.fieldContext_TestResultBES_shard(ctx, field)
+			case "attempt":
+				return ec.fieldContext_TestResultBES_attempt(ctx, field)
+			case "testCollection":
+				return ec.fieldContext_TestResultBES_testCollection(ctx, field)
+			case "testActionOutput":
+				return ec.fieldContext_TestResultBES_testActionOutput(ctx, field)
+			case "executionInfo":
+				return ec.fieldContext_TestResultBES_executionInfo(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TestResultBES", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ExectionInfo_timingBreakdown(ctx context.Context, field graphql.CollectedField, obj *ent.ExectionInfo) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ExectionInfo_timingBreakdown(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TimingBreakdown(ctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*ent.TimingBreakdown)
+	fc.Result = res
+	return ec.marshalOTimingBreakdown2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTimingBreakdown(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ExectionInfo_timingBreakdown(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ExectionInfo",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_TimingBreakdown_id(ctx, field)
+			case "name":
+				return ec.fieldContext_TimingBreakdown_name(ctx, field)
+			case "time":
+				return ec.fieldContext_TimingBreakdown_time(ctx, field)
+			case "exectionInfo":
+				return ec.fieldContext_TimingBreakdown_exectionInfo(ctx, field)
+			case "child":
+				return ec.fieldContext_TimingBreakdown_child(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TimingBreakdown", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ExectionInfo_resourceUsage(ctx context.Context, field graphql.CollectedField, obj *ent.ExectionInfo) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ExectionInfo_resourceUsage(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ResourceUsage(ctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*ent.ResourceUsage)
+	fc.Result = res
+	return ec.marshalOResourceUsage2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐResourceUsageᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ExectionInfo_resourceUsage(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ExectionInfo",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_ResourceUsage_id(ctx, field)
+			case "name":
+				return ec.fieldContext_ResourceUsage_name(ctx, field)
+			case "value":
+				return ec.fieldContext_ResourceUsage_value(ctx, field)
+			case "executionInfo":
+				return ec.fieldContext_ResourceUsage_executionInfo(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ResourceUsage", field.Name)
 		},
 	}
 	return fc, nil
@@ -10205,6 +11349,10 @@ func (ec *executionContext) fieldContext_MemoryMetrics_metrics(_ context.Context
 				return ec.fieldContext_Metrics_dynamicExecutionMetrics(ctx, field)
 			case "buildGraphMetrics":
 				return ec.fieldContext_Metrics_buildGraphMetrics(ctx, field)
+			case "testResults":
+				return ec.fieldContext_Metrics_testResults(ctx, field)
+			case "testSummary":
+				return ec.fieldContext_Metrics_testSummary(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Metrics", field.Name)
 		},
@@ -10320,6 +11468,8 @@ func (ec *executionContext) fieldContext_Metrics_bazelInvocation(_ context.Conte
 				return ec.fieldContext_BazelInvocation_build(ctx, field)
 			case "metrics":
 				return ec.fieldContext_BazelInvocation_metrics(ctx, field)
+			case "testCollection":
+				return ec.fieldContext_BazelInvocation_testCollection(ctx, field)
 			case "bazelCommand":
 				return ec.fieldContext_BazelInvocation_bazelCommand(ctx, field)
 			case "state":
@@ -10891,6 +12041,150 @@ func (ec *executionContext) fieldContext_Metrics_buildGraphMetrics(_ context.Con
 	return fc, nil
 }
 
+func (ec *executionContext) _Metrics_testResults(ctx context.Context, field graphql.CollectedField, obj *ent.Metrics) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Metrics_testResults(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TestResults(ctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*ent.TestResultBES)
+	fc.Result = res
+	return ec.marshalOTestResultBES2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTestResultBESᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Metrics_testResults(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Metrics",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_TestResultBES_id(ctx, field)
+			case "testStatus":
+				return ec.fieldContext_TestResultBES_testStatus(ctx, field)
+			case "statusDetails":
+				return ec.fieldContext_TestResultBES_statusDetails(ctx, field)
+			case "label":
+				return ec.fieldContext_TestResultBES_label(ctx, field)
+			case "warning":
+				return ec.fieldContext_TestResultBES_warning(ctx, field)
+			case "cachedLocally":
+				return ec.fieldContext_TestResultBES_cachedLocally(ctx, field)
+			case "testAttemptStartMillisEpoch":
+				return ec.fieldContext_TestResultBES_testAttemptStartMillisEpoch(ctx, field)
+			case "testAttemptDurationMillis":
+				return ec.fieldContext_TestResultBES_testAttemptDurationMillis(ctx, field)
+			case "targetsConfiguredNotIncludingAspects":
+				return ec.fieldContext_TestResultBES_targetsConfiguredNotIncludingAspects(ctx, field)
+			case "run":
+				return ec.fieldContext_TestResultBES_run(ctx, field)
+			case "shard":
+				return ec.fieldContext_TestResultBES_shard(ctx, field)
+			case "attempt":
+				return ec.fieldContext_TestResultBES_attempt(ctx, field)
+			case "testCollection":
+				return ec.fieldContext_TestResultBES_testCollection(ctx, field)
+			case "testActionOutput":
+				return ec.fieldContext_TestResultBES_testActionOutput(ctx, field)
+			case "executionInfo":
+				return ec.fieldContext_TestResultBES_executionInfo(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TestResultBES", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Metrics_testSummary(ctx context.Context, field graphql.CollectedField, obj *ent.Metrics) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Metrics_testSummary(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TestSummary(ctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*ent.TestSummary)
+	fc.Result = res
+	return ec.marshalOTestSummary2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTestSummaryᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Metrics_testSummary(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Metrics",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_TestSummary_id(ctx, field)
+			case "overallStatus":
+				return ec.fieldContext_TestSummary_overallStatus(ctx, field)
+			case "totalRunCount":
+				return ec.fieldContext_TestSummary_totalRunCount(ctx, field)
+			case "runCount":
+				return ec.fieldContext_TestSummary_runCount(ctx, field)
+			case "attemptCount":
+				return ec.fieldContext_TestSummary_attemptCount(ctx, field)
+			case "shardCount":
+				return ec.fieldContext_TestSummary_shardCount(ctx, field)
+			case "totalNumCached":
+				return ec.fieldContext_TestSummary_totalNumCached(ctx, field)
+			case "firstStartTime":
+				return ec.fieldContext_TestSummary_firstStartTime(ctx, field)
+			case "lastStopTime":
+				return ec.fieldContext_TestSummary_lastStopTime(ctx, field)
+			case "totalRunDuration":
+				return ec.fieldContext_TestSummary_totalRunDuration(ctx, field)
+			case "label":
+				return ec.fieldContext_TestSummary_label(ctx, field)
+			case "testCollection":
+				return ec.fieldContext_TestSummary_testCollection(ctx, field)
+			case "passed":
+				return ec.fieldContext_TestSummary_passed(ctx, field)
+			case "failed":
+				return ec.fieldContext_TestSummary_failed(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TestSummary", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _MetricsConnection_edges(ctx context.Context, field graphql.CollectedField, obj *ent.MetricsConnection) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_MetricsConnection_edges(ctx, field)
 	if err != nil {
@@ -11096,6 +12390,10 @@ func (ec *executionContext) fieldContext_MetricsEdge_node(_ context.Context, fie
 				return ec.fieldContext_Metrics_dynamicExecutionMetrics(ctx, field)
 			case "buildGraphMetrics":
 				return ec.fieldContext_Metrics_buildGraphMetrics(ctx, field)
+			case "testResults":
+				return ec.fieldContext_Metrics_testResults(ctx, field)
+			case "testSummary":
+				return ec.fieldContext_Metrics_testSummary(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Metrics", field.Name)
 		},
@@ -11524,6 +12822,10 @@ func (ec *executionContext) fieldContext_NetworkMetrics_metrics(_ context.Contex
 				return ec.fieldContext_Metrics_dynamicExecutionMetrics(ctx, field)
 			case "buildGraphMetrics":
 				return ec.fieldContext_Metrics_buildGraphMetrics(ctx, field)
+			case "testResults":
+				return ec.fieldContext_Metrics_testResults(ctx, field)
+			case "testSummary":
+				return ec.fieldContext_Metrics_testSummary(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Metrics", field.Name)
 		},
@@ -12139,6 +13441,10 @@ func (ec *executionContext) fieldContext_PackageMetrics_metrics(_ context.Contex
 				return ec.fieldContext_Metrics_dynamicExecutionMetrics(ctx, field)
 			case "buildGraphMetrics":
 				return ec.fieldContext_Metrics_buildGraphMetrics(ctx, field)
+			case "testResults":
+				return ec.fieldContext_Metrics_testResults(ctx, field)
+			case "testSummary":
+				return ec.fieldContext_Metrics_testSummary(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Metrics", field.Name)
 		},
@@ -12874,6 +14180,8 @@ func (ec *executionContext) fieldContext_Query_bazelInvocation(ctx context.Conte
 				return ec.fieldContext_BazelInvocation_build(ctx, field)
 			case "metrics":
 				return ec.fieldContext_BazelInvocation_metrics(ctx, field)
+			case "testCollection":
+				return ec.fieldContext_BazelInvocation_testCollection(ctx, field)
 			case "bazelCommand":
 				return ec.fieldContext_BazelInvocation_bazelCommand(ctx, field)
 			case "state":
@@ -13388,6 +14696,191 @@ func (ec *executionContext) fieldContext_RaceStatistics_dynamicExecutionMetrics(
 				return ec.fieldContext_DynamicExecutionMetrics_raceStatistics(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type DynamicExecutionMetrics", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ResourceUsage_id(ctx context.Context, field graphql.CollectedField, obj *ent.ResourceUsage) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ResourceUsage_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.ResourceUsage().ID(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ResourceUsage_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ResourceUsage",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ResourceUsage_name(ctx context.Context, field graphql.CollectedField, obj *ent.ResourceUsage) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ResourceUsage_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalOString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ResourceUsage_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ResourceUsage",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ResourceUsage_value(ctx context.Context, field graphql.CollectedField, obj *ent.ResourceUsage) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ResourceUsage_value(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Value, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalOString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ResourceUsage_value(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ResourceUsage",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ResourceUsage_executionInfo(ctx context.Context, field graphql.CollectedField, obj *ent.ResourceUsage) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ResourceUsage_executionInfo(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ExecutionInfo(ctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*ent.ExectionInfo)
+	fc.Result = res
+	return ec.marshalOExectionInfo2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐExectionInfoᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ResourceUsage_executionInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ResourceUsage",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_ExectionInfo_id(ctx, field)
+			case "strategy":
+				return ec.fieldContext_ExectionInfo_strategy(ctx, field)
+			case "cachedRemotely":
+				return ec.fieldContext_ExectionInfo_cachedRemotely(ctx, field)
+			case "exitCode":
+				return ec.fieldContext_ExectionInfo_exitCode(ctx, field)
+			case "hostname":
+				return ec.fieldContext_ExectionInfo_hostname(ctx, field)
+			case "testResult":
+				return ec.fieldContext_ExectionInfo_testResult(ctx, field)
+			case "timingBreakdown":
+				return ec.fieldContext_ExectionInfo_timingBreakdown(ctx, field)
+			case "resourceUsage":
+				return ec.fieldContext_ExectionInfo_resourceUsage(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ExectionInfo", field.Name)
 		},
 	}
 	return fc, nil
@@ -14511,6 +16004,10 @@ func (ec *executionContext) fieldContext_TargetMetrics_metrics(_ context.Context
 				return ec.fieldContext_Metrics_dynamicExecutionMetrics(ctx, field)
 			case "buildGraphMetrics":
 				return ec.fieldContext_Metrics_buildGraphMetrics(ctx, field)
+			case "testResults":
+				return ec.fieldContext_Metrics_testResults(ctx, field)
+			case "testSummary":
+				return ec.fieldContext_Metrics_testSummary(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Metrics", field.Name)
 		},
@@ -14601,6 +16098,640 @@ func (ec *executionContext) fieldContext_TargetProblem_label(_ context.Context, 
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TestCollection_id(ctx context.Context, field graphql.CollectedField, obj *ent.TestCollection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TestCollection_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.TestCollection().ID(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TestCollection_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TestCollection",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TestCollection_label(ctx context.Context, field graphql.CollectedField, obj *ent.TestCollection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TestCollection_label(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Label, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalOString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TestCollection_label(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TestCollection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TestCollection_bazelInvocation(ctx context.Context, field graphql.CollectedField, obj *ent.TestCollection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TestCollection_bazelInvocation(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.BazelInvocation(ctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*ent.BazelInvocation)
+	fc.Result = res
+	return ec.marshalOBazelInvocation2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐBazelInvocationᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TestCollection_bazelInvocation(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TestCollection",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_BazelInvocation_id(ctx, field)
+			case "invocationID":
+				return ec.fieldContext_BazelInvocation_invocationID(ctx, field)
+			case "startedAt":
+				return ec.fieldContext_BazelInvocation_startedAt(ctx, field)
+			case "endedAt":
+				return ec.fieldContext_BazelInvocation_endedAt(ctx, field)
+			case "changeNumber":
+				return ec.fieldContext_BazelInvocation_changeNumber(ctx, field)
+			case "patchsetNumber":
+				return ec.fieldContext_BazelInvocation_patchsetNumber(ctx, field)
+			case "bepCompleted":
+				return ec.fieldContext_BazelInvocation_bepCompleted(ctx, field)
+			case "stepLabel":
+				return ec.fieldContext_BazelInvocation_stepLabel(ctx, field)
+			case "userEmail":
+				return ec.fieldContext_BazelInvocation_userEmail(ctx, field)
+			case "userLdap":
+				return ec.fieldContext_BazelInvocation_userLdap(ctx, field)
+			case "buildLogs":
+				return ec.fieldContext_BazelInvocation_buildLogs(ctx, field)
+			case "eventFile":
+				return ec.fieldContext_BazelInvocation_eventFile(ctx, field)
+			case "build":
+				return ec.fieldContext_BazelInvocation_build(ctx, field)
+			case "metrics":
+				return ec.fieldContext_BazelInvocation_metrics(ctx, field)
+			case "testCollection":
+				return ec.fieldContext_BazelInvocation_testCollection(ctx, field)
+			case "bazelCommand":
+				return ec.fieldContext_BazelInvocation_bazelCommand(ctx, field)
+			case "state":
+				return ec.fieldContext_BazelInvocation_state(ctx, field)
+			case "user":
+				return ec.fieldContext_BazelInvocation_user(ctx, field)
+			case "relatedFiles":
+				return ec.fieldContext_BazelInvocation_relatedFiles(ctx, field)
+			case "problems":
+				return ec.fieldContext_BazelInvocation_problems(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type BazelInvocation", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TestCollection_testSummary(ctx context.Context, field graphql.CollectedField, obj *ent.TestCollection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TestCollection_testSummary(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TestSummary(ctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*ent.TestSummary)
+	fc.Result = res
+	return ec.marshalOTestSummary2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTestSummary(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TestCollection_testSummary(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TestCollection",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_TestSummary_id(ctx, field)
+			case "overallStatus":
+				return ec.fieldContext_TestSummary_overallStatus(ctx, field)
+			case "totalRunCount":
+				return ec.fieldContext_TestSummary_totalRunCount(ctx, field)
+			case "runCount":
+				return ec.fieldContext_TestSummary_runCount(ctx, field)
+			case "attemptCount":
+				return ec.fieldContext_TestSummary_attemptCount(ctx, field)
+			case "shardCount":
+				return ec.fieldContext_TestSummary_shardCount(ctx, field)
+			case "totalNumCached":
+				return ec.fieldContext_TestSummary_totalNumCached(ctx, field)
+			case "firstStartTime":
+				return ec.fieldContext_TestSummary_firstStartTime(ctx, field)
+			case "lastStopTime":
+				return ec.fieldContext_TestSummary_lastStopTime(ctx, field)
+			case "totalRunDuration":
+				return ec.fieldContext_TestSummary_totalRunDuration(ctx, field)
+			case "label":
+				return ec.fieldContext_TestSummary_label(ctx, field)
+			case "testCollection":
+				return ec.fieldContext_TestSummary_testCollection(ctx, field)
+			case "passed":
+				return ec.fieldContext_TestSummary_passed(ctx, field)
+			case "failed":
+				return ec.fieldContext_TestSummary_failed(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TestSummary", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TestCollection_testResults(ctx context.Context, field graphql.CollectedField, obj *ent.TestCollection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TestCollection_testResults(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TestResults(ctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*ent.TestResultBES)
+	fc.Result = res
+	return ec.marshalOTestResultBES2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTestResultBESᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TestCollection_testResults(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TestCollection",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_TestResultBES_id(ctx, field)
+			case "testStatus":
+				return ec.fieldContext_TestResultBES_testStatus(ctx, field)
+			case "statusDetails":
+				return ec.fieldContext_TestResultBES_statusDetails(ctx, field)
+			case "label":
+				return ec.fieldContext_TestResultBES_label(ctx, field)
+			case "warning":
+				return ec.fieldContext_TestResultBES_warning(ctx, field)
+			case "cachedLocally":
+				return ec.fieldContext_TestResultBES_cachedLocally(ctx, field)
+			case "testAttemptStartMillisEpoch":
+				return ec.fieldContext_TestResultBES_testAttemptStartMillisEpoch(ctx, field)
+			case "testAttemptDurationMillis":
+				return ec.fieldContext_TestResultBES_testAttemptDurationMillis(ctx, field)
+			case "targetsConfiguredNotIncludingAspects":
+				return ec.fieldContext_TestResultBES_targetsConfiguredNotIncludingAspects(ctx, field)
+			case "run":
+				return ec.fieldContext_TestResultBES_run(ctx, field)
+			case "shard":
+				return ec.fieldContext_TestResultBES_shard(ctx, field)
+			case "attempt":
+				return ec.fieldContext_TestResultBES_attempt(ctx, field)
+			case "testCollection":
+				return ec.fieldContext_TestResultBES_testCollection(ctx, field)
+			case "testActionOutput":
+				return ec.fieldContext_TestResultBES_testActionOutput(ctx, field)
+			case "executionInfo":
+				return ec.fieldContext_TestResultBES_executionInfo(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TestResultBES", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TestFile_id(ctx context.Context, field graphql.CollectedField, obj *ent.TestFile) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TestFile_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.TestFile().ID(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TestFile_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TestFile",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TestFile_digest(ctx context.Context, field graphql.CollectedField, obj *ent.TestFile) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TestFile_digest(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Digest, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalOString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TestFile_digest(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TestFile",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TestFile_file(ctx context.Context, field graphql.CollectedField, obj *ent.TestFile) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TestFile_file(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.File, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalOString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TestFile_file(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TestFile",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TestFile_length(ctx context.Context, field graphql.CollectedField, obj *ent.TestFile) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TestFile_length(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Length, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalOInt2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TestFile_length(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TestFile",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TestFile_name(ctx context.Context, field graphql.CollectedField, obj *ent.TestFile) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TestFile_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalOString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TestFile_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TestFile",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TestFile_prefix(ctx context.Context, field graphql.CollectedField, obj *ent.TestFile) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TestFile_prefix(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Prefix, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]string)
+	fc.Result = res
+	return ec.marshalOString2ᚕstringᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TestFile_prefix(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TestFile",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TestFile_testResult(ctx context.Context, field graphql.CollectedField, obj *ent.TestFile) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TestFile_testResult(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TestResult(ctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*ent.TestResultBES)
+	fc.Result = res
+	return ec.marshalOTestResultBES2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTestResultBESᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TestFile_testResult(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TestFile",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_TestResultBES_id(ctx, field)
+			case "testStatus":
+				return ec.fieldContext_TestResultBES_testStatus(ctx, field)
+			case "statusDetails":
+				return ec.fieldContext_TestResultBES_statusDetails(ctx, field)
+			case "label":
+				return ec.fieldContext_TestResultBES_label(ctx, field)
+			case "warning":
+				return ec.fieldContext_TestResultBES_warning(ctx, field)
+			case "cachedLocally":
+				return ec.fieldContext_TestResultBES_cachedLocally(ctx, field)
+			case "testAttemptStartMillisEpoch":
+				return ec.fieldContext_TestResultBES_testAttemptStartMillisEpoch(ctx, field)
+			case "testAttemptDurationMillis":
+				return ec.fieldContext_TestResultBES_testAttemptDurationMillis(ctx, field)
+			case "targetsConfiguredNotIncludingAspects":
+				return ec.fieldContext_TestResultBES_targetsConfiguredNotIncludingAspects(ctx, field)
+			case "run":
+				return ec.fieldContext_TestResultBES_run(ctx, field)
+			case "shard":
+				return ec.fieldContext_TestResultBES_shard(ctx, field)
+			case "attempt":
+				return ec.fieldContext_TestResultBES_attempt(ctx, field)
+			case "testCollection":
+				return ec.fieldContext_TestResultBES_testCollection(ctx, field)
+			case "testActionOutput":
+				return ec.fieldContext_TestResultBES_testActionOutput(ctx, field)
+			case "executionInfo":
+				return ec.fieldContext_TestResultBES_executionInfo(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TestResultBES", field.Name)
 		},
 	}
 	return fc, nil
@@ -15123,6 +17254,1706 @@ func (ec *executionContext) fieldContext_TestResult_undeclaredTestOutputs(_ cont
 	return fc, nil
 }
 
+func (ec *executionContext) _TestResultBES_id(ctx context.Context, field graphql.CollectedField, obj *ent.TestResultBES) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TestResultBES_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.TestResultBES().ID(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TestResultBES_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TestResultBES",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TestResultBES_testStatus(ctx context.Context, field graphql.CollectedField, obj *ent.TestResultBES) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TestResultBES_testStatus(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TestStatus, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(testresultbes.TestStatus)
+	fc.Result = res
+	return ec.marshalOTestResultBESTestStatus2githubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚋtestresultbesᚐTestStatus(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TestResultBES_testStatus(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TestResultBES",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type TestResultBESTestStatus does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TestResultBES_statusDetails(ctx context.Context, field graphql.CollectedField, obj *ent.TestResultBES) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TestResultBES_statusDetails(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.StatusDetails, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalOString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TestResultBES_statusDetails(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TestResultBES",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TestResultBES_label(ctx context.Context, field graphql.CollectedField, obj *ent.TestResultBES) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TestResultBES_label(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Label, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalOString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TestResultBES_label(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TestResultBES",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TestResultBES_warning(ctx context.Context, field graphql.CollectedField, obj *ent.TestResultBES) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TestResultBES_warning(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Warning, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]string)
+	fc.Result = res
+	return ec.marshalOString2ᚕstringᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TestResultBES_warning(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TestResultBES",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TestResultBES_cachedLocally(ctx context.Context, field graphql.CollectedField, obj *ent.TestResultBES) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TestResultBES_cachedLocally(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CachedLocally, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalOBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TestResultBES_cachedLocally(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TestResultBES",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TestResultBES_testAttemptStartMillisEpoch(ctx context.Context, field graphql.CollectedField, obj *ent.TestResultBES) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TestResultBES_testAttemptStartMillisEpoch(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TestAttemptStartMillisEpoch, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalOInt2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TestResultBES_testAttemptStartMillisEpoch(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TestResultBES",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TestResultBES_testAttemptDurationMillis(ctx context.Context, field graphql.CollectedField, obj *ent.TestResultBES) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TestResultBES_testAttemptDurationMillis(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TestAttemptDurationMillis, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalOInt2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TestResultBES_testAttemptDurationMillis(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TestResultBES",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TestResultBES_targetsConfiguredNotIncludingAspects(ctx context.Context, field graphql.CollectedField, obj *ent.TestResultBES) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TestResultBES_targetsConfiguredNotIncludingAspects(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TargetsConfiguredNotIncludingAspects, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalOInt2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TestResultBES_targetsConfiguredNotIncludingAspects(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TestResultBES",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TestResultBES_run(ctx context.Context, field graphql.CollectedField, obj *ent.TestResultBES) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TestResultBES_run(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Run, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalOInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TestResultBES_run(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TestResultBES",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TestResultBES_shard(ctx context.Context, field graphql.CollectedField, obj *ent.TestResultBES) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TestResultBES_shard(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Shard, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalOInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TestResultBES_shard(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TestResultBES",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TestResultBES_attempt(ctx context.Context, field graphql.CollectedField, obj *ent.TestResultBES) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TestResultBES_attempt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Attempt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalOInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TestResultBES_attempt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TestResultBES",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TestResultBES_testCollection(ctx context.Context, field graphql.CollectedField, obj *ent.TestResultBES) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TestResultBES_testCollection(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TestCollection(ctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*ent.TestCollection)
+	fc.Result = res
+	return ec.marshalOTestCollection2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTestCollection(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TestResultBES_testCollection(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TestResultBES",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_TestCollection_id(ctx, field)
+			case "label":
+				return ec.fieldContext_TestCollection_label(ctx, field)
+			case "bazelInvocation":
+				return ec.fieldContext_TestCollection_bazelInvocation(ctx, field)
+			case "testSummary":
+				return ec.fieldContext_TestCollection_testSummary(ctx, field)
+			case "testResults":
+				return ec.fieldContext_TestCollection_testResults(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TestCollection", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TestResultBES_testActionOutput(ctx context.Context, field graphql.CollectedField, obj *ent.TestResultBES) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TestResultBES_testActionOutput(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TestActionOutput(ctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*ent.TestFile)
+	fc.Result = res
+	return ec.marshalOTestFile2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTestFileᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TestResultBES_testActionOutput(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TestResultBES",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_TestFile_id(ctx, field)
+			case "digest":
+				return ec.fieldContext_TestFile_digest(ctx, field)
+			case "file":
+				return ec.fieldContext_TestFile_file(ctx, field)
+			case "length":
+				return ec.fieldContext_TestFile_length(ctx, field)
+			case "name":
+				return ec.fieldContext_TestFile_name(ctx, field)
+			case "prefix":
+				return ec.fieldContext_TestFile_prefix(ctx, field)
+			case "testResult":
+				return ec.fieldContext_TestFile_testResult(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TestFile", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TestResultBES_executionInfo(ctx context.Context, field graphql.CollectedField, obj *ent.TestResultBES) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TestResultBES_executionInfo(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ExecutionInfo(ctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*ent.ExectionInfo)
+	fc.Result = res
+	return ec.marshalOExectionInfo2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐExectionInfo(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TestResultBES_executionInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TestResultBES",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_ExectionInfo_id(ctx, field)
+			case "strategy":
+				return ec.fieldContext_ExectionInfo_strategy(ctx, field)
+			case "cachedRemotely":
+				return ec.fieldContext_ExectionInfo_cachedRemotely(ctx, field)
+			case "exitCode":
+				return ec.fieldContext_ExectionInfo_exitCode(ctx, field)
+			case "hostname":
+				return ec.fieldContext_ExectionInfo_hostname(ctx, field)
+			case "testResult":
+				return ec.fieldContext_ExectionInfo_testResult(ctx, field)
+			case "timingBreakdown":
+				return ec.fieldContext_ExectionInfo_timingBreakdown(ctx, field)
+			case "resourceUsage":
+				return ec.fieldContext_ExectionInfo_resourceUsage(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ExectionInfo", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TestSummary_id(ctx context.Context, field graphql.CollectedField, obj *ent.TestSummary) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TestSummary_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.TestSummary().ID(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TestSummary_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TestSummary",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TestSummary_overallStatus(ctx context.Context, field graphql.CollectedField, obj *ent.TestSummary) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TestSummary_overallStatus(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.OverallStatus, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(testsummary.OverallStatus)
+	fc.Result = res
+	return ec.marshalOTestSummaryOverallStatus2githubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚋtestsummaryᚐOverallStatus(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TestSummary_overallStatus(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TestSummary",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type TestSummaryOverallStatus does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TestSummary_totalRunCount(ctx context.Context, field graphql.CollectedField, obj *ent.TestSummary) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TestSummary_totalRunCount(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TotalRunCount, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(int32)
+	fc.Result = res
+	return ec.marshalOInt2int32(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TestSummary_totalRunCount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TestSummary",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TestSummary_runCount(ctx context.Context, field graphql.CollectedField, obj *ent.TestSummary) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TestSummary_runCount(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.RunCount, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(int32)
+	fc.Result = res
+	return ec.marshalOInt2int32(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TestSummary_runCount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TestSummary",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TestSummary_attemptCount(ctx context.Context, field graphql.CollectedField, obj *ent.TestSummary) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TestSummary_attemptCount(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AttemptCount, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(int32)
+	fc.Result = res
+	return ec.marshalOInt2int32(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TestSummary_attemptCount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TestSummary",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TestSummary_shardCount(ctx context.Context, field graphql.CollectedField, obj *ent.TestSummary) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TestSummary_shardCount(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ShardCount, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(int32)
+	fc.Result = res
+	return ec.marshalOInt2int32(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TestSummary_shardCount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TestSummary",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TestSummary_totalNumCached(ctx context.Context, field graphql.CollectedField, obj *ent.TestSummary) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TestSummary_totalNumCached(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TotalNumCached, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(int32)
+	fc.Result = res
+	return ec.marshalOInt2int32(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TestSummary_totalNumCached(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TestSummary",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TestSummary_firstStartTime(ctx context.Context, field graphql.CollectedField, obj *ent.TestSummary) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TestSummary_firstStartTime(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.FirstStartTime, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalOInt2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TestSummary_firstStartTime(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TestSummary",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TestSummary_lastStopTime(ctx context.Context, field graphql.CollectedField, obj *ent.TestSummary) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TestSummary_lastStopTime(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.LastStopTime, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalOInt2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TestSummary_lastStopTime(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TestSummary",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TestSummary_totalRunDuration(ctx context.Context, field graphql.CollectedField, obj *ent.TestSummary) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TestSummary_totalRunDuration(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TotalRunDuration, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalOInt2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TestSummary_totalRunDuration(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TestSummary",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TestSummary_label(ctx context.Context, field graphql.CollectedField, obj *ent.TestSummary) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TestSummary_label(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Label, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalOString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TestSummary_label(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TestSummary",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TestSummary_testCollection(ctx context.Context, field graphql.CollectedField, obj *ent.TestSummary) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TestSummary_testCollection(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TestCollection(ctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*ent.TestCollection)
+	fc.Result = res
+	return ec.marshalOTestCollection2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTestCollectionᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TestSummary_testCollection(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TestSummary",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_TestCollection_id(ctx, field)
+			case "label":
+				return ec.fieldContext_TestCollection_label(ctx, field)
+			case "bazelInvocation":
+				return ec.fieldContext_TestCollection_bazelInvocation(ctx, field)
+			case "testSummary":
+				return ec.fieldContext_TestCollection_testSummary(ctx, field)
+			case "testResults":
+				return ec.fieldContext_TestCollection_testResults(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TestCollection", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TestSummary_passed(ctx context.Context, field graphql.CollectedField, obj *ent.TestSummary) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TestSummary_passed(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Passed(ctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*ent.TestFile)
+	fc.Result = res
+	return ec.marshalOTestFile2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTestFileᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TestSummary_passed(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TestSummary",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_TestFile_id(ctx, field)
+			case "digest":
+				return ec.fieldContext_TestFile_digest(ctx, field)
+			case "file":
+				return ec.fieldContext_TestFile_file(ctx, field)
+			case "length":
+				return ec.fieldContext_TestFile_length(ctx, field)
+			case "name":
+				return ec.fieldContext_TestFile_name(ctx, field)
+			case "prefix":
+				return ec.fieldContext_TestFile_prefix(ctx, field)
+			case "testResult":
+				return ec.fieldContext_TestFile_testResult(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TestFile", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TestSummary_failed(ctx context.Context, field graphql.CollectedField, obj *ent.TestSummary) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TestSummary_failed(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Failed(ctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*ent.TestFile)
+	fc.Result = res
+	return ec.marshalOTestFile2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTestFileᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TestSummary_failed(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TestSummary",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_TestFile_id(ctx, field)
+			case "digest":
+				return ec.fieldContext_TestFile_digest(ctx, field)
+			case "file":
+				return ec.fieldContext_TestFile_file(ctx, field)
+			case "length":
+				return ec.fieldContext_TestFile_length(ctx, field)
+			case "name":
+				return ec.fieldContext_TestFile_name(ctx, field)
+			case "prefix":
+				return ec.fieldContext_TestFile_prefix(ctx, field)
+			case "testResult":
+				return ec.fieldContext_TestFile_testResult(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TestFile", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TimingBreakdown_id(ctx context.Context, field graphql.CollectedField, obj *ent.TimingBreakdown) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TimingBreakdown_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.TimingBreakdown().ID(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TimingBreakdown_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TimingBreakdown",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TimingBreakdown_name(ctx context.Context, field graphql.CollectedField, obj *ent.TimingBreakdown) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TimingBreakdown_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalOString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TimingBreakdown_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TimingBreakdown",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TimingBreakdown_time(ctx context.Context, field graphql.CollectedField, obj *ent.TimingBreakdown) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TimingBreakdown_time(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Time, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalOString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TimingBreakdown_time(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TimingBreakdown",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TimingBreakdown_exectionInfo(ctx context.Context, field graphql.CollectedField, obj *ent.TimingBreakdown) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TimingBreakdown_exectionInfo(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ExectionInfo(ctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*ent.ExectionInfo)
+	fc.Result = res
+	return ec.marshalOExectionInfo2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐExectionInfoᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TimingBreakdown_exectionInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TimingBreakdown",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_ExectionInfo_id(ctx, field)
+			case "strategy":
+				return ec.fieldContext_ExectionInfo_strategy(ctx, field)
+			case "cachedRemotely":
+				return ec.fieldContext_ExectionInfo_cachedRemotely(ctx, field)
+			case "exitCode":
+				return ec.fieldContext_ExectionInfo_exitCode(ctx, field)
+			case "hostname":
+				return ec.fieldContext_ExectionInfo_hostname(ctx, field)
+			case "testResult":
+				return ec.fieldContext_ExectionInfo_testResult(ctx, field)
+			case "timingBreakdown":
+				return ec.fieldContext_ExectionInfo_timingBreakdown(ctx, field)
+			case "resourceUsage":
+				return ec.fieldContext_ExectionInfo_resourceUsage(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ExectionInfo", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TimingBreakdown_child(ctx context.Context, field graphql.CollectedField, obj *ent.TimingBreakdown) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TimingBreakdown_child(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Child(ctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*ent.TimingChild)
+	fc.Result = res
+	return ec.marshalOTimingChild2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTimingChildᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TimingBreakdown_child(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TimingBreakdown",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_TimingChild_id(ctx, field)
+			case "name":
+				return ec.fieldContext_TimingChild_name(ctx, field)
+			case "time":
+				return ec.fieldContext_TimingChild_time(ctx, field)
+			case "timingBreakdown":
+				return ec.fieldContext_TimingChild_timingBreakdown(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TimingChild", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TimingChild_id(ctx context.Context, field graphql.CollectedField, obj *ent.TimingChild) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TimingChild_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.TimingChild().ID(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TimingChild_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TimingChild",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TimingChild_name(ctx context.Context, field graphql.CollectedField, obj *ent.TimingChild) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TimingChild_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalOString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TimingChild_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TimingChild",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TimingChild_time(ctx context.Context, field graphql.CollectedField, obj *ent.TimingChild) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TimingChild_time(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Time, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalOString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TimingChild_time(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TimingChild",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TimingChild_timingBreakdown(ctx context.Context, field graphql.CollectedField, obj *ent.TimingChild) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TimingChild_timingBreakdown(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TimingBreakdown(ctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*ent.TimingBreakdown)
+	fc.Result = res
+	return ec.marshalOTimingBreakdown2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTimingBreakdownᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TimingChild_timingBreakdown(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TimingChild",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_TimingBreakdown_id(ctx, field)
+			case "name":
+				return ec.fieldContext_TimingBreakdown_name(ctx, field)
+			case "time":
+				return ec.fieldContext_TimingBreakdown_time(ctx, field)
+			case "exectionInfo":
+				return ec.fieldContext_TimingBreakdown_exectionInfo(ctx, field)
+			case "child":
+				return ec.fieldContext_TimingBreakdown_child(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TimingBreakdown", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _TimingMetrics_id(ctx context.Context, field graphql.CollectedField, obj *ent.TimingMetrics) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_TimingMetrics_id(ctx, field)
 	if err != nil {
@@ -15432,6 +19263,10 @@ func (ec *executionContext) fieldContext_TimingMetrics_metrics(_ context.Context
 				return ec.fieldContext_Metrics_dynamicExecutionMetrics(ctx, field)
 			case "buildGraphMetrics":
 				return ec.fieldContext_Metrics_buildGraphMetrics(ctx, field)
+			case "testResults":
+				return ec.fieldContext_Metrics_testResults(ctx, field)
+			case "testSummary":
+				return ec.fieldContext_Metrics_testSummary(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Metrics", field.Name)
 		},
@@ -19435,7 +23270,7 @@ func (ec *executionContext) unmarshalInputBazelInvocationWhereInput(ctx context.
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"not", "and", "or", "id", "idNEQ", "idIn", "idNotIn", "idGT", "idGTE", "idLT", "idLTE", "invocationID", "invocationIDNEQ", "invocationIDIn", "invocationIDNotIn", "invocationIDGT", "invocationIDGTE", "invocationIDLT", "invocationIDLTE", "startedAt", "startedAtNEQ", "startedAtIn", "startedAtNotIn", "startedAtGT", "startedAtGTE", "startedAtLT", "startedAtLTE", "endedAt", "endedAtNEQ", "endedAtIn", "endedAtNotIn", "endedAtGT", "endedAtGTE", "endedAtLT", "endedAtLTE", "endedAtIsNil", "endedAtNotNil", "changeNumber", "changeNumberNEQ", "changeNumberIn", "changeNumberNotIn", "changeNumberGT", "changeNumberGTE", "changeNumberLT", "changeNumberLTE", "changeNumberIsNil", "changeNumberNotNil", "patchsetNumber", "patchsetNumberNEQ", "patchsetNumberIn", "patchsetNumberNotIn", "patchsetNumberGT", "patchsetNumberGTE", "patchsetNumberLT", "patchsetNumberLTE", "patchsetNumberIsNil", "patchsetNumberNotNil", "bepCompleted", "bepCompletedNEQ", "bepCompletedIsNil", "bepCompletedNotNil", "stepLabel", "stepLabelNEQ", "stepLabelIn", "stepLabelNotIn", "stepLabelGT", "stepLabelGTE", "stepLabelLT", "stepLabelLTE", "stepLabelContains", "stepLabelHasPrefix", "stepLabelHasSuffix", "stepLabelEqualFold", "stepLabelContainsFold", "userEmail", "userEmailNEQ", "userEmailIn", "userEmailNotIn", "userEmailGT", "userEmailGTE", "userEmailLT", "userEmailLTE", "userEmailContains", "userEmailHasPrefix", "userEmailHasSuffix", "userEmailIsNil", "userEmailNotNil", "userEmailEqualFold", "userEmailContainsFold", "userLdap", "userLdapNEQ", "userLdapIn", "userLdapNotIn", "userLdapGT", "userLdapGTE", "userLdapLT", "userLdapLTE", "userLdapContains", "userLdapHasPrefix", "userLdapHasSuffix", "userLdapIsNil", "userLdapNotNil", "userLdapEqualFold", "userLdapContainsFold", "buildLogs", "buildLogsNEQ", "buildLogsIn", "buildLogsNotIn", "buildLogsGT", "buildLogsGTE", "buildLogsLT", "buildLogsLTE", "buildLogsContains", "buildLogsHasPrefix", "buildLogsHasSuffix", "buildLogsIsNil", "buildLogsNotNil", "buildLogsEqualFold", "buildLogsContainsFold", "hasEventFile", "hasEventFileWith", "hasBuild", "hasBuildWith", "hasMetrics", "hasMetricsWith", "hasProblems", "hasProblemsWith"}
+	fieldsInOrder := [...]string{"not", "and", "or", "id", "idNEQ", "idIn", "idNotIn", "idGT", "idGTE", "idLT", "idLTE", "invocationID", "invocationIDNEQ", "invocationIDIn", "invocationIDNotIn", "invocationIDGT", "invocationIDGTE", "invocationIDLT", "invocationIDLTE", "startedAt", "startedAtNEQ", "startedAtIn", "startedAtNotIn", "startedAtGT", "startedAtGTE", "startedAtLT", "startedAtLTE", "endedAt", "endedAtNEQ", "endedAtIn", "endedAtNotIn", "endedAtGT", "endedAtGTE", "endedAtLT", "endedAtLTE", "endedAtIsNil", "endedAtNotNil", "changeNumber", "changeNumberNEQ", "changeNumberIn", "changeNumberNotIn", "changeNumberGT", "changeNumberGTE", "changeNumberLT", "changeNumberLTE", "changeNumberIsNil", "changeNumberNotNil", "patchsetNumber", "patchsetNumberNEQ", "patchsetNumberIn", "patchsetNumberNotIn", "patchsetNumberGT", "patchsetNumberGTE", "patchsetNumberLT", "patchsetNumberLTE", "patchsetNumberIsNil", "patchsetNumberNotNil", "bepCompleted", "bepCompletedNEQ", "bepCompletedIsNil", "bepCompletedNotNil", "stepLabel", "stepLabelNEQ", "stepLabelIn", "stepLabelNotIn", "stepLabelGT", "stepLabelGTE", "stepLabelLT", "stepLabelLTE", "stepLabelContains", "stepLabelHasPrefix", "stepLabelHasSuffix", "stepLabelEqualFold", "stepLabelContainsFold", "userEmail", "userEmailNEQ", "userEmailIn", "userEmailNotIn", "userEmailGT", "userEmailGTE", "userEmailLT", "userEmailLTE", "userEmailContains", "userEmailHasPrefix", "userEmailHasSuffix", "userEmailIsNil", "userEmailNotNil", "userEmailEqualFold", "userEmailContainsFold", "userLdap", "userLdapNEQ", "userLdapIn", "userLdapNotIn", "userLdapGT", "userLdapGTE", "userLdapLT", "userLdapLTE", "userLdapContains", "userLdapHasPrefix", "userLdapHasSuffix", "userLdapIsNil", "userLdapNotNil", "userLdapEqualFold", "userLdapContainsFold", "buildLogs", "buildLogsNEQ", "buildLogsIn", "buildLogsNotIn", "buildLogsGT", "buildLogsGTE", "buildLogsLT", "buildLogsLTE", "buildLogsContains", "buildLogsHasPrefix", "buildLogsHasSuffix", "buildLogsIsNil", "buildLogsNotNil", "buildLogsEqualFold", "buildLogsContainsFold", "hasEventFile", "hasEventFileWith", "hasBuild", "hasBuildWith", "hasMetrics", "hasMetricsWith", "hasProblems", "hasProblemsWith", "hasTestCollection", "hasTestCollectionWith"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -20347,6 +24182,20 @@ func (ec *executionContext) unmarshalInputBazelInvocationWhereInput(ctx context.
 				return it, err
 			}
 			it.HasProblemsWith = data
+		case "hasTestCollection":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasTestCollection"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HasTestCollection = data
+		case "hasTestCollectionWith":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasTestCollectionWith"))
+			data, err := ec.unmarshalOTestCollectionWhereInput2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTestCollectionWhereInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HasTestCollectionWith = data
 		}
 	}
 
@@ -23258,6 +27107,469 @@ func (ec *executionContext) unmarshalInputEventFileWhereInput(ctx context.Contex
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputExectionInfoWhereInput(ctx context.Context, obj interface{}) (ent.ExectionInfoWhereInput, error) {
+	var it ent.ExectionInfoWhereInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"not", "and", "or", "id", "idNEQ", "idIn", "idNotIn", "idGT", "idGTE", "idLT", "idLTE", "strategy", "strategyNEQ", "strategyIn", "strategyNotIn", "strategyGT", "strategyGTE", "strategyLT", "strategyLTE", "strategyContains", "strategyHasPrefix", "strategyHasSuffix", "strategyIsNil", "strategyNotNil", "strategyEqualFold", "strategyContainsFold", "cachedRemotely", "cachedRemotelyNEQ", "cachedRemotelyIsNil", "cachedRemotelyNotNil", "exitCode", "exitCodeNEQ", "exitCodeIn", "exitCodeNotIn", "exitCodeGT", "exitCodeGTE", "exitCodeLT", "exitCodeLTE", "exitCodeIsNil", "exitCodeNotNil", "hostname", "hostnameNEQ", "hostnameIn", "hostnameNotIn", "hostnameGT", "hostnameGTE", "hostnameLT", "hostnameLTE", "hostnameContains", "hostnameHasPrefix", "hostnameHasSuffix", "hostnameIsNil", "hostnameNotNil", "hostnameEqualFold", "hostnameContainsFold", "hasTestResult", "hasTestResultWith", "hasTimingBreakdown", "hasTimingBreakdownWith", "hasResourceUsage", "hasResourceUsageWith"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "not":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("not"))
+			data, err := ec.unmarshalOExectionInfoWhereInput2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐExectionInfoWhereInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Not = data
+		case "and":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("and"))
+			data, err := ec.unmarshalOExectionInfoWhereInput2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐExectionInfoWhereInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.And = data
+		case "or":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("or"))
+			data, err := ec.unmarshalOExectionInfoWhereInput2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐExectionInfoWhereInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Or = data
+		case "id":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.ExectionInfoWhereInput().ID(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "idNEQ":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idNEQ"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.ExectionInfoWhereInput().IDNeq(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "idIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idIn"))
+			data, err := ec.unmarshalOID2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.ExectionInfoWhereInput().IDIn(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "idNotIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idNotIn"))
+			data, err := ec.unmarshalOID2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.ExectionInfoWhereInput().IDNotIn(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "idGT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idGT"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.ExectionInfoWhereInput().IDGt(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "idGTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idGTE"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.ExectionInfoWhereInput().IDGte(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "idLT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idLT"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.ExectionInfoWhereInput().IDLt(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "idLTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idLTE"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.ExectionInfoWhereInput().IDLte(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "strategy":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("strategy"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Strategy = data
+		case "strategyNEQ":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("strategyNEQ"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.StrategyNEQ = data
+		case "strategyIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("strategyIn"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.StrategyIn = data
+		case "strategyNotIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("strategyNotIn"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.StrategyNotIn = data
+		case "strategyGT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("strategyGT"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.StrategyGT = data
+		case "strategyGTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("strategyGTE"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.StrategyGTE = data
+		case "strategyLT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("strategyLT"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.StrategyLT = data
+		case "strategyLTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("strategyLTE"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.StrategyLTE = data
+		case "strategyContains":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("strategyContains"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.StrategyContains = data
+		case "strategyHasPrefix":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("strategyHasPrefix"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.StrategyHasPrefix = data
+		case "strategyHasSuffix":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("strategyHasSuffix"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.StrategyHasSuffix = data
+		case "strategyIsNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("strategyIsNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.StrategyIsNil = data
+		case "strategyNotNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("strategyNotNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.StrategyNotNil = data
+		case "strategyEqualFold":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("strategyEqualFold"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.StrategyEqualFold = data
+		case "strategyContainsFold":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("strategyContainsFold"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.StrategyContainsFold = data
+		case "cachedRemotely":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cachedRemotely"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CachedRemotely = data
+		case "cachedRemotelyNEQ":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cachedRemotelyNEQ"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CachedRemotelyNEQ = data
+		case "cachedRemotelyIsNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cachedRemotelyIsNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CachedRemotelyIsNil = data
+		case "cachedRemotelyNotNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cachedRemotelyNotNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CachedRemotelyNotNil = data
+		case "exitCode":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("exitCode"))
+			data, err := ec.unmarshalOInt2ᚖint32(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ExitCode = data
+		case "exitCodeNEQ":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("exitCodeNEQ"))
+			data, err := ec.unmarshalOInt2ᚖint32(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ExitCodeNEQ = data
+		case "exitCodeIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("exitCodeIn"))
+			data, err := ec.unmarshalOInt2ᚕint32ᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ExitCodeIn = data
+		case "exitCodeNotIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("exitCodeNotIn"))
+			data, err := ec.unmarshalOInt2ᚕint32ᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ExitCodeNotIn = data
+		case "exitCodeGT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("exitCodeGT"))
+			data, err := ec.unmarshalOInt2ᚖint32(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ExitCodeGT = data
+		case "exitCodeGTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("exitCodeGTE"))
+			data, err := ec.unmarshalOInt2ᚖint32(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ExitCodeGTE = data
+		case "exitCodeLT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("exitCodeLT"))
+			data, err := ec.unmarshalOInt2ᚖint32(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ExitCodeLT = data
+		case "exitCodeLTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("exitCodeLTE"))
+			data, err := ec.unmarshalOInt2ᚖint32(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ExitCodeLTE = data
+		case "exitCodeIsNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("exitCodeIsNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ExitCodeIsNil = data
+		case "exitCodeNotNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("exitCodeNotNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ExitCodeNotNil = data
+		case "hostname":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hostname"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Hostname = data
+		case "hostnameNEQ":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hostnameNEQ"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HostnameNEQ = data
+		case "hostnameIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hostnameIn"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HostnameIn = data
+		case "hostnameNotIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hostnameNotIn"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HostnameNotIn = data
+		case "hostnameGT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hostnameGT"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HostnameGT = data
+		case "hostnameGTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hostnameGTE"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HostnameGTE = data
+		case "hostnameLT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hostnameLT"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HostnameLT = data
+		case "hostnameLTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hostnameLTE"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HostnameLTE = data
+		case "hostnameContains":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hostnameContains"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HostnameContains = data
+		case "hostnameHasPrefix":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hostnameHasPrefix"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HostnameHasPrefix = data
+		case "hostnameHasSuffix":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hostnameHasSuffix"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HostnameHasSuffix = data
+		case "hostnameIsNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hostnameIsNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HostnameIsNil = data
+		case "hostnameNotNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hostnameNotNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HostnameNotNil = data
+		case "hostnameEqualFold":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hostnameEqualFold"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HostnameEqualFold = data
+		case "hostnameContainsFold":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hostnameContainsFold"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HostnameContainsFold = data
+		case "hasTestResult":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasTestResult"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HasTestResult = data
+		case "hasTestResultWith":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasTestResultWith"))
+			data, err := ec.unmarshalOTestResultBESWhereInput2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTestResultBESWhereInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HasTestResultWith = data
+		case "hasTimingBreakdown":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasTimingBreakdown"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HasTimingBreakdown = data
+		case "hasTimingBreakdownWith":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasTimingBreakdownWith"))
+			data, err := ec.unmarshalOTimingBreakdownWhereInput2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTimingBreakdownWhereInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HasTimingBreakdownWith = data
+		case "hasResourceUsage":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasResourceUsage"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HasResourceUsage = data
+		case "hasResourceUsageWith":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasResourceUsageWith"))
+			data, err := ec.unmarshalOResourceUsageWhereInput2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐResourceUsageWhereInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HasResourceUsageWith = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputFilesMetricWhereInput(ctx context.Context, obj interface{}) (ent.FilesMetricWhereInput, error) {
 	var it ent.FilesMetricWhereInput
 	asMap := map[string]interface{}{}
@@ -24185,7 +28497,7 @@ func (ec *executionContext) unmarshalInputMetricsWhereInput(ctx context.Context,
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"not", "and", "or", "id", "idNEQ", "idIn", "idNotIn", "idGT", "idGTE", "idLT", "idLTE", "hasBazelInvocation", "hasBazelInvocationWith", "hasActionSummary", "hasActionSummaryWith", "hasMemoryMetrics", "hasMemoryMetricsWith", "hasTargetMetrics", "hasTargetMetricsWith", "hasPackageMetrics", "hasPackageMetricsWith", "hasTimingMetrics", "hasTimingMetricsWith", "hasCumulativeMetrics", "hasCumulativeMetricsWith", "hasArtifactMetrics", "hasArtifactMetricsWith", "hasNetworkMetrics", "hasNetworkMetricsWith", "hasDynamicExecutionMetrics", "hasDynamicExecutionMetricsWith", "hasBuildGraphMetrics", "hasBuildGraphMetricsWith"}
+	fieldsInOrder := [...]string{"not", "and", "or", "id", "idNEQ", "idIn", "idNotIn", "idGT", "idGTE", "idLT", "idLTE", "hasBazelInvocation", "hasBazelInvocationWith", "hasActionSummary", "hasActionSummaryWith", "hasMemoryMetrics", "hasMemoryMetricsWith", "hasTargetMetrics", "hasTargetMetricsWith", "hasPackageMetrics", "hasPackageMetricsWith", "hasTimingMetrics", "hasTimingMetricsWith", "hasCumulativeMetrics", "hasCumulativeMetricsWith", "hasArtifactMetrics", "hasArtifactMetricsWith", "hasNetworkMetrics", "hasNetworkMetricsWith", "hasDynamicExecutionMetrics", "hasDynamicExecutionMetricsWith", "hasBuildGraphMetrics", "hasBuildGraphMetricsWith", "hasTestResults", "hasTestResultsWith", "hasTestSummary", "hasTestSummaryWith"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -24439,6 +28751,34 @@ func (ec *executionContext) unmarshalInputMetricsWhereInput(ctx context.Context,
 				return it, err
 			}
 			it.HasBuildGraphMetricsWith = data
+		case "hasTestResults":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasTestResults"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HasTestResults = data
+		case "hasTestResultsWith":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasTestResultsWith"))
+			data, err := ec.unmarshalOTestResultBESWhereInput2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTestResultBESWhereInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HasTestResultsWith = data
+		case "hasTestSummary":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasTestSummary"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HasTestSummary = data
+		case "hasTestSummaryWith":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasTestSummaryWith"))
+			data, err := ec.unmarshalOTestSummaryWhereInput2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTestSummaryWhereInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HasTestSummaryWith = data
 		}
 	}
 
@@ -26200,6 +30540,343 @@ func (ec *executionContext) unmarshalInputRaceStatisticsWhereInput(ctx context.C
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputResourceUsageWhereInput(ctx context.Context, obj interface{}) (ent.ResourceUsageWhereInput, error) {
+	var it ent.ResourceUsageWhereInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"not", "and", "or", "id", "idNEQ", "idIn", "idNotIn", "idGT", "idGTE", "idLT", "idLTE", "name", "nameNEQ", "nameIn", "nameNotIn", "nameGT", "nameGTE", "nameLT", "nameLTE", "nameContains", "nameHasPrefix", "nameHasSuffix", "nameIsNil", "nameNotNil", "nameEqualFold", "nameContainsFold", "value", "valueNEQ", "valueIn", "valueNotIn", "valueGT", "valueGTE", "valueLT", "valueLTE", "valueContains", "valueHasPrefix", "valueHasSuffix", "valueIsNil", "valueNotNil", "valueEqualFold", "valueContainsFold", "hasExecutionInfo", "hasExecutionInfoWith"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "not":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("not"))
+			data, err := ec.unmarshalOResourceUsageWhereInput2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐResourceUsageWhereInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Not = data
+		case "and":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("and"))
+			data, err := ec.unmarshalOResourceUsageWhereInput2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐResourceUsageWhereInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.And = data
+		case "or":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("or"))
+			data, err := ec.unmarshalOResourceUsageWhereInput2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐResourceUsageWhereInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Or = data
+		case "id":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.ResourceUsageWhereInput().ID(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "idNEQ":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idNEQ"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.ResourceUsageWhereInput().IDNeq(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "idIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idIn"))
+			data, err := ec.unmarshalOID2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.ResourceUsageWhereInput().IDIn(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "idNotIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idNotIn"))
+			data, err := ec.unmarshalOID2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.ResourceUsageWhereInput().IDNotIn(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "idGT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idGT"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.ResourceUsageWhereInput().IDGt(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "idGTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idGTE"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.ResourceUsageWhereInput().IDGte(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "idLT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idLT"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.ResourceUsageWhereInput().IDLt(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "idLTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idLTE"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.ResourceUsageWhereInput().IDLte(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		case "nameNEQ":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nameNEQ"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NameNEQ = data
+		case "nameIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nameIn"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NameIn = data
+		case "nameNotIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nameNotIn"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NameNotIn = data
+		case "nameGT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nameGT"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NameGT = data
+		case "nameGTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nameGTE"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NameGTE = data
+		case "nameLT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nameLT"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NameLT = data
+		case "nameLTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nameLTE"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NameLTE = data
+		case "nameContains":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nameContains"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NameContains = data
+		case "nameHasPrefix":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nameHasPrefix"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NameHasPrefix = data
+		case "nameHasSuffix":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nameHasSuffix"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NameHasSuffix = data
+		case "nameIsNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nameIsNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NameIsNil = data
+		case "nameNotNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nameNotNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NameNotNil = data
+		case "nameEqualFold":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nameEqualFold"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NameEqualFold = data
+		case "nameContainsFold":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nameContainsFold"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NameContainsFold = data
+		case "value":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("value"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Value = data
+		case "valueNEQ":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("valueNEQ"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ValueNEQ = data
+		case "valueIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("valueIn"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ValueIn = data
+		case "valueNotIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("valueNotIn"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ValueNotIn = data
+		case "valueGT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("valueGT"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ValueGT = data
+		case "valueGTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("valueGTE"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ValueGTE = data
+		case "valueLT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("valueLT"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ValueLT = data
+		case "valueLTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("valueLTE"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ValueLTE = data
+		case "valueContains":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("valueContains"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ValueContains = data
+		case "valueHasPrefix":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("valueHasPrefix"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ValueHasPrefix = data
+		case "valueHasSuffix":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("valueHasSuffix"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ValueHasSuffix = data
+		case "valueIsNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("valueIsNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ValueIsNil = data
+		case "valueNotNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("valueNotNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ValueNotNil = data
+		case "valueEqualFold":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("valueEqualFold"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ValueEqualFold = data
+		case "valueContainsFold":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("valueContainsFold"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ValueContainsFold = data
+		case "hasExecutionInfo":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasExecutionInfo"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HasExecutionInfo = data
+		case "hasExecutionInfoWith":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasExecutionInfoWith"))
+			data, err := ec.unmarshalOExectionInfoWhereInput2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐExectionInfoWhereInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HasExecutionInfoWith = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputRunnerCountWhereInput(ctx context.Context, obj interface{}) (ent.RunnerCountWhereInput, error) {
 	var it ent.RunnerCountWhereInput
 	asMap := map[string]interface{}{}
@@ -27631,6 +32308,3183 @@ func (ec *executionContext) unmarshalInputTargetMetricsWhereInput(ctx context.Co
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputTestCollectionWhereInput(ctx context.Context, obj interface{}) (ent.TestCollectionWhereInput, error) {
+	var it ent.TestCollectionWhereInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"not", "and", "or", "id", "idNEQ", "idIn", "idNotIn", "idGT", "idGTE", "idLT", "idLTE", "label", "labelNEQ", "labelIn", "labelNotIn", "labelGT", "labelGTE", "labelLT", "labelLTE", "labelContains", "labelHasPrefix", "labelHasSuffix", "labelIsNil", "labelNotNil", "labelEqualFold", "labelContainsFold", "hasBazelInvocation", "hasBazelInvocationWith", "hasTestSummary", "hasTestSummaryWith", "hasTestResults", "hasTestResultsWith"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "not":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("not"))
+			data, err := ec.unmarshalOTestCollectionWhereInput2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTestCollectionWhereInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Not = data
+		case "and":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("and"))
+			data, err := ec.unmarshalOTestCollectionWhereInput2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTestCollectionWhereInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.And = data
+		case "or":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("or"))
+			data, err := ec.unmarshalOTestCollectionWhereInput2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTestCollectionWhereInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Or = data
+		case "id":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.TestCollectionWhereInput().ID(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "idNEQ":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idNEQ"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.TestCollectionWhereInput().IDNeq(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "idIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idIn"))
+			data, err := ec.unmarshalOID2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.TestCollectionWhereInput().IDIn(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "idNotIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idNotIn"))
+			data, err := ec.unmarshalOID2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.TestCollectionWhereInput().IDNotIn(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "idGT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idGT"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.TestCollectionWhereInput().IDGt(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "idGTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idGTE"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.TestCollectionWhereInput().IDGte(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "idLT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idLT"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.TestCollectionWhereInput().IDLt(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "idLTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idLTE"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.TestCollectionWhereInput().IDLte(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "label":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("label"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Label = data
+		case "labelNEQ":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("labelNEQ"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.LabelNEQ = data
+		case "labelIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("labelIn"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.LabelIn = data
+		case "labelNotIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("labelNotIn"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.LabelNotIn = data
+		case "labelGT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("labelGT"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.LabelGT = data
+		case "labelGTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("labelGTE"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.LabelGTE = data
+		case "labelLT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("labelLT"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.LabelLT = data
+		case "labelLTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("labelLTE"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.LabelLTE = data
+		case "labelContains":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("labelContains"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.LabelContains = data
+		case "labelHasPrefix":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("labelHasPrefix"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.LabelHasPrefix = data
+		case "labelHasSuffix":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("labelHasSuffix"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.LabelHasSuffix = data
+		case "labelIsNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("labelIsNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.LabelIsNil = data
+		case "labelNotNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("labelNotNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.LabelNotNil = data
+		case "labelEqualFold":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("labelEqualFold"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.LabelEqualFold = data
+		case "labelContainsFold":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("labelContainsFold"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.LabelContainsFold = data
+		case "hasBazelInvocation":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasBazelInvocation"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HasBazelInvocation = data
+		case "hasBazelInvocationWith":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasBazelInvocationWith"))
+			data, err := ec.unmarshalOBazelInvocationWhereInput2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐBazelInvocationWhereInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HasBazelInvocationWith = data
+		case "hasTestSummary":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasTestSummary"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HasTestSummary = data
+		case "hasTestSummaryWith":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasTestSummaryWith"))
+			data, err := ec.unmarshalOTestSummaryWhereInput2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTestSummaryWhereInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HasTestSummaryWith = data
+		case "hasTestResults":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasTestResults"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HasTestResults = data
+		case "hasTestResultsWith":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasTestResultsWith"))
+			data, err := ec.unmarshalOTestResultBESWhereInput2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTestResultBESWhereInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HasTestResultsWith = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputTestFileWhereInput(ctx context.Context, obj interface{}) (ent.TestFileWhereInput, error) {
+	var it ent.TestFileWhereInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"not", "and", "or", "id", "idNEQ", "idIn", "idNotIn", "idGT", "idGTE", "idLT", "idLTE", "digest", "digestNEQ", "digestIn", "digestNotIn", "digestGT", "digestGTE", "digestLT", "digestLTE", "digestContains", "digestHasPrefix", "digestHasSuffix", "digestIsNil", "digestNotNil", "digestEqualFold", "digestContainsFold", "file", "fileNEQ", "fileIn", "fileNotIn", "fileGT", "fileGTE", "fileLT", "fileLTE", "fileContains", "fileHasPrefix", "fileHasSuffix", "fileIsNil", "fileNotNil", "fileEqualFold", "fileContainsFold", "length", "lengthNEQ", "lengthIn", "lengthNotIn", "lengthGT", "lengthGTE", "lengthLT", "lengthLTE", "lengthIsNil", "lengthNotNil", "name", "nameNEQ", "nameIn", "nameNotIn", "nameGT", "nameGTE", "nameLT", "nameLTE", "nameContains", "nameHasPrefix", "nameHasSuffix", "nameIsNil", "nameNotNil", "nameEqualFold", "nameContainsFold", "hasTestResult", "hasTestResultWith"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "not":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("not"))
+			data, err := ec.unmarshalOTestFileWhereInput2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTestFileWhereInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Not = data
+		case "and":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("and"))
+			data, err := ec.unmarshalOTestFileWhereInput2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTestFileWhereInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.And = data
+		case "or":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("or"))
+			data, err := ec.unmarshalOTestFileWhereInput2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTestFileWhereInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Or = data
+		case "id":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.TestFileWhereInput().ID(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "idNEQ":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idNEQ"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.TestFileWhereInput().IDNeq(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "idIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idIn"))
+			data, err := ec.unmarshalOID2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.TestFileWhereInput().IDIn(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "idNotIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idNotIn"))
+			data, err := ec.unmarshalOID2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.TestFileWhereInput().IDNotIn(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "idGT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idGT"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.TestFileWhereInput().IDGt(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "idGTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idGTE"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.TestFileWhereInput().IDGte(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "idLT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idLT"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.TestFileWhereInput().IDLt(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "idLTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idLTE"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.TestFileWhereInput().IDLte(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "digest":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("digest"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Digest = data
+		case "digestNEQ":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("digestNEQ"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DigestNEQ = data
+		case "digestIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("digestIn"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DigestIn = data
+		case "digestNotIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("digestNotIn"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DigestNotIn = data
+		case "digestGT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("digestGT"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DigestGT = data
+		case "digestGTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("digestGTE"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DigestGTE = data
+		case "digestLT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("digestLT"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DigestLT = data
+		case "digestLTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("digestLTE"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DigestLTE = data
+		case "digestContains":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("digestContains"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DigestContains = data
+		case "digestHasPrefix":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("digestHasPrefix"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DigestHasPrefix = data
+		case "digestHasSuffix":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("digestHasSuffix"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DigestHasSuffix = data
+		case "digestIsNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("digestIsNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DigestIsNil = data
+		case "digestNotNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("digestNotNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DigestNotNil = data
+		case "digestEqualFold":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("digestEqualFold"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DigestEqualFold = data
+		case "digestContainsFold":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("digestContainsFold"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DigestContainsFold = data
+		case "file":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("file"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.File = data
+		case "fileNEQ":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fileNEQ"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.FileNEQ = data
+		case "fileIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fileIn"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.FileIn = data
+		case "fileNotIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fileNotIn"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.FileNotIn = data
+		case "fileGT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fileGT"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.FileGT = data
+		case "fileGTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fileGTE"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.FileGTE = data
+		case "fileLT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fileLT"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.FileLT = data
+		case "fileLTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fileLTE"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.FileLTE = data
+		case "fileContains":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fileContains"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.FileContains = data
+		case "fileHasPrefix":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fileHasPrefix"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.FileHasPrefix = data
+		case "fileHasSuffix":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fileHasSuffix"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.FileHasSuffix = data
+		case "fileIsNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fileIsNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.FileIsNil = data
+		case "fileNotNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fileNotNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.FileNotNil = data
+		case "fileEqualFold":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fileEqualFold"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.FileEqualFold = data
+		case "fileContainsFold":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fileContainsFold"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.FileContainsFold = data
+		case "length":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("length"))
+			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Length = data
+		case "lengthNEQ":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lengthNEQ"))
+			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.LengthNEQ = data
+		case "lengthIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lengthIn"))
+			data, err := ec.unmarshalOInt2ᚕint64ᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.LengthIn = data
+		case "lengthNotIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lengthNotIn"))
+			data, err := ec.unmarshalOInt2ᚕint64ᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.LengthNotIn = data
+		case "lengthGT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lengthGT"))
+			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.LengthGT = data
+		case "lengthGTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lengthGTE"))
+			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.LengthGTE = data
+		case "lengthLT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lengthLT"))
+			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.LengthLT = data
+		case "lengthLTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lengthLTE"))
+			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.LengthLTE = data
+		case "lengthIsNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lengthIsNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.LengthIsNil = data
+		case "lengthNotNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lengthNotNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.LengthNotNil = data
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		case "nameNEQ":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nameNEQ"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NameNEQ = data
+		case "nameIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nameIn"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NameIn = data
+		case "nameNotIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nameNotIn"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NameNotIn = data
+		case "nameGT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nameGT"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NameGT = data
+		case "nameGTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nameGTE"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NameGTE = data
+		case "nameLT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nameLT"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NameLT = data
+		case "nameLTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nameLTE"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NameLTE = data
+		case "nameContains":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nameContains"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NameContains = data
+		case "nameHasPrefix":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nameHasPrefix"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NameHasPrefix = data
+		case "nameHasSuffix":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nameHasSuffix"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NameHasSuffix = data
+		case "nameIsNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nameIsNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NameIsNil = data
+		case "nameNotNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nameNotNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NameNotNil = data
+		case "nameEqualFold":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nameEqualFold"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NameEqualFold = data
+		case "nameContainsFold":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nameContainsFold"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NameContainsFold = data
+		case "hasTestResult":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasTestResult"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HasTestResult = data
+		case "hasTestResultWith":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasTestResultWith"))
+			data, err := ec.unmarshalOTestResultBESWhereInput2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTestResultBESWhereInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HasTestResultWith = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputTestResultBESWhereInput(ctx context.Context, obj interface{}) (ent.TestResultBESWhereInput, error) {
+	var it ent.TestResultBESWhereInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"not", "and", "or", "id", "idNEQ", "idIn", "idNotIn", "idGT", "idGTE", "idLT", "idLTE", "testStatus", "testStatusNEQ", "testStatusIn", "testStatusNotIn", "testStatusIsNil", "testStatusNotNil", "statusDetails", "statusDetailsNEQ", "statusDetailsIn", "statusDetailsNotIn", "statusDetailsGT", "statusDetailsGTE", "statusDetailsLT", "statusDetailsLTE", "statusDetailsContains", "statusDetailsHasPrefix", "statusDetailsHasSuffix", "statusDetailsIsNil", "statusDetailsNotNil", "statusDetailsEqualFold", "statusDetailsContainsFold", "label", "labelNEQ", "labelIn", "labelNotIn", "labelGT", "labelGTE", "labelLT", "labelLTE", "labelContains", "labelHasPrefix", "labelHasSuffix", "labelIsNil", "labelNotNil", "labelEqualFold", "labelContainsFold", "cachedLocally", "cachedLocallyNEQ", "cachedLocallyIsNil", "cachedLocallyNotNil", "testAttemptStartMillisEpoch", "testAttemptStartMillisEpochNEQ", "testAttemptStartMillisEpochIn", "testAttemptStartMillisEpochNotIn", "testAttemptStartMillisEpochGT", "testAttemptStartMillisEpochGTE", "testAttemptStartMillisEpochLT", "testAttemptStartMillisEpochLTE", "testAttemptStartMillisEpochIsNil", "testAttemptStartMillisEpochNotNil", "testAttemptDurationMillis", "testAttemptDurationMillisNEQ", "testAttemptDurationMillisIn", "testAttemptDurationMillisNotIn", "testAttemptDurationMillisGT", "testAttemptDurationMillisGTE", "testAttemptDurationMillisLT", "testAttemptDurationMillisLTE", "testAttemptDurationMillisIsNil", "testAttemptDurationMillisNotNil", "targetsConfiguredNotIncludingAspects", "targetsConfiguredNotIncludingAspectsNEQ", "targetsConfiguredNotIncludingAspectsIn", "targetsConfiguredNotIncludingAspectsNotIn", "targetsConfiguredNotIncludingAspectsGT", "targetsConfiguredNotIncludingAspectsGTE", "targetsConfiguredNotIncludingAspectsLT", "targetsConfiguredNotIncludingAspectsLTE", "targetsConfiguredNotIncludingAspectsIsNil", "targetsConfiguredNotIncludingAspectsNotNil", "run", "runNEQ", "runIn", "runNotIn", "runGT", "runGTE", "runLT", "runLTE", "runIsNil", "runNotNil", "shard", "shardNEQ", "shardIn", "shardNotIn", "shardGT", "shardGTE", "shardLT", "shardLTE", "shardIsNil", "shardNotNil", "attempt", "attemptNEQ", "attemptIn", "attemptNotIn", "attemptGT", "attemptGTE", "attemptLT", "attemptLTE", "attemptIsNil", "attemptNotNil", "hasTestCollection", "hasTestCollectionWith", "hasTestActionOutput", "hasTestActionOutputWith", "hasExecutionInfo", "hasExecutionInfoWith"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "not":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("not"))
+			data, err := ec.unmarshalOTestResultBESWhereInput2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTestResultBESWhereInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Not = data
+		case "and":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("and"))
+			data, err := ec.unmarshalOTestResultBESWhereInput2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTestResultBESWhereInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.And = data
+		case "or":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("or"))
+			data, err := ec.unmarshalOTestResultBESWhereInput2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTestResultBESWhereInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Or = data
+		case "id":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.TestResultBESWhereInput().ID(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "idNEQ":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idNEQ"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.TestResultBESWhereInput().IDNeq(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "idIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idIn"))
+			data, err := ec.unmarshalOID2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.TestResultBESWhereInput().IDIn(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "idNotIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idNotIn"))
+			data, err := ec.unmarshalOID2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.TestResultBESWhereInput().IDNotIn(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "idGT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idGT"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.TestResultBESWhereInput().IDGt(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "idGTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idGTE"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.TestResultBESWhereInput().IDGte(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "idLT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idLT"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.TestResultBESWhereInput().IDLt(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "idLTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idLTE"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.TestResultBESWhereInput().IDLte(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "testStatus":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("testStatus"))
+			data, err := ec.unmarshalOTestResultBESTestStatus2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚋtestresultbesᚐTestStatus(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TestStatus = data
+		case "testStatusNEQ":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("testStatusNEQ"))
+			data, err := ec.unmarshalOTestResultBESTestStatus2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚋtestresultbesᚐTestStatus(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TestStatusNEQ = data
+		case "testStatusIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("testStatusIn"))
+			data, err := ec.unmarshalOTestResultBESTestStatus2ᚕgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚋtestresultbesᚐTestStatusᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TestStatusIn = data
+		case "testStatusNotIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("testStatusNotIn"))
+			data, err := ec.unmarshalOTestResultBESTestStatus2ᚕgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚋtestresultbesᚐTestStatusᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TestStatusNotIn = data
+		case "testStatusIsNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("testStatusIsNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TestStatusIsNil = data
+		case "testStatusNotNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("testStatusNotNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TestStatusNotNil = data
+		case "statusDetails":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("statusDetails"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.StatusDetails = data
+		case "statusDetailsNEQ":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("statusDetailsNEQ"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.StatusDetailsNEQ = data
+		case "statusDetailsIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("statusDetailsIn"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.StatusDetailsIn = data
+		case "statusDetailsNotIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("statusDetailsNotIn"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.StatusDetailsNotIn = data
+		case "statusDetailsGT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("statusDetailsGT"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.StatusDetailsGT = data
+		case "statusDetailsGTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("statusDetailsGTE"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.StatusDetailsGTE = data
+		case "statusDetailsLT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("statusDetailsLT"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.StatusDetailsLT = data
+		case "statusDetailsLTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("statusDetailsLTE"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.StatusDetailsLTE = data
+		case "statusDetailsContains":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("statusDetailsContains"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.StatusDetailsContains = data
+		case "statusDetailsHasPrefix":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("statusDetailsHasPrefix"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.StatusDetailsHasPrefix = data
+		case "statusDetailsHasSuffix":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("statusDetailsHasSuffix"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.StatusDetailsHasSuffix = data
+		case "statusDetailsIsNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("statusDetailsIsNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.StatusDetailsIsNil = data
+		case "statusDetailsNotNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("statusDetailsNotNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.StatusDetailsNotNil = data
+		case "statusDetailsEqualFold":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("statusDetailsEqualFold"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.StatusDetailsEqualFold = data
+		case "statusDetailsContainsFold":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("statusDetailsContainsFold"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.StatusDetailsContainsFold = data
+		case "label":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("label"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Label = data
+		case "labelNEQ":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("labelNEQ"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.LabelNEQ = data
+		case "labelIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("labelIn"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.LabelIn = data
+		case "labelNotIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("labelNotIn"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.LabelNotIn = data
+		case "labelGT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("labelGT"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.LabelGT = data
+		case "labelGTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("labelGTE"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.LabelGTE = data
+		case "labelLT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("labelLT"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.LabelLT = data
+		case "labelLTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("labelLTE"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.LabelLTE = data
+		case "labelContains":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("labelContains"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.LabelContains = data
+		case "labelHasPrefix":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("labelHasPrefix"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.LabelHasPrefix = data
+		case "labelHasSuffix":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("labelHasSuffix"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.LabelHasSuffix = data
+		case "labelIsNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("labelIsNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.LabelIsNil = data
+		case "labelNotNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("labelNotNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.LabelNotNil = data
+		case "labelEqualFold":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("labelEqualFold"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.LabelEqualFold = data
+		case "labelContainsFold":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("labelContainsFold"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.LabelContainsFold = data
+		case "cachedLocally":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cachedLocally"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CachedLocally = data
+		case "cachedLocallyNEQ":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cachedLocallyNEQ"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CachedLocallyNEQ = data
+		case "cachedLocallyIsNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cachedLocallyIsNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CachedLocallyIsNil = data
+		case "cachedLocallyNotNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cachedLocallyNotNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CachedLocallyNotNil = data
+		case "testAttemptStartMillisEpoch":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("testAttemptStartMillisEpoch"))
+			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TestAttemptStartMillisEpoch = data
+		case "testAttemptStartMillisEpochNEQ":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("testAttemptStartMillisEpochNEQ"))
+			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TestAttemptStartMillisEpochNEQ = data
+		case "testAttemptStartMillisEpochIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("testAttemptStartMillisEpochIn"))
+			data, err := ec.unmarshalOInt2ᚕint64ᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TestAttemptStartMillisEpochIn = data
+		case "testAttemptStartMillisEpochNotIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("testAttemptStartMillisEpochNotIn"))
+			data, err := ec.unmarshalOInt2ᚕint64ᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TestAttemptStartMillisEpochNotIn = data
+		case "testAttemptStartMillisEpochGT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("testAttemptStartMillisEpochGT"))
+			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TestAttemptStartMillisEpochGT = data
+		case "testAttemptStartMillisEpochGTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("testAttemptStartMillisEpochGTE"))
+			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TestAttemptStartMillisEpochGTE = data
+		case "testAttemptStartMillisEpochLT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("testAttemptStartMillisEpochLT"))
+			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TestAttemptStartMillisEpochLT = data
+		case "testAttemptStartMillisEpochLTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("testAttemptStartMillisEpochLTE"))
+			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TestAttemptStartMillisEpochLTE = data
+		case "testAttemptStartMillisEpochIsNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("testAttemptStartMillisEpochIsNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TestAttemptStartMillisEpochIsNil = data
+		case "testAttemptStartMillisEpochNotNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("testAttemptStartMillisEpochNotNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TestAttemptStartMillisEpochNotNil = data
+		case "testAttemptDurationMillis":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("testAttemptDurationMillis"))
+			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TestAttemptDurationMillis = data
+		case "testAttemptDurationMillisNEQ":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("testAttemptDurationMillisNEQ"))
+			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TestAttemptDurationMillisNEQ = data
+		case "testAttemptDurationMillisIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("testAttemptDurationMillisIn"))
+			data, err := ec.unmarshalOInt2ᚕint64ᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TestAttemptDurationMillisIn = data
+		case "testAttemptDurationMillisNotIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("testAttemptDurationMillisNotIn"))
+			data, err := ec.unmarshalOInt2ᚕint64ᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TestAttemptDurationMillisNotIn = data
+		case "testAttemptDurationMillisGT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("testAttemptDurationMillisGT"))
+			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TestAttemptDurationMillisGT = data
+		case "testAttemptDurationMillisGTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("testAttemptDurationMillisGTE"))
+			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TestAttemptDurationMillisGTE = data
+		case "testAttemptDurationMillisLT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("testAttemptDurationMillisLT"))
+			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TestAttemptDurationMillisLT = data
+		case "testAttemptDurationMillisLTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("testAttemptDurationMillisLTE"))
+			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TestAttemptDurationMillisLTE = data
+		case "testAttemptDurationMillisIsNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("testAttemptDurationMillisIsNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TestAttemptDurationMillisIsNil = data
+		case "testAttemptDurationMillisNotNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("testAttemptDurationMillisNotNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TestAttemptDurationMillisNotNil = data
+		case "targetsConfiguredNotIncludingAspects":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("targetsConfiguredNotIncludingAspects"))
+			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TargetsConfiguredNotIncludingAspects = data
+		case "targetsConfiguredNotIncludingAspectsNEQ":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("targetsConfiguredNotIncludingAspectsNEQ"))
+			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TargetsConfiguredNotIncludingAspectsNEQ = data
+		case "targetsConfiguredNotIncludingAspectsIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("targetsConfiguredNotIncludingAspectsIn"))
+			data, err := ec.unmarshalOInt2ᚕint64ᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TargetsConfiguredNotIncludingAspectsIn = data
+		case "targetsConfiguredNotIncludingAspectsNotIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("targetsConfiguredNotIncludingAspectsNotIn"))
+			data, err := ec.unmarshalOInt2ᚕint64ᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TargetsConfiguredNotIncludingAspectsNotIn = data
+		case "targetsConfiguredNotIncludingAspectsGT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("targetsConfiguredNotIncludingAspectsGT"))
+			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TargetsConfiguredNotIncludingAspectsGT = data
+		case "targetsConfiguredNotIncludingAspectsGTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("targetsConfiguredNotIncludingAspectsGTE"))
+			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TargetsConfiguredNotIncludingAspectsGTE = data
+		case "targetsConfiguredNotIncludingAspectsLT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("targetsConfiguredNotIncludingAspectsLT"))
+			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TargetsConfiguredNotIncludingAspectsLT = data
+		case "targetsConfiguredNotIncludingAspectsLTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("targetsConfiguredNotIncludingAspectsLTE"))
+			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TargetsConfiguredNotIncludingAspectsLTE = data
+		case "targetsConfiguredNotIncludingAspectsIsNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("targetsConfiguredNotIncludingAspectsIsNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TargetsConfiguredNotIncludingAspectsIsNil = data
+		case "targetsConfiguredNotIncludingAspectsNotNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("targetsConfiguredNotIncludingAspectsNotNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TargetsConfiguredNotIncludingAspectsNotNil = data
+		case "run":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("run"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Run = data
+		case "runNEQ":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("runNEQ"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RunNEQ = data
+		case "runIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("runIn"))
+			data, err := ec.unmarshalOInt2ᚕintᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RunIn = data
+		case "runNotIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("runNotIn"))
+			data, err := ec.unmarshalOInt2ᚕintᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RunNotIn = data
+		case "runGT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("runGT"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RunGT = data
+		case "runGTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("runGTE"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RunGTE = data
+		case "runLT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("runLT"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RunLT = data
+		case "runLTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("runLTE"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RunLTE = data
+		case "runIsNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("runIsNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RunIsNil = data
+		case "runNotNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("runNotNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RunNotNil = data
+		case "shard":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("shard"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Shard = data
+		case "shardNEQ":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("shardNEQ"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ShardNEQ = data
+		case "shardIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("shardIn"))
+			data, err := ec.unmarshalOInt2ᚕintᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ShardIn = data
+		case "shardNotIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("shardNotIn"))
+			data, err := ec.unmarshalOInt2ᚕintᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ShardNotIn = data
+		case "shardGT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("shardGT"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ShardGT = data
+		case "shardGTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("shardGTE"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ShardGTE = data
+		case "shardLT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("shardLT"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ShardLT = data
+		case "shardLTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("shardLTE"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ShardLTE = data
+		case "shardIsNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("shardIsNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ShardIsNil = data
+		case "shardNotNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("shardNotNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ShardNotNil = data
+		case "attempt":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("attempt"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Attempt = data
+		case "attemptNEQ":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("attemptNEQ"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AttemptNEQ = data
+		case "attemptIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("attemptIn"))
+			data, err := ec.unmarshalOInt2ᚕintᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AttemptIn = data
+		case "attemptNotIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("attemptNotIn"))
+			data, err := ec.unmarshalOInt2ᚕintᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AttemptNotIn = data
+		case "attemptGT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("attemptGT"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AttemptGT = data
+		case "attemptGTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("attemptGTE"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AttemptGTE = data
+		case "attemptLT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("attemptLT"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AttemptLT = data
+		case "attemptLTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("attemptLTE"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AttemptLTE = data
+		case "attemptIsNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("attemptIsNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AttemptIsNil = data
+		case "attemptNotNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("attemptNotNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AttemptNotNil = data
+		case "hasTestCollection":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasTestCollection"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HasTestCollection = data
+		case "hasTestCollectionWith":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasTestCollectionWith"))
+			data, err := ec.unmarshalOTestCollectionWhereInput2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTestCollectionWhereInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HasTestCollectionWith = data
+		case "hasTestActionOutput":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasTestActionOutput"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HasTestActionOutput = data
+		case "hasTestActionOutputWith":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasTestActionOutputWith"))
+			data, err := ec.unmarshalOTestFileWhereInput2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTestFileWhereInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HasTestActionOutputWith = data
+		case "hasExecutionInfo":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasExecutionInfo"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HasExecutionInfo = data
+		case "hasExecutionInfoWith":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasExecutionInfoWith"))
+			data, err := ec.unmarshalOExectionInfoWhereInput2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐExectionInfoWhereInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HasExecutionInfoWith = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputTestSummaryWhereInput(ctx context.Context, obj interface{}) (ent.TestSummaryWhereInput, error) {
+	var it ent.TestSummaryWhereInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"not", "and", "or", "id", "idNEQ", "idIn", "idNotIn", "idGT", "idGTE", "idLT", "idLTE", "overallStatus", "overallStatusNEQ", "overallStatusIn", "overallStatusNotIn", "overallStatusIsNil", "overallStatusNotNil", "totalRunCount", "totalRunCountNEQ", "totalRunCountIn", "totalRunCountNotIn", "totalRunCountGT", "totalRunCountGTE", "totalRunCountLT", "totalRunCountLTE", "totalRunCountIsNil", "totalRunCountNotNil", "runCount", "runCountNEQ", "runCountIn", "runCountNotIn", "runCountGT", "runCountGTE", "runCountLT", "runCountLTE", "runCountIsNil", "runCountNotNil", "attemptCount", "attemptCountNEQ", "attemptCountIn", "attemptCountNotIn", "attemptCountGT", "attemptCountGTE", "attemptCountLT", "attemptCountLTE", "attemptCountIsNil", "attemptCountNotNil", "shardCount", "shardCountNEQ", "shardCountIn", "shardCountNotIn", "shardCountGT", "shardCountGTE", "shardCountLT", "shardCountLTE", "shardCountIsNil", "shardCountNotNil", "totalNumCached", "totalNumCachedNEQ", "totalNumCachedIn", "totalNumCachedNotIn", "totalNumCachedGT", "totalNumCachedGTE", "totalNumCachedLT", "totalNumCachedLTE", "totalNumCachedIsNil", "totalNumCachedNotNil", "firstStartTime", "firstStartTimeNEQ", "firstStartTimeIn", "firstStartTimeNotIn", "firstStartTimeGT", "firstStartTimeGTE", "firstStartTimeLT", "firstStartTimeLTE", "firstStartTimeIsNil", "firstStartTimeNotNil", "lastStopTime", "lastStopTimeNEQ", "lastStopTimeIn", "lastStopTimeNotIn", "lastStopTimeGT", "lastStopTimeGTE", "lastStopTimeLT", "lastStopTimeLTE", "lastStopTimeIsNil", "lastStopTimeNotNil", "totalRunDuration", "totalRunDurationNEQ", "totalRunDurationIn", "totalRunDurationNotIn", "totalRunDurationGT", "totalRunDurationGTE", "totalRunDurationLT", "totalRunDurationLTE", "totalRunDurationIsNil", "totalRunDurationNotNil", "label", "labelNEQ", "labelIn", "labelNotIn", "labelGT", "labelGTE", "labelLT", "labelLTE", "labelContains", "labelHasPrefix", "labelHasSuffix", "labelIsNil", "labelNotNil", "labelEqualFold", "labelContainsFold", "hasTestCollection", "hasTestCollectionWith", "hasPassed", "hasPassedWith", "hasFailed", "hasFailedWith"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "not":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("not"))
+			data, err := ec.unmarshalOTestSummaryWhereInput2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTestSummaryWhereInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Not = data
+		case "and":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("and"))
+			data, err := ec.unmarshalOTestSummaryWhereInput2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTestSummaryWhereInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.And = data
+		case "or":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("or"))
+			data, err := ec.unmarshalOTestSummaryWhereInput2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTestSummaryWhereInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Or = data
+		case "id":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.TestSummaryWhereInput().ID(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "idNEQ":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idNEQ"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.TestSummaryWhereInput().IDNeq(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "idIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idIn"))
+			data, err := ec.unmarshalOID2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.TestSummaryWhereInput().IDIn(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "idNotIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idNotIn"))
+			data, err := ec.unmarshalOID2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.TestSummaryWhereInput().IDNotIn(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "idGT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idGT"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.TestSummaryWhereInput().IDGt(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "idGTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idGTE"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.TestSummaryWhereInput().IDGte(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "idLT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idLT"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.TestSummaryWhereInput().IDLt(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "idLTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idLTE"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.TestSummaryWhereInput().IDLte(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "overallStatus":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("overallStatus"))
+			data, err := ec.unmarshalOTestSummaryOverallStatus2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚋtestsummaryᚐOverallStatus(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.OverallStatus = data
+		case "overallStatusNEQ":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("overallStatusNEQ"))
+			data, err := ec.unmarshalOTestSummaryOverallStatus2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚋtestsummaryᚐOverallStatus(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.OverallStatusNEQ = data
+		case "overallStatusIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("overallStatusIn"))
+			data, err := ec.unmarshalOTestSummaryOverallStatus2ᚕgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚋtestsummaryᚐOverallStatusᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.OverallStatusIn = data
+		case "overallStatusNotIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("overallStatusNotIn"))
+			data, err := ec.unmarshalOTestSummaryOverallStatus2ᚕgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚋtestsummaryᚐOverallStatusᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.OverallStatusNotIn = data
+		case "overallStatusIsNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("overallStatusIsNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.OverallStatusIsNil = data
+		case "overallStatusNotNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("overallStatusNotNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.OverallStatusNotNil = data
+		case "totalRunCount":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("totalRunCount"))
+			data, err := ec.unmarshalOInt2ᚖint32(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TotalRunCount = data
+		case "totalRunCountNEQ":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("totalRunCountNEQ"))
+			data, err := ec.unmarshalOInt2ᚖint32(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TotalRunCountNEQ = data
+		case "totalRunCountIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("totalRunCountIn"))
+			data, err := ec.unmarshalOInt2ᚕint32ᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TotalRunCountIn = data
+		case "totalRunCountNotIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("totalRunCountNotIn"))
+			data, err := ec.unmarshalOInt2ᚕint32ᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TotalRunCountNotIn = data
+		case "totalRunCountGT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("totalRunCountGT"))
+			data, err := ec.unmarshalOInt2ᚖint32(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TotalRunCountGT = data
+		case "totalRunCountGTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("totalRunCountGTE"))
+			data, err := ec.unmarshalOInt2ᚖint32(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TotalRunCountGTE = data
+		case "totalRunCountLT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("totalRunCountLT"))
+			data, err := ec.unmarshalOInt2ᚖint32(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TotalRunCountLT = data
+		case "totalRunCountLTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("totalRunCountLTE"))
+			data, err := ec.unmarshalOInt2ᚖint32(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TotalRunCountLTE = data
+		case "totalRunCountIsNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("totalRunCountIsNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TotalRunCountIsNil = data
+		case "totalRunCountNotNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("totalRunCountNotNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TotalRunCountNotNil = data
+		case "runCount":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("runCount"))
+			data, err := ec.unmarshalOInt2ᚖint32(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RunCount = data
+		case "runCountNEQ":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("runCountNEQ"))
+			data, err := ec.unmarshalOInt2ᚖint32(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RunCountNEQ = data
+		case "runCountIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("runCountIn"))
+			data, err := ec.unmarshalOInt2ᚕint32ᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RunCountIn = data
+		case "runCountNotIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("runCountNotIn"))
+			data, err := ec.unmarshalOInt2ᚕint32ᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RunCountNotIn = data
+		case "runCountGT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("runCountGT"))
+			data, err := ec.unmarshalOInt2ᚖint32(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RunCountGT = data
+		case "runCountGTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("runCountGTE"))
+			data, err := ec.unmarshalOInt2ᚖint32(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RunCountGTE = data
+		case "runCountLT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("runCountLT"))
+			data, err := ec.unmarshalOInt2ᚖint32(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RunCountLT = data
+		case "runCountLTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("runCountLTE"))
+			data, err := ec.unmarshalOInt2ᚖint32(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RunCountLTE = data
+		case "runCountIsNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("runCountIsNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RunCountIsNil = data
+		case "runCountNotNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("runCountNotNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RunCountNotNil = data
+		case "attemptCount":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("attemptCount"))
+			data, err := ec.unmarshalOInt2ᚖint32(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AttemptCount = data
+		case "attemptCountNEQ":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("attemptCountNEQ"))
+			data, err := ec.unmarshalOInt2ᚖint32(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AttemptCountNEQ = data
+		case "attemptCountIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("attemptCountIn"))
+			data, err := ec.unmarshalOInt2ᚕint32ᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AttemptCountIn = data
+		case "attemptCountNotIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("attemptCountNotIn"))
+			data, err := ec.unmarshalOInt2ᚕint32ᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AttemptCountNotIn = data
+		case "attemptCountGT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("attemptCountGT"))
+			data, err := ec.unmarshalOInt2ᚖint32(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AttemptCountGT = data
+		case "attemptCountGTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("attemptCountGTE"))
+			data, err := ec.unmarshalOInt2ᚖint32(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AttemptCountGTE = data
+		case "attemptCountLT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("attemptCountLT"))
+			data, err := ec.unmarshalOInt2ᚖint32(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AttemptCountLT = data
+		case "attemptCountLTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("attemptCountLTE"))
+			data, err := ec.unmarshalOInt2ᚖint32(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AttemptCountLTE = data
+		case "attemptCountIsNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("attemptCountIsNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AttemptCountIsNil = data
+		case "attemptCountNotNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("attemptCountNotNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AttemptCountNotNil = data
+		case "shardCount":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("shardCount"))
+			data, err := ec.unmarshalOInt2ᚖint32(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ShardCount = data
+		case "shardCountNEQ":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("shardCountNEQ"))
+			data, err := ec.unmarshalOInt2ᚖint32(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ShardCountNEQ = data
+		case "shardCountIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("shardCountIn"))
+			data, err := ec.unmarshalOInt2ᚕint32ᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ShardCountIn = data
+		case "shardCountNotIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("shardCountNotIn"))
+			data, err := ec.unmarshalOInt2ᚕint32ᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ShardCountNotIn = data
+		case "shardCountGT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("shardCountGT"))
+			data, err := ec.unmarshalOInt2ᚖint32(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ShardCountGT = data
+		case "shardCountGTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("shardCountGTE"))
+			data, err := ec.unmarshalOInt2ᚖint32(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ShardCountGTE = data
+		case "shardCountLT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("shardCountLT"))
+			data, err := ec.unmarshalOInt2ᚖint32(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ShardCountLT = data
+		case "shardCountLTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("shardCountLTE"))
+			data, err := ec.unmarshalOInt2ᚖint32(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ShardCountLTE = data
+		case "shardCountIsNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("shardCountIsNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ShardCountIsNil = data
+		case "shardCountNotNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("shardCountNotNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ShardCountNotNil = data
+		case "totalNumCached":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("totalNumCached"))
+			data, err := ec.unmarshalOInt2ᚖint32(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TotalNumCached = data
+		case "totalNumCachedNEQ":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("totalNumCachedNEQ"))
+			data, err := ec.unmarshalOInt2ᚖint32(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TotalNumCachedNEQ = data
+		case "totalNumCachedIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("totalNumCachedIn"))
+			data, err := ec.unmarshalOInt2ᚕint32ᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TotalNumCachedIn = data
+		case "totalNumCachedNotIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("totalNumCachedNotIn"))
+			data, err := ec.unmarshalOInt2ᚕint32ᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TotalNumCachedNotIn = data
+		case "totalNumCachedGT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("totalNumCachedGT"))
+			data, err := ec.unmarshalOInt2ᚖint32(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TotalNumCachedGT = data
+		case "totalNumCachedGTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("totalNumCachedGTE"))
+			data, err := ec.unmarshalOInt2ᚖint32(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TotalNumCachedGTE = data
+		case "totalNumCachedLT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("totalNumCachedLT"))
+			data, err := ec.unmarshalOInt2ᚖint32(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TotalNumCachedLT = data
+		case "totalNumCachedLTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("totalNumCachedLTE"))
+			data, err := ec.unmarshalOInt2ᚖint32(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TotalNumCachedLTE = data
+		case "totalNumCachedIsNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("totalNumCachedIsNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TotalNumCachedIsNil = data
+		case "totalNumCachedNotNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("totalNumCachedNotNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TotalNumCachedNotNil = data
+		case "firstStartTime":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("firstStartTime"))
+			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.FirstStartTime = data
+		case "firstStartTimeNEQ":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("firstStartTimeNEQ"))
+			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.FirstStartTimeNEQ = data
+		case "firstStartTimeIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("firstStartTimeIn"))
+			data, err := ec.unmarshalOInt2ᚕint64ᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.FirstStartTimeIn = data
+		case "firstStartTimeNotIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("firstStartTimeNotIn"))
+			data, err := ec.unmarshalOInt2ᚕint64ᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.FirstStartTimeNotIn = data
+		case "firstStartTimeGT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("firstStartTimeGT"))
+			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.FirstStartTimeGT = data
+		case "firstStartTimeGTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("firstStartTimeGTE"))
+			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.FirstStartTimeGTE = data
+		case "firstStartTimeLT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("firstStartTimeLT"))
+			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.FirstStartTimeLT = data
+		case "firstStartTimeLTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("firstStartTimeLTE"))
+			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.FirstStartTimeLTE = data
+		case "firstStartTimeIsNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("firstStartTimeIsNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.FirstStartTimeIsNil = data
+		case "firstStartTimeNotNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("firstStartTimeNotNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.FirstStartTimeNotNil = data
+		case "lastStopTime":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lastStopTime"))
+			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.LastStopTime = data
+		case "lastStopTimeNEQ":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lastStopTimeNEQ"))
+			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.LastStopTimeNEQ = data
+		case "lastStopTimeIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lastStopTimeIn"))
+			data, err := ec.unmarshalOInt2ᚕint64ᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.LastStopTimeIn = data
+		case "lastStopTimeNotIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lastStopTimeNotIn"))
+			data, err := ec.unmarshalOInt2ᚕint64ᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.LastStopTimeNotIn = data
+		case "lastStopTimeGT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lastStopTimeGT"))
+			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.LastStopTimeGT = data
+		case "lastStopTimeGTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lastStopTimeGTE"))
+			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.LastStopTimeGTE = data
+		case "lastStopTimeLT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lastStopTimeLT"))
+			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.LastStopTimeLT = data
+		case "lastStopTimeLTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lastStopTimeLTE"))
+			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.LastStopTimeLTE = data
+		case "lastStopTimeIsNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lastStopTimeIsNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.LastStopTimeIsNil = data
+		case "lastStopTimeNotNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lastStopTimeNotNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.LastStopTimeNotNil = data
+		case "totalRunDuration":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("totalRunDuration"))
+			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TotalRunDuration = data
+		case "totalRunDurationNEQ":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("totalRunDurationNEQ"))
+			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TotalRunDurationNEQ = data
+		case "totalRunDurationIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("totalRunDurationIn"))
+			data, err := ec.unmarshalOInt2ᚕint64ᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TotalRunDurationIn = data
+		case "totalRunDurationNotIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("totalRunDurationNotIn"))
+			data, err := ec.unmarshalOInt2ᚕint64ᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TotalRunDurationNotIn = data
+		case "totalRunDurationGT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("totalRunDurationGT"))
+			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TotalRunDurationGT = data
+		case "totalRunDurationGTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("totalRunDurationGTE"))
+			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TotalRunDurationGTE = data
+		case "totalRunDurationLT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("totalRunDurationLT"))
+			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TotalRunDurationLT = data
+		case "totalRunDurationLTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("totalRunDurationLTE"))
+			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TotalRunDurationLTE = data
+		case "totalRunDurationIsNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("totalRunDurationIsNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TotalRunDurationIsNil = data
+		case "totalRunDurationNotNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("totalRunDurationNotNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TotalRunDurationNotNil = data
+		case "label":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("label"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Label = data
+		case "labelNEQ":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("labelNEQ"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.LabelNEQ = data
+		case "labelIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("labelIn"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.LabelIn = data
+		case "labelNotIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("labelNotIn"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.LabelNotIn = data
+		case "labelGT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("labelGT"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.LabelGT = data
+		case "labelGTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("labelGTE"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.LabelGTE = data
+		case "labelLT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("labelLT"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.LabelLT = data
+		case "labelLTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("labelLTE"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.LabelLTE = data
+		case "labelContains":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("labelContains"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.LabelContains = data
+		case "labelHasPrefix":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("labelHasPrefix"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.LabelHasPrefix = data
+		case "labelHasSuffix":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("labelHasSuffix"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.LabelHasSuffix = data
+		case "labelIsNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("labelIsNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.LabelIsNil = data
+		case "labelNotNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("labelNotNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.LabelNotNil = data
+		case "labelEqualFold":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("labelEqualFold"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.LabelEqualFold = data
+		case "labelContainsFold":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("labelContainsFold"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.LabelContainsFold = data
+		case "hasTestCollection":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasTestCollection"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HasTestCollection = data
+		case "hasTestCollectionWith":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasTestCollectionWith"))
+			data, err := ec.unmarshalOTestCollectionWhereInput2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTestCollectionWhereInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HasTestCollectionWith = data
+		case "hasPassed":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasPassed"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HasPassed = data
+		case "hasPassedWith":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasPassedWith"))
+			data, err := ec.unmarshalOTestFileWhereInput2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTestFileWhereInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HasPassedWith = data
+		case "hasFailed":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasFailed"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HasFailed = data
+		case "hasFailedWith":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasFailedWith"))
+			data, err := ec.unmarshalOTestFileWhereInput2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTestFileWhereInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HasFailedWith = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputTimingBreakdownWhereInput(ctx context.Context, obj interface{}) (ent.TimingBreakdownWhereInput, error) {
+	var it ent.TimingBreakdownWhereInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"not", "and", "or", "id", "idNEQ", "idIn", "idNotIn", "idGT", "idGTE", "idLT", "idLTE", "name", "nameNEQ", "nameIn", "nameNotIn", "nameGT", "nameGTE", "nameLT", "nameLTE", "nameContains", "nameHasPrefix", "nameHasSuffix", "nameIsNil", "nameNotNil", "nameEqualFold", "nameContainsFold", "time", "timeNEQ", "timeIn", "timeNotIn", "timeGT", "timeGTE", "timeLT", "timeLTE", "timeContains", "timeHasPrefix", "timeHasSuffix", "timeIsNil", "timeNotNil", "timeEqualFold", "timeContainsFold", "hasExectionInfo", "hasExectionInfoWith", "hasChild", "hasChildWith"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "not":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("not"))
+			data, err := ec.unmarshalOTimingBreakdownWhereInput2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTimingBreakdownWhereInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Not = data
+		case "and":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("and"))
+			data, err := ec.unmarshalOTimingBreakdownWhereInput2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTimingBreakdownWhereInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.And = data
+		case "or":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("or"))
+			data, err := ec.unmarshalOTimingBreakdownWhereInput2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTimingBreakdownWhereInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Or = data
+		case "id":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.TimingBreakdownWhereInput().ID(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "idNEQ":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idNEQ"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.TimingBreakdownWhereInput().IDNeq(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "idIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idIn"))
+			data, err := ec.unmarshalOID2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.TimingBreakdownWhereInput().IDIn(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "idNotIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idNotIn"))
+			data, err := ec.unmarshalOID2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.TimingBreakdownWhereInput().IDNotIn(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "idGT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idGT"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.TimingBreakdownWhereInput().IDGt(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "idGTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idGTE"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.TimingBreakdownWhereInput().IDGte(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "idLT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idLT"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.TimingBreakdownWhereInput().IDLt(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "idLTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idLTE"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.TimingBreakdownWhereInput().IDLte(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		case "nameNEQ":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nameNEQ"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NameNEQ = data
+		case "nameIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nameIn"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NameIn = data
+		case "nameNotIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nameNotIn"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NameNotIn = data
+		case "nameGT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nameGT"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NameGT = data
+		case "nameGTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nameGTE"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NameGTE = data
+		case "nameLT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nameLT"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NameLT = data
+		case "nameLTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nameLTE"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NameLTE = data
+		case "nameContains":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nameContains"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NameContains = data
+		case "nameHasPrefix":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nameHasPrefix"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NameHasPrefix = data
+		case "nameHasSuffix":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nameHasSuffix"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NameHasSuffix = data
+		case "nameIsNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nameIsNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NameIsNil = data
+		case "nameNotNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nameNotNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NameNotNil = data
+		case "nameEqualFold":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nameEqualFold"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NameEqualFold = data
+		case "nameContainsFold":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nameContainsFold"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NameContainsFold = data
+		case "time":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("time"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Time = data
+		case "timeNEQ":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timeNEQ"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TimeNEQ = data
+		case "timeIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timeIn"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TimeIn = data
+		case "timeNotIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timeNotIn"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TimeNotIn = data
+		case "timeGT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timeGT"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TimeGT = data
+		case "timeGTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timeGTE"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TimeGTE = data
+		case "timeLT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timeLT"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TimeLT = data
+		case "timeLTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timeLTE"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TimeLTE = data
+		case "timeContains":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timeContains"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TimeContains = data
+		case "timeHasPrefix":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timeHasPrefix"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TimeHasPrefix = data
+		case "timeHasSuffix":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timeHasSuffix"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TimeHasSuffix = data
+		case "timeIsNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timeIsNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TimeIsNil = data
+		case "timeNotNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timeNotNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TimeNotNil = data
+		case "timeEqualFold":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timeEqualFold"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TimeEqualFold = data
+		case "timeContainsFold":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timeContainsFold"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TimeContainsFold = data
+		case "hasExectionInfo":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasExectionInfo"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HasExectionInfo = data
+		case "hasExectionInfoWith":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasExectionInfoWith"))
+			data, err := ec.unmarshalOExectionInfoWhereInput2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐExectionInfoWhereInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HasExectionInfoWith = data
+		case "hasChild":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasChild"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HasChild = data
+		case "hasChildWith":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasChildWith"))
+			data, err := ec.unmarshalOTimingChildWhereInput2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTimingChildWhereInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HasChildWith = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputTimingChildWhereInput(ctx context.Context, obj interface{}) (ent.TimingChildWhereInput, error) {
+	var it ent.TimingChildWhereInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"not", "and", "or", "id", "idNEQ", "idIn", "idNotIn", "idGT", "idGTE", "idLT", "idLTE", "name", "nameNEQ", "nameIn", "nameNotIn", "nameGT", "nameGTE", "nameLT", "nameLTE", "nameContains", "nameHasPrefix", "nameHasSuffix", "nameIsNil", "nameNotNil", "nameEqualFold", "nameContainsFold", "time", "timeNEQ", "timeIn", "timeNotIn", "timeGT", "timeGTE", "timeLT", "timeLTE", "timeContains", "timeHasPrefix", "timeHasSuffix", "timeIsNil", "timeNotNil", "timeEqualFold", "timeContainsFold", "hasTimingBreakdown", "hasTimingBreakdownWith"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "not":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("not"))
+			data, err := ec.unmarshalOTimingChildWhereInput2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTimingChildWhereInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Not = data
+		case "and":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("and"))
+			data, err := ec.unmarshalOTimingChildWhereInput2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTimingChildWhereInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.And = data
+		case "or":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("or"))
+			data, err := ec.unmarshalOTimingChildWhereInput2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTimingChildWhereInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Or = data
+		case "id":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.TimingChildWhereInput().ID(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "idNEQ":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idNEQ"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.TimingChildWhereInput().IDNeq(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "idIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idIn"))
+			data, err := ec.unmarshalOID2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.TimingChildWhereInput().IDIn(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "idNotIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idNotIn"))
+			data, err := ec.unmarshalOID2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.TimingChildWhereInput().IDNotIn(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "idGT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idGT"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.TimingChildWhereInput().IDGt(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "idGTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idGTE"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.TimingChildWhereInput().IDGte(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "idLT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idLT"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.TimingChildWhereInput().IDLt(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "idLTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idLTE"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.TimingChildWhereInput().IDLte(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		case "nameNEQ":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nameNEQ"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NameNEQ = data
+		case "nameIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nameIn"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NameIn = data
+		case "nameNotIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nameNotIn"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NameNotIn = data
+		case "nameGT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nameGT"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NameGT = data
+		case "nameGTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nameGTE"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NameGTE = data
+		case "nameLT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nameLT"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NameLT = data
+		case "nameLTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nameLTE"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NameLTE = data
+		case "nameContains":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nameContains"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NameContains = data
+		case "nameHasPrefix":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nameHasPrefix"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NameHasPrefix = data
+		case "nameHasSuffix":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nameHasSuffix"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NameHasSuffix = data
+		case "nameIsNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nameIsNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NameIsNil = data
+		case "nameNotNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nameNotNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NameNotNil = data
+		case "nameEqualFold":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nameEqualFold"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NameEqualFold = data
+		case "nameContainsFold":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nameContainsFold"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NameContainsFold = data
+		case "time":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("time"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Time = data
+		case "timeNEQ":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timeNEQ"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TimeNEQ = data
+		case "timeIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timeIn"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TimeIn = data
+		case "timeNotIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timeNotIn"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TimeNotIn = data
+		case "timeGT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timeGT"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TimeGT = data
+		case "timeGTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timeGTE"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TimeGTE = data
+		case "timeLT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timeLT"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TimeLT = data
+		case "timeLTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timeLTE"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TimeLTE = data
+		case "timeContains":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timeContains"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TimeContains = data
+		case "timeHasPrefix":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timeHasPrefix"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TimeHasPrefix = data
+		case "timeHasSuffix":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timeHasSuffix"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TimeHasSuffix = data
+		case "timeIsNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timeIsNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TimeIsNil = data
+		case "timeNotNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timeNotNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TimeNotNil = data
+		case "timeEqualFold":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timeEqualFold"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TimeEqualFold = data
+		case "timeContainsFold":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timeContainsFold"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TimeContainsFold = data
+		case "hasTimingBreakdown":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasTimingBreakdown"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HasTimingBreakdown = data
+		case "hasTimingBreakdownWith":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasTimingBreakdownWith"))
+			data, err := ec.unmarshalOTimingBreakdownWhereInput2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTimingBreakdownWhereInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HasTimingBreakdownWith = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputTimingMetricsWhereInput(ctx context.Context, obj interface{}) (ent.TimingMetricsWhereInput, error) {
 	var it ent.TimingMetricsWhereInput
 	asMap := map[string]interface{}{}
@@ -28153,26 +36007,26 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._ProgressProblem(ctx, sel, obj)
-	case *ent.Metrics:
+	case *ent.PackageLoadMetrics:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._Metrics(ctx, sel, obj)
-	case *ent.MissDetail:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._MissDetail(ctx, sel, obj)
-	case *ent.Blob:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Blob(ctx, sel, obj)
+		return ec._PackageLoadMetrics(ctx, sel, obj)
 	case *ent.Build:
 		if obj == nil {
 			return graphql.Null
 		}
 		return ec._Build(ctx, sel, obj)
+	case *ent.ActionCacheStatistics:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ActionCacheStatistics(ctx, sel, obj)
+	case *ent.PackageMetrics:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._PackageMetrics(ctx, sel, obj)
 	case *ent.BuildGraphMetrics:
 		if obj == nil {
 			return graphql.Null
@@ -28198,6 +36052,11 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._EventFile(ctx, sel, obj)
+	case *ent.ExectionInfo:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ExectionInfo(ctx, sel, obj)
 	case *ent.FilesMetric:
 		if obj == nil {
 			return graphql.Null
@@ -28213,36 +36072,41 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._MemoryMetrics(ctx, sel, obj)
-	case *ent.ActionCacheStatistics:
+	case *ent.Metrics:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ActionCacheStatistics(ctx, sel, obj)
-	case *ent.BazelInvocationProblem:
+		return ec._Metrics(ctx, sel, obj)
+	case *ent.MissDetail:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._BazelInvocationProblem(ctx, sel, obj)
+		return ec._MissDetail(ctx, sel, obj)
 	case *ent.NetworkMetrics:
 		if obj == nil {
 			return graphql.Null
 		}
 		return ec._NetworkMetrics(ctx, sel, obj)
-	case *ent.PackageLoadMetrics:
+	case *ent.Blob:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._PackageLoadMetrics(ctx, sel, obj)
-	case *ent.PackageMetrics:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._PackageMetrics(ctx, sel, obj)
+		return ec._Blob(ctx, sel, obj)
 	case *ent.RaceStatistics:
 		if obj == nil {
 			return graphql.Null
 		}
 		return ec._RaceStatistics(ctx, sel, obj)
+	case *ent.BazelInvocationProblem:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._BazelInvocationProblem(ctx, sel, obj)
+	case *ent.ResourceUsage:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ResourceUsage(ctx, sel, obj)
 	case *ent.RunnerCount:
 		if obj == nil {
 			return graphql.Null
@@ -28258,6 +36122,36 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._TargetMetrics(ctx, sel, obj)
+	case *ent.TestCollection:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._TestCollection(ctx, sel, obj)
+	case *ent.TestFile:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._TestFile(ctx, sel, obj)
+	case *ent.TestResultBES:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._TestResultBES(ctx, sel, obj)
+	case *ent.TestSummary:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._TestSummary(ctx, sel, obj)
+	case *ent.TimingBreakdown:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._TimingBreakdown(ctx, sel, obj)
+	case *ent.TimingChild:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._TimingChild(ctx, sel, obj)
 	case *ent.TimingMetrics:
 		if obj == nil {
 			return graphql.Null
@@ -29378,6 +37272,39 @@ func (ec *executionContext) _BazelInvocation(ctx context.Context, sel ast.Select
 					}
 				}()
 				res = ec._BazelInvocation_metrics(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "testCollection":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._BazelInvocation_testCollection(ctx, field, obj)
 				return res
 			}
 
@@ -31131,6 +39058,183 @@ func (ec *executionContext) _EventFile(ctx context.Context, sel ast.SelectionSet
 	return out
 }
 
+var exectionInfoImplementors = []string{"ExectionInfo", "Node"}
+
+func (ec *executionContext) _ExectionInfo(ctx context.Context, sel ast.SelectionSet, obj *ent.ExectionInfo) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, exectionInfoImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ExectionInfo")
+		case "id":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._ExectionInfo_id(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "strategy":
+			out.Values[i] = ec._ExectionInfo_strategy(ctx, field, obj)
+		case "cachedRemotely":
+			out.Values[i] = ec._ExectionInfo_cachedRemotely(ctx, field, obj)
+		case "exitCode":
+			out.Values[i] = ec._ExectionInfo_exitCode(ctx, field, obj)
+		case "hostname":
+			out.Values[i] = ec._ExectionInfo_hostname(ctx, field, obj)
+		case "testResult":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._ExectionInfo_testResult(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "timingBreakdown":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._ExectionInfo_timingBreakdown(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "resourceUsage":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._ExectionInfo_resourceUsage(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var exitCodeImplementors = []string{"ExitCode"}
 
 func (ec *executionContext) _ExitCode(ctx context.Context, sel ast.SelectionSet, obj *model.ExitCode) graphql.Marshaler {
@@ -31923,6 +40027,72 @@ func (ec *executionContext) _Metrics(ctx context.Context, sel ast.SelectionSet, 
 					}
 				}()
 				res = ec._Metrics_buildGraphMetrics(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "testResults":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Metrics_testResults(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "testSummary":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Metrics_testSummary(ctx, field, obj)
 				return res
 			}
 
@@ -33026,6 +41196,113 @@ func (ec *executionContext) _RaceStatistics(ctx context.Context, sel ast.Selecti
 	return out
 }
 
+var resourceUsageImplementors = []string{"ResourceUsage", "Node"}
+
+func (ec *executionContext) _ResourceUsage(ctx context.Context, sel ast.SelectionSet, obj *ent.ResourceUsage) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, resourceUsageImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ResourceUsage")
+		case "id":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._ResourceUsage_id(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "name":
+			out.Values[i] = ec._ResourceUsage_name(ctx, field, obj)
+		case "value":
+			out.Values[i] = ec._ResourceUsage_value(ctx, field, obj)
+		case "executionInfo":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._ResourceUsage_executionInfo(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var runnerCountImplementors = []string{"RunnerCount", "Node"}
 
 func (ec *executionContext) _RunnerCount(ctx context.Context, sel ast.SelectionSet, obj *ent.RunnerCount) graphql.Marshaler {
@@ -33494,6 +41771,290 @@ func (ec *executionContext) _TargetProblem(ctx context.Context, sel ast.Selectio
 	return out
 }
 
+var testCollectionImplementors = []string{"TestCollection", "Node"}
+
+func (ec *executionContext) _TestCollection(ctx context.Context, sel ast.SelectionSet, obj *ent.TestCollection) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, testCollectionImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TestCollection")
+		case "id":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TestCollection_id(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "label":
+			out.Values[i] = ec._TestCollection_label(ctx, field, obj)
+		case "bazelInvocation":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TestCollection_bazelInvocation(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "testSummary":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TestCollection_testSummary(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "testResults":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TestCollection_testResults(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var testFileImplementors = []string{"TestFile", "Node"}
+
+func (ec *executionContext) _TestFile(ctx context.Context, sel ast.SelectionSet, obj *ent.TestFile) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, testFileImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TestFile")
+		case "id":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TestFile_id(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "digest":
+			out.Values[i] = ec._TestFile_digest(ctx, field, obj)
+		case "file":
+			out.Values[i] = ec._TestFile_file(ctx, field, obj)
+		case "length":
+			out.Values[i] = ec._TestFile_length(ctx, field, obj)
+		case "name":
+			out.Values[i] = ec._TestFile_name(ctx, field, obj)
+		case "prefix":
+			out.Values[i] = ec._TestFile_prefix(ctx, field, obj)
+		case "testResult":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TestFile_testResult(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var testProblemImplementors = []string{"TestProblem", "Node", "Problem"}
 
 func (ec *executionContext) _TestProblem(ctx context.Context, sel ast.SelectionSet, obj *model.TestProblem) graphql.Marshaler {
@@ -33630,6 +42191,633 @@ func (ec *executionContext) _TestResult(ctx context.Context, sel ast.SelectionSe
 					}
 				}()
 				res = ec._TestResult_undeclaredTestOutputs(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var testResultBESImplementors = []string{"TestResultBES", "Node"}
+
+func (ec *executionContext) _TestResultBES(ctx context.Context, sel ast.SelectionSet, obj *ent.TestResultBES) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, testResultBESImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TestResultBES")
+		case "id":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TestResultBES_id(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "testStatus":
+			out.Values[i] = ec._TestResultBES_testStatus(ctx, field, obj)
+		case "statusDetails":
+			out.Values[i] = ec._TestResultBES_statusDetails(ctx, field, obj)
+		case "label":
+			out.Values[i] = ec._TestResultBES_label(ctx, field, obj)
+		case "warning":
+			out.Values[i] = ec._TestResultBES_warning(ctx, field, obj)
+		case "cachedLocally":
+			out.Values[i] = ec._TestResultBES_cachedLocally(ctx, field, obj)
+		case "testAttemptStartMillisEpoch":
+			out.Values[i] = ec._TestResultBES_testAttemptStartMillisEpoch(ctx, field, obj)
+		case "testAttemptDurationMillis":
+			out.Values[i] = ec._TestResultBES_testAttemptDurationMillis(ctx, field, obj)
+		case "targetsConfiguredNotIncludingAspects":
+			out.Values[i] = ec._TestResultBES_targetsConfiguredNotIncludingAspects(ctx, field, obj)
+		case "run":
+			out.Values[i] = ec._TestResultBES_run(ctx, field, obj)
+		case "shard":
+			out.Values[i] = ec._TestResultBES_shard(ctx, field, obj)
+		case "attempt":
+			out.Values[i] = ec._TestResultBES_attempt(ctx, field, obj)
+		case "testCollection":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TestResultBES_testCollection(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "testActionOutput":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TestResultBES_testActionOutput(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "executionInfo":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TestResultBES_executionInfo(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var testSummaryImplementors = []string{"TestSummary", "Node"}
+
+func (ec *executionContext) _TestSummary(ctx context.Context, sel ast.SelectionSet, obj *ent.TestSummary) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, testSummaryImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TestSummary")
+		case "id":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TestSummary_id(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "overallStatus":
+			out.Values[i] = ec._TestSummary_overallStatus(ctx, field, obj)
+		case "totalRunCount":
+			out.Values[i] = ec._TestSummary_totalRunCount(ctx, field, obj)
+		case "runCount":
+			out.Values[i] = ec._TestSummary_runCount(ctx, field, obj)
+		case "attemptCount":
+			out.Values[i] = ec._TestSummary_attemptCount(ctx, field, obj)
+		case "shardCount":
+			out.Values[i] = ec._TestSummary_shardCount(ctx, field, obj)
+		case "totalNumCached":
+			out.Values[i] = ec._TestSummary_totalNumCached(ctx, field, obj)
+		case "firstStartTime":
+			out.Values[i] = ec._TestSummary_firstStartTime(ctx, field, obj)
+		case "lastStopTime":
+			out.Values[i] = ec._TestSummary_lastStopTime(ctx, field, obj)
+		case "totalRunDuration":
+			out.Values[i] = ec._TestSummary_totalRunDuration(ctx, field, obj)
+		case "label":
+			out.Values[i] = ec._TestSummary_label(ctx, field, obj)
+		case "testCollection":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TestSummary_testCollection(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "passed":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TestSummary_passed(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "failed":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TestSummary_failed(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var timingBreakdownImplementors = []string{"TimingBreakdown", "Node"}
+
+func (ec *executionContext) _TimingBreakdown(ctx context.Context, sel ast.SelectionSet, obj *ent.TimingBreakdown) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, timingBreakdownImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TimingBreakdown")
+		case "id":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TimingBreakdown_id(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "name":
+			out.Values[i] = ec._TimingBreakdown_name(ctx, field, obj)
+		case "time":
+			out.Values[i] = ec._TimingBreakdown_time(ctx, field, obj)
+		case "exectionInfo":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TimingBreakdown_exectionInfo(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "child":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TimingBreakdown_child(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var timingChildImplementors = []string{"TimingChild", "Node"}
+
+func (ec *executionContext) _TimingChild(ctx context.Context, sel ast.SelectionSet, obj *ent.TimingChild) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, timingChildImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TimingChild")
+		case "id":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TimingChild_id(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "name":
+			out.Values[i] = ec._TimingChild_name(ctx, field, obj)
+		case "time":
+			out.Values[i] = ec._TimingChild_time(ctx, field, obj)
+		case "timingBreakdown":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TimingChild_timingBreakdown(ctx, field, obj)
 				return res
 			}
 
@@ -34502,6 +43690,21 @@ func (ec *executionContext) unmarshalNEventFileWhereInput2ᚖgithubᚗcomᚋbuil
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) marshalNExectionInfo2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐExectionInfo(ctx context.Context, sel ast.SelectionSet, v *ent.ExectionInfo) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ExectionInfo(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNExectionInfoWhereInput2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐExectionInfoWhereInput(ctx context.Context, v interface{}) (*ent.ExectionInfoWhereInput, error) {
+	res, err := ec.unmarshalInputExectionInfoWhereInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) marshalNFilesMetric2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐFilesMetric(ctx context.Context, sel ast.SelectionSet, v *ent.FilesMetric) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -34903,6 +44106,21 @@ func (ec *executionContext) unmarshalNRaceStatisticsWhereInput2ᚖgithubᚗcom�
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) marshalNResourceUsage2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐResourceUsage(ctx context.Context, sel ast.SelectionSet, v *ent.ResourceUsage) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ResourceUsage(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNResourceUsageWhereInput2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐResourceUsageWhereInput(ctx context.Context, v interface{}) (*ent.ResourceUsageWhereInput, error) {
+	res, err := ec.unmarshalInputResourceUsageWhereInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) marshalNRunnerCount2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐRunnerCount(ctx context.Context, sel ast.SelectionSet, v *ent.RunnerCount) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -34977,6 +44195,36 @@ func (ec *executionContext) unmarshalNTargetMetricsWhereInput2ᚖgithubᚗcomᚋ
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) marshalNTestCollection2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTestCollection(ctx context.Context, sel ast.SelectionSet, v *ent.TestCollection) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._TestCollection(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNTestCollectionWhereInput2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTestCollectionWhereInput(ctx context.Context, v interface{}) (*ent.TestCollectionWhereInput, error) {
+	res, err := ec.unmarshalInputTestCollectionWhereInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNTestFile2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTestFile(ctx context.Context, sel ast.SelectionSet, v *ent.TestFile) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._TestFile(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNTestFileWhereInput2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTestFileWhereInput(ctx context.Context, v interface{}) (*ent.TestFileWhereInput, error) {
+	res, err := ec.unmarshalInputTestFileWhereInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) marshalNTestResult2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋinternalᚋgraphqlᚋmodelᚐTestResultᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.TestResult) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
@@ -35031,6 +44279,56 @@ func (ec *executionContext) marshalNTestResult2ᚖgithubᚗcomᚋbuildbarnᚋbb�
 	return ec._TestResult(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNTestResultBES2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTestResultBES(ctx context.Context, sel ast.SelectionSet, v *ent.TestResultBES) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._TestResultBES(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNTestResultBESTestStatus2githubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚋtestresultbesᚐTestStatus(ctx context.Context, v interface{}) (testresultbes.TestStatus, error) {
+	var res testresultbes.TestStatus
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNTestResultBESTestStatus2githubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚋtestresultbesᚐTestStatus(ctx context.Context, sel ast.SelectionSet, v testresultbes.TestStatus) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) unmarshalNTestResultBESWhereInput2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTestResultBESWhereInput(ctx context.Context, v interface{}) (*ent.TestResultBESWhereInput, error) {
+	res, err := ec.unmarshalInputTestResultBESWhereInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNTestSummary2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTestSummary(ctx context.Context, sel ast.SelectionSet, v *ent.TestSummary) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._TestSummary(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNTestSummaryOverallStatus2githubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚋtestsummaryᚐOverallStatus(ctx context.Context, v interface{}) (testsummary.OverallStatus, error) {
+	var res testsummary.OverallStatus
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNTestSummaryOverallStatus2githubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚋtestsummaryᚐOverallStatus(ctx context.Context, sel ast.SelectionSet, v testsummary.OverallStatus) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) unmarshalNTestSummaryWhereInput2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTestSummaryWhereInput(ctx context.Context, v interface{}) (*ent.TestSummaryWhereInput, error) {
+	res, err := ec.unmarshalInputTestSummaryWhereInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNTime2timeᚐTime(ctx context.Context, v interface{}) (time.Time, error) {
 	res, err := graphql.UnmarshalTime(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -35044,6 +44342,36 @@ func (ec *executionContext) marshalNTime2timeᚐTime(ctx context.Context, sel as
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) marshalNTimingBreakdown2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTimingBreakdown(ctx context.Context, sel ast.SelectionSet, v *ent.TimingBreakdown) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._TimingBreakdown(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNTimingBreakdownWhereInput2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTimingBreakdownWhereInput(ctx context.Context, v interface{}) (*ent.TimingBreakdownWhereInput, error) {
+	res, err := ec.unmarshalInputTimingBreakdownWhereInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNTimingChild2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTimingChild(ctx context.Context, sel ast.SelectionSet, v *ent.TimingChild) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._TimingChild(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNTimingChildWhereInput2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTimingChildWhereInput(ctx context.Context, v interface{}) (*ent.TimingChildWhereInput, error) {
+	res, err := ec.unmarshalInputTimingChildWhereInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalNTimingMetrics2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTimingMetrics(ctx context.Context, sel ast.SelectionSet, v *ent.TimingMetrics) graphql.Marshaler {
@@ -36358,6 +45686,88 @@ func (ec *executionContext) unmarshalOEventFileWhereInput2ᚖgithubᚗcomᚋbuil
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) marshalOExectionInfo2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐExectionInfoᚄ(ctx context.Context, sel ast.SelectionSet, v []*ent.ExectionInfo) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNExectionInfo2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐExectionInfo(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalOExectionInfo2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐExectionInfo(ctx context.Context, sel ast.SelectionSet, v *ent.ExectionInfo) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._ExectionInfo(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOExectionInfoWhereInput2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐExectionInfoWhereInputᚄ(ctx context.Context, v interface{}) ([]*ent.ExectionInfoWhereInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*ent.ExectionInfoWhereInput, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNExectionInfoWhereInput2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐExectionInfoWhereInput(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalOExectionInfoWhereInput2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐExectionInfoWhereInput(ctx context.Context, v interface{}) (*ent.ExectionInfoWhereInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputExectionInfoWhereInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) marshalOExitCode2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋinternalᚋgraphqlᚋmodelᚐExitCode(ctx context.Context, sel ast.SelectionSet, v *model.ExitCode) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
@@ -36569,6 +45979,16 @@ func (ec *executionContext) marshalOID2ᚖstring(ctx context.Context, sel ast.Se
 	return res
 }
 
+func (ec *executionContext) unmarshalOInt2int(ctx context.Context, v interface{}) (int, error) {
+	res, err := graphql.UnmarshalInt(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOInt2int(ctx context.Context, sel ast.SelectionSet, v int) graphql.Marshaler {
+	res := graphql.MarshalInt(v)
+	return res
+}
+
 func (ec *executionContext) unmarshalOInt2int32(ctx context.Context, v interface{}) (int32, error) {
 	res, err := graphql.UnmarshalInt32(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -36654,6 +46074,44 @@ func (ec *executionContext) marshalOInt2ᚕint64ᚄ(ctx context.Context, sel ast
 	ret := make(graphql.Array, len(v))
 	for i := range v {
 		ret[i] = ec.marshalNInt2int64(ctx, sel, v[i])
+	}
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) unmarshalOInt2ᚕintᚄ(ctx context.Context, v interface{}) ([]int, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]int, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNInt2int(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalOInt2ᚕintᚄ(ctx context.Context, sel ast.SelectionSet, v []int) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	for i := range v {
+		ret[i] = ec.marshalNInt2int(ctx, sel, v[i])
 	}
 
 	for _, e := range ret {
@@ -37400,6 +46858,81 @@ func (ec *executionContext) unmarshalORaceStatisticsWhereInput2ᚖgithubᚗcom�
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) marshalOResourceUsage2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐResourceUsageᚄ(ctx context.Context, sel ast.SelectionSet, v []*ent.ResourceUsage) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNResourceUsage2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐResourceUsage(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) unmarshalOResourceUsageWhereInput2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐResourceUsageWhereInputᚄ(ctx context.Context, v interface{}) ([]*ent.ResourceUsageWhereInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*ent.ResourceUsageWhereInput, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNResourceUsageWhereInput2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐResourceUsageWhereInput(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalOResourceUsageWhereInput2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐResourceUsageWhereInput(ctx context.Context, v interface{}) (*ent.ResourceUsageWhereInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputResourceUsageWhereInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) marshalORunnerCount2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐRunnerCountᚄ(ctx context.Context, sel ast.SelectionSet, v []*ent.RunnerCount) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
@@ -37744,6 +47277,506 @@ func (ec *executionContext) unmarshalOTargetMetricsWhereInput2ᚖgithubᚗcomᚋ
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) marshalOTestCollection2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTestCollectionᚄ(ctx context.Context, sel ast.SelectionSet, v []*ent.TestCollection) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNTestCollection2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTestCollection(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalOTestCollection2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTestCollection(ctx context.Context, sel ast.SelectionSet, v *ent.TestCollection) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._TestCollection(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOTestCollectionWhereInput2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTestCollectionWhereInputᚄ(ctx context.Context, v interface{}) ([]*ent.TestCollectionWhereInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*ent.TestCollectionWhereInput, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNTestCollectionWhereInput2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTestCollectionWhereInput(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalOTestCollectionWhereInput2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTestCollectionWhereInput(ctx context.Context, v interface{}) (*ent.TestCollectionWhereInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputTestCollectionWhereInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOTestFile2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTestFileᚄ(ctx context.Context, sel ast.SelectionSet, v []*ent.TestFile) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNTestFile2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTestFile(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) unmarshalOTestFileWhereInput2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTestFileWhereInputᚄ(ctx context.Context, v interface{}) ([]*ent.TestFileWhereInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*ent.TestFileWhereInput, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNTestFileWhereInput2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTestFileWhereInput(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalOTestFileWhereInput2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTestFileWhereInput(ctx context.Context, v interface{}) (*ent.TestFileWhereInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputTestFileWhereInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOTestResultBES2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTestResultBESᚄ(ctx context.Context, sel ast.SelectionSet, v []*ent.TestResultBES) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNTestResultBES2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTestResultBES(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) unmarshalOTestResultBESTestStatus2githubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚋtestresultbesᚐTestStatus(ctx context.Context, v interface{}) (testresultbes.TestStatus, error) {
+	var res testresultbes.TestStatus
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOTestResultBESTestStatus2githubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚋtestresultbesᚐTestStatus(ctx context.Context, sel ast.SelectionSet, v testresultbes.TestStatus) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) unmarshalOTestResultBESTestStatus2ᚕgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚋtestresultbesᚐTestStatusᚄ(ctx context.Context, v interface{}) ([]testresultbes.TestStatus, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]testresultbes.TestStatus, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNTestResultBESTestStatus2githubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚋtestresultbesᚐTestStatus(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalOTestResultBESTestStatus2ᚕgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚋtestresultbesᚐTestStatusᚄ(ctx context.Context, sel ast.SelectionSet, v []testresultbes.TestStatus) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNTestResultBESTestStatus2githubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚋtestresultbesᚐTestStatus(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) unmarshalOTestResultBESTestStatus2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚋtestresultbesᚐTestStatus(ctx context.Context, v interface{}) (*testresultbes.TestStatus, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(testresultbes.TestStatus)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOTestResultBESTestStatus2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚋtestresultbesᚐTestStatus(ctx context.Context, sel ast.SelectionSet, v *testresultbes.TestStatus) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
+}
+
+func (ec *executionContext) unmarshalOTestResultBESWhereInput2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTestResultBESWhereInputᚄ(ctx context.Context, v interface{}) ([]*ent.TestResultBESWhereInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*ent.TestResultBESWhereInput, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNTestResultBESWhereInput2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTestResultBESWhereInput(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalOTestResultBESWhereInput2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTestResultBESWhereInput(ctx context.Context, v interface{}) (*ent.TestResultBESWhereInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputTestResultBESWhereInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOTestSummary2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTestSummaryᚄ(ctx context.Context, sel ast.SelectionSet, v []*ent.TestSummary) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNTestSummary2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTestSummary(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalOTestSummary2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTestSummary(ctx context.Context, sel ast.SelectionSet, v *ent.TestSummary) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._TestSummary(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOTestSummaryOverallStatus2githubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚋtestsummaryᚐOverallStatus(ctx context.Context, v interface{}) (testsummary.OverallStatus, error) {
+	var res testsummary.OverallStatus
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOTestSummaryOverallStatus2githubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚋtestsummaryᚐOverallStatus(ctx context.Context, sel ast.SelectionSet, v testsummary.OverallStatus) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) unmarshalOTestSummaryOverallStatus2ᚕgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚋtestsummaryᚐOverallStatusᚄ(ctx context.Context, v interface{}) ([]testsummary.OverallStatus, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]testsummary.OverallStatus, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNTestSummaryOverallStatus2githubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚋtestsummaryᚐOverallStatus(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalOTestSummaryOverallStatus2ᚕgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚋtestsummaryᚐOverallStatusᚄ(ctx context.Context, sel ast.SelectionSet, v []testsummary.OverallStatus) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNTestSummaryOverallStatus2githubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚋtestsummaryᚐOverallStatus(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) unmarshalOTestSummaryOverallStatus2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚋtestsummaryᚐOverallStatus(ctx context.Context, v interface{}) (*testsummary.OverallStatus, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(testsummary.OverallStatus)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOTestSummaryOverallStatus2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚋtestsummaryᚐOverallStatus(ctx context.Context, sel ast.SelectionSet, v *testsummary.OverallStatus) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
+}
+
+func (ec *executionContext) unmarshalOTestSummaryWhereInput2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTestSummaryWhereInputᚄ(ctx context.Context, v interface{}) ([]*ent.TestSummaryWhereInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*ent.TestSummaryWhereInput, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNTestSummaryWhereInput2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTestSummaryWhereInput(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalOTestSummaryWhereInput2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTestSummaryWhereInput(ctx context.Context, v interface{}) (*ent.TestSummaryWhereInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputTestSummaryWhereInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalOTime2timeᚐTime(ctx context.Context, v interface{}) (time.Time, error) {
 	res, err := graphql.UnmarshalTime(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -37806,6 +47839,163 @@ func (ec *executionContext) marshalOTime2ᚖtimeᚐTime(ctx context.Context, sel
 	}
 	res := graphql.MarshalTime(*v)
 	return res
+}
+
+func (ec *executionContext) marshalOTimingBreakdown2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTimingBreakdownᚄ(ctx context.Context, sel ast.SelectionSet, v []*ent.TimingBreakdown) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNTimingBreakdown2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTimingBreakdown(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalOTimingBreakdown2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTimingBreakdown(ctx context.Context, sel ast.SelectionSet, v *ent.TimingBreakdown) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._TimingBreakdown(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOTimingBreakdownWhereInput2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTimingBreakdownWhereInputᚄ(ctx context.Context, v interface{}) ([]*ent.TimingBreakdownWhereInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*ent.TimingBreakdownWhereInput, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNTimingBreakdownWhereInput2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTimingBreakdownWhereInput(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalOTimingBreakdownWhereInput2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTimingBreakdownWhereInput(ctx context.Context, v interface{}) (*ent.TimingBreakdownWhereInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputTimingBreakdownWhereInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOTimingChild2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTimingChildᚄ(ctx context.Context, sel ast.SelectionSet, v []*ent.TimingChild) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNTimingChild2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTimingChild(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) unmarshalOTimingChildWhereInput2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTimingChildWhereInputᚄ(ctx context.Context, v interface{}) ([]*ent.TimingChildWhereInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*ent.TimingChildWhereInput, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNTimingChildWhereInput2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTimingChildWhereInput(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalOTimingChildWhereInput2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTimingChildWhereInput(ctx context.Context, v interface{}) (*ent.TimingChildWhereInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputTimingChildWhereInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalOTimingMetrics2ᚕᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚐTimingMetricsᚄ(ctx context.Context, sel ast.SelectionSet, v []*ent.TimingMetrics) graphql.Marshaler {

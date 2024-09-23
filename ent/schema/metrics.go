@@ -33,6 +33,8 @@ func (Metrics) Edges() []ent.Edge {
 		edge.To("network_metrics", NetworkMetrics.Type),
 		edge.To("dynamic_execution_metrics", DynamicExecutionMetrics.Type),
 		edge.To("build_graph_metrics", BuildGraphMetrics.Type),
+		edge.To("test_results", TestResultBES.Type),
+		edge.To("test_summary", TestSummary.Type),
 	}
 }
 

@@ -48,11 +48,15 @@ type MetricsEdges struct {
 	DynamicExecutionMetrics []*DynamicExecutionMetrics `json:"dynamic_execution_metrics,omitempty"`
 	// BuildGraphMetrics holds the value of the build_graph_metrics edge.
 	BuildGraphMetrics []*BuildGraphMetrics `json:"build_graph_metrics,omitempty"`
+	// TestResults holds the value of the test_results edge.
+	TestResults []*TestResultBES `json:"test_results,omitempty"`
+	// TestSummary holds the value of the test_summary edge.
+	TestSummary []*TestSummary `json:"test_summary,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [11]bool
+	loadedTypes [13]bool
 	// totalCount holds the count of the edges above.
-	totalCount [11]map[string]int
+	totalCount [13]map[string]int
 
 	namedActionSummary           map[string][]*ActionSummary
 	namedMemoryMetrics           map[string][]*MemoryMetrics
@@ -64,6 +68,8 @@ type MetricsEdges struct {
 	namedNetworkMetrics          map[string][]*NetworkMetrics
 	namedDynamicExecutionMetrics map[string][]*DynamicExecutionMetrics
 	namedBuildGraphMetrics       map[string][]*BuildGraphMetrics
+	namedTestResults             map[string][]*TestResultBES
+	namedTestSummary             map[string][]*TestSummary
 }
 
 // BazelInvocationOrErr returns the BazelInvocation value or an error if the edge
@@ -165,6 +171,24 @@ func (e MetricsEdges) BuildGraphMetricsOrErr() ([]*BuildGraphMetrics, error) {
 		return e.BuildGraphMetrics, nil
 	}
 	return nil, &NotLoadedError{edge: "build_graph_metrics"}
+}
+
+// TestResultsOrErr returns the TestResults value or an error if the edge
+// was not loaded in eager-loading.
+func (e MetricsEdges) TestResultsOrErr() ([]*TestResultBES, error) {
+	if e.loadedTypes[11] {
+		return e.TestResults, nil
+	}
+	return nil, &NotLoadedError{edge: "test_results"}
+}
+
+// TestSummaryOrErr returns the TestSummary value or an error if the edge
+// was not loaded in eager-loading.
+func (e MetricsEdges) TestSummaryOrErr() ([]*TestSummary, error) {
+	if e.loadedTypes[12] {
+		return e.TestSummary, nil
+	}
+	return nil, &NotLoadedError{edge: "test_summary"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -270,6 +294,16 @@ func (m *Metrics) QueryDynamicExecutionMetrics() *DynamicExecutionMetricsQuery {
 // QueryBuildGraphMetrics queries the "build_graph_metrics" edge of the Metrics entity.
 func (m *Metrics) QueryBuildGraphMetrics() *BuildGraphMetricsQuery {
 	return NewMetricsClient(m.config).QueryBuildGraphMetrics(m)
+}
+
+// QueryTestResults queries the "test_results" edge of the Metrics entity.
+func (m *Metrics) QueryTestResults() *TestResultBESQuery {
+	return NewMetricsClient(m.config).QueryTestResults(m)
+}
+
+// QueryTestSummary queries the "test_summary" edge of the Metrics entity.
+func (m *Metrics) QueryTestSummary() *TestSummaryQuery {
+	return NewMetricsClient(m.config).QueryTestSummary(m)
 }
 
 // Update returns a builder for updating this Metrics.
@@ -536,6 +570,54 @@ func (m *Metrics) appendNamedBuildGraphMetrics(name string, edges ...*BuildGraph
 		m.Edges.namedBuildGraphMetrics[name] = []*BuildGraphMetrics{}
 	} else {
 		m.Edges.namedBuildGraphMetrics[name] = append(m.Edges.namedBuildGraphMetrics[name], edges...)
+	}
+}
+
+// NamedTestResults returns the TestResults named value or an error if the edge was not
+// loaded in eager-loading with this name.
+func (m *Metrics) NamedTestResults(name string) ([]*TestResultBES, error) {
+	if m.Edges.namedTestResults == nil {
+		return nil, &NotLoadedError{edge: name}
+	}
+	nodes, ok := m.Edges.namedTestResults[name]
+	if !ok {
+		return nil, &NotLoadedError{edge: name}
+	}
+	return nodes, nil
+}
+
+func (m *Metrics) appendNamedTestResults(name string, edges ...*TestResultBES) {
+	if m.Edges.namedTestResults == nil {
+		m.Edges.namedTestResults = make(map[string][]*TestResultBES)
+	}
+	if len(edges) == 0 {
+		m.Edges.namedTestResults[name] = []*TestResultBES{}
+	} else {
+		m.Edges.namedTestResults[name] = append(m.Edges.namedTestResults[name], edges...)
+	}
+}
+
+// NamedTestSummary returns the TestSummary named value or an error if the edge was not
+// loaded in eager-loading with this name.
+func (m *Metrics) NamedTestSummary(name string) ([]*TestSummary, error) {
+	if m.Edges.namedTestSummary == nil {
+		return nil, &NotLoadedError{edge: name}
+	}
+	nodes, ok := m.Edges.namedTestSummary[name]
+	if !ok {
+		return nil, &NotLoadedError{edge: name}
+	}
+	return nodes, nil
+}
+
+func (m *Metrics) appendNamedTestSummary(name string, edges ...*TestSummary) {
+	if m.Edges.namedTestSummary == nil {
+		m.Edges.namedTestSummary = make(map[string][]*TestSummary)
+	}
+	if len(edges) == 0 {
+		m.Edges.namedTestSummary[name] = []*TestSummary{}
+	} else {
+		m.Edges.namedTestSummary[name] = append(m.Edges.namedTestSummary[name], edges...)
 	}
 }
 

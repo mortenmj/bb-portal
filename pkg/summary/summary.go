@@ -40,18 +40,25 @@ type Summary struct {
 	UserEmail      string
 	BuildLogs      strings.Builder
 	Metrics        Metrics
+	Tests          map[string]TestsCollection
+	TestResults    []TestResult
+	TestSummary    []TestSummary
+}
+
+type TestsCollection struct {
+	TestSummary TestSummary
+	TestResults []TestResult
 }
 
 type Metrics struct {
-	ActionSummary     ActionSummary
-	MemoryMetrics     MemoryMetrics
-	TargetMetrics     TargetMetrics
-	PackageMetrics    PackageMetrics
-	TimingMetrics     TimingMetrics
-	CumulativeMetrics CumulativeMetrics
-	ArtifactMetrics   ArtifactMetrics
-	BuildGraphMetrics BuildGraphMetrics
-	//below types are missing from the proto, but i want em
+	ActionSummary           ActionSummary
+	MemoryMetrics           MemoryMetrics
+	TargetMetrics           TargetMetrics
+	PackageMetrics          PackageMetrics
+	TimingMetrics           TimingMetrics
+	CumulativeMetrics       CumulativeMetrics
+	ArtifactMetrics         ArtifactMetrics
+	BuildGraphMetrics       BuildGraphMetrics
 	NetworkMetrics          NetworkMetrics
 	DynamicExecutionMetrics DynamicExecutionMetrics
 }
@@ -185,8 +192,8 @@ type MissDetail struct {
 	Count  int32
 }
 
-func (r MissReason) EnumIndex() int {
-	return int(r)
+func (r MissReason) EnumIndex() int32 {
+	return int32(r)
 }
 
 func (r MissReason) String() string {
@@ -202,7 +209,38 @@ func (r MissReason) String() string {
 	}[r]
 }
 
+func (r TestStatus) EnumIndex() int32 {
+	return int32(r)
+}
+
+func (r TestStatus) String() string {
+	return [...]string{
+		"NO_STATUS",
+		"PASSED",
+		"FLAKY",
+		"TIMEOUT",
+		"FAILED",
+		"INCOMPLETE",
+		"REMOTE_FAILURE",
+		"FAILED_TO_BUILD",
+		"TOOL_HALTED_BEFORE_TESTING",
+	}[r]
+}
+
 type MissReason int32
+type TestStatus int32
+
+const (
+	NO_STATUS TestStatus = iota + 1
+	PASSED
+	FLAKY
+	TIMEOUT
+	FAILED
+	INCOMPLETE
+	REMOTE_FAILURE
+	FAILED_TO_BUILD
+	TOOL_HALTED_BEFORE_TESTING
+)
 
 const (
 	DIFFERENT_ACTION_KEY MissReason = iota + 1
@@ -254,4 +292,67 @@ type BuildGraphMetrics struct {
 	BuiltValues                               []EvaluationStat
 	CleanedValues                             []EvaluationStat
 	EvaluatedValues                           []EvaluationStat
+}
+
+type ExecutionInfo struct {
+	Strategy        string
+	CachedRemotely  bool
+	ExitCode        int32
+	Hostname        string
+	TimingBreakdown TimingBreakdown
+	ResourceUsage   []ResourceUsage
+}
+
+type TestResult struct {
+	Status                      TestStatus
+	StatusDetails               string
+	CachedLocally               bool
+	TestAttemptDurationMillis   int64
+	TestAttemptStartMillisEpoch int64
+	Warning                     []string
+	Run                         int
+	Shard                       int
+	Attempt                     int
+	Label                       string
+	TestActionOutput            []TestFile
+	ExecutionInfo               ExecutionInfo
+}
+
+type TimingBreakdown struct {
+	Name  string
+	Time  string
+	Child []TimingChild
+}
+
+type TimingChild struct {
+	Name string
+	Time string
+}
+
+type ResourceUsage struct {
+	Name  string
+	Value string
+}
+
+type TestFile struct {
+	Digest string
+	File   string
+	Length int64
+	Name   string
+	Prefix []string
+}
+
+type TestSummary struct {
+	Label            string
+	Status           TestStatus
+	TotalRunCount    int32
+	RunCount         int32
+	AttemptCount     int32
+	ShardCount       int32
+	TotalNumCached   int32
+	FirstStartTime   int64
+	LastStopTime     int64
+	TotalRunDuration int64
+	Passed           []TestFile
+	Failed           []TestFile
 }

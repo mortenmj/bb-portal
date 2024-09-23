@@ -44,6 +44,8 @@ const (
 	EdgeMetrics = "metrics"
 	// EdgeProblems holds the string denoting the problems edge name in mutations.
 	EdgeProblems = "problems"
+	// EdgeTestCollection holds the string denoting the test_collection edge name in mutations.
+	EdgeTestCollection = "test_collection"
 	// Table holds the table name of the bazelinvocation in the database.
 	Table = "bazel_invocations"
 	// EventFileTable is the table that holds the event_file relation/edge.
@@ -74,6 +76,11 @@ const (
 	ProblemsInverseTable = "bazel_invocation_problems"
 	// ProblemsColumn is the table column denoting the problems relation/edge.
 	ProblemsColumn = "bazel_invocation_problems"
+	// TestCollectionTable is the table that holds the test_collection relation/edge. The primary key declared below.
+	TestCollectionTable = "bazel_invocation_test_collection"
+	// TestCollectionInverseTable is the table name for the TestCollection entity.
+	// It exists in this package in order to avoid circular dependency with the "testcollection" package.
+	TestCollectionInverseTable = "test_collections"
 )
 
 // Columns holds all SQL columns for bazelinvocation fields.
@@ -99,6 +106,12 @@ var ForeignKeys = []string{
 	"build_invocations",
 	"event_file_bazel_invocation",
 }
+
+var (
+	// TestCollectionPrimaryKey and TestCollectionColumn2 are the table columns denoting the
+	// primary key for the test_collection relation (M2M).
+	TestCollectionPrimaryKey = []string{"bazel_invocation_id", "test_collection_id"}
+)
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
@@ -207,6 +220,20 @@ func ByProblems(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newProblemsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByTestCollectionCount orders the results by test_collection count.
+func ByTestCollectionCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newTestCollectionStep(), opts...)
+	}
+}
+
+// ByTestCollection orders the results by test_collection terms.
+func ByTestCollection(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newTestCollectionStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newEventFileStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -233,5 +260,12 @@ func newProblemsStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(ProblemsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, ProblemsTable, ProblemsColumn),
+	)
+}
+func newTestCollectionStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(TestCollectionInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2M, false, TestCollectionTable, TestCollectionPrimaryKey...),
 	)
 }

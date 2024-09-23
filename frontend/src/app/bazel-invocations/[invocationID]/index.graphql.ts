@@ -169,6 +169,7 @@ fragment BazelInvocationInfo on BazelInvocation {
       }
     }
   }
+
   bazelCommand {
     command
     executable
@@ -182,7 +183,24 @@ fragment BazelInvocationInfo on BazelInvocation {
     id
     buildUUID
   }
-
+  testCollection{
+    id
+    label
+    testSummary{
+      id
+      totalRunDuration
+      overallStatus
+    }
+    testResults{
+      id
+      cachedLocally
+      executionInfo{
+        id
+        strategy
+        cachedRemotely
+      }
+    }
+  }
   relatedFiles {
     name
     url

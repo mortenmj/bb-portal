@@ -12,7 +12,6 @@ import { BazelInvocationNodeFragment } from '@/graphql/__generated__/graphql';
 import { SearchFilterIcon, SearchWidget, TimeRangeSelector } from '@/components/SearchWidgets';
 import PortalDuration from "@/components/PortalDuration";
 import BuildStepResultTag, { BuildStepResultEnum } from "@/components/BuildStepResultTag";
-import { filterProps } from 'framer-motion';
 
 const invocationIdColumn: ColumnType<BazelInvocationNodeFragment> = {
   key: 'invocationID',

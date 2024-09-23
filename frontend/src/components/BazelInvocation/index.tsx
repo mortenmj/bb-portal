@@ -8,6 +8,7 @@ import {
   MemoryMetrics,
   TimingMetrics,
   NetworkMetrics,
+  TestCollection,
 } from "@/graphql/__generated__/graphql";
 import React from "react";
 import PortalDuration from "@/components/PortalDuration";
@@ -44,6 +45,7 @@ import ArtifactsDataMetrics from "../Artifacts";
 import MemoryMetricsDisplay from "../MemoryMetrics";
 import TimingMetricsDisplay from "../TimingMetrics";
 import NetworkMetricsDisplay from "../NetworkMetrics";
+import TestMetricsDisplay from "../TestsMetrics";
 
 
 const BazelInvocation: React.FC<{
@@ -61,6 +63,7 @@ const BazelInvocation: React.FC<{
     relatedFiles,
     user,
     metrics,
+    testCollection
 
   } = invocationOverview;
 
@@ -86,6 +89,9 @@ const BazelInvocation: React.FC<{
 
   //netowrk metrics
   var networkMetrics: NetworkMetrics | undefined = metrics?.networkMetrics?.at(0)
+
+  //test data
+  var testCollections: TestCollection[] | undefined | null = testCollection
 
   let { exitCode } = state;
   exitCode = exitCode ?? null;
@@ -225,11 +231,7 @@ const BazelInvocation: React.FC<{
       icon: <ExperimentOutlined />,
       children: <Space direction="vertical" size="middle" className={themeStyles.space}>
 
-        {/* <TargetMetrics
-          targetsLoaded={targetsLoaded}
-          targetsConfigured={targetsConfigured}
-          targetsConfiguredNotIncludingAspects={targetsConfiguredNotIncludingAspects}
-        /> */}
+        <TestMetricsDisplay testMetrics={testCollections} />
 
       </Space>,
     },

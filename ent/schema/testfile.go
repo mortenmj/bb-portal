@@ -14,15 +14,17 @@ type TestFile struct {
 // Fields of the TestResult.
 func (TestFile) Fields() []ent.Field {
 	return []ent.Field{
-
+		field.String("digest").Optional(),
+		field.String("file").Optional(),
+		field.Int64("length").Optional(),
 		field.String("name").Optional(),
-		field.String("uri").Optional(),
+		field.Strings("prefix").Optional(),
 	}
 }
 
 // Edges of TestResult
 func (TestFile) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("test_result", TestResult.Type).Ref("test_action_output"),
+		edge.From("test_result", TestResultBES.Type).Ref("test_action_output"),
 	}
 }

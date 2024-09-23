@@ -111,6 +111,11 @@ func (s Summarizer) ProcessEvent(buildEvent *events.BuildEvent) error {
 		if err != nil {
 			return err
 		}
+	case *bes.BuildEventId_TestResult:
+		s.handleTestResult(buildEvent.GetTestResult(), buildEvent.GetId().GetTestResult().Label)
+
+	case *bes.BuildEventId_TestSummary:
+		s.handleTestSummary(buildEvent.GetTestSummary(), buildEvent.GetId().GetTestSummary().Label)
 
 	case *bes.BuildEventId_OptionsParsed:
 		s.handleOptionsParsed(buildEvent.GetOptionsParsed())
@@ -129,6 +134,7 @@ func (s Summarizer) ProcessEvent(buildEvent *events.BuildEvent) error {
 }
 
 func (s Summarizer) handleStarted(started *bes.BuildStarted) {
+
 	var startedAt time.Time
 	if started.GetStartTime() != nil {
 		startedAt = started.GetStartTime().AsTime()
@@ -139,6 +145,126 @@ func (s Summarizer) handleStarted(started *bes.BuildStarted) {
 	s.summary.StartedAt = startedAt
 	s.summary.InvocationID = started.GetUuid()
 	s.summary.BazelVersion = started.GetBuildToolVersion()
+}
+
+func (s Summarizer) handleTestResult(testResult *bes.TestResult, label string) {
+
+	if testResult == nil {
+		return //nothing to do
+	}
+
+	if len(label) == 0 {
+		panic("....this might not work then")
+	}
+
+	var testResults []TestResult
+
+	if s.summary.Tests == nil {
+		s.summary.Tests = make(map[string]TestsCollection)
+	}
+
+	testcollection, ok := s.summary.Tests[label]
+
+	if !ok {
+		//initailize it if we've never seen this label before
+		s.summary.Tests[label] = TestsCollection{
+			TestSummary: TestSummary{},
+			TestResults: []TestResult{},
+		}
+		testResults = make([]TestResult, 0)
+	} else {
+		testResults = testcollection.TestResults
+	}
+
+	execution_info := ExecutionInfo{}
+	var children []TimingChild = make([]TimingChild, 0)
+	timing_breakdown := TimingBreakdown{}
+
+	//process the execution info object
+	if testResult.ExecutionInfo != nil {
+		if testResult.ExecutionInfo.TimingBreakdown != nil {
+
+			for _, c := range testResult.ExecutionInfo.TimingBreakdown.Child {
+
+				child := TimingChild{
+					Name: c.Name,
+					Time: c.Time.AsDuration().String(),
+				}
+				children = append(children, child)
+			}
+
+			timing_breakdown.Name = testResult.ExecutionInfo.TimingBreakdown.Name
+			timing_breakdown.Time = testResult.ExecutionInfo.TimingBreakdown.Time.String()
+			timing_breakdown.Child = children
+
+		}
+
+		execution_info.Strategy = testResult.ExecutionInfo.Strategy
+		execution_info.CachedRemotely = testResult.ExecutionInfo.CachedRemotely
+		execution_info.ExitCode = testResult.ExecutionInfo.ExitCode
+		execution_info.Hostname = testResult.ExecutionInfo.Hostname
+		execution_info.TimingBreakdown = timing_breakdown
+
+	}
+
+	//create a test result
+	var tr TestResult = TestResult{
+		Label:                       label,
+		Status:                      TestStatus(testResult.Status),
+		StatusDetails:               testResult.StatusDetails,
+		CachedLocally:               testResult.CachedLocally,
+		TestAttemptStartMillisEpoch: testResult.TestAttemptStart.Seconds * 1000,
+		TestAttemptDurationMillis:   testResult.TestAttemptDuration.Seconds * 1000,
+		Warning:                     testResult.Warning,
+		ExecutionInfo:               execution_info,
+		TestActionOutput:            make([]TestFile, 0),
+	}
+
+	//append test action outputs
+	for _, ao := range testResult.TestActionOutput {
+		actionOutput := TestFile{
+			Digest: ao.Digest,
+			//File TODO
+			Length: ao.Length,
+			Name:   ao.Name,
+			Prefix: ao.PathPrefix,
+		}
+		tr.TestActionOutput = append(tr.TestActionOutput, actionOutput)
+	}
+
+	testResults = append(testResults, tr)
+	testcollection.TestResults = testResults //update the copy with the new test results
+
+	// add the copy to the summarizer
+	s.summary.Tests[label] = testcollection
+}
+
+func (s Summarizer) handleTestSummary(testSummary *bes.TestSummary, label string) {
+	if testSummary == nil {
+		return //nothing to do
+	}
+	if len(label) == 0 {
+		panic("this is not good")
+	}
+	testCollection, ok := s.summary.Tests[label]
+	if !ok {
+		panic("this apparently doesn't work the way you think it should")
+	}
+	var tSummary TestSummary = testCollection.TestSummary
+	tSummary.AttemptCount = testSummary.AttemptCount
+	tSummary.FirstStartTime = testSummary.FirstStartTime.AsTime().Unix()
+	tSummary.Label = label
+	tSummary.LastStopTime = testSummary.FirstStartTime.AsTime().Unix()
+	tSummary.RunCount = testSummary.RunCount
+	tSummary.ShardCount = testSummary.ShardCount
+	tSummary.Status = TestStatus(testSummary.OverallStatus)
+	tSummary.TotalNumCached = testSummary.TotalNumCached
+	tSummary.TotalRunCount = testSummary.TotalRunCount
+	tSummary.TotalRunDuration = testSummary.TotalRunDuration.AsDuration().Microseconds()
+
+	testCollection.TestSummary = tSummary
+	s.summary.Tests[label] = testCollection
+
 }
 
 func (s Summarizer) handleBuildMetadata(metadataProto *bes.BuildMetadata) {

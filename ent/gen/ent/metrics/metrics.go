@@ -34,6 +34,10 @@ const (
 	EdgeDynamicExecutionMetrics = "dynamic_execution_metrics"
 	// EdgeBuildGraphMetrics holds the string denoting the build_graph_metrics edge name in mutations.
 	EdgeBuildGraphMetrics = "build_graph_metrics"
+	// EdgeTestResults holds the string denoting the test_results edge name in mutations.
+	EdgeTestResults = "test_results"
+	// EdgeTestSummary holds the string denoting the test_summary edge name in mutations.
+	EdgeTestSummary = "test_summary"
 	// Table holds the table name of the metrics in the database.
 	Table = "metrics"
 	// BazelInvocationTable is the table that holds the bazel_invocation relation/edge.
@@ -95,6 +99,20 @@ const (
 	// BuildGraphMetricsInverseTable is the table name for the BuildGraphMetrics entity.
 	// It exists in this package in order to avoid circular dependency with the "buildgraphmetrics" package.
 	BuildGraphMetricsInverseTable = "build_graph_metrics"
+	// TestResultsTable is the table that holds the test_results relation/edge.
+	TestResultsTable = "test_result_be_ss"
+	// TestResultsInverseTable is the table name for the TestResultBES entity.
+	// It exists in this package in order to avoid circular dependency with the "testresultbes" package.
+	TestResultsInverseTable = "test_result_be_ss"
+	// TestResultsColumn is the table column denoting the test_results relation/edge.
+	TestResultsColumn = "metrics_test_results"
+	// TestSummaryTable is the table that holds the test_summary relation/edge.
+	TestSummaryTable = "test_summaries"
+	// TestSummaryInverseTable is the table name for the TestSummary entity.
+	// It exists in this package in order to avoid circular dependency with the "testsummary" package.
+	TestSummaryInverseTable = "test_summaries"
+	// TestSummaryColumn is the table column denoting the test_summary relation/edge.
+	TestSummaryColumn = "metrics_test_summary"
 )
 
 // Columns holds all SQL columns for metrics fields.
@@ -307,6 +325,34 @@ func ByBuildGraphMetrics(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption
 		sqlgraph.OrderByNeighborTerms(s, newBuildGraphMetricsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByTestResultsCount orders the results by test_results count.
+func ByTestResultsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newTestResultsStep(), opts...)
+	}
+}
+
+// ByTestResults orders the results by test_results terms.
+func ByTestResults(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newTestResultsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByTestSummaryCount orders the results by test_summary count.
+func ByTestSummaryCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newTestSummaryStep(), opts...)
+	}
+}
+
+// ByTestSummary orders the results by test_summary terms.
+func ByTestSummary(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newTestSummaryStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newBazelInvocationStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -382,5 +428,19 @@ func newBuildGraphMetricsStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(BuildGraphMetricsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2M, false, BuildGraphMetricsTable, BuildGraphMetricsPrimaryKey...),
+	)
+}
+func newTestResultsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(TestResultsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, TestResultsTable, TestResultsColumn),
+	)
+}
+func newTestSummaryStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(TestSummaryInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, TestSummaryTable, TestSummaryColumn),
 	)
 }

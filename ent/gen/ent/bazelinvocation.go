@@ -65,13 +65,16 @@ type BazelInvocationEdges struct {
 	Metrics *Metrics `json:"metrics,omitempty"`
 	// Problems holds the value of the problems edge.
 	Problems []*BazelInvocationProblem `json:"problems,omitempty"`
+	// TestCollection holds the value of the test_collection edge.
+	TestCollection []*TestCollection `json:"test_collection,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [4]bool
+	loadedTypes [5]bool
 	// totalCount holds the count of the edges above.
-	totalCount [3]map[string]int
+	totalCount [4]map[string]int
 
-	namedProblems map[string][]*BazelInvocationProblem
+	namedProblems       map[string][]*BazelInvocationProblem
+	namedTestCollection map[string][]*TestCollection
 }
 
 // EventFileOrErr returns the EventFile value or an error if the edge
@@ -114,6 +117,15 @@ func (e BazelInvocationEdges) ProblemsOrErr() ([]*BazelInvocationProblem, error)
 		return e.Problems, nil
 	}
 	return nil, &NotLoadedError{edge: "problems"}
+}
+
+// TestCollectionOrErr returns the TestCollection value or an error if the edge
+// was not loaded in eager-loading.
+func (e BazelInvocationEdges) TestCollectionOrErr() ([]*TestCollection, error) {
+	if e.loadedTypes[4] {
+		return e.TestCollection, nil
+	}
+	return nil, &NotLoadedError{edge: "test_collection"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -281,6 +293,11 @@ func (bi *BazelInvocation) QueryProblems() *BazelInvocationProblemQuery {
 	return NewBazelInvocationClient(bi.config).QueryProblems(bi)
 }
 
+// QueryTestCollection queries the "test_collection" edge of the BazelInvocation entity.
+func (bi *BazelInvocation) QueryTestCollection() *TestCollectionQuery {
+	return NewBazelInvocationClient(bi.config).QueryTestCollection(bi)
+}
+
 // Update returns a builder for updating this BazelInvocation.
 // Note that you need to call BazelInvocation.Unwrap() before calling this method if this BazelInvocation
 // was returned from a transaction, and the transaction was committed or rolled back.
@@ -364,6 +381,30 @@ func (bi *BazelInvocation) appendNamedProblems(name string, edges ...*BazelInvoc
 		bi.Edges.namedProblems[name] = []*BazelInvocationProblem{}
 	} else {
 		bi.Edges.namedProblems[name] = append(bi.Edges.namedProblems[name], edges...)
+	}
+}
+
+// NamedTestCollection returns the TestCollection named value or an error if the edge was not
+// loaded in eager-loading with this name.
+func (bi *BazelInvocation) NamedTestCollection(name string) ([]*TestCollection, error) {
+	if bi.Edges.namedTestCollection == nil {
+		return nil, &NotLoadedError{edge: name}
+	}
+	nodes, ok := bi.Edges.namedTestCollection[name]
+	if !ok {
+		return nil, &NotLoadedError{edge: name}
+	}
+	return nodes, nil
+}
+
+func (bi *BazelInvocation) appendNamedTestCollection(name string, edges ...*TestCollection) {
+	if bi.Edges.namedTestCollection == nil {
+		bi.Edges.namedTestCollection = make(map[string][]*TestCollection)
+	}
+	if len(edges) == 0 {
+		bi.Edges.namedTestCollection[name] = []*TestCollection{}
+	} else {
+		bi.Edges.namedTestCollection[name] = append(bi.Edges.namedTestCollection[name], edges...)
 	}
 }
 

@@ -38,6 +38,8 @@ type Tx struct {
 	EvaluationStat *EvaluationStatClient
 	// EventFile is the client for interacting with the EventFile builders.
 	EventFile *EventFileClient
+	// ExectionInfo is the client for interacting with the ExectionInfo builders.
+	ExectionInfo *ExectionInfoClient
 	// FilesMetric is the client for interacting with the FilesMetric builders.
 	FilesMetric *FilesMetricClient
 	// GarbageMetrics is the client for interacting with the GarbageMetrics builders.
@@ -56,12 +58,26 @@ type Tx struct {
 	PackageMetrics *PackageMetricsClient
 	// RaceStatistics is the client for interacting with the RaceStatistics builders.
 	RaceStatistics *RaceStatisticsClient
+	// ResourceUsage is the client for interacting with the ResourceUsage builders.
+	ResourceUsage *ResourceUsageClient
 	// RunnerCount is the client for interacting with the RunnerCount builders.
 	RunnerCount *RunnerCountClient
 	// SystemNetworkStats is the client for interacting with the SystemNetworkStats builders.
 	SystemNetworkStats *SystemNetworkStatsClient
 	// TargetMetrics is the client for interacting with the TargetMetrics builders.
 	TargetMetrics *TargetMetricsClient
+	// TestCollection is the client for interacting with the TestCollection builders.
+	TestCollection *TestCollectionClient
+	// TestFile is the client for interacting with the TestFile builders.
+	TestFile *TestFileClient
+	// TestResultBES is the client for interacting with the TestResultBES builders.
+	TestResultBES *TestResultBESClient
+	// TestSummary is the client for interacting with the TestSummary builders.
+	TestSummary *TestSummaryClient
+	// TimingBreakdown is the client for interacting with the TimingBreakdown builders.
+	TimingBreakdown *TimingBreakdownClient
+	// TimingChild is the client for interacting with the TimingChild builders.
+	TimingChild *TimingChildClient
 	// TimingMetrics is the client for interacting with the TimingMetrics builders.
 	TimingMetrics *TimingMetricsClient
 
@@ -208,6 +224,7 @@ func (tx *Tx) init() {
 	tx.DynamicExecutionMetrics = NewDynamicExecutionMetricsClient(tx.config)
 	tx.EvaluationStat = NewEvaluationStatClient(tx.config)
 	tx.EventFile = NewEventFileClient(tx.config)
+	tx.ExectionInfo = NewExectionInfoClient(tx.config)
 	tx.FilesMetric = NewFilesMetricClient(tx.config)
 	tx.GarbageMetrics = NewGarbageMetricsClient(tx.config)
 	tx.MemoryMetrics = NewMemoryMetricsClient(tx.config)
@@ -217,9 +234,16 @@ func (tx *Tx) init() {
 	tx.PackageLoadMetrics = NewPackageLoadMetricsClient(tx.config)
 	tx.PackageMetrics = NewPackageMetricsClient(tx.config)
 	tx.RaceStatistics = NewRaceStatisticsClient(tx.config)
+	tx.ResourceUsage = NewResourceUsageClient(tx.config)
 	tx.RunnerCount = NewRunnerCountClient(tx.config)
 	tx.SystemNetworkStats = NewSystemNetworkStatsClient(tx.config)
 	tx.TargetMetrics = NewTargetMetricsClient(tx.config)
+	tx.TestCollection = NewTestCollectionClient(tx.config)
+	tx.TestFile = NewTestFileClient(tx.config)
+	tx.TestResultBES = NewTestResultBESClient(tx.config)
+	tx.TestSummary = NewTestSummaryClient(tx.config)
+	tx.TimingBreakdown = NewTimingBreakdownClient(tx.config)
+	tx.TimingChild = NewTimingChildClient(tx.config)
 	tx.TimingMetrics = NewTimingMetricsClient(tx.config)
 }
 

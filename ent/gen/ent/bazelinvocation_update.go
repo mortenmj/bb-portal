@@ -17,6 +17,7 @@ import (
 	"github.com/buildbarn/bb-portal/ent/gen/ent/eventfile"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/metrics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/predicate"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/testcollection"
 	"github.com/buildbarn/bb-portal/pkg/summary"
 )
 
@@ -299,6 +300,21 @@ func (biu *BazelInvocationUpdate) AddProblems(b ...*BazelInvocationProblem) *Baz
 	return biu.AddProblemIDs(ids...)
 }
 
+// AddTestCollectionIDs adds the "test_collection" edge to the TestCollection entity by IDs.
+func (biu *BazelInvocationUpdate) AddTestCollectionIDs(ids ...int) *BazelInvocationUpdate {
+	biu.mutation.AddTestCollectionIDs(ids...)
+	return biu
+}
+
+// AddTestCollection adds the "test_collection" edges to the TestCollection entity.
+func (biu *BazelInvocationUpdate) AddTestCollection(t ...*TestCollection) *BazelInvocationUpdate {
+	ids := make([]int, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return biu.AddTestCollectionIDs(ids...)
+}
+
 // Mutation returns the BazelInvocationMutation object of the builder.
 func (biu *BazelInvocationUpdate) Mutation() *BazelInvocationMutation {
 	return biu.mutation
@@ -341,6 +357,27 @@ func (biu *BazelInvocationUpdate) RemoveProblems(b ...*BazelInvocationProblem) *
 		ids[i] = b[i].ID
 	}
 	return biu.RemoveProblemIDs(ids...)
+}
+
+// ClearTestCollection clears all "test_collection" edges to the TestCollection entity.
+func (biu *BazelInvocationUpdate) ClearTestCollection() *BazelInvocationUpdate {
+	biu.mutation.ClearTestCollection()
+	return biu
+}
+
+// RemoveTestCollectionIDs removes the "test_collection" edge to TestCollection entities by IDs.
+func (biu *BazelInvocationUpdate) RemoveTestCollectionIDs(ids ...int) *BazelInvocationUpdate {
+	biu.mutation.RemoveTestCollectionIDs(ids...)
+	return biu
+}
+
+// RemoveTestCollection removes "test_collection" edges to TestCollection entities.
+func (biu *BazelInvocationUpdate) RemoveTestCollection(t ...*TestCollection) *BazelInvocationUpdate {
+	ids := make([]int, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return biu.RemoveTestCollectionIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -575,6 +612,51 @@ func (biu *BazelInvocationUpdate) sqlSave(ctx context.Context) (n int, err error
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(bazelinvocationproblem.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if biu.mutation.TestCollectionCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   bazelinvocation.TestCollectionTable,
+			Columns: bazelinvocation.TestCollectionPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(testcollection.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := biu.mutation.RemovedTestCollectionIDs(); len(nodes) > 0 && !biu.mutation.TestCollectionCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   bazelinvocation.TestCollectionTable,
+			Columns: bazelinvocation.TestCollectionPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(testcollection.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := biu.mutation.TestCollectionIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   bazelinvocation.TestCollectionTable,
+			Columns: bazelinvocation.TestCollectionPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(testcollection.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -868,6 +950,21 @@ func (biuo *BazelInvocationUpdateOne) AddProblems(b ...*BazelInvocationProblem) 
 	return biuo.AddProblemIDs(ids...)
 }
 
+// AddTestCollectionIDs adds the "test_collection" edge to the TestCollection entity by IDs.
+func (biuo *BazelInvocationUpdateOne) AddTestCollectionIDs(ids ...int) *BazelInvocationUpdateOne {
+	biuo.mutation.AddTestCollectionIDs(ids...)
+	return biuo
+}
+
+// AddTestCollection adds the "test_collection" edges to the TestCollection entity.
+func (biuo *BazelInvocationUpdateOne) AddTestCollection(t ...*TestCollection) *BazelInvocationUpdateOne {
+	ids := make([]int, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return biuo.AddTestCollectionIDs(ids...)
+}
+
 // Mutation returns the BazelInvocationMutation object of the builder.
 func (biuo *BazelInvocationUpdateOne) Mutation() *BazelInvocationMutation {
 	return biuo.mutation
@@ -910,6 +1007,27 @@ func (biuo *BazelInvocationUpdateOne) RemoveProblems(b ...*BazelInvocationProble
 		ids[i] = b[i].ID
 	}
 	return biuo.RemoveProblemIDs(ids...)
+}
+
+// ClearTestCollection clears all "test_collection" edges to the TestCollection entity.
+func (biuo *BazelInvocationUpdateOne) ClearTestCollection() *BazelInvocationUpdateOne {
+	biuo.mutation.ClearTestCollection()
+	return biuo
+}
+
+// RemoveTestCollectionIDs removes the "test_collection" edge to TestCollection entities by IDs.
+func (biuo *BazelInvocationUpdateOne) RemoveTestCollectionIDs(ids ...int) *BazelInvocationUpdateOne {
+	biuo.mutation.RemoveTestCollectionIDs(ids...)
+	return biuo
+}
+
+// RemoveTestCollection removes "test_collection" edges to TestCollection entities.
+func (biuo *BazelInvocationUpdateOne) RemoveTestCollection(t ...*TestCollection) *BazelInvocationUpdateOne {
+	ids := make([]int, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return biuo.RemoveTestCollectionIDs(ids...)
 }
 
 // Where appends a list predicates to the BazelInvocationUpdate builder.
@@ -1174,6 +1292,51 @@ func (biuo *BazelInvocationUpdateOne) sqlSave(ctx context.Context) (_node *Bazel
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(bazelinvocationproblem.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if biuo.mutation.TestCollectionCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   bazelinvocation.TestCollectionTable,
+			Columns: bazelinvocation.TestCollectionPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(testcollection.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := biuo.mutation.RemovedTestCollectionIDs(); len(nodes) > 0 && !biuo.mutation.TestCollectionCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   bazelinvocation.TestCollectionTable,
+			Columns: bazelinvocation.TestCollectionPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(testcollection.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := biuo.mutation.TestCollectionIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   bazelinvocation.TestCollectionTable,
+			Columns: bazelinvocation.TestCollectionPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(testcollection.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

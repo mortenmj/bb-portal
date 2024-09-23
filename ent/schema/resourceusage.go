@@ -15,7 +15,7 @@ type ResourceUsage struct {
 func (ResourceUsage) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("name").Optional(),
-		field.Int64("value").Optional(),
+		field.String("value").Optional(),
 	}
 }
 

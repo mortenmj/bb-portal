@@ -84,6 +84,11 @@ func (r *eventFileResolver) ID(ctx context.Context, obj *ent.EventFile) (string,
 }
 
 // ID is the resolver for the id field.
+func (r *exectionInfoResolver) ID(ctx context.Context, obj *ent.ExectionInfo) (string, error) {
+	return helpers.GraphQLIDFromTypeAndID("ExecutionInfo", obj.ID), nil
+}
+
+// ID is the resolver for the id field.
 func (r *filesMetricResolver) ID(ctx context.Context, obj *ent.FilesMetric) (string, error) {
 	return helpers.GraphQLIDFromTypeAndID("FilesMetric", obj.ID), nil
 }
@@ -201,6 +206,11 @@ func (r *raceStatisticsResolver) ID(ctx context.Context, obj *ent.RaceStatistics
 }
 
 // ID is the resolver for the id field.
+func (r *resourceUsageResolver) ID(ctx context.Context, obj *ent.ResourceUsage) (string, error) {
+	return helpers.GraphQLIDFromTypeAndID("ResourceUsage", obj.ID), nil
+}
+
+// ID is the resolver for the id field.
 func (r *runnerCountResolver) ID(ctx context.Context, obj *ent.RunnerCount) (string, error) {
 	return helpers.GraphQLIDFromTypeAndID("RunnerCount", obj.ID), nil
 }
@@ -213,6 +223,36 @@ func (r *systemNetworkStatsResolver) ID(ctx context.Context, obj *ent.SystemNetw
 // ID is the resolver for the id field.
 func (r *targetMetricsResolver) ID(ctx context.Context, obj *ent.TargetMetrics) (string, error) {
 	return helpers.GraphQLIDFromTypeAndID("TargetMetrics", obj.ID), nil
+}
+
+// ID is the resolver for the id field.
+func (r *testCollectionResolver) ID(ctx context.Context, obj *ent.TestCollection) (string, error) {
+	return helpers.GraphQLIDFromTypeAndID("TestCollection", obj.ID), nil
+}
+
+// ID is the resolver for the id field.
+func (r *testFileResolver) ID(ctx context.Context, obj *ent.TestFile) (string, error) {
+	return helpers.GraphQLIDFromTypeAndID("TestFile", obj.ID), nil
+}
+
+// ID is the resolver for the id field.
+func (r *testResultBESResolver) ID(ctx context.Context, obj *ent.TestResultBES) (string, error) {
+	return helpers.GraphQLIDFromTypeAndID("TestResultBES", obj.ID), nil
+}
+
+// ID is the resolver for the id field.
+func (r *testSummaryResolver) ID(ctx context.Context, obj *ent.TestSummary) (string, error) {
+	return helpers.GraphQLIDFromTypeAndID("TestSummary", obj.ID), nil
+}
+
+// ID is the resolver for the id field.
+func (r *timingBreakdownResolver) ID(ctx context.Context, obj *ent.TimingBreakdown) (string, error) {
+	return helpers.GraphQLIDFromTypeAndID("TimingBreakdown", obj.ID), nil
+}
+
+// ID is the resolver for the id field.
+func (r *timingChildResolver) ID(ctx context.Context, obj *ent.TimingChild) (string, error) {
+	return helpers.GraphQLIDFromTypeAndID("TimingChild", obj.ID), nil
 }
 
 // ID is the resolver for the id field.
@@ -741,6 +781,46 @@ func (r *eventFileWhereInputResolver) IDLte(ctx context.Context, obj *ent.EventF
 }
 
 // ID is the resolver for the id field.
+func (r *exectionInfoWhereInputResolver) ID(ctx context.Context, obj *ent.ExectionInfoWhereInput, data *string) error {
+	panic(fmt.Errorf("not implemented: ID - id"))
+}
+
+// IDNeq is the resolver for the idNEQ field.
+func (r *exectionInfoWhereInputResolver) IDNeq(ctx context.Context, obj *ent.ExectionInfoWhereInput, data *string) error {
+	panic(fmt.Errorf("not implemented: IDNeq - idNEQ"))
+}
+
+// IDIn is the resolver for the idIn field.
+func (r *exectionInfoWhereInputResolver) IDIn(ctx context.Context, obj *ent.ExectionInfoWhereInput, data []string) error {
+	panic(fmt.Errorf("not implemented: IDIn - idIn"))
+}
+
+// IDNotIn is the resolver for the idNotIn field.
+func (r *exectionInfoWhereInputResolver) IDNotIn(ctx context.Context, obj *ent.ExectionInfoWhereInput, data []string) error {
+	panic(fmt.Errorf("not implemented: IDNotIn - idNotIn"))
+}
+
+// IDGt is the resolver for the idGT field.
+func (r *exectionInfoWhereInputResolver) IDGt(ctx context.Context, obj *ent.ExectionInfoWhereInput, data *string) error {
+	panic(fmt.Errorf("not implemented: IDGt - idGT"))
+}
+
+// IDGte is the resolver for the idGTE field.
+func (r *exectionInfoWhereInputResolver) IDGte(ctx context.Context, obj *ent.ExectionInfoWhereInput, data *string) error {
+	panic(fmt.Errorf("not implemented: IDGte - idGTE"))
+}
+
+// IDLt is the resolver for the idLT field.
+func (r *exectionInfoWhereInputResolver) IDLt(ctx context.Context, obj *ent.ExectionInfoWhereInput, data *string) error {
+	panic(fmt.Errorf("not implemented: IDLt - idLT"))
+}
+
+// IDLte is the resolver for the idLTE field.
+func (r *exectionInfoWhereInputResolver) IDLte(ctx context.Context, obj *ent.ExectionInfoWhereInput, data *string) error {
+	panic(fmt.Errorf("not implemented: IDLte - idLTE"))
+}
+
+// ID is the resolver for the id field.
 func (r *filesMetricWhereInputResolver) ID(ctx context.Context, obj *ent.FilesMetricWhereInput, data *string) error {
 	panic(fmt.Errorf("not implemented: ID - id"))
 }
@@ -1101,6 +1181,46 @@ func (r *raceStatisticsWhereInputResolver) IDLte(ctx context.Context, obj *ent.R
 }
 
 // ID is the resolver for the id field.
+func (r *resourceUsageWhereInputResolver) ID(ctx context.Context, obj *ent.ResourceUsageWhereInput, data *string) error {
+	panic(fmt.Errorf("not implemented: ID - id"))
+}
+
+// IDNeq is the resolver for the idNEQ field.
+func (r *resourceUsageWhereInputResolver) IDNeq(ctx context.Context, obj *ent.ResourceUsageWhereInput, data *string) error {
+	panic(fmt.Errorf("not implemented: IDNeq - idNEQ"))
+}
+
+// IDIn is the resolver for the idIn field.
+func (r *resourceUsageWhereInputResolver) IDIn(ctx context.Context, obj *ent.ResourceUsageWhereInput, data []string) error {
+	panic(fmt.Errorf("not implemented: IDIn - idIn"))
+}
+
+// IDNotIn is the resolver for the idNotIn field.
+func (r *resourceUsageWhereInputResolver) IDNotIn(ctx context.Context, obj *ent.ResourceUsageWhereInput, data []string) error {
+	panic(fmt.Errorf("not implemented: IDNotIn - idNotIn"))
+}
+
+// IDGt is the resolver for the idGT field.
+func (r *resourceUsageWhereInputResolver) IDGt(ctx context.Context, obj *ent.ResourceUsageWhereInput, data *string) error {
+	panic(fmt.Errorf("not implemented: IDGt - idGT"))
+}
+
+// IDGte is the resolver for the idGTE field.
+func (r *resourceUsageWhereInputResolver) IDGte(ctx context.Context, obj *ent.ResourceUsageWhereInput, data *string) error {
+	panic(fmt.Errorf("not implemented: IDGte - idGTE"))
+}
+
+// IDLt is the resolver for the idLT field.
+func (r *resourceUsageWhereInputResolver) IDLt(ctx context.Context, obj *ent.ResourceUsageWhereInput, data *string) error {
+	panic(fmt.Errorf("not implemented: IDLt - idLT"))
+}
+
+// IDLte is the resolver for the idLTE field.
+func (r *resourceUsageWhereInputResolver) IDLte(ctx context.Context, obj *ent.ResourceUsageWhereInput, data *string) error {
+	panic(fmt.Errorf("not implemented: IDLte - idLTE"))
+}
+
+// ID is the resolver for the id field.
 func (r *runnerCountWhereInputResolver) ID(ctx context.Context, obj *ent.RunnerCountWhereInput, data *string) error {
 	panic(fmt.Errorf("not implemented: ID - id"))
 }
@@ -1221,6 +1341,246 @@ func (r *targetMetricsWhereInputResolver) IDLte(ctx context.Context, obj *ent.Ta
 }
 
 // ID is the resolver for the id field.
+func (r *testCollectionWhereInputResolver) ID(ctx context.Context, obj *ent.TestCollectionWhereInput, data *string) error {
+	panic(fmt.Errorf("not implemented: ID - id"))
+}
+
+// IDNeq is the resolver for the idNEQ field.
+func (r *testCollectionWhereInputResolver) IDNeq(ctx context.Context, obj *ent.TestCollectionWhereInput, data *string) error {
+	panic(fmt.Errorf("not implemented: IDNeq - idNEQ"))
+}
+
+// IDIn is the resolver for the idIn field.
+func (r *testCollectionWhereInputResolver) IDIn(ctx context.Context, obj *ent.TestCollectionWhereInput, data []string) error {
+	panic(fmt.Errorf("not implemented: IDIn - idIn"))
+}
+
+// IDNotIn is the resolver for the idNotIn field.
+func (r *testCollectionWhereInputResolver) IDNotIn(ctx context.Context, obj *ent.TestCollectionWhereInput, data []string) error {
+	panic(fmt.Errorf("not implemented: IDNotIn - idNotIn"))
+}
+
+// IDGt is the resolver for the idGT field.
+func (r *testCollectionWhereInputResolver) IDGt(ctx context.Context, obj *ent.TestCollectionWhereInput, data *string) error {
+	panic(fmt.Errorf("not implemented: IDGt - idGT"))
+}
+
+// IDGte is the resolver for the idGTE field.
+func (r *testCollectionWhereInputResolver) IDGte(ctx context.Context, obj *ent.TestCollectionWhereInput, data *string) error {
+	panic(fmt.Errorf("not implemented: IDGte - idGTE"))
+}
+
+// IDLt is the resolver for the idLT field.
+func (r *testCollectionWhereInputResolver) IDLt(ctx context.Context, obj *ent.TestCollectionWhereInput, data *string) error {
+	panic(fmt.Errorf("not implemented: IDLt - idLT"))
+}
+
+// IDLte is the resolver for the idLTE field.
+func (r *testCollectionWhereInputResolver) IDLte(ctx context.Context, obj *ent.TestCollectionWhereInput, data *string) error {
+	panic(fmt.Errorf("not implemented: IDLte - idLTE"))
+}
+
+// ID is the resolver for the id field.
+func (r *testFileWhereInputResolver) ID(ctx context.Context, obj *ent.TestFileWhereInput, data *string) error {
+	panic(fmt.Errorf("not implemented: ID - id"))
+}
+
+// IDNeq is the resolver for the idNEQ field.
+func (r *testFileWhereInputResolver) IDNeq(ctx context.Context, obj *ent.TestFileWhereInput, data *string) error {
+	panic(fmt.Errorf("not implemented: IDNeq - idNEQ"))
+}
+
+// IDIn is the resolver for the idIn field.
+func (r *testFileWhereInputResolver) IDIn(ctx context.Context, obj *ent.TestFileWhereInput, data []string) error {
+	panic(fmt.Errorf("not implemented: IDIn - idIn"))
+}
+
+// IDNotIn is the resolver for the idNotIn field.
+func (r *testFileWhereInputResolver) IDNotIn(ctx context.Context, obj *ent.TestFileWhereInput, data []string) error {
+	panic(fmt.Errorf("not implemented: IDNotIn - idNotIn"))
+}
+
+// IDGt is the resolver for the idGT field.
+func (r *testFileWhereInputResolver) IDGt(ctx context.Context, obj *ent.TestFileWhereInput, data *string) error {
+	panic(fmt.Errorf("not implemented: IDGt - idGT"))
+}
+
+// IDGte is the resolver for the idGTE field.
+func (r *testFileWhereInputResolver) IDGte(ctx context.Context, obj *ent.TestFileWhereInput, data *string) error {
+	panic(fmt.Errorf("not implemented: IDGte - idGTE"))
+}
+
+// IDLt is the resolver for the idLT field.
+func (r *testFileWhereInputResolver) IDLt(ctx context.Context, obj *ent.TestFileWhereInput, data *string) error {
+	panic(fmt.Errorf("not implemented: IDLt - idLT"))
+}
+
+// IDLte is the resolver for the idLTE field.
+func (r *testFileWhereInputResolver) IDLte(ctx context.Context, obj *ent.TestFileWhereInput, data *string) error {
+	panic(fmt.Errorf("not implemented: IDLte - idLTE"))
+}
+
+// ID is the resolver for the id field.
+func (r *testResultBESWhereInputResolver) ID(ctx context.Context, obj *ent.TestResultBESWhereInput, data *string) error {
+	panic(fmt.Errorf("not implemented: ID - id"))
+}
+
+// IDNeq is the resolver for the idNEQ field.
+func (r *testResultBESWhereInputResolver) IDNeq(ctx context.Context, obj *ent.TestResultBESWhereInput, data *string) error {
+	panic(fmt.Errorf("not implemented: IDNeq - idNEQ"))
+}
+
+// IDIn is the resolver for the idIn field.
+func (r *testResultBESWhereInputResolver) IDIn(ctx context.Context, obj *ent.TestResultBESWhereInput, data []string) error {
+	panic(fmt.Errorf("not implemented: IDIn - idIn"))
+}
+
+// IDNotIn is the resolver for the idNotIn field.
+func (r *testResultBESWhereInputResolver) IDNotIn(ctx context.Context, obj *ent.TestResultBESWhereInput, data []string) error {
+	panic(fmt.Errorf("not implemented: IDNotIn - idNotIn"))
+}
+
+// IDGt is the resolver for the idGT field.
+func (r *testResultBESWhereInputResolver) IDGt(ctx context.Context, obj *ent.TestResultBESWhereInput, data *string) error {
+	panic(fmt.Errorf("not implemented: IDGt - idGT"))
+}
+
+// IDGte is the resolver for the idGTE field.
+func (r *testResultBESWhereInputResolver) IDGte(ctx context.Context, obj *ent.TestResultBESWhereInput, data *string) error {
+	panic(fmt.Errorf("not implemented: IDGte - idGTE"))
+}
+
+// IDLt is the resolver for the idLT field.
+func (r *testResultBESWhereInputResolver) IDLt(ctx context.Context, obj *ent.TestResultBESWhereInput, data *string) error {
+	panic(fmt.Errorf("not implemented: IDLt - idLT"))
+}
+
+// IDLte is the resolver for the idLTE field.
+func (r *testResultBESWhereInputResolver) IDLte(ctx context.Context, obj *ent.TestResultBESWhereInput, data *string) error {
+	panic(fmt.Errorf("not implemented: IDLte - idLTE"))
+}
+
+// ID is the resolver for the id field.
+func (r *testSummaryWhereInputResolver) ID(ctx context.Context, obj *ent.TestSummaryWhereInput, data *string) error {
+	panic(fmt.Errorf("not implemented: ID - id"))
+}
+
+// IDNeq is the resolver for the idNEQ field.
+func (r *testSummaryWhereInputResolver) IDNeq(ctx context.Context, obj *ent.TestSummaryWhereInput, data *string) error {
+	panic(fmt.Errorf("not implemented: IDNeq - idNEQ"))
+}
+
+// IDIn is the resolver for the idIn field.
+func (r *testSummaryWhereInputResolver) IDIn(ctx context.Context, obj *ent.TestSummaryWhereInput, data []string) error {
+	panic(fmt.Errorf("not implemented: IDIn - idIn"))
+}
+
+// IDNotIn is the resolver for the idNotIn field.
+func (r *testSummaryWhereInputResolver) IDNotIn(ctx context.Context, obj *ent.TestSummaryWhereInput, data []string) error {
+	panic(fmt.Errorf("not implemented: IDNotIn - idNotIn"))
+}
+
+// IDGt is the resolver for the idGT field.
+func (r *testSummaryWhereInputResolver) IDGt(ctx context.Context, obj *ent.TestSummaryWhereInput, data *string) error {
+	panic(fmt.Errorf("not implemented: IDGt - idGT"))
+}
+
+// IDGte is the resolver for the idGTE field.
+func (r *testSummaryWhereInputResolver) IDGte(ctx context.Context, obj *ent.TestSummaryWhereInput, data *string) error {
+	panic(fmt.Errorf("not implemented: IDGte - idGTE"))
+}
+
+// IDLt is the resolver for the idLT field.
+func (r *testSummaryWhereInputResolver) IDLt(ctx context.Context, obj *ent.TestSummaryWhereInput, data *string) error {
+	panic(fmt.Errorf("not implemented: IDLt - idLT"))
+}
+
+// IDLte is the resolver for the idLTE field.
+func (r *testSummaryWhereInputResolver) IDLte(ctx context.Context, obj *ent.TestSummaryWhereInput, data *string) error {
+	panic(fmt.Errorf("not implemented: IDLte - idLTE"))
+}
+
+// ID is the resolver for the id field.
+func (r *timingBreakdownWhereInputResolver) ID(ctx context.Context, obj *ent.TimingBreakdownWhereInput, data *string) error {
+	panic(fmt.Errorf("not implemented: ID - id"))
+}
+
+// IDNeq is the resolver for the idNEQ field.
+func (r *timingBreakdownWhereInputResolver) IDNeq(ctx context.Context, obj *ent.TimingBreakdownWhereInput, data *string) error {
+	panic(fmt.Errorf("not implemented: IDNeq - idNEQ"))
+}
+
+// IDIn is the resolver for the idIn field.
+func (r *timingBreakdownWhereInputResolver) IDIn(ctx context.Context, obj *ent.TimingBreakdownWhereInput, data []string) error {
+	panic(fmt.Errorf("not implemented: IDIn - idIn"))
+}
+
+// IDNotIn is the resolver for the idNotIn field.
+func (r *timingBreakdownWhereInputResolver) IDNotIn(ctx context.Context, obj *ent.TimingBreakdownWhereInput, data []string) error {
+	panic(fmt.Errorf("not implemented: IDNotIn - idNotIn"))
+}
+
+// IDGt is the resolver for the idGT field.
+func (r *timingBreakdownWhereInputResolver) IDGt(ctx context.Context, obj *ent.TimingBreakdownWhereInput, data *string) error {
+	panic(fmt.Errorf("not implemented: IDGt - idGT"))
+}
+
+// IDGte is the resolver for the idGTE field.
+func (r *timingBreakdownWhereInputResolver) IDGte(ctx context.Context, obj *ent.TimingBreakdownWhereInput, data *string) error {
+	panic(fmt.Errorf("not implemented: IDGte - idGTE"))
+}
+
+// IDLt is the resolver for the idLT field.
+func (r *timingBreakdownWhereInputResolver) IDLt(ctx context.Context, obj *ent.TimingBreakdownWhereInput, data *string) error {
+	panic(fmt.Errorf("not implemented: IDLt - idLT"))
+}
+
+// IDLte is the resolver for the idLTE field.
+func (r *timingBreakdownWhereInputResolver) IDLte(ctx context.Context, obj *ent.TimingBreakdownWhereInput, data *string) error {
+	panic(fmt.Errorf("not implemented: IDLte - idLTE"))
+}
+
+// ID is the resolver for the id field.
+func (r *timingChildWhereInputResolver) ID(ctx context.Context, obj *ent.TimingChildWhereInput, data *string) error {
+	panic(fmt.Errorf("not implemented: ID - id"))
+}
+
+// IDNeq is the resolver for the idNEQ field.
+func (r *timingChildWhereInputResolver) IDNeq(ctx context.Context, obj *ent.TimingChildWhereInput, data *string) error {
+	panic(fmt.Errorf("not implemented: IDNeq - idNEQ"))
+}
+
+// IDIn is the resolver for the idIn field.
+func (r *timingChildWhereInputResolver) IDIn(ctx context.Context, obj *ent.TimingChildWhereInput, data []string) error {
+	panic(fmt.Errorf("not implemented: IDIn - idIn"))
+}
+
+// IDNotIn is the resolver for the idNotIn field.
+func (r *timingChildWhereInputResolver) IDNotIn(ctx context.Context, obj *ent.TimingChildWhereInput, data []string) error {
+	panic(fmt.Errorf("not implemented: IDNotIn - idNotIn"))
+}
+
+// IDGt is the resolver for the idGT field.
+func (r *timingChildWhereInputResolver) IDGt(ctx context.Context, obj *ent.TimingChildWhereInput, data *string) error {
+	panic(fmt.Errorf("not implemented: IDGt - idGT"))
+}
+
+// IDGte is the resolver for the idGTE field.
+func (r *timingChildWhereInputResolver) IDGte(ctx context.Context, obj *ent.TimingChildWhereInput, data *string) error {
+	panic(fmt.Errorf("not implemented: IDGte - idGTE"))
+}
+
+// IDLt is the resolver for the idLT field.
+func (r *timingChildWhereInputResolver) IDLt(ctx context.Context, obj *ent.TimingChildWhereInput, data *string) error {
+	panic(fmt.Errorf("not implemented: IDLt - idLT"))
+}
+
+// IDLte is the resolver for the idLTE field.
+func (r *timingChildWhereInputResolver) IDLte(ctx context.Context, obj *ent.TimingChildWhereInput, data *string) error {
+	panic(fmt.Errorf("not implemented: IDLte - idLTE"))
+}
+
+// ID is the resolver for the id field.
 func (r *timingMetricsWhereInputResolver) ID(ctx context.Context, obj *ent.TimingMetricsWhereInput, data *string) error {
 	panic(fmt.Errorf("not implemented: ID - id"))
 }
@@ -1309,6 +1669,9 @@ func (r *Resolver) EvaluationStat() EvaluationStatResolver { return &evaluationS
 // EventFile returns EventFileResolver implementation.
 func (r *Resolver) EventFile() EventFileResolver { return &eventFileResolver{r} }
 
+// ExectionInfo returns ExectionInfoResolver implementation.
+func (r *Resolver) ExectionInfo() ExectionInfoResolver { return &exectionInfoResolver{r} }
+
 // FilesMetric returns FilesMetricResolver implementation.
 func (r *Resolver) FilesMetric() FilesMetricResolver { return &filesMetricResolver{r} }
 
@@ -1341,6 +1704,9 @@ func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 // RaceStatistics returns RaceStatisticsResolver implementation.
 func (r *Resolver) RaceStatistics() RaceStatisticsResolver { return &raceStatisticsResolver{r} }
 
+// ResourceUsage returns ResourceUsageResolver implementation.
+func (r *Resolver) ResourceUsage() ResourceUsageResolver { return &resourceUsageResolver{r} }
+
 // RunnerCount returns RunnerCountResolver implementation.
 func (r *Resolver) RunnerCount() RunnerCountResolver { return &runnerCountResolver{r} }
 
@@ -1351,6 +1717,24 @@ func (r *Resolver) SystemNetworkStats() SystemNetworkStatsResolver {
 
 // TargetMetrics returns TargetMetricsResolver implementation.
 func (r *Resolver) TargetMetrics() TargetMetricsResolver { return &targetMetricsResolver{r} }
+
+// TestCollection returns TestCollectionResolver implementation.
+func (r *Resolver) TestCollection() TestCollectionResolver { return &testCollectionResolver{r} }
+
+// TestFile returns TestFileResolver implementation.
+func (r *Resolver) TestFile() TestFileResolver { return &testFileResolver{r} }
+
+// TestResultBES returns TestResultBESResolver implementation.
+func (r *Resolver) TestResultBES() TestResultBESResolver { return &testResultBESResolver{r} }
+
+// TestSummary returns TestSummaryResolver implementation.
+func (r *Resolver) TestSummary() TestSummaryResolver { return &testSummaryResolver{r} }
+
+// TimingBreakdown returns TimingBreakdownResolver implementation.
+func (r *Resolver) TimingBreakdown() TimingBreakdownResolver { return &timingBreakdownResolver{r} }
+
+// TimingChild returns TimingChildResolver implementation.
+func (r *Resolver) TimingChild() TimingChildResolver { return &timingChildResolver{r} }
 
 // TimingMetrics returns TimingMetricsResolver implementation.
 func (r *Resolver) TimingMetrics() TimingMetricsResolver { return &timingMetricsResolver{r} }
@@ -1416,6 +1800,11 @@ func (r *Resolver) EventFileWhereInput() EventFileWhereInputResolver {
 	return &eventFileWhereInputResolver{r}
 }
 
+// ExectionInfoWhereInput returns ExectionInfoWhereInputResolver implementation.
+func (r *Resolver) ExectionInfoWhereInput() ExectionInfoWhereInputResolver {
+	return &exectionInfoWhereInputResolver{r}
+}
+
 // FilesMetricWhereInput returns FilesMetricWhereInputResolver implementation.
 func (r *Resolver) FilesMetricWhereInput() FilesMetricWhereInputResolver {
 	return &filesMetricWhereInputResolver{r}
@@ -1461,6 +1850,11 @@ func (r *Resolver) RaceStatisticsWhereInput() RaceStatisticsWhereInputResolver {
 	return &raceStatisticsWhereInputResolver{r}
 }
 
+// ResourceUsageWhereInput returns ResourceUsageWhereInputResolver implementation.
+func (r *Resolver) ResourceUsageWhereInput() ResourceUsageWhereInputResolver {
+	return &resourceUsageWhereInputResolver{r}
+}
+
 // RunnerCountWhereInput returns RunnerCountWhereInputResolver implementation.
 func (r *Resolver) RunnerCountWhereInput() RunnerCountWhereInputResolver {
 	return &runnerCountWhereInputResolver{r}
@@ -1474,6 +1868,36 @@ func (r *Resolver) SystemNetworkStatsWhereInput() SystemNetworkStatsWhereInputRe
 // TargetMetricsWhereInput returns TargetMetricsWhereInputResolver implementation.
 func (r *Resolver) TargetMetricsWhereInput() TargetMetricsWhereInputResolver {
 	return &targetMetricsWhereInputResolver{r}
+}
+
+// TestCollectionWhereInput returns TestCollectionWhereInputResolver implementation.
+func (r *Resolver) TestCollectionWhereInput() TestCollectionWhereInputResolver {
+	return &testCollectionWhereInputResolver{r}
+}
+
+// TestFileWhereInput returns TestFileWhereInputResolver implementation.
+func (r *Resolver) TestFileWhereInput() TestFileWhereInputResolver {
+	return &testFileWhereInputResolver{r}
+}
+
+// TestResultBESWhereInput returns TestResultBESWhereInputResolver implementation.
+func (r *Resolver) TestResultBESWhereInput() TestResultBESWhereInputResolver {
+	return &testResultBESWhereInputResolver{r}
+}
+
+// TestSummaryWhereInput returns TestSummaryWhereInputResolver implementation.
+func (r *Resolver) TestSummaryWhereInput() TestSummaryWhereInputResolver {
+	return &testSummaryWhereInputResolver{r}
+}
+
+// TimingBreakdownWhereInput returns TimingBreakdownWhereInputResolver implementation.
+func (r *Resolver) TimingBreakdownWhereInput() TimingBreakdownWhereInputResolver {
+	return &timingBreakdownWhereInputResolver{r}
+}
+
+// TimingChildWhereInput returns TimingChildWhereInputResolver implementation.
+func (r *Resolver) TimingChildWhereInput() TimingChildWhereInputResolver {
+	return &timingChildWhereInputResolver{r}
 }
 
 // TimingMetricsWhereInput returns TimingMetricsWhereInputResolver implementation.
@@ -1494,6 +1918,7 @@ type cumulativeMetricsResolver struct{ *Resolver }
 type dynamicExecutionMetricsResolver struct{ *Resolver }
 type evaluationStatResolver struct{ *Resolver }
 type eventFileResolver struct{ *Resolver }
+type exectionInfoResolver struct{ *Resolver }
 type filesMetricResolver struct{ *Resolver }
 type garbageMetricsResolver struct{ *Resolver }
 type memoryMetricsResolver struct{ *Resolver }
@@ -1504,9 +1929,16 @@ type packageLoadMetricsResolver struct{ *Resolver }
 type packageMetricsResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
 type raceStatisticsResolver struct{ *Resolver }
+type resourceUsageResolver struct{ *Resolver }
 type runnerCountResolver struct{ *Resolver }
 type systemNetworkStatsResolver struct{ *Resolver }
 type targetMetricsResolver struct{ *Resolver }
+type testCollectionResolver struct{ *Resolver }
+type testFileResolver struct{ *Resolver }
+type testResultBESResolver struct{ *Resolver }
+type testSummaryResolver struct{ *Resolver }
+type timingBreakdownResolver struct{ *Resolver }
+type timingChildResolver struct{ *Resolver }
 type timingMetricsResolver struct{ *Resolver }
 type actionCacheStatisticsWhereInputResolver struct{ *Resolver }
 type actionDataWhereInputResolver struct{ *Resolver }
@@ -1521,6 +1953,7 @@ type cumulativeMetricsWhereInputResolver struct{ *Resolver }
 type dynamicExecutionMetricsWhereInputResolver struct{ *Resolver }
 type evaluationStatWhereInputResolver struct{ *Resolver }
 type eventFileWhereInputResolver struct{ *Resolver }
+type exectionInfoWhereInputResolver struct{ *Resolver }
 type filesMetricWhereInputResolver struct{ *Resolver }
 type garbageMetricsWhereInputResolver struct{ *Resolver }
 type memoryMetricsWhereInputResolver struct{ *Resolver }
@@ -1530,95 +1963,14 @@ type networkMetricsWhereInputResolver struct{ *Resolver }
 type packageLoadMetricsWhereInputResolver struct{ *Resolver }
 type packageMetricsWhereInputResolver struct{ *Resolver }
 type raceStatisticsWhereInputResolver struct{ *Resolver }
+type resourceUsageWhereInputResolver struct{ *Resolver }
 type runnerCountWhereInputResolver struct{ *Resolver }
 type systemNetworkStatsWhereInputResolver struct{ *Resolver }
 type targetMetricsWhereInputResolver struct{ *Resolver }
+type testCollectionWhereInputResolver struct{ *Resolver }
+type testFileWhereInputResolver struct{ *Resolver }
+type testResultBESWhereInputResolver struct{ *Resolver }
+type testSummaryWhereInputResolver struct{ *Resolver }
+type timingBreakdownWhereInputResolver struct{ *Resolver }
+type timingChildWhereInputResolver struct{ *Resolver }
 type timingMetricsWhereInputResolver struct{ *Resolver }
-
-// !!! WARNING !!!
-// The code below was going to be deleted when updating resolvers. It has been copied here so you have
-// one last chance to move it out of harms way if you want. There are two reasons this happens:
-//   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
-//     it when you're done.
-//   - You have helper methods in this file. Move them out to keep these resolver files clean.
-func (r *packageLoadMetricsResolver) LoadDuration(ctx context.Context, obj *ent.PackageLoadMetrics) (*int, error) {
-	panic(fmt.Errorf("not implemented: LoadDuration - loadDuration"))
-}
-func (r *packageLoadMetricsWhereInputResolver) LoadDuration(ctx context.Context, obj *ent.PackageLoadMetricsWhereInput, data *int) error {
-	panic(fmt.Errorf("not implemented: LoadDuration - loadDuration"))
-}
-func (r *packageLoadMetricsWhereInputResolver) LoadDurationNeq(ctx context.Context, obj *ent.PackageLoadMetricsWhereInput, data *int) error {
-	panic(fmt.Errorf("not implemented: LoadDurationNeq - loadDurationNEQ"))
-}
-func (r *packageLoadMetricsWhereInputResolver) LoadDurationIn(ctx context.Context, obj *ent.PackageLoadMetricsWhereInput, data []int) error {
-	panic(fmt.Errorf("not implemented: LoadDurationIn - loadDurationIn"))
-}
-func (r *packageLoadMetricsWhereInputResolver) LoadDurationNotIn(ctx context.Context, obj *ent.PackageLoadMetricsWhereInput, data []int) error {
-	panic(fmt.Errorf("not implemented: LoadDurationNotIn - loadDurationNotIn"))
-}
-func (r *packageLoadMetricsWhereInputResolver) LoadDurationGt(ctx context.Context, obj *ent.PackageLoadMetricsWhereInput, data *int) error {
-	panic(fmt.Errorf("not implemented: LoadDurationGt - loadDurationGT"))
-}
-func (r *packageLoadMetricsWhereInputResolver) LoadDurationGte(ctx context.Context, obj *ent.PackageLoadMetricsWhereInput, data *int) error {
-	panic(fmt.Errorf("not implemented: LoadDurationGte - loadDurationGTE"))
-}
-func (r *packageLoadMetricsWhereInputResolver) LoadDurationLt(ctx context.Context, obj *ent.PackageLoadMetricsWhereInput, data *int) error {
-	panic(fmt.Errorf("not implemented: LoadDurationLt - loadDurationLT"))
-}
-func (r *packageLoadMetricsWhereInputResolver) LoadDurationLte(ctx context.Context, obj *ent.PackageLoadMetricsWhereInput, data *int) error {
-	panic(fmt.Errorf("not implemented: LoadDurationLte - loadDurationLTE"))
-}
-func (r *actionDataResolver) SystemTime(ctx context.Context, obj *ent.ActionData) (*int, error) {
-	panic(fmt.Errorf("not implemented: SystemTime - systemTime"))
-}
-func (r *actionDataResolver) UserTime(ctx context.Context, obj *ent.ActionData) (*int, error) {
-	panic(fmt.Errorf("not implemented: UserTime - userTime"))
-}
-func (r *actionDataWhereInputResolver) SystemTime(ctx context.Context, obj *ent.ActionDataWhereInput, data *int) error {
-	panic(fmt.Errorf("not implemented: SystemTime - systemTime"))
-}
-func (r *actionDataWhereInputResolver) SystemTimeNeq(ctx context.Context, obj *ent.ActionDataWhereInput, data *int) error {
-	panic(fmt.Errorf("not implemented: SystemTimeNeq - systemTimeNEQ"))
-}
-func (r *actionDataWhereInputResolver) SystemTimeIn(ctx context.Context, obj *ent.ActionDataWhereInput, data []int) error {
-	panic(fmt.Errorf("not implemented: SystemTimeIn - systemTimeIn"))
-}
-func (r *actionDataWhereInputResolver) SystemTimeNotIn(ctx context.Context, obj *ent.ActionDataWhereInput, data []int) error {
-	panic(fmt.Errorf("not implemented: SystemTimeNotIn - systemTimeNotIn"))
-}
-func (r *actionDataWhereInputResolver) SystemTimeGt(ctx context.Context, obj *ent.ActionDataWhereInput, data *int) error {
-	panic(fmt.Errorf("not implemented: SystemTimeGt - systemTimeGT"))
-}
-func (r *actionDataWhereInputResolver) SystemTimeGte(ctx context.Context, obj *ent.ActionDataWhereInput, data *int) error {
-	panic(fmt.Errorf("not implemented: SystemTimeGte - systemTimeGTE"))
-}
-func (r *actionDataWhereInputResolver) SystemTimeLt(ctx context.Context, obj *ent.ActionDataWhereInput, data *int) error {
-	panic(fmt.Errorf("not implemented: SystemTimeLt - systemTimeLT"))
-}
-func (r *actionDataWhereInputResolver) SystemTimeLte(ctx context.Context, obj *ent.ActionDataWhereInput, data *int) error {
-	panic(fmt.Errorf("not implemented: SystemTimeLte - systemTimeLTE"))
-}
-func (r *actionDataWhereInputResolver) UserTime(ctx context.Context, obj *ent.ActionDataWhereInput, data *int) error {
-	panic(fmt.Errorf("not implemented: UserTime - userTime"))
-}
-func (r *actionDataWhereInputResolver) UserTimeNeq(ctx context.Context, obj *ent.ActionDataWhereInput, data *int) error {
-	panic(fmt.Errorf("not implemented: UserTimeNeq - userTimeNEQ"))
-}
-func (r *actionDataWhereInputResolver) UserTimeIn(ctx context.Context, obj *ent.ActionDataWhereInput, data []int) error {
-	panic(fmt.Errorf("not implemented: UserTimeIn - userTimeIn"))
-}
-func (r *actionDataWhereInputResolver) UserTimeNotIn(ctx context.Context, obj *ent.ActionDataWhereInput, data []int) error {
-	panic(fmt.Errorf("not implemented: UserTimeNotIn - userTimeNotIn"))
-}
-func (r *actionDataWhereInputResolver) UserTimeGt(ctx context.Context, obj *ent.ActionDataWhereInput, data *int) error {
-	panic(fmt.Errorf("not implemented: UserTimeGt - userTimeGT"))
-}
-func (r *actionDataWhereInputResolver) UserTimeGte(ctx context.Context, obj *ent.ActionDataWhereInput, data *int) error {
-	panic(fmt.Errorf("not implemented: UserTimeGte - userTimeGTE"))
-}
-func (r *actionDataWhereInputResolver) UserTimeLt(ctx context.Context, obj *ent.ActionDataWhereInput, data *int) error {
-	panic(fmt.Errorf("not implemented: UserTimeLt - userTimeLT"))
-}
-func (r *actionDataWhereInputResolver) UserTimeLte(ctx context.Context, obj *ent.ActionDataWhereInput, data *int) error {
-	panic(fmt.Errorf("not implemented: UserTimeLte - userTimeLTE"))
-}

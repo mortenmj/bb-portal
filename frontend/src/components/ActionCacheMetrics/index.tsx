@@ -162,10 +162,6 @@ const newColorFind = (id: number) => {
 }
 const AcMetrics: React.FC<{ acMetrics: ActionSummary | undefined; }> = ({ acMetrics }) => {
 
-
-
-
-
     const acMetricsData: ActionCacheStatistics | undefined = acMetrics?.actionCacheStatistics?.at(0)
 
     var hitMissTotal: number = (acMetricsData?.misses ?? 0) + (acMetricsData?.hits ?? 0);

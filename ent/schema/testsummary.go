@@ -27,13 +27,14 @@ func (TestSummary) Fields() []ent.Field {
 		field.Int64("first_start_time").Optional(),
 		field.Int64("last_stop_time").Optional(),
 		field.Int64("total_run_duration").Optional(),
+		field.String("label").Optional(),
 	}
 }
 
 // Edges of the Blob.
 func (TestSummary) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("bazel_invocation", BazelInvocation.Type).
+		edge.From("test_collection", TestCollection.Type).
 			Ref("test_summary"),
 		edge.To("passed", TestFile.Type),
 		edge.To("failed", TestFile.Type),

@@ -25,7 +25,7 @@ func (ExectionInfo) Fields() []ent.Field {
 // Edges of TestResult
 func (ExectionInfo) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("test_result", TestResult.Type).Ref("execution_info"),
+		edge.From("test_result", TestResultBES.Type).Ref("execution_info"),
 		edge.To("timing_breakdown", TimingBreakdown.Type).Unique(),
 		edge.To("resource_usage", ResourceUsage.Type),
 	}

@@ -25,6 +25,7 @@ import (
 	"github.com/buildbarn/bb-portal/ent/gen/ent/dynamicexecutionmetrics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/evaluationstat"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/eventfile"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/exectioninfo"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/filesmetric"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/garbagemetrics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/memorymetrics"
@@ -34,9 +35,16 @@ import (
 	"github.com/buildbarn/bb-portal/ent/gen/ent/packageloadmetrics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/packagemetrics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/racestatistics"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/resourceusage"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/runnercount"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/systemnetworkstats"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/targetmetrics"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/testcollection"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/testfile"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/testresultbes"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/testsummary"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/timingbreakdown"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/timingchild"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/timingmetrics"
 )
 
@@ -111,6 +119,7 @@ func checkColumn(table, column string) error {
 			dynamicexecutionmetrics.Table: dynamicexecutionmetrics.ValidColumn,
 			evaluationstat.Table:          evaluationstat.ValidColumn,
 			eventfile.Table:               eventfile.ValidColumn,
+			exectioninfo.Table:            exectioninfo.ValidColumn,
 			filesmetric.Table:             filesmetric.ValidColumn,
 			garbagemetrics.Table:          garbagemetrics.ValidColumn,
 			memorymetrics.Table:           memorymetrics.ValidColumn,
@@ -120,9 +129,16 @@ func checkColumn(table, column string) error {
 			packageloadmetrics.Table:      packageloadmetrics.ValidColumn,
 			packagemetrics.Table:          packagemetrics.ValidColumn,
 			racestatistics.Table:          racestatistics.ValidColumn,
+			resourceusage.Table:           resourceusage.ValidColumn,
 			runnercount.Table:             runnercount.ValidColumn,
 			systemnetworkstats.Table:      systemnetworkstats.ValidColumn,
 			targetmetrics.Table:           targetmetrics.ValidColumn,
+			testcollection.Table:          testcollection.ValidColumn,
+			testfile.Table:                testfile.ValidColumn,
+			testresultbes.Table:           testresultbes.ValidColumn,
+			testsummary.Table:             testsummary.ValidColumn,
+			timingbreakdown.Table:         timingbreakdown.ValidColumn,
+			timingchild.Table:             timingchild.ValidColumn,
 			timingmetrics.Table:           timingmetrics.ValidColumn,
 		})
 	})

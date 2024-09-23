@@ -23,6 +23,8 @@ import (
 	"github.com/buildbarn/bb-portal/ent/gen/ent/packagemetrics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/predicate"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/targetmetrics"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/testresultbes"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/testsummary"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/timingmetrics"
 )
 
@@ -44,6 +46,8 @@ type MetricsQuery struct {
 	withNetworkMetrics               *NetworkMetricsQuery
 	withDynamicExecutionMetrics      *DynamicExecutionMetricsQuery
 	withBuildGraphMetrics            *BuildGraphMetricsQuery
+	withTestResults                  *TestResultBESQuery
+	withTestSummary                  *TestSummaryQuery
 	withFKs                          bool
 	modifiers                        []func(*sql.Selector)
 	loadTotal                        []func(context.Context, []*Metrics) error
@@ -57,6 +61,8 @@ type MetricsQuery struct {
 	withNamedNetworkMetrics          map[string]*NetworkMetricsQuery
 	withNamedDynamicExecutionMetrics map[string]*DynamicExecutionMetricsQuery
 	withNamedBuildGraphMetrics       map[string]*BuildGraphMetricsQuery
+	withNamedTestResults             map[string]*TestResultBESQuery
+	withNamedTestSummary             map[string]*TestSummaryQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -335,6 +341,50 @@ func (mq *MetricsQuery) QueryBuildGraphMetrics() *BuildGraphMetricsQuery {
 	return query
 }
 
+// QueryTestResults chains the current query on the "test_results" edge.
+func (mq *MetricsQuery) QueryTestResults() *TestResultBESQuery {
+	query := (&TestResultBESClient{config: mq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := mq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := mq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(metrics.Table, metrics.FieldID, selector),
+			sqlgraph.To(testresultbes.Table, testresultbes.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, metrics.TestResultsTable, metrics.TestResultsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(mq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryTestSummary chains the current query on the "test_summary" edge.
+func (mq *MetricsQuery) QueryTestSummary() *TestSummaryQuery {
+	query := (&TestSummaryClient{config: mq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := mq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := mq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(metrics.Table, metrics.FieldID, selector),
+			sqlgraph.To(testsummary.Table, testsummary.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, metrics.TestSummaryTable, metrics.TestSummaryColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(mq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
 // First returns the first Metrics entity from the query.
 // Returns a *NotFoundError when no Metrics was found.
 func (mq *MetricsQuery) First(ctx context.Context) (*Metrics, error) {
@@ -538,6 +588,8 @@ func (mq *MetricsQuery) Clone() *MetricsQuery {
 		withNetworkMetrics:          mq.withNetworkMetrics.Clone(),
 		withDynamicExecutionMetrics: mq.withDynamicExecutionMetrics.Clone(),
 		withBuildGraphMetrics:       mq.withBuildGraphMetrics.Clone(),
+		withTestResults:             mq.withTestResults.Clone(),
+		withTestSummary:             mq.withTestSummary.Clone(),
 		// clone intermediate query.
 		sql:  mq.sql.Clone(),
 		path: mq.path,
@@ -665,6 +717,28 @@ func (mq *MetricsQuery) WithBuildGraphMetrics(opts ...func(*BuildGraphMetricsQue
 	return mq
 }
 
+// WithTestResults tells the query-builder to eager-load the nodes that are connected to
+// the "test_results" edge. The optional arguments are used to configure the query builder of the edge.
+func (mq *MetricsQuery) WithTestResults(opts ...func(*TestResultBESQuery)) *MetricsQuery {
+	query := (&TestResultBESClient{config: mq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	mq.withTestResults = query
+	return mq
+}
+
+// WithTestSummary tells the query-builder to eager-load the nodes that are connected to
+// the "test_summary" edge. The optional arguments are used to configure the query builder of the edge.
+func (mq *MetricsQuery) WithTestSummary(opts ...func(*TestSummaryQuery)) *MetricsQuery {
+	query := (&TestSummaryClient{config: mq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	mq.withTestSummary = query
+	return mq
+}
+
 // GroupBy is used to group vertices by one or more fields/columns.
 // It is often used with aggregate functions, like: count, max, mean, min, sum.
 func (mq *MetricsQuery) GroupBy(field string, fields ...string) *MetricsGroupBy {
@@ -722,7 +796,7 @@ func (mq *MetricsQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Metr
 		nodes       = []*Metrics{}
 		withFKs     = mq.withFKs
 		_spec       = mq.querySpec()
-		loadedTypes = [11]bool{
+		loadedTypes = [13]bool{
 			mq.withBazelInvocation != nil,
 			mq.withActionSummary != nil,
 			mq.withMemoryMetrics != nil,
@@ -734,6 +808,8 @@ func (mq *MetricsQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Metr
 			mq.withNetworkMetrics != nil,
 			mq.withDynamicExecutionMetrics != nil,
 			mq.withBuildGraphMetrics != nil,
+			mq.withTestResults != nil,
+			mq.withTestSummary != nil,
 		}
 	)
 	if mq.withBazelInvocation != nil {
@@ -845,6 +921,20 @@ func (mq *MetricsQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Metr
 			return nil, err
 		}
 	}
+	if query := mq.withTestResults; query != nil {
+		if err := mq.loadTestResults(ctx, query, nodes,
+			func(n *Metrics) { n.Edges.TestResults = []*TestResultBES{} },
+			func(n *Metrics, e *TestResultBES) { n.Edges.TestResults = append(n.Edges.TestResults, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := mq.withTestSummary; query != nil {
+		if err := mq.loadTestSummary(ctx, query, nodes,
+			func(n *Metrics) { n.Edges.TestSummary = []*TestSummary{} },
+			func(n *Metrics, e *TestSummary) { n.Edges.TestSummary = append(n.Edges.TestSummary, e) }); err != nil {
+			return nil, err
+		}
+	}
 	for name, query := range mq.withNamedActionSummary {
 		if err := mq.loadActionSummary(ctx, query, nodes,
 			func(n *Metrics) { n.appendNamedActionSummary(name) },
@@ -912,6 +1002,20 @@ func (mq *MetricsQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Metr
 		if err := mq.loadBuildGraphMetrics(ctx, query, nodes,
 			func(n *Metrics) { n.appendNamedBuildGraphMetrics(name) },
 			func(n *Metrics, e *BuildGraphMetrics) { n.appendNamedBuildGraphMetrics(name, e) }); err != nil {
+			return nil, err
+		}
+	}
+	for name, query := range mq.withNamedTestResults {
+		if err := mq.loadTestResults(ctx, query, nodes,
+			func(n *Metrics) { n.appendNamedTestResults(name) },
+			func(n *Metrics, e *TestResultBES) { n.appendNamedTestResults(name, e) }); err != nil {
+			return nil, err
+		}
+	}
+	for name, query := range mq.withNamedTestSummary {
+		if err := mq.loadTestSummary(ctx, query, nodes,
+			func(n *Metrics) { n.appendNamedTestSummary(name) },
+			func(n *Metrics, e *TestSummary) { n.appendNamedTestSummary(name, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -1535,6 +1639,68 @@ func (mq *MetricsQuery) loadBuildGraphMetrics(ctx context.Context, query *BuildG
 	}
 	return nil
 }
+func (mq *MetricsQuery) loadTestResults(ctx context.Context, query *TestResultBESQuery, nodes []*Metrics, init func(*Metrics), assign func(*Metrics, *TestResultBES)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int]*Metrics)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.withFKs = true
+	query.Where(predicate.TestResultBES(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(metrics.TestResultsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.metrics_test_results
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "metrics_test_results" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "metrics_test_results" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (mq *MetricsQuery) loadTestSummary(ctx context.Context, query *TestSummaryQuery, nodes []*Metrics, init func(*Metrics), assign func(*Metrics, *TestSummary)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int]*Metrics)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.withFKs = true
+	query.Where(predicate.TestSummary(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(metrics.TestSummaryColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.metrics_test_summary
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "metrics_test_summary" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "metrics_test_summary" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
 
 func (mq *MetricsQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := mq.querySpec()
@@ -1757,6 +1923,34 @@ func (mq *MetricsQuery) WithNamedBuildGraphMetrics(name string, opts ...func(*Bu
 		mq.withNamedBuildGraphMetrics = make(map[string]*BuildGraphMetricsQuery)
 	}
 	mq.withNamedBuildGraphMetrics[name] = query
+	return mq
+}
+
+// WithNamedTestResults tells the query-builder to eager-load the nodes that are connected to the "test_results"
+// edge with the given name. The optional arguments are used to configure the query builder of the edge.
+func (mq *MetricsQuery) WithNamedTestResults(name string, opts ...func(*TestResultBESQuery)) *MetricsQuery {
+	query := (&TestResultBESClient{config: mq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	if mq.withNamedTestResults == nil {
+		mq.withNamedTestResults = make(map[string]*TestResultBESQuery)
+	}
+	mq.withNamedTestResults[name] = query
+	return mq
+}
+
+// WithNamedTestSummary tells the query-builder to eager-load the nodes that are connected to the "test_summary"
+// edge with the given name. The optional arguments are used to configure the query builder of the edge.
+func (mq *MetricsQuery) WithNamedTestSummary(name string, opts ...func(*TestSummaryQuery)) *MetricsQuery {
+	query := (&TestSummaryClient{config: mq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	if mq.withNamedTestSummary == nil {
+		mq.withNamedTestSummary = make(map[string]*TestSummaryQuery)
+	}
+	mq.withNamedTestSummary[name] = query
 	return mq
 }
 
