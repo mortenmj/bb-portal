@@ -12,6 +12,8 @@ import (
 	"github.com/buildbarn/bb-portal/ent/gen/ent/blob"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/build"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/missdetail"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/targetcomplete"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/targetconfigured"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/testresultbes"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/testsummary"
 	"github.com/buildbarn/bb-portal/pkg/summary"
@@ -39,12 +41,17 @@ func (act SaveActor) SaveSummary(ctx context.Context, summary *summary.Summary) 
 		return nil, err
 	}
 
+	targets, err := act.createTargets(ctx, summary)
+	if err != nil {
+		return nil, err
+	}
+
 	tests, err := act.createTestResults(ctx, summary)
 	if err != nil {
 		return nil, fmt.Errorf("could not save test results: %w", err)
 	}
 
-	bazelInvocation, err := act.saveBazelInvocation(ctx, summary, eventFile, buildRecord, metrics, tests)
+	bazelInvocation, err := act.saveBazelInvocation(ctx, summary, eventFile, buildRecord, metrics, tests, targets)
 	if err != nil {
 		return nil, fmt.Errorf("could not save BazelInvocation: %w", err)
 	}
@@ -124,7 +131,8 @@ func (act SaveActor) saveBazelInvocation(
 	eventFile *ent.EventFile,
 	buildRecord *ent.Build,
 	metrics *ent.Metrics,
-	tests []*ent.TestCollection) (*ent.BazelInvocation, error) {
+	tests []*ent.TestCollection,
+	targets []*ent.TargetPair) (*ent.BazelInvocation, error) {
 	create := act.db.BazelInvocation.Create().
 		SetInvocationID(uuid.MustParse(summary.InvocationID)).
 		SetStartedAt(summary.StartedAt).
@@ -141,7 +149,8 @@ func (act SaveActor) saveBazelInvocation(
 		SetEventFile(eventFile).
 		//metrics
 		SetMetrics(metrics).
-		AddTestCollection(tests...)
+		AddTestCollection(tests...).
+		AddTargets(targets...)
 
 	if buildRecord != nil {
 		create = create.SetBuild(buildRecord)
@@ -160,6 +169,149 @@ func (act SaveActor) saveEventFile(ctx context.Context, summary *summary.Summary
 		SetStatus("SUCCESS").                // TODO: Keep workflow of DETECTED->IMPORTING->...?
 		Save(ctx)
 	return eventFile, err
+}
+
+func (act SaveActor) createTargets(ctx context.Context, summary *summary.Summary) ([]*ent.TargetPair, error) {
+	var err error = nil
+	var result []*ent.TargetPair
+
+	for targetLabel, targetPair := range summary.Targets {
+		slog.Debug("processing target pair for %s", targetLabel)
+		var configuration = targetPair.Configuration
+		var completion = targetPair.Completion
+
+		//configuration
+		slog.Debug("processing configuration for %s", targetLabel)
+		var target_configuration *ent.TargetConfigured
+		target_configuration, err = act.db.TargetConfigured.Create().
+			SetTag(configuration.Tag).
+			SetStartTimeInMs(configuration.StartTimeInMs).
+			SetTargetKind(configuration.TargetKind).
+			SetTestSize(targetconfigured.TestSize(configuration.TestSize.String())).
+			Save(ctx)
+		if err != nil {
+			slog.Error("problem saving target configuratiton object: %w", err)
+			err = nil
+		}
+
+		//target completion
+		//output group
+		slog.Debug("processing output group for label %s on invocation %s", targetLabel, summary.InvocationID)
+		//inline files
+		slog.Debug("processing inline files for label %s on invocation %s", targetLabel, summary.InvocationID)
+		var inline_files []*ent.TestFile
+		for _, inlineFile := range completion.OutputGroup.InlineFiles {
+			var inline_file *ent.TestFile
+			inline_file, err = act.db.TestFile.Create().
+				SetDigest(inlineFile.Digest).
+				SetFile(inlineFile.File).
+				SetName(inlineFile.Name).
+				SetLength(inlineFile.Length).
+				SetPrefix(inlineFile.Prefix).
+				Save(ctx)
+			if err != nil {
+				slog.Error("problem saving inline file object: %w", err)
+				err = nil
+			}
+			inline_files = append(inline_files, inline_file)
+		}
+
+		var output_group *ent.OutputGroup
+		output_group, err = act.db.OutputGroup.Create().
+			SetName(completion.OutputGroup.Name).
+			SetIncomplete(completion.OutputGroup.Incomplete).
+			AddInlineFiles(inline_files...).
+			//TODO: implement named set of files logic to recursively add files to this collection
+			Save(ctx)
+		if err != nil {
+			slog.Error("problem saving output group object: %w", err)
+			err = nil
+		}
+
+		//important output
+		slog.Debug("processing important output for label %s on invocation %s", targetLabel, summary.InvocationID)
+
+		var important_output []*ent.TestFile
+		for _, importantFile := range completion.ImportantOutput {
+
+			var important_file *ent.TestFile
+			important_file, err = act.db.TestFile.Create().
+				SetDigest(importantFile.Digest).
+				SetFile(importantFile.File).
+				SetName(importantFile.Name).
+				SetLength(importantFile.Length).
+				SetPrefix(importantFile.Prefix).
+				Save(ctx)
+			if err != nil {
+				slog.Error("problem saving important output object: %w", err)
+				err = nil
+			}
+			important_output = append(important_output, important_file)
+		}
+
+		//directory output
+		slog.Debug("processing directory output for label %s on invocation %s", targetLabel, summary.InvocationID)
+
+		var directory_output []*ent.TestFile
+		for _, directoryFile := range completion.DirectoryOutput {
+
+			var directory_file *ent.TestFile
+			directory_file, err = act.db.TestFile.Create().
+				SetDigest(directoryFile.Digest).
+				SetFile(directoryFile.File).
+				SetName(directoryFile.Name).
+				SetLength(directoryFile.Length).
+				SetPrefix(directoryFile.Prefix).
+				Save(ctx)
+			if err != nil {
+				slog.Error("problem saving directory output object: %w", err)
+				err = nil
+			}
+			directory_output = append(directory_output, directory_file)
+		}
+
+		//target complete
+		slog.Debug("processing target omplete for label %s on invocation %s", targetLabel, summary.InvocationID)
+		var target_completion *ent.TargetComplete
+		target_completion, err = act.db.TargetComplete.Create().
+			SetSuccess(completion.Success).
+			SetTargetKind(completion.TargetKind).
+			SetTestSize(targetcomplete.TestSize(completion.TestSize.String())).
+			SetTag(completion.Tag).
+			SetEndTimeInMs(completion.EndTimeInMs).
+			SetTestTimeout(completion.TestTimeout).
+			SetTestTimeoutSeconds(completion.TestTimeoutSeconds).
+			SetOutputGroup(output_group).
+			AddImportantOutput(important_output...).
+			AddDirectoryOutput(directory_output...).
+			Save(ctx)
+		if err != nil {
+			slog.Error("problem saving target configuratiton object: %w", err)
+			err = nil
+		}
+
+		//process the target pair
+		slog.Debug("processing target pair for label %s on invocation %s", targetLabel, summary.InvocationID)
+		var target_pair *ent.TargetPair
+		target_pair, err = act.db.TargetPair.Create().
+			SetCompletion(target_completion).
+			SetConfiguration(target_configuration).
+			SetLabel(targetLabel).
+			SetDurationInMs(targetPair.DurationInMs).
+			Save(ctx)
+		if err != nil {
+			slog.Error("problem saving target pair object: %w", err)
+			err = nil
+		}
+
+		result = append(result, target_pair)
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
 }
 
 func (act SaveActor) createTestResults(ctx context.Context, summary *summary.Summary) ([]*ent.TestCollection, error) {

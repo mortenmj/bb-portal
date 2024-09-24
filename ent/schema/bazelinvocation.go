@@ -52,6 +52,7 @@ func (BazelInvocation) Edges() []ent.Edge {
 		edge.To("problems", BazelInvocationProblem.Type).
 			Annotations(entgql.Skip(entgql.SkipType)), // NOTE: Uses custom resolver / types.
 		edge.To("test_collection", TestCollection.Type),
+		edge.To("targets", TargetPair.Type),
 	}
 }
 

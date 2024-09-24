@@ -32,14 +32,19 @@ import (
 	"github.com/buildbarn/bb-portal/ent/gen/ent/memorymetrics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/metrics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/missdetail"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/namedsetoffiles"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/networkmetrics"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/outputgroup"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/packageloadmetrics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/packagemetrics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/racestatistics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/resourceusage"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/runnercount"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/systemnetworkstats"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/targetcomplete"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/targetconfigured"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/targetmetrics"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/targetpair"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/testcollection"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/testfile"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/testresultbes"
@@ -151,10 +156,20 @@ var missdetailImplementors = []string{"MissDetail", "Node"}
 // IsNode implements the Node interface check for GQLGen.
 func (*MissDetail) IsNode() {}
 
+var namedsetoffilesImplementors = []string{"NamedSetOfFiles", "Node"}
+
+// IsNode implements the Node interface check for GQLGen.
+func (*NamedSetOfFiles) IsNode() {}
+
 var networkmetricsImplementors = []string{"NetworkMetrics", "Node"}
 
 // IsNode implements the Node interface check for GQLGen.
 func (*NetworkMetrics) IsNode() {}
+
+var outputgroupImplementors = []string{"OutputGroup", "Node"}
+
+// IsNode implements the Node interface check for GQLGen.
+func (*OutputGroup) IsNode() {}
 
 var packageloadmetricsImplementors = []string{"PackageLoadMetrics", "Node"}
 
@@ -186,10 +201,25 @@ var systemnetworkstatsImplementors = []string{"SystemNetworkStats", "Node"}
 // IsNode implements the Node interface check for GQLGen.
 func (*SystemNetworkStats) IsNode() {}
 
+var targetcompleteImplementors = []string{"TargetComplete", "Node"}
+
+// IsNode implements the Node interface check for GQLGen.
+func (*TargetComplete) IsNode() {}
+
+var targetconfiguredImplementors = []string{"TargetConfigured", "Node"}
+
+// IsNode implements the Node interface check for GQLGen.
+func (*TargetConfigured) IsNode() {}
+
 var targetmetricsImplementors = []string{"TargetMetrics", "Node"}
 
 // IsNode implements the Node interface check for GQLGen.
 func (*TargetMetrics) IsNode() {}
+
+var targetpairImplementors = []string{"TargetPair", "Node"}
+
+// IsNode implements the Node interface check for GQLGen.
+func (*TargetPair) IsNode() {}
 
 var testcollectionImplementors = []string{"TestCollection", "Node"}
 
@@ -455,11 +485,29 @@ func (c *Client) noder(ctx context.Context, table string, id int) (Noder, error)
 			}
 		}
 		return query.Only(ctx)
+	case namedsetoffiles.Table:
+		query := c.NamedSetOfFiles.Query().
+			Where(namedsetoffiles.ID(id))
+		if fc := graphql.GetFieldContext(ctx); fc != nil {
+			if err := query.collectField(ctx, true, graphql.GetOperationContext(ctx), fc.Field, nil, namedsetoffilesImplementors...); err != nil {
+				return nil, err
+			}
+		}
+		return query.Only(ctx)
 	case networkmetrics.Table:
 		query := c.NetworkMetrics.Query().
 			Where(networkmetrics.ID(id))
 		if fc := graphql.GetFieldContext(ctx); fc != nil {
 			if err := query.collectField(ctx, true, graphql.GetOperationContext(ctx), fc.Field, nil, networkmetricsImplementors...); err != nil {
+				return nil, err
+			}
+		}
+		return query.Only(ctx)
+	case outputgroup.Table:
+		query := c.OutputGroup.Query().
+			Where(outputgroup.ID(id))
+		if fc := graphql.GetFieldContext(ctx); fc != nil {
+			if err := query.collectField(ctx, true, graphql.GetOperationContext(ctx), fc.Field, nil, outputgroupImplementors...); err != nil {
 				return nil, err
 			}
 		}
@@ -518,11 +566,38 @@ func (c *Client) noder(ctx context.Context, table string, id int) (Noder, error)
 			}
 		}
 		return query.Only(ctx)
+	case targetcomplete.Table:
+		query := c.TargetComplete.Query().
+			Where(targetcomplete.ID(id))
+		if fc := graphql.GetFieldContext(ctx); fc != nil {
+			if err := query.collectField(ctx, true, graphql.GetOperationContext(ctx), fc.Field, nil, targetcompleteImplementors...); err != nil {
+				return nil, err
+			}
+		}
+		return query.Only(ctx)
+	case targetconfigured.Table:
+		query := c.TargetConfigured.Query().
+			Where(targetconfigured.ID(id))
+		if fc := graphql.GetFieldContext(ctx); fc != nil {
+			if err := query.collectField(ctx, true, graphql.GetOperationContext(ctx), fc.Field, nil, targetconfiguredImplementors...); err != nil {
+				return nil, err
+			}
+		}
+		return query.Only(ctx)
 	case targetmetrics.Table:
 		query := c.TargetMetrics.Query().
 			Where(targetmetrics.ID(id))
 		if fc := graphql.GetFieldContext(ctx); fc != nil {
 			if err := query.collectField(ctx, true, graphql.GetOperationContext(ctx), fc.Field, nil, targetmetricsImplementors...); err != nil {
+				return nil, err
+			}
+		}
+		return query.Only(ctx)
+	case targetpair.Table:
+		query := c.TargetPair.Query().
+			Where(targetpair.ID(id))
+		if fc := graphql.GetFieldContext(ctx); fc != nil {
+			if err := query.collectField(ctx, true, graphql.GetOperationContext(ctx), fc.Field, nil, targetpairImplementors...); err != nil {
 				return nil, err
 			}
 		}
@@ -967,10 +1042,42 @@ func (c *Client) noders(ctx context.Context, table string, ids []int) ([]Noder, 
 				*noder = node
 			}
 		}
+	case namedsetoffiles.Table:
+		query := c.NamedSetOfFiles.Query().
+			Where(namedsetoffiles.IDIn(ids...))
+		query, err := query.CollectFields(ctx, namedsetoffilesImplementors...)
+		if err != nil {
+			return nil, err
+		}
+		nodes, err := query.All(ctx)
+		if err != nil {
+			return nil, err
+		}
+		for _, node := range nodes {
+			for _, noder := range idmap[node.ID] {
+				*noder = node
+			}
+		}
 	case networkmetrics.Table:
 		query := c.NetworkMetrics.Query().
 			Where(networkmetrics.IDIn(ids...))
 		query, err := query.CollectFields(ctx, networkmetricsImplementors...)
+		if err != nil {
+			return nil, err
+		}
+		nodes, err := query.All(ctx)
+		if err != nil {
+			return nil, err
+		}
+		for _, node := range nodes {
+			for _, noder := range idmap[node.ID] {
+				*noder = node
+			}
+		}
+	case outputgroup.Table:
+		query := c.OutputGroup.Query().
+			Where(outputgroup.IDIn(ids...))
+		query, err := query.CollectFields(ctx, outputgroupImplementors...)
 		if err != nil {
 			return nil, err
 		}
@@ -1079,10 +1186,58 @@ func (c *Client) noders(ctx context.Context, table string, ids []int) ([]Noder, 
 				*noder = node
 			}
 		}
+	case targetcomplete.Table:
+		query := c.TargetComplete.Query().
+			Where(targetcomplete.IDIn(ids...))
+		query, err := query.CollectFields(ctx, targetcompleteImplementors...)
+		if err != nil {
+			return nil, err
+		}
+		nodes, err := query.All(ctx)
+		if err != nil {
+			return nil, err
+		}
+		for _, node := range nodes {
+			for _, noder := range idmap[node.ID] {
+				*noder = node
+			}
+		}
+	case targetconfigured.Table:
+		query := c.TargetConfigured.Query().
+			Where(targetconfigured.IDIn(ids...))
+		query, err := query.CollectFields(ctx, targetconfiguredImplementors...)
+		if err != nil {
+			return nil, err
+		}
+		nodes, err := query.All(ctx)
+		if err != nil {
+			return nil, err
+		}
+		for _, node := range nodes {
+			for _, noder := range idmap[node.ID] {
+				*noder = node
+			}
+		}
 	case targetmetrics.Table:
 		query := c.TargetMetrics.Query().
 			Where(targetmetrics.IDIn(ids...))
 		query, err := query.CollectFields(ctx, targetmetricsImplementors...)
+		if err != nil {
+			return nil, err
+		}
+		nodes, err := query.All(ctx)
+		if err != nil {
+			return nil, err
+		}
+		for _, node := range nodes {
+			for _, noder := range idmap[node.ID] {
+				*noder = node
+			}
+		}
+	case targetpair.Table:
+		query := c.TargetPair.Query().
+			Where(targetpair.IDIn(ids...))
+		query, err := query.CollectFields(ctx, targetpairImplementors...)
 		if err != nil {
 			return nil, err
 		}

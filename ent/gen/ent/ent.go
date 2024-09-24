@@ -31,14 +31,19 @@ import (
 	"github.com/buildbarn/bb-portal/ent/gen/ent/memorymetrics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/metrics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/missdetail"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/namedsetoffiles"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/networkmetrics"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/outputgroup"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/packageloadmetrics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/packagemetrics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/racestatistics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/resourceusage"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/runnercount"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/systemnetworkstats"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/targetcomplete"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/targetconfigured"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/targetmetrics"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/targetpair"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/testcollection"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/testfile"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/testresultbes"
@@ -125,14 +130,19 @@ func checkColumn(table, column string) error {
 			memorymetrics.Table:           memorymetrics.ValidColumn,
 			metrics.Table:                 metrics.ValidColumn,
 			missdetail.Table:              missdetail.ValidColumn,
+			namedsetoffiles.Table:         namedsetoffiles.ValidColumn,
 			networkmetrics.Table:          networkmetrics.ValidColumn,
+			outputgroup.Table:             outputgroup.ValidColumn,
 			packageloadmetrics.Table:      packageloadmetrics.ValidColumn,
 			packagemetrics.Table:          packagemetrics.ValidColumn,
 			racestatistics.Table:          racestatistics.ValidColumn,
 			resourceusage.Table:           resourceusage.ValidColumn,
 			runnercount.Table:             runnercount.ValidColumn,
 			systemnetworkstats.Table:      systemnetworkstats.ValidColumn,
+			targetcomplete.Table:          targetcomplete.ValidColumn,
+			targetconfigured.Table:        targetconfigured.ValidColumn,
 			targetmetrics.Table:           targetmetrics.ValidColumn,
+			targetpair.Table:              targetpair.ValidColumn,
 			testcollection.Table:          testcollection.ValidColumn,
 			testfile.Table:                testfile.ValidColumn,
 			testresultbes.Table:           testresultbes.ValidColumn,

@@ -15,6 +15,7 @@ import (
 	"github.com/buildbarn/bb-portal/ent/gen/ent/build"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/eventfile"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/metrics"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/targetpair"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/testcollection"
 	"github.com/buildbarn/bb-portal/pkg/summary"
 	"github.com/google/uuid"
@@ -234,6 +235,21 @@ func (bic *BazelInvocationCreate) AddTestCollection(t ...*TestCollection) *Bazel
 	return bic.AddTestCollectionIDs(ids...)
 }
 
+// AddTargetIDs adds the "targets" edge to the TargetPair entity by IDs.
+func (bic *BazelInvocationCreate) AddTargetIDs(ids ...int) *BazelInvocationCreate {
+	bic.mutation.AddTargetIDs(ids...)
+	return bic
+}
+
+// AddTargets adds the "targets" edges to the TargetPair entity.
+func (bic *BazelInvocationCreate) AddTargets(t ...*TargetPair) *BazelInvocationCreate {
+	ids := make([]int, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return bic.AddTargetIDs(ids...)
+}
+
 // Mutation returns the BazelInvocationMutation object of the builder.
 func (bic *BazelInvocationCreate) Mutation() *BazelInvocationMutation {
 	return bic.mutation
@@ -435,6 +451,22 @@ func (bic *BazelInvocationCreate) createSpec() (*BazelInvocation, *sqlgraph.Crea
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(testcollection.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := bic.mutation.TargetsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   bazelinvocation.TargetsTable,
+			Columns: bazelinvocation.TargetsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(targetpair.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

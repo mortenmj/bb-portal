@@ -63,8 +63,14 @@ type Metrics func(*sql.Selector)
 // MissDetail is the predicate function for missdetail builders.
 type MissDetail func(*sql.Selector)
 
+// NamedSetOfFiles is the predicate function for namedsetoffiles builders.
+type NamedSetOfFiles func(*sql.Selector)
+
 // NetworkMetrics is the predicate function for networkmetrics builders.
 type NetworkMetrics func(*sql.Selector)
+
+// OutputGroup is the predicate function for outputgroup builders.
+type OutputGroup func(*sql.Selector)
 
 // PackageLoadMetrics is the predicate function for packageloadmetrics builders.
 type PackageLoadMetrics func(*sql.Selector)
@@ -84,8 +90,17 @@ type RunnerCount func(*sql.Selector)
 // SystemNetworkStats is the predicate function for systemnetworkstats builders.
 type SystemNetworkStats func(*sql.Selector)
 
+// TargetComplete is the predicate function for targetcomplete builders.
+type TargetComplete func(*sql.Selector)
+
+// TargetConfigured is the predicate function for targetconfigured builders.
+type TargetConfigured func(*sql.Selector)
+
 // TargetMetrics is the predicate function for targetmetrics builders.
 type TargetMetrics func(*sql.Selector)
+
+// TargetPair is the predicate function for targetpair builders.
+type TargetPair func(*sql.Selector)
 
 // TestCollection is the predicate function for testcollection builders.
 type TestCollection func(*sql.Selector)

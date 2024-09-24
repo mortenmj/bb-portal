@@ -22,13 +22,17 @@ import (
 	"github.com/buildbarn/bb-portal/ent/gen/ent/garbagemetrics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/memorymetrics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/missdetail"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/outputgroup"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/packageloadmetrics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/packagemetrics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/racestatistics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/resourceusage"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/runnercount"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/systemnetworkstats"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/targetcomplete"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/targetconfigured"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/targetmetrics"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/targetpair"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/testcollection"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/testfile"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/testresultbes"
@@ -573,6 +577,19 @@ func (bi *BazelInvocationQuery) collectField(ctx context.Context, oneNode bool, 
 				return err
 			}
 			bi.WithNamedTestCollection(alias, func(wq *TestCollectionQuery) {
+				*wq = *query
+			})
+
+		case "targets":
+			var (
+				alias = field.Alias
+				path  = append(path, alias)
+				query = (&TargetPairClient{config: bi.config}).Query()
+			)
+			if err := query.collectField(ctx, false, opCtx, field, path, mayAddCondition(satisfies, targetpairImplementors)...); err != nil {
+				return err
+			}
+			bi.WithNamedTargets(alias, func(wq *TargetPairQuery) {
 				*wq = *query
 			})
 		case "invocationID":
@@ -2145,6 +2162,93 @@ func newMissDetailPaginateArgs(rv map[string]any) *missdetailPaginateArgs {
 }
 
 // CollectFields tells the query-builder to eagerly load connected nodes by resolver context.
+func (nsof *NamedSetOfFilesQuery) CollectFields(ctx context.Context, satisfies ...string) (*NamedSetOfFilesQuery, error) {
+	fc := graphql.GetFieldContext(ctx)
+	if fc == nil {
+		return nsof, nil
+	}
+	if err := nsof.collectField(ctx, false, graphql.GetOperationContext(ctx), fc.Field, nil, satisfies...); err != nil {
+		return nil, err
+	}
+	return nsof, nil
+}
+
+func (nsof *NamedSetOfFilesQuery) collectField(ctx context.Context, oneNode bool, opCtx *graphql.OperationContext, collected graphql.CollectedField, path []string, satisfies ...string) error {
+	path = append([]string(nil), path...)
+	for _, field := range graphql.CollectFields(opCtx, collected.Selections, satisfies) {
+		switch field.Name {
+
+		case "outputGroup":
+			var (
+				alias = field.Alias
+				path  = append(path, alias)
+				query = (&OutputGroupClient{config: nsof.config}).Query()
+			)
+			if err := query.collectField(ctx, false, opCtx, field, path, mayAddCondition(satisfies, outputgroupImplementors)...); err != nil {
+				return err
+			}
+			nsof.WithNamedOutputGroup(alias, func(wq *OutputGroupQuery) {
+				*wq = *query
+			})
+
+		case "files":
+			var (
+				alias = field.Alias
+				path  = append(path, alias)
+				query = (&TestFileClient{config: nsof.config}).Query()
+			)
+			if err := query.collectField(ctx, false, opCtx, field, path, mayAddCondition(satisfies, testfileImplementors)...); err != nil {
+				return err
+			}
+			nsof.WithNamedFiles(alias, func(wq *TestFileQuery) {
+				*wq = *query
+			})
+
+		case "fileSets":
+			var (
+				alias = field.Alias
+				path  = append(path, alias)
+				query = (&NamedSetOfFilesClient{config: nsof.config}).Query()
+			)
+			if err := query.collectField(ctx, oneNode, opCtx, field, path, mayAddCondition(satisfies, namedsetoffilesImplementors)...); err != nil {
+				return err
+			}
+			nsof.withFileSets = query
+		}
+	}
+	return nil
+}
+
+type namedsetoffilesPaginateArgs struct {
+	first, last   *int
+	after, before *Cursor
+	opts          []NamedSetOfFilesPaginateOption
+}
+
+func newNamedSetOfFilesPaginateArgs(rv map[string]any) *namedsetoffilesPaginateArgs {
+	args := &namedsetoffilesPaginateArgs{}
+	if rv == nil {
+		return args
+	}
+	if v := rv[firstField]; v != nil {
+		args.first = v.(*int)
+	}
+	if v := rv[lastField]; v != nil {
+		args.last = v.(*int)
+	}
+	if v := rv[afterField]; v != nil {
+		args.after = v.(*Cursor)
+	}
+	if v := rv[beforeField]; v != nil {
+		args.before = v.(*Cursor)
+	}
+	if v, ok := rv[whereField].(*NamedSetOfFilesWhereInput); ok {
+		args.opts = append(args.opts, WithNamedSetOfFilesFilter(v.Filter))
+	}
+	return args
+}
+
+// CollectFields tells the query-builder to eagerly load connected nodes by resolver context.
 func (nm *NetworkMetricsQuery) CollectFields(ctx context.Context, satisfies ...string) (*NetworkMetricsQuery, error) {
 	fc := graphql.GetFieldContext(ctx)
 	if fc == nil {
@@ -2216,6 +2320,115 @@ func newNetworkMetricsPaginateArgs(rv map[string]any) *networkmetricsPaginateArg
 	}
 	if v, ok := rv[whereField].(*NetworkMetricsWhereInput); ok {
 		args.opts = append(args.opts, WithNetworkMetricsFilter(v.Filter))
+	}
+	return args
+}
+
+// CollectFields tells the query-builder to eagerly load connected nodes by resolver context.
+func (og *OutputGroupQuery) CollectFields(ctx context.Context, satisfies ...string) (*OutputGroupQuery, error) {
+	fc := graphql.GetFieldContext(ctx)
+	if fc == nil {
+		return og, nil
+	}
+	if err := og.collectField(ctx, false, graphql.GetOperationContext(ctx), fc.Field, nil, satisfies...); err != nil {
+		return nil, err
+	}
+	return og, nil
+}
+
+func (og *OutputGroupQuery) collectField(ctx context.Context, oneNode bool, opCtx *graphql.OperationContext, collected graphql.CollectedField, path []string, satisfies ...string) error {
+	path = append([]string(nil), path...)
+	var (
+		unknownSeen    bool
+		fieldSeen      = make(map[string]struct{}, len(outputgroup.Columns))
+		selectedFields = []string{outputgroup.FieldID}
+	)
+	for _, field := range graphql.CollectFields(opCtx, collected.Selections, satisfies) {
+		switch field.Name {
+
+		case "targetComplete":
+			var (
+				alias = field.Alias
+				path  = append(path, alias)
+				query = (&TargetCompleteClient{config: og.config}).Query()
+			)
+			if err := query.collectField(ctx, false, opCtx, field, path, mayAddCondition(satisfies, targetcompleteImplementors)...); err != nil {
+				return err
+			}
+			og.WithNamedTargetComplete(alias, func(wq *TargetCompleteQuery) {
+				*wq = *query
+			})
+
+		case "inlineFiles":
+			var (
+				alias = field.Alias
+				path  = append(path, alias)
+				query = (&TestFileClient{config: og.config}).Query()
+			)
+			if err := query.collectField(ctx, false, opCtx, field, path, mayAddCondition(satisfies, testfileImplementors)...); err != nil {
+				return err
+			}
+			og.WithNamedInlineFiles(alias, func(wq *TestFileQuery) {
+				*wq = *query
+			})
+
+		case "fileSets":
+			var (
+				alias = field.Alias
+				path  = append(path, alias)
+				query = (&NamedSetOfFilesClient{config: og.config}).Query()
+			)
+			if err := query.collectField(ctx, oneNode, opCtx, field, path, mayAddCondition(satisfies, namedsetoffilesImplementors)...); err != nil {
+				return err
+			}
+			og.withFileSets = query
+		case "name":
+			if _, ok := fieldSeen[outputgroup.FieldName]; !ok {
+				selectedFields = append(selectedFields, outputgroup.FieldName)
+				fieldSeen[outputgroup.FieldName] = struct{}{}
+			}
+		case "incomplete":
+			if _, ok := fieldSeen[outputgroup.FieldIncomplete]; !ok {
+				selectedFields = append(selectedFields, outputgroup.FieldIncomplete)
+				fieldSeen[outputgroup.FieldIncomplete] = struct{}{}
+			}
+		case "id":
+		case "__typename":
+		default:
+			unknownSeen = true
+		}
+	}
+	if !unknownSeen {
+		og.Select(selectedFields...)
+	}
+	return nil
+}
+
+type outputgroupPaginateArgs struct {
+	first, last   *int
+	after, before *Cursor
+	opts          []OutputGroupPaginateOption
+}
+
+func newOutputGroupPaginateArgs(rv map[string]any) *outputgroupPaginateArgs {
+	args := &outputgroupPaginateArgs{}
+	if rv == nil {
+		return args
+	}
+	if v := rv[firstField]; v != nil {
+		args.first = v.(*int)
+	}
+	if v := rv[lastField]; v != nil {
+		args.last = v.(*int)
+	}
+	if v := rv[afterField]; v != nil {
+		args.after = v.(*Cursor)
+	}
+	if v := rv[beforeField]; v != nil {
+		args.before = v.(*Cursor)
+	}
+	if v, ok := rv[whereField].(*OutputGroupWhereInput); ok {
+		args.opts = append(args.opts, WithOutputGroupFilter(v.Filter))
 	}
 	return args
 }
@@ -2807,6 +3020,248 @@ func newSystemNetworkStatsPaginateArgs(rv map[string]any) *systemnetworkstatsPag
 }
 
 // CollectFields tells the query-builder to eagerly load connected nodes by resolver context.
+func (tc *TargetCompleteQuery) CollectFields(ctx context.Context, satisfies ...string) (*TargetCompleteQuery, error) {
+	fc := graphql.GetFieldContext(ctx)
+	if fc == nil {
+		return tc, nil
+	}
+	if err := tc.collectField(ctx, false, graphql.GetOperationContext(ctx), fc.Field, nil, satisfies...); err != nil {
+		return nil, err
+	}
+	return tc, nil
+}
+
+func (tc *TargetCompleteQuery) collectField(ctx context.Context, oneNode bool, opCtx *graphql.OperationContext, collected graphql.CollectedField, path []string, satisfies ...string) error {
+	path = append([]string(nil), path...)
+	var (
+		unknownSeen    bool
+		fieldSeen      = make(map[string]struct{}, len(targetcomplete.Columns))
+		selectedFields = []string{targetcomplete.FieldID}
+	)
+	for _, field := range graphql.CollectFields(opCtx, collected.Selections, satisfies) {
+		switch field.Name {
+
+		case "targetPair":
+			var (
+				alias = field.Alias
+				path  = append(path, alias)
+				query = (&TargetPairClient{config: tc.config}).Query()
+			)
+			if err := query.collectField(ctx, false, opCtx, field, path, mayAddCondition(satisfies, targetpairImplementors)...); err != nil {
+				return err
+			}
+			tc.WithNamedTargetPair(alias, func(wq *TargetPairQuery) {
+				*wq = *query
+			})
+
+		case "importantOutput":
+			var (
+				alias = field.Alias
+				path  = append(path, alias)
+				query = (&TestFileClient{config: tc.config}).Query()
+			)
+			if err := query.collectField(ctx, false, opCtx, field, path, mayAddCondition(satisfies, testfileImplementors)...); err != nil {
+				return err
+			}
+			tc.WithNamedImportantOutput(alias, func(wq *TestFileQuery) {
+				*wq = *query
+			})
+
+		case "directoryOutput":
+			var (
+				alias = field.Alias
+				path  = append(path, alias)
+				query = (&TestFileClient{config: tc.config}).Query()
+			)
+			if err := query.collectField(ctx, false, opCtx, field, path, mayAddCondition(satisfies, testfileImplementors)...); err != nil {
+				return err
+			}
+			tc.WithNamedDirectoryOutput(alias, func(wq *TestFileQuery) {
+				*wq = *query
+			})
+
+		case "outputGroup":
+			var (
+				alias = field.Alias
+				path  = append(path, alias)
+				query = (&OutputGroupClient{config: tc.config}).Query()
+			)
+			if err := query.collectField(ctx, oneNode, opCtx, field, path, mayAddCondition(satisfies, outputgroupImplementors)...); err != nil {
+				return err
+			}
+			tc.withOutputGroup = query
+		case "success":
+			if _, ok := fieldSeen[targetcomplete.FieldSuccess]; !ok {
+				selectedFields = append(selectedFields, targetcomplete.FieldSuccess)
+				fieldSeen[targetcomplete.FieldSuccess] = struct{}{}
+			}
+		case "tag":
+			if _, ok := fieldSeen[targetcomplete.FieldTag]; !ok {
+				selectedFields = append(selectedFields, targetcomplete.FieldTag)
+				fieldSeen[targetcomplete.FieldTag] = struct{}{}
+			}
+		case "targetKind":
+			if _, ok := fieldSeen[targetcomplete.FieldTargetKind]; !ok {
+				selectedFields = append(selectedFields, targetcomplete.FieldTargetKind)
+				fieldSeen[targetcomplete.FieldTargetKind] = struct{}{}
+			}
+		case "endTimeInMs":
+			if _, ok := fieldSeen[targetcomplete.FieldEndTimeInMs]; !ok {
+				selectedFields = append(selectedFields, targetcomplete.FieldEndTimeInMs)
+				fieldSeen[targetcomplete.FieldEndTimeInMs] = struct{}{}
+			}
+		case "testTimeoutSeconds":
+			if _, ok := fieldSeen[targetcomplete.FieldTestTimeoutSeconds]; !ok {
+				selectedFields = append(selectedFields, targetcomplete.FieldTestTimeoutSeconds)
+				fieldSeen[targetcomplete.FieldTestTimeoutSeconds] = struct{}{}
+			}
+		case "testTimeout":
+			if _, ok := fieldSeen[targetcomplete.FieldTestTimeout]; !ok {
+				selectedFields = append(selectedFields, targetcomplete.FieldTestTimeout)
+				fieldSeen[targetcomplete.FieldTestTimeout] = struct{}{}
+			}
+		case "testSize":
+			if _, ok := fieldSeen[targetcomplete.FieldTestSize]; !ok {
+				selectedFields = append(selectedFields, targetcomplete.FieldTestSize)
+				fieldSeen[targetcomplete.FieldTestSize] = struct{}{}
+			}
+		case "id":
+		case "__typename":
+		default:
+			unknownSeen = true
+		}
+	}
+	if !unknownSeen {
+		tc.Select(selectedFields...)
+	}
+	return nil
+}
+
+type targetcompletePaginateArgs struct {
+	first, last   *int
+	after, before *Cursor
+	opts          []TargetCompletePaginateOption
+}
+
+func newTargetCompletePaginateArgs(rv map[string]any) *targetcompletePaginateArgs {
+	args := &targetcompletePaginateArgs{}
+	if rv == nil {
+		return args
+	}
+	if v := rv[firstField]; v != nil {
+		args.first = v.(*int)
+	}
+	if v := rv[lastField]; v != nil {
+		args.last = v.(*int)
+	}
+	if v := rv[afterField]; v != nil {
+		args.after = v.(*Cursor)
+	}
+	if v := rv[beforeField]; v != nil {
+		args.before = v.(*Cursor)
+	}
+	if v, ok := rv[whereField].(*TargetCompleteWhereInput); ok {
+		args.opts = append(args.opts, WithTargetCompleteFilter(v.Filter))
+	}
+	return args
+}
+
+// CollectFields tells the query-builder to eagerly load connected nodes by resolver context.
+func (tc *TargetConfiguredQuery) CollectFields(ctx context.Context, satisfies ...string) (*TargetConfiguredQuery, error) {
+	fc := graphql.GetFieldContext(ctx)
+	if fc == nil {
+		return tc, nil
+	}
+	if err := tc.collectField(ctx, false, graphql.GetOperationContext(ctx), fc.Field, nil, satisfies...); err != nil {
+		return nil, err
+	}
+	return tc, nil
+}
+
+func (tc *TargetConfiguredQuery) collectField(ctx context.Context, oneNode bool, opCtx *graphql.OperationContext, collected graphql.CollectedField, path []string, satisfies ...string) error {
+	path = append([]string(nil), path...)
+	var (
+		unknownSeen    bool
+		fieldSeen      = make(map[string]struct{}, len(targetconfigured.Columns))
+		selectedFields = []string{targetconfigured.FieldID}
+	)
+	for _, field := range graphql.CollectFields(opCtx, collected.Selections, satisfies) {
+		switch field.Name {
+
+		case "targetPair":
+			var (
+				alias = field.Alias
+				path  = append(path, alias)
+				query = (&TargetPairClient{config: tc.config}).Query()
+			)
+			if err := query.collectField(ctx, false, opCtx, field, path, mayAddCondition(satisfies, targetpairImplementors)...); err != nil {
+				return err
+			}
+			tc.WithNamedTargetPair(alias, func(wq *TargetPairQuery) {
+				*wq = *query
+			})
+		case "tag":
+			if _, ok := fieldSeen[targetconfigured.FieldTag]; !ok {
+				selectedFields = append(selectedFields, targetconfigured.FieldTag)
+				fieldSeen[targetconfigured.FieldTag] = struct{}{}
+			}
+		case "targetKind":
+			if _, ok := fieldSeen[targetconfigured.FieldTargetKind]; !ok {
+				selectedFields = append(selectedFields, targetconfigured.FieldTargetKind)
+				fieldSeen[targetconfigured.FieldTargetKind] = struct{}{}
+			}
+		case "startTimeInMs":
+			if _, ok := fieldSeen[targetconfigured.FieldStartTimeInMs]; !ok {
+				selectedFields = append(selectedFields, targetconfigured.FieldStartTimeInMs)
+				fieldSeen[targetconfigured.FieldStartTimeInMs] = struct{}{}
+			}
+		case "testSize":
+			if _, ok := fieldSeen[targetconfigured.FieldTestSize]; !ok {
+				selectedFields = append(selectedFields, targetconfigured.FieldTestSize)
+				fieldSeen[targetconfigured.FieldTestSize] = struct{}{}
+			}
+		case "id":
+		case "__typename":
+		default:
+			unknownSeen = true
+		}
+	}
+	if !unknownSeen {
+		tc.Select(selectedFields...)
+	}
+	return nil
+}
+
+type targetconfiguredPaginateArgs struct {
+	first, last   *int
+	after, before *Cursor
+	opts          []TargetConfiguredPaginateOption
+}
+
+func newTargetConfiguredPaginateArgs(rv map[string]any) *targetconfiguredPaginateArgs {
+	args := &targetconfiguredPaginateArgs{}
+	if rv == nil {
+		return args
+	}
+	if v := rv[firstField]; v != nil {
+		args.first = v.(*int)
+	}
+	if v := rv[lastField]; v != nil {
+		args.last = v.(*int)
+	}
+	if v := rv[afterField]; v != nil {
+		args.after = v.(*Cursor)
+	}
+	if v := rv[beforeField]; v != nil {
+		args.before = v.(*Cursor)
+	}
+	if v, ok := rv[whereField].(*TargetConfiguredWhereInput); ok {
+		args.opts = append(args.opts, WithTargetConfiguredFilter(v.Filter))
+	}
+	return args
+}
+
+// CollectFields tells the query-builder to eagerly load connected nodes by resolver context.
 func (tm *TargetMetricsQuery) CollectFields(ctx context.Context, satisfies ...string) (*TargetMetricsQuery, error) {
 	fc := graphql.GetFieldContext(ctx)
 	if fc == nil {
@@ -2892,6 +3347,113 @@ func newTargetMetricsPaginateArgs(rv map[string]any) *targetmetricsPaginateArgs 
 	}
 	if v, ok := rv[whereField].(*TargetMetricsWhereInput); ok {
 		args.opts = append(args.opts, WithTargetMetricsFilter(v.Filter))
+	}
+	return args
+}
+
+// CollectFields tells the query-builder to eagerly load connected nodes by resolver context.
+func (tp *TargetPairQuery) CollectFields(ctx context.Context, satisfies ...string) (*TargetPairQuery, error) {
+	fc := graphql.GetFieldContext(ctx)
+	if fc == nil {
+		return tp, nil
+	}
+	if err := tp.collectField(ctx, false, graphql.GetOperationContext(ctx), fc.Field, nil, satisfies...); err != nil {
+		return nil, err
+	}
+	return tp, nil
+}
+
+func (tp *TargetPairQuery) collectField(ctx context.Context, oneNode bool, opCtx *graphql.OperationContext, collected graphql.CollectedField, path []string, satisfies ...string) error {
+	path = append([]string(nil), path...)
+	var (
+		unknownSeen    bool
+		fieldSeen      = make(map[string]struct{}, len(targetpair.Columns))
+		selectedFields = []string{targetpair.FieldID}
+	)
+	for _, field := range graphql.CollectFields(opCtx, collected.Selections, satisfies) {
+		switch field.Name {
+
+		case "bazelInvocation":
+			var (
+				alias = field.Alias
+				path  = append(path, alias)
+				query = (&BazelInvocationClient{config: tp.config}).Query()
+			)
+			if err := query.collectField(ctx, false, opCtx, field, path, mayAddCondition(satisfies, bazelinvocationImplementors)...); err != nil {
+				return err
+			}
+			tp.WithNamedBazelInvocation(alias, func(wq *BazelInvocationQuery) {
+				*wq = *query
+			})
+
+		case "configuration":
+			var (
+				alias = field.Alias
+				path  = append(path, alias)
+				query = (&TargetConfiguredClient{config: tp.config}).Query()
+			)
+			if err := query.collectField(ctx, oneNode, opCtx, field, path, mayAddCondition(satisfies, targetconfiguredImplementors)...); err != nil {
+				return err
+			}
+			tp.withConfiguration = query
+
+		case "completion":
+			var (
+				alias = field.Alias
+				path  = append(path, alias)
+				query = (&TargetCompleteClient{config: tp.config}).Query()
+			)
+			if err := query.collectField(ctx, oneNode, opCtx, field, path, mayAddCondition(satisfies, targetcompleteImplementors)...); err != nil {
+				return err
+			}
+			tp.withCompletion = query
+		case "label":
+			if _, ok := fieldSeen[targetpair.FieldLabel]; !ok {
+				selectedFields = append(selectedFields, targetpair.FieldLabel)
+				fieldSeen[targetpair.FieldLabel] = struct{}{}
+			}
+		case "durationInMs":
+			if _, ok := fieldSeen[targetpair.FieldDurationInMs]; !ok {
+				selectedFields = append(selectedFields, targetpair.FieldDurationInMs)
+				fieldSeen[targetpair.FieldDurationInMs] = struct{}{}
+			}
+		case "id":
+		case "__typename":
+		default:
+			unknownSeen = true
+		}
+	}
+	if !unknownSeen {
+		tp.Select(selectedFields...)
+	}
+	return nil
+}
+
+type targetpairPaginateArgs struct {
+	first, last   *int
+	after, before *Cursor
+	opts          []TargetPairPaginateOption
+}
+
+func newTargetPairPaginateArgs(rv map[string]any) *targetpairPaginateArgs {
+	args := &targetpairPaginateArgs{}
+	if rv == nil {
+		return args
+	}
+	if v := rv[firstField]; v != nil {
+		args.first = v.(*int)
+	}
+	if v := rv[lastField]; v != nil {
+		args.last = v.(*int)
+	}
+	if v := rv[afterField]; v != nil {
+		args.after = v.(*Cursor)
+	}
+	if v := rv[beforeField]; v != nil {
+		args.before = v.(*Cursor)
+	}
+	if v, ok := rv[whereField].(*TargetPairWhereInput); ok {
+		args.opts = append(args.opts, WithTargetPairFilter(v.Filter))
 	}
 	return args
 }

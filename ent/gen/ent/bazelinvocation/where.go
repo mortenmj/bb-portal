@@ -761,6 +761,29 @@ func HasTestCollectionWith(preds ...predicate.TestCollection) predicate.BazelInv
 	})
 }
 
+// HasTargets applies the HasEdge predicate on the "targets" edge.
+func HasTargets() predicate.BazelInvocation {
+	return predicate.BazelInvocation(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, TargetsTable, TargetsPrimaryKey...),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasTargetsWith applies the HasEdge predicate on the "targets" edge with a given conditions (other predicates).
+func HasTargetsWith(preds ...predicate.TargetPair) predicate.BazelInvocation {
+	return predicate.BazelInvocation(func(s *sql.Selector) {
+		step := newTargetsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.BazelInvocation) predicate.BazelInvocation {
 	return predicate.BazelInvocation(sql.AndPredicates(predicates...))

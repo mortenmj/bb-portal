@@ -17,6 +17,7 @@ import (
 	"github.com/buildbarn/bb-portal/ent/gen/ent/eventfile"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/metrics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/predicate"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/targetpair"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/testcollection"
 )
 
@@ -32,11 +33,13 @@ type BazelInvocationQuery struct {
 	withMetrics             *MetricsQuery
 	withProblems            *BazelInvocationProblemQuery
 	withTestCollection      *TestCollectionQuery
+	withTargets             *TargetPairQuery
 	withFKs                 bool
 	modifiers               []func(*sql.Selector)
 	loadTotal               []func(context.Context, []*BazelInvocation) error
 	withNamedProblems       map[string]*BazelInvocationProblemQuery
 	withNamedTestCollection map[string]*TestCollectionQuery
+	withNamedTargets        map[string]*TargetPairQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -176,6 +179,28 @@ func (biq *BazelInvocationQuery) QueryTestCollection() *TestCollectionQuery {
 			sqlgraph.From(bazelinvocation.Table, bazelinvocation.FieldID, selector),
 			sqlgraph.To(testcollection.Table, testcollection.FieldID),
 			sqlgraph.Edge(sqlgraph.M2M, false, bazelinvocation.TestCollectionTable, bazelinvocation.TestCollectionPrimaryKey...),
+		)
+		fromU = sqlgraph.SetNeighbors(biq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryTargets chains the current query on the "targets" edge.
+func (biq *BazelInvocationQuery) QueryTargets() *TargetPairQuery {
+	query := (&TargetPairClient{config: biq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := biq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := biq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(bazelinvocation.Table, bazelinvocation.FieldID, selector),
+			sqlgraph.To(targetpair.Table, targetpair.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, bazelinvocation.TargetsTable, bazelinvocation.TargetsPrimaryKey...),
 		)
 		fromU = sqlgraph.SetNeighbors(biq.driver.Dialect(), step)
 		return fromU, nil
@@ -380,6 +405,7 @@ func (biq *BazelInvocationQuery) Clone() *BazelInvocationQuery {
 		withMetrics:        biq.withMetrics.Clone(),
 		withProblems:       biq.withProblems.Clone(),
 		withTestCollection: biq.withTestCollection.Clone(),
+		withTargets:        biq.withTargets.Clone(),
 		// clone intermediate query.
 		sql:  biq.sql.Clone(),
 		path: biq.path,
@@ -438,6 +464,17 @@ func (biq *BazelInvocationQuery) WithTestCollection(opts ...func(*TestCollection
 		opt(query)
 	}
 	biq.withTestCollection = query
+	return biq
+}
+
+// WithTargets tells the query-builder to eager-load the nodes that are connected to
+// the "targets" edge. The optional arguments are used to configure the query builder of the edge.
+func (biq *BazelInvocationQuery) WithTargets(opts ...func(*TargetPairQuery)) *BazelInvocationQuery {
+	query := (&TargetPairClient{config: biq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	biq.withTargets = query
 	return biq
 }
 
@@ -520,12 +557,13 @@ func (biq *BazelInvocationQuery) sqlAll(ctx context.Context, hooks ...queryHook)
 		nodes       = []*BazelInvocation{}
 		withFKs     = biq.withFKs
 		_spec       = biq.querySpec()
-		loadedTypes = [5]bool{
+		loadedTypes = [6]bool{
 			biq.withEventFile != nil,
 			biq.withBuild != nil,
 			biq.withMetrics != nil,
 			biq.withProblems != nil,
 			biq.withTestCollection != nil,
+			biq.withTargets != nil,
 		}
 	)
 	if biq.withEventFile != nil || biq.withBuild != nil {
@@ -589,6 +627,13 @@ func (biq *BazelInvocationQuery) sqlAll(ctx context.Context, hooks ...queryHook)
 			return nil, err
 		}
 	}
+	if query := biq.withTargets; query != nil {
+		if err := biq.loadTargets(ctx, query, nodes,
+			func(n *BazelInvocation) { n.Edges.Targets = []*TargetPair{} },
+			func(n *BazelInvocation, e *TargetPair) { n.Edges.Targets = append(n.Edges.Targets, e) }); err != nil {
+			return nil, err
+		}
+	}
 	for name, query := range biq.withNamedProblems {
 		if err := biq.loadProblems(ctx, query, nodes,
 			func(n *BazelInvocation) { n.appendNamedProblems(name) },
@@ -600,6 +645,13 @@ func (biq *BazelInvocationQuery) sqlAll(ctx context.Context, hooks ...queryHook)
 		if err := biq.loadTestCollection(ctx, query, nodes,
 			func(n *BazelInvocation) { n.appendNamedTestCollection(name) },
 			func(n *BazelInvocation, e *TestCollection) { n.appendNamedTestCollection(name, e) }); err != nil {
+			return nil, err
+		}
+	}
+	for name, query := range biq.withNamedTargets {
+		if err := biq.loadTargets(ctx, query, nodes,
+			func(n *BazelInvocation) { n.appendNamedTargets(name) },
+			func(n *BazelInvocation, e *TargetPair) { n.appendNamedTargets(name, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -795,6 +847,67 @@ func (biq *BazelInvocationQuery) loadTestCollection(ctx context.Context, query *
 	}
 	return nil
 }
+func (biq *BazelInvocationQuery) loadTargets(ctx context.Context, query *TargetPairQuery, nodes []*BazelInvocation, init func(*BazelInvocation), assign func(*BazelInvocation, *TargetPair)) error {
+	edgeIDs := make([]driver.Value, len(nodes))
+	byID := make(map[int]*BazelInvocation)
+	nids := make(map[int]map[*BazelInvocation]struct{})
+	for i, node := range nodes {
+		edgeIDs[i] = node.ID
+		byID[node.ID] = node
+		if init != nil {
+			init(node)
+		}
+	}
+	query.Where(func(s *sql.Selector) {
+		joinT := sql.Table(bazelinvocation.TargetsTable)
+		s.Join(joinT).On(s.C(targetpair.FieldID), joinT.C(bazelinvocation.TargetsPrimaryKey[1]))
+		s.Where(sql.InValues(joinT.C(bazelinvocation.TargetsPrimaryKey[0]), edgeIDs...))
+		columns := s.SelectedColumns()
+		s.Select(joinT.C(bazelinvocation.TargetsPrimaryKey[0]))
+		s.AppendSelect(columns...)
+		s.SetDistinct(false)
+	})
+	if err := query.prepareQuery(ctx); err != nil {
+		return err
+	}
+	qr := QuerierFunc(func(ctx context.Context, q Query) (Value, error) {
+		return query.sqlAll(ctx, func(_ context.Context, spec *sqlgraph.QuerySpec) {
+			assign := spec.Assign
+			values := spec.ScanValues
+			spec.ScanValues = func(columns []string) ([]any, error) {
+				values, err := values(columns[1:])
+				if err != nil {
+					return nil, err
+				}
+				return append([]any{new(sql.NullInt64)}, values...), nil
+			}
+			spec.Assign = func(columns []string, values []any) error {
+				outValue := int(values[0].(*sql.NullInt64).Int64)
+				inValue := int(values[1].(*sql.NullInt64).Int64)
+				if nids[inValue] == nil {
+					nids[inValue] = map[*BazelInvocation]struct{}{byID[outValue]: {}}
+					return assign(columns[1:], values[1:])
+				}
+				nids[inValue][byID[outValue]] = struct{}{}
+				return nil
+			}
+		})
+	})
+	neighbors, err := withInterceptors[[]*TargetPair](ctx, query, qr, query.inters)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected "targets" node returned %v`, n.ID)
+		}
+		for kn := range nodes {
+			assign(kn, n)
+		}
+	}
+	return nil
+}
 
 func (biq *BazelInvocationQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := biq.querySpec()
@@ -905,6 +1018,20 @@ func (biq *BazelInvocationQuery) WithNamedTestCollection(name string, opts ...fu
 		biq.withNamedTestCollection = make(map[string]*TestCollectionQuery)
 	}
 	biq.withNamedTestCollection[name] = query
+	return biq
+}
+
+// WithNamedTargets tells the query-builder to eager-load the nodes that are connected to the "targets"
+// edge with the given name. The optional arguments are used to configure the query builder of the edge.
+func (biq *BazelInvocationQuery) WithNamedTargets(name string, opts ...func(*TargetPairQuery)) *BazelInvocationQuery {
+	query := (&TargetPairClient{config: biq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	if biq.withNamedTargets == nil {
+		biq.withNamedTargets = make(map[string]*TargetPairQuery)
+	}
+	biq.withNamedTargets[name] = query
 	return biq
 }
 

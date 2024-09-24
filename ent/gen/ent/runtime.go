@@ -21,6 +21,10 @@ func init() {
 	eventfile.DefaultStatus = eventfileDescStatus.Default.(string)
 	missdetailFields := schema.MissDetail{}.Fields()
 	_ = missdetailFields
+	targetcompleteFields := schema.TargetComplete{}.Fields()
+	_ = targetcompleteFields
+	targetconfiguredFields := schema.TargetConfigured{}.Fields()
+	_ = targetconfiguredFields
 	testresultbesFields := schema.TestResultBES{}.Fields()
 	_ = testresultbesFields
 	testsummaryFields := schema.TestSummary{}.Fields()

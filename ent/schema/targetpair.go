@@ -23,7 +23,7 @@ func (TargetPair) Fields() []ent.Field {
 func (TargetPair) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.From("bazel_invocation", BazelInvocation.Type).
-			Ref("test_collection"),
+			Ref("targets"),
 		edge.To("configuration", TargetConfigured.Type).Unique(),
 		edge.To("completion", TargetComplete.Type).Unique(),
 	}

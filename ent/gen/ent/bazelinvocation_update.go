@@ -17,6 +17,7 @@ import (
 	"github.com/buildbarn/bb-portal/ent/gen/ent/eventfile"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/metrics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/predicate"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/targetpair"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/testcollection"
 	"github.com/buildbarn/bb-portal/pkg/summary"
 )
@@ -315,6 +316,21 @@ func (biu *BazelInvocationUpdate) AddTestCollection(t ...*TestCollection) *Bazel
 	return biu.AddTestCollectionIDs(ids...)
 }
 
+// AddTargetIDs adds the "targets" edge to the TargetPair entity by IDs.
+func (biu *BazelInvocationUpdate) AddTargetIDs(ids ...int) *BazelInvocationUpdate {
+	biu.mutation.AddTargetIDs(ids...)
+	return biu
+}
+
+// AddTargets adds the "targets" edges to the TargetPair entity.
+func (biu *BazelInvocationUpdate) AddTargets(t ...*TargetPair) *BazelInvocationUpdate {
+	ids := make([]int, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return biu.AddTargetIDs(ids...)
+}
+
 // Mutation returns the BazelInvocationMutation object of the builder.
 func (biu *BazelInvocationUpdate) Mutation() *BazelInvocationMutation {
 	return biu.mutation
@@ -378,6 +394,27 @@ func (biu *BazelInvocationUpdate) RemoveTestCollection(t ...*TestCollection) *Ba
 		ids[i] = t[i].ID
 	}
 	return biu.RemoveTestCollectionIDs(ids...)
+}
+
+// ClearTargets clears all "targets" edges to the TargetPair entity.
+func (biu *BazelInvocationUpdate) ClearTargets() *BazelInvocationUpdate {
+	biu.mutation.ClearTargets()
+	return biu
+}
+
+// RemoveTargetIDs removes the "targets" edge to TargetPair entities by IDs.
+func (biu *BazelInvocationUpdate) RemoveTargetIDs(ids ...int) *BazelInvocationUpdate {
+	biu.mutation.RemoveTargetIDs(ids...)
+	return biu
+}
+
+// RemoveTargets removes "targets" edges to TargetPair entities.
+func (biu *BazelInvocationUpdate) RemoveTargets(t ...*TargetPair) *BazelInvocationUpdate {
+	ids := make([]int, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return biu.RemoveTargetIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -657,6 +694,51 @@ func (biu *BazelInvocationUpdate) sqlSave(ctx context.Context) (n int, err error
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(testcollection.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if biu.mutation.TargetsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   bazelinvocation.TargetsTable,
+			Columns: bazelinvocation.TargetsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(targetpair.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := biu.mutation.RemovedTargetsIDs(); len(nodes) > 0 && !biu.mutation.TargetsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   bazelinvocation.TargetsTable,
+			Columns: bazelinvocation.TargetsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(targetpair.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := biu.mutation.TargetsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   bazelinvocation.TargetsTable,
+			Columns: bazelinvocation.TargetsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(targetpair.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -965,6 +1047,21 @@ func (biuo *BazelInvocationUpdateOne) AddTestCollection(t ...*TestCollection) *B
 	return biuo.AddTestCollectionIDs(ids...)
 }
 
+// AddTargetIDs adds the "targets" edge to the TargetPair entity by IDs.
+func (biuo *BazelInvocationUpdateOne) AddTargetIDs(ids ...int) *BazelInvocationUpdateOne {
+	biuo.mutation.AddTargetIDs(ids...)
+	return biuo
+}
+
+// AddTargets adds the "targets" edges to the TargetPair entity.
+func (biuo *BazelInvocationUpdateOne) AddTargets(t ...*TargetPair) *BazelInvocationUpdateOne {
+	ids := make([]int, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return biuo.AddTargetIDs(ids...)
+}
+
 // Mutation returns the BazelInvocationMutation object of the builder.
 func (biuo *BazelInvocationUpdateOne) Mutation() *BazelInvocationMutation {
 	return biuo.mutation
@@ -1028,6 +1125,27 @@ func (biuo *BazelInvocationUpdateOne) RemoveTestCollection(t ...*TestCollection)
 		ids[i] = t[i].ID
 	}
 	return biuo.RemoveTestCollectionIDs(ids...)
+}
+
+// ClearTargets clears all "targets" edges to the TargetPair entity.
+func (biuo *BazelInvocationUpdateOne) ClearTargets() *BazelInvocationUpdateOne {
+	biuo.mutation.ClearTargets()
+	return biuo
+}
+
+// RemoveTargetIDs removes the "targets" edge to TargetPair entities by IDs.
+func (biuo *BazelInvocationUpdateOne) RemoveTargetIDs(ids ...int) *BazelInvocationUpdateOne {
+	biuo.mutation.RemoveTargetIDs(ids...)
+	return biuo
+}
+
+// RemoveTargets removes "targets" edges to TargetPair entities.
+func (biuo *BazelInvocationUpdateOne) RemoveTargets(t ...*TargetPair) *BazelInvocationUpdateOne {
+	ids := make([]int, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return biuo.RemoveTargetIDs(ids...)
 }
 
 // Where appends a list predicates to the BazelInvocationUpdate builder.
@@ -1337,6 +1455,51 @@ func (biuo *BazelInvocationUpdateOne) sqlSave(ctx context.Context) (_node *Bazel
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(testcollection.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if biuo.mutation.TargetsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   bazelinvocation.TargetsTable,
+			Columns: bazelinvocation.TargetsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(targetpair.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := biuo.mutation.RemovedTargetsIDs(); len(nodes) > 0 && !biuo.mutation.TargetsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   bazelinvocation.TargetsTable,
+			Columns: bazelinvocation.TargetsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(targetpair.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := biuo.mutation.TargetsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   bazelinvocation.TargetsTable,
+			Columns: bazelinvocation.TargetsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(targetpair.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

@@ -394,6 +394,25 @@ var (
 		Columns:    MissDetailsColumns,
 		PrimaryKey: []*schema.Column{MissDetailsColumns[0]},
 	}
+	// NamedSetOfFilesColumns holds the columns for the "named_set_of_files" table.
+	NamedSetOfFilesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "named_set_of_files_file_sets", Type: field.TypeInt, Unique: true, Nullable: true},
+	}
+	// NamedSetOfFilesTable holds the schema information for the "named_set_of_files" table.
+	NamedSetOfFilesTable = &schema.Table{
+		Name:       "named_set_of_files",
+		Columns:    NamedSetOfFilesColumns,
+		PrimaryKey: []*schema.Column{NamedSetOfFilesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "named_set_of_files_named_set_of_files_file_sets",
+				Columns:    []*schema.Column{NamedSetOfFilesColumns[1]},
+				RefColumns: []*schema.Column{NamedSetOfFilesColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+	}
 	// NetworkMetricsColumns holds the columns for the "network_metrics" table.
 	NetworkMetricsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
@@ -403,6 +422,27 @@ var (
 		Name:       "network_metrics",
 		Columns:    NetworkMetricsColumns,
 		PrimaryKey: []*schema.Column{NetworkMetricsColumns[0]},
+	}
+	// OutputGroupsColumns holds the columns for the "output_groups" table.
+	OutputGroupsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "name", Type: field.TypeString, Nullable: true},
+		{Name: "incomplete", Type: field.TypeBool, Nullable: true},
+		{Name: "output_group_file_sets", Type: field.TypeInt, Nullable: true},
+	}
+	// OutputGroupsTable holds the schema information for the "output_groups" table.
+	OutputGroupsTable = &schema.Table{
+		Name:       "output_groups",
+		Columns:    OutputGroupsColumns,
+		PrimaryKey: []*schema.Column{OutputGroupsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "output_groups_named_set_of_files_file_sets",
+				Columns:    []*schema.Column{OutputGroupsColumns[3]},
+				RefColumns: []*schema.Column{NamedSetOfFilesColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
 	}
 	// PackageLoadMetricsColumns holds the columns for the "package_load_metrics" table.
 	PackageLoadMetricsColumns = []*schema.Column{
@@ -498,6 +538,46 @@ var (
 			},
 		},
 	}
+	// TargetCompletesColumns holds the columns for the "target_completes" table.
+	TargetCompletesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "success", Type: field.TypeBool, Nullable: true},
+		{Name: "tag", Type: field.TypeJSON, Nullable: true},
+		{Name: "target_kind", Type: field.TypeString, Nullable: true},
+		{Name: "end_time_in_ms", Type: field.TypeInt64, Nullable: true},
+		{Name: "test_timeout_seconds", Type: field.TypeInt64, Nullable: true},
+		{Name: "test_timeout", Type: field.TypeInt64, Nullable: true},
+		{Name: "test_size", Type: field.TypeEnum, Nullable: true, Enums: []string{"UNKNOWN", "SMALL", "MEDIUM", "LARGE", "ENORMOUS"}, Default: "UNKNOWN"},
+		{Name: "target_complete_output_group", Type: field.TypeInt, Nullable: true},
+	}
+	// TargetCompletesTable holds the schema information for the "target_completes" table.
+	TargetCompletesTable = &schema.Table{
+		Name:       "target_completes",
+		Columns:    TargetCompletesColumns,
+		PrimaryKey: []*schema.Column{TargetCompletesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "target_completes_output_groups_output_group",
+				Columns:    []*schema.Column{TargetCompletesColumns[8]},
+				RefColumns: []*schema.Column{OutputGroupsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+	}
+	// TargetConfiguredsColumns holds the columns for the "target_configureds" table.
+	TargetConfiguredsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "tag", Type: field.TypeJSON, Nullable: true},
+		{Name: "target_kind", Type: field.TypeString, Nullable: true},
+		{Name: "start_time_in_ms", Type: field.TypeInt64, Nullable: true},
+		{Name: "test_size", Type: field.TypeEnum, Nullable: true, Enums: []string{"UNKNOWN", "SMALL", "MEDIUM", "LARGE", "ENORMOUS"}, Default: "UNKNOWN"},
+	}
+	// TargetConfiguredsTable holds the schema information for the "target_configureds" table.
+	TargetConfiguredsTable = &schema.Table{
+		Name:       "target_configureds",
+		Columns:    TargetConfiguredsColumns,
+		PrimaryKey: []*schema.Column{TargetConfiguredsColumns[0]},
+	}
 	// TargetMetricsColumns holds the columns for the "target_metrics" table.
 	TargetMetricsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
@@ -510,6 +590,34 @@ var (
 		Name:       "target_metrics",
 		Columns:    TargetMetricsColumns,
 		PrimaryKey: []*schema.Column{TargetMetricsColumns[0]},
+	}
+	// TargetPairsColumns holds the columns for the "target_pairs" table.
+	TargetPairsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "label", Type: field.TypeString, Nullable: true},
+		{Name: "duration_in_ms", Type: field.TypeInt64, Nullable: true},
+		{Name: "target_pair_configuration", Type: field.TypeInt, Nullable: true},
+		{Name: "target_pair_completion", Type: field.TypeInt, Nullable: true},
+	}
+	// TargetPairsTable holds the schema information for the "target_pairs" table.
+	TargetPairsTable = &schema.Table{
+		Name:       "target_pairs",
+		Columns:    TargetPairsColumns,
+		PrimaryKey: []*schema.Column{TargetPairsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "target_pairs_target_configureds_configuration",
+				Columns:    []*schema.Column{TargetPairsColumns[3]},
+				RefColumns: []*schema.Column{TargetConfiguredsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "target_pairs_target_completes_completion",
+				Columns:    []*schema.Column{TargetPairsColumns[4]},
+				RefColumns: []*schema.Column{TargetCompletesColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
 	}
 	// TestCollectionsColumns holds the columns for the "test_collections" table.
 	TestCollectionsColumns = []*schema.Column{
@@ -539,6 +647,10 @@ var (
 		{Name: "length", Type: field.TypeInt64, Nullable: true},
 		{Name: "name", Type: field.TypeString, Nullable: true},
 		{Name: "prefix", Type: field.TypeJSON, Nullable: true},
+		{Name: "named_set_of_files_files", Type: field.TypeInt, Nullable: true},
+		{Name: "output_group_inline_files", Type: field.TypeInt, Nullable: true},
+		{Name: "target_complete_important_output", Type: field.TypeInt, Nullable: true},
+		{Name: "target_complete_directory_output", Type: field.TypeInt, Nullable: true},
 		{Name: "test_summary_passed", Type: field.TypeInt, Nullable: true},
 		{Name: "test_summary_failed", Type: field.TypeInt, Nullable: true},
 	}
@@ -549,14 +661,38 @@ var (
 		PrimaryKey: []*schema.Column{TestFilesColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "test_files_test_summaries_passed",
+				Symbol:     "test_files_named_set_of_files_files",
 				Columns:    []*schema.Column{TestFilesColumns[6]},
+				RefColumns: []*schema.Column{NamedSetOfFilesColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "test_files_output_groups_inline_files",
+				Columns:    []*schema.Column{TestFilesColumns[7]},
+				RefColumns: []*schema.Column{OutputGroupsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "test_files_target_completes_important_output",
+				Columns:    []*schema.Column{TestFilesColumns[8]},
+				RefColumns: []*schema.Column{TargetCompletesColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "test_files_target_completes_directory_output",
+				Columns:    []*schema.Column{TestFilesColumns[9]},
+				RefColumns: []*schema.Column{TargetCompletesColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "test_files_test_summaries_passed",
+				Columns:    []*schema.Column{TestFilesColumns[10]},
 				RefColumns: []*schema.Column{TestSummariesColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "test_files_test_summaries_failed",
-				Columns:    []*schema.Column{TestFilesColumns[7]},
+				Columns:    []*schema.Column{TestFilesColumns[11]},
 				RefColumns: []*schema.Column{TestSummariesColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
@@ -820,6 +956,31 @@ var (
 				Symbol:     "bazel_invocation_test_collection_test_collection_id",
 				Columns:    []*schema.Column{BazelInvocationTestCollectionColumns[1]},
 				RefColumns: []*schema.Column{TestCollectionsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
+	}
+	// BazelInvocationTargetsColumns holds the columns for the "bazel_invocation_targets" table.
+	BazelInvocationTargetsColumns = []*schema.Column{
+		{Name: "bazel_invocation_id", Type: field.TypeInt},
+		{Name: "target_pair_id", Type: field.TypeInt},
+	}
+	// BazelInvocationTargetsTable holds the schema information for the "bazel_invocation_targets" table.
+	BazelInvocationTargetsTable = &schema.Table{
+		Name:       "bazel_invocation_targets",
+		Columns:    BazelInvocationTargetsColumns,
+		PrimaryKey: []*schema.Column{BazelInvocationTargetsColumns[0], BazelInvocationTargetsColumns[1]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "bazel_invocation_targets_bazel_invocation_id",
+				Columns:    []*schema.Column{BazelInvocationTargetsColumns[0]},
+				RefColumns: []*schema.Column{BazelInvocationsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+			{
+				Symbol:     "bazel_invocation_targets_target_pair_id",
+				Columns:    []*schema.Column{BazelInvocationTargetsColumns[1]},
+				RefColumns: []*schema.Column{TargetPairsColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
 		},
@@ -1245,14 +1406,19 @@ var (
 		MemoryMetricsTable,
 		MetricsTable,
 		MissDetailsTable,
+		NamedSetOfFilesTable,
 		NetworkMetricsTable,
+		OutputGroupsTable,
 		PackageLoadMetricsTable,
 		PackageMetricsTable,
 		RaceStatisticsTable,
 		ResourceUsagesTable,
 		RunnerCountsTable,
 		SystemNetworkStatsTable,
+		TargetCompletesTable,
+		TargetConfiguredsTable,
 		TargetMetricsTable,
+		TargetPairsTable,
 		TestCollectionsTable,
 		TestFilesTable,
 		TestResultBeSsTable,
@@ -1266,6 +1432,7 @@ var (
 		ActionSummaryActionCacheStatisticsTable,
 		ArtifactMetricsTopLevelArtifactsTable,
 		BazelInvocationTestCollectionTable,
+		BazelInvocationTargetsTable,
 		BuildGraphMetricsEvaluatedValuesTable,
 		DynamicExecutionMetricsRaceStatisticsTable,
 		ExectionInfoResourceUsageTable,
@@ -1299,10 +1466,19 @@ func init() {
 	FilesMetricsTable.ForeignKeys[1].RefTable = ArtifactMetricsTable
 	FilesMetricsTable.ForeignKeys[2].RefTable = ArtifactMetricsTable
 	MetricsTable.ForeignKeys[0].RefTable = BazelInvocationsTable
+	NamedSetOfFilesTable.ForeignKeys[0].RefTable = NamedSetOfFilesTable
+	OutputGroupsTable.ForeignKeys[0].RefTable = NamedSetOfFilesTable
 	SystemNetworkStatsTable.ForeignKeys[0].RefTable = NetworkMetricsTable
+	TargetCompletesTable.ForeignKeys[0].RefTable = OutputGroupsTable
+	TargetPairsTable.ForeignKeys[0].RefTable = TargetConfiguredsTable
+	TargetPairsTable.ForeignKeys[1].RefTable = TargetCompletesTable
 	TestCollectionsTable.ForeignKeys[0].RefTable = TestSummariesTable
-	TestFilesTable.ForeignKeys[0].RefTable = TestSummariesTable
-	TestFilesTable.ForeignKeys[1].RefTable = TestSummariesTable
+	TestFilesTable.ForeignKeys[0].RefTable = NamedSetOfFilesTable
+	TestFilesTable.ForeignKeys[1].RefTable = OutputGroupsTable
+	TestFilesTable.ForeignKeys[2].RefTable = TargetCompletesTable
+	TestFilesTable.ForeignKeys[3].RefTable = TargetCompletesTable
+	TestFilesTable.ForeignKeys[4].RefTable = TestSummariesTable
+	TestFilesTable.ForeignKeys[5].RefTable = TestSummariesTable
 	TestResultBeSsTable.ForeignKeys[0].RefTable = MetricsTable
 	TestResultBeSsTable.ForeignKeys[1].RefTable = TestCollectionsTable
 	TestResultBeSsTable.ForeignKeys[2].RefTable = ExectionInfosTable
@@ -1319,6 +1495,8 @@ func init() {
 	ArtifactMetricsTopLevelArtifactsTable.ForeignKeys[1].RefTable = FilesMetricsTable
 	BazelInvocationTestCollectionTable.ForeignKeys[0].RefTable = BazelInvocationsTable
 	BazelInvocationTestCollectionTable.ForeignKeys[1].RefTable = TestCollectionsTable
+	BazelInvocationTargetsTable.ForeignKeys[0].RefTable = BazelInvocationsTable
+	BazelInvocationTargetsTable.ForeignKeys[1].RefTable = TargetPairsTable
 	BuildGraphMetricsEvaluatedValuesTable.ForeignKeys[0].RefTable = BuildGraphMetricsTable
 	BuildGraphMetricsEvaluatedValuesTable.ForeignKeys[1].RefTable = EvaluationStatsTable
 	DynamicExecutionMetricsRaceStatisticsTable.ForeignKeys[0].RefTable = DynamicExecutionMetricsTable

@@ -50,8 +50,12 @@ type Tx struct {
 	Metrics *MetricsClient
 	// MissDetail is the client for interacting with the MissDetail builders.
 	MissDetail *MissDetailClient
+	// NamedSetOfFiles is the client for interacting with the NamedSetOfFiles builders.
+	NamedSetOfFiles *NamedSetOfFilesClient
 	// NetworkMetrics is the client for interacting with the NetworkMetrics builders.
 	NetworkMetrics *NetworkMetricsClient
+	// OutputGroup is the client for interacting with the OutputGroup builders.
+	OutputGroup *OutputGroupClient
 	// PackageLoadMetrics is the client for interacting with the PackageLoadMetrics builders.
 	PackageLoadMetrics *PackageLoadMetricsClient
 	// PackageMetrics is the client for interacting with the PackageMetrics builders.
@@ -64,8 +68,14 @@ type Tx struct {
 	RunnerCount *RunnerCountClient
 	// SystemNetworkStats is the client for interacting with the SystemNetworkStats builders.
 	SystemNetworkStats *SystemNetworkStatsClient
+	// TargetComplete is the client for interacting with the TargetComplete builders.
+	TargetComplete *TargetCompleteClient
+	// TargetConfigured is the client for interacting with the TargetConfigured builders.
+	TargetConfigured *TargetConfiguredClient
 	// TargetMetrics is the client for interacting with the TargetMetrics builders.
 	TargetMetrics *TargetMetricsClient
+	// TargetPair is the client for interacting with the TargetPair builders.
+	TargetPair *TargetPairClient
 	// TestCollection is the client for interacting with the TestCollection builders.
 	TestCollection *TestCollectionClient
 	// TestFile is the client for interacting with the TestFile builders.
@@ -230,14 +240,19 @@ func (tx *Tx) init() {
 	tx.MemoryMetrics = NewMemoryMetricsClient(tx.config)
 	tx.Metrics = NewMetricsClient(tx.config)
 	tx.MissDetail = NewMissDetailClient(tx.config)
+	tx.NamedSetOfFiles = NewNamedSetOfFilesClient(tx.config)
 	tx.NetworkMetrics = NewNetworkMetricsClient(tx.config)
+	tx.OutputGroup = NewOutputGroupClient(tx.config)
 	tx.PackageLoadMetrics = NewPackageLoadMetricsClient(tx.config)
 	tx.PackageMetrics = NewPackageMetricsClient(tx.config)
 	tx.RaceStatistics = NewRaceStatisticsClient(tx.config)
 	tx.ResourceUsage = NewResourceUsageClient(tx.config)
 	tx.RunnerCount = NewRunnerCountClient(tx.config)
 	tx.SystemNetworkStats = NewSystemNetworkStatsClient(tx.config)
+	tx.TargetComplete = NewTargetCompleteClient(tx.config)
+	tx.TargetConfigured = NewTargetConfiguredClient(tx.config)
 	tx.TargetMetrics = NewTargetMetricsClient(tx.config)
+	tx.TargetPair = NewTargetPairClient(tx.config)
 	tx.TestCollection = NewTestCollectionClient(tx.config)
 	tx.TestFile = NewTestFileClient(tx.config)
 	tx.TestResultBES = NewTestResultBESClient(tx.config)

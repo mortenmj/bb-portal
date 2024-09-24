@@ -29,10 +29,14 @@ type TestFile struct {
 	Prefix []string `json:"prefix,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the TestFileQuery when eager-loading is set.
-	Edges               TestFileEdges `json:"edges"`
-	test_summary_passed *int
-	test_summary_failed *int
-	selectValues        sql.SelectValues
+	Edges                            TestFileEdges `json:"edges"`
+	named_set_of_files_files         *int
+	output_group_inline_files        *int
+	target_complete_important_output *int
+	target_complete_directory_output *int
+	test_summary_passed              *int
+	test_summary_failed              *int
+	selectValues                     sql.SelectValues
 }
 
 // TestFileEdges holds the relations/edges for other nodes in the graph.
@@ -68,9 +72,17 @@ func (*TestFile) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullInt64)
 		case testfile.FieldDigest, testfile.FieldFile, testfile.FieldName:
 			values[i] = new(sql.NullString)
-		case testfile.ForeignKeys[0]: // test_summary_passed
+		case testfile.ForeignKeys[0]: // named_set_of_files_files
 			values[i] = new(sql.NullInt64)
-		case testfile.ForeignKeys[1]: // test_summary_failed
+		case testfile.ForeignKeys[1]: // output_group_inline_files
+			values[i] = new(sql.NullInt64)
+		case testfile.ForeignKeys[2]: // target_complete_important_output
+			values[i] = new(sql.NullInt64)
+		case testfile.ForeignKeys[3]: // target_complete_directory_output
+			values[i] = new(sql.NullInt64)
+		case testfile.ForeignKeys[4]: // test_summary_passed
+			values[i] = new(sql.NullInt64)
+		case testfile.ForeignKeys[5]: // test_summary_failed
 			values[i] = new(sql.NullInt64)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -127,12 +139,40 @@ func (tf *TestFile) assignValues(columns []string, values []any) error {
 			}
 		case testfile.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for edge-field named_set_of_files_files", value)
+			} else if value.Valid {
+				tf.named_set_of_files_files = new(int)
+				*tf.named_set_of_files_files = int(value.Int64)
+			}
+		case testfile.ForeignKeys[1]:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for edge-field output_group_inline_files", value)
+			} else if value.Valid {
+				tf.output_group_inline_files = new(int)
+				*tf.output_group_inline_files = int(value.Int64)
+			}
+		case testfile.ForeignKeys[2]:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for edge-field target_complete_important_output", value)
+			} else if value.Valid {
+				tf.target_complete_important_output = new(int)
+				*tf.target_complete_important_output = int(value.Int64)
+			}
+		case testfile.ForeignKeys[3]:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for edge-field target_complete_directory_output", value)
+			} else if value.Valid {
+				tf.target_complete_directory_output = new(int)
+				*tf.target_complete_directory_output = int(value.Int64)
+			}
+		case testfile.ForeignKeys[4]:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for edge-field test_summary_passed", value)
 			} else if value.Valid {
 				tf.test_summary_passed = new(int)
 				*tf.test_summary_passed = int(value.Int64)
 			}
-		case testfile.ForeignKeys[1]:
+		case testfile.ForeignKeys[5]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for edge-field test_summary_failed", value)
 			} else if value.Valid {

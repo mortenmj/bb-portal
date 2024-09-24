@@ -67,14 +67,17 @@ type BazelInvocationEdges struct {
 	Problems []*BazelInvocationProblem `json:"problems,omitempty"`
 	// TestCollection holds the value of the test_collection edge.
 	TestCollection []*TestCollection `json:"test_collection,omitempty"`
+	// Targets holds the value of the targets edge.
+	Targets []*TargetPair `json:"targets,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [5]bool
+	loadedTypes [6]bool
 	// totalCount holds the count of the edges above.
-	totalCount [4]map[string]int
+	totalCount [5]map[string]int
 
 	namedProblems       map[string][]*BazelInvocationProblem
 	namedTestCollection map[string][]*TestCollection
+	namedTargets        map[string][]*TargetPair
 }
 
 // EventFileOrErr returns the EventFile value or an error if the edge
@@ -126,6 +129,15 @@ func (e BazelInvocationEdges) TestCollectionOrErr() ([]*TestCollection, error) {
 		return e.TestCollection, nil
 	}
 	return nil, &NotLoadedError{edge: "test_collection"}
+}
+
+// TargetsOrErr returns the Targets value or an error if the edge
+// was not loaded in eager-loading.
+func (e BazelInvocationEdges) TargetsOrErr() ([]*TargetPair, error) {
+	if e.loadedTypes[5] {
+		return e.Targets, nil
+	}
+	return nil, &NotLoadedError{edge: "targets"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -298,6 +310,11 @@ func (bi *BazelInvocation) QueryTestCollection() *TestCollectionQuery {
 	return NewBazelInvocationClient(bi.config).QueryTestCollection(bi)
 }
 
+// QueryTargets queries the "targets" edge of the BazelInvocation entity.
+func (bi *BazelInvocation) QueryTargets() *TargetPairQuery {
+	return NewBazelInvocationClient(bi.config).QueryTargets(bi)
+}
+
 // Update returns a builder for updating this BazelInvocation.
 // Note that you need to call BazelInvocation.Unwrap() before calling this method if this BazelInvocation
 // was returned from a transaction, and the transaction was committed or rolled back.
@@ -405,6 +422,30 @@ func (bi *BazelInvocation) appendNamedTestCollection(name string, edges ...*Test
 		bi.Edges.namedTestCollection[name] = []*TestCollection{}
 	} else {
 		bi.Edges.namedTestCollection[name] = append(bi.Edges.namedTestCollection[name], edges...)
+	}
+}
+
+// NamedTargets returns the Targets named value or an error if the edge was not
+// loaded in eager-loading with this name.
+func (bi *BazelInvocation) NamedTargets(name string) ([]*TargetPair, error) {
+	if bi.Edges.namedTargets == nil {
+		return nil, &NotLoadedError{edge: name}
+	}
+	nodes, ok := bi.Edges.namedTargets[name]
+	if !ok {
+		return nil, &NotLoadedError{edge: name}
+	}
+	return nodes, nil
+}
+
+func (bi *BazelInvocation) appendNamedTargets(name string, edges ...*TargetPair) {
+	if bi.Edges.namedTargets == nil {
+		bi.Edges.namedTargets = make(map[string][]*TargetPair)
+	}
+	if len(edges) == 0 {
+		bi.Edges.namedTargets[name] = []*TargetPair{}
+	} else {
+		bi.Edges.namedTargets[name] = append(bi.Edges.namedTargets[name], edges...)
 	}
 }
 
