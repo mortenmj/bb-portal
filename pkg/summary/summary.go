@@ -22,6 +22,93 @@ const (
 	ExitCodeInterrupted = 8
 )
 
+// MISS REASON ENUM
+type MissReason int32
+
+const (
+	DIFFERENT_ACTION_KEY MissReason = iota + 1
+	DIFFERENT_DEPS
+	DIFFERENT_ENVIRONMENT
+	DIFFERENT_FILES
+	CORRUPTED_CACHE_ENTRY
+	NOT_CACHED
+	UNCONDITIONAL_EXECUTION
+)
+
+func (r MissReason) EnumIndex() int32 {
+	return int32(r)
+}
+
+func (r MissReason) String() string {
+	return [...]string{
+		"UNKNOWN",
+		"DIFFERENT_ACTION_KEY",
+		"DIFFERENT_DEPS",
+		"DIFFERENT_ENVIRONMENT",
+		"DIFFERENT_FILES",
+		"CORRUPTED_CACHE_ENTRY",
+		"NOT_CACHED",
+		"UNCONDITIONAL_EXECUTION",
+	}[r]
+}
+
+// TEST STATUS ENUM
+type TestStatus int32
+
+const (
+	NO_STATUS TestStatus = iota + 1
+	PASSED
+	FLAKY
+	TIMEOUT
+	FAILED
+	INCOMPLETE
+	REMOTE_FAILURE
+	FAILED_TO_BUILD
+	TOOL_HALTED_BEFORE_TESTING
+)
+
+func (r TestStatus) EnumIndex() int32 {
+	return int32(r)
+}
+
+func (r TestStatus) String() string {
+	return [...]string{
+		"NO_STATUS",
+		"PASSED",
+		"FLAKY",
+		"TIMEOUT",
+		"FAILED",
+		"INCOMPLETE",
+		"REMOTE_FAILURE",
+		"FAILED_TO_BUILD",
+		"TOOL_HALTED_BEFORE_TESTING",
+	}[r]
+}
+
+// TEST SIZE ENUM
+type TestSize int32
+
+const (
+	UNKNOWN TestSize = iota + 1
+	SMALL
+	MEDIUM
+	LARGE
+	ENORMOUS
+)
+
+func (r TestSize) EnumIndex() int32 {
+	return int32(r)
+}
+func (r TestSize) String() string {
+	return [...]string{
+		"UNKNOWN",
+		"SMALL",
+		"MEDIUM",
+		"LARGE",
+		"ENORMOUS",
+	}[r]
+}
+
 type Summary struct {
 	*InvocationSummary
 	Problems       []detectors.Problem
@@ -41,8 +128,7 @@ type Summary struct {
 	BuildLogs      strings.Builder
 	Metrics        Metrics
 	Tests          map[string]TestsCollection
-	TestResults    []TestResult
-	TestSummary    []TestSummary
+	Targets        map[string]TargetPair
 }
 
 type TestsCollection struct {
@@ -192,66 +278,6 @@ type MissDetail struct {
 	Count  int32
 }
 
-func (r MissReason) EnumIndex() int32 {
-	return int32(r)
-}
-
-func (r MissReason) String() string {
-	return [...]string{
-		"UNKNOWN",
-		"DIFFERENT_ACTION_KEY",
-		"DIFFERENT_DEPS",
-		"DIFFERENT_ENVIRONMENT",
-		"DIFFERENT_FILES",
-		"CORRUPTED_CACHE_ENTRY",
-		"NOT_CACHED",
-		"UNCONDITIONAL_EXECUTION",
-	}[r]
-}
-
-func (r TestStatus) EnumIndex() int32 {
-	return int32(r)
-}
-
-func (r TestStatus) String() string {
-	return [...]string{
-		"NO_STATUS",
-		"PASSED",
-		"FLAKY",
-		"TIMEOUT",
-		"FAILED",
-		"INCOMPLETE",
-		"REMOTE_FAILURE",
-		"FAILED_TO_BUILD",
-		"TOOL_HALTED_BEFORE_TESTING",
-	}[r]
-}
-
-type MissReason int32
-type TestStatus int32
-
-const (
-	NO_STATUS TestStatus = iota + 1
-	PASSED
-	FLAKY
-	TIMEOUT
-	FAILED
-	INCOMPLETE
-	REMOTE_FAILURE
-	FAILED_TO_BUILD
-	TOOL_HALTED_BEFORE_TESTING
-)
-
-const (
-	DIFFERENT_ACTION_KEY MissReason = iota + 1
-	DIFFERENT_DEPS
-	DIFFERENT_ENVIRONMENT
-	DIFFERENT_FILES
-	CORRUPTED_CACHE_ENTRY
-	NOT_CACHED
-	UNCONDITIONAL_EXECUTION
-)
-
 type PackageLoadMetrics struct {
 	Name               string
 	LoadDuration       time.Duration
@@ -355,4 +381,46 @@ type TestSummary struct {
 	TotalRunDuration int64
 	Passed           []TestFile
 	Failed           []TestFile
+}
+
+type TargetConfigured struct {
+	Tag        []string
+	TargetKind string
+	TestSize   TestSize
+	//adding this to track time
+	StartTimeInMs int64
+}
+
+type TargetComplete struct {
+	Success            bool
+	TargetKind         string
+	TestSize           TestSize
+	OutputGroup        OutputGroup
+	ImportantOutput    []TestFile
+	DirectoryOutput    []TestFile
+	Tag                []string
+	TestTimeoutSeconds int64
+	TestTimeout        int64
+	//adding this to track time
+	EndTimeInMs int64
+	//to lazy to implement this...maybe if i ever figure out how to generate that crap
+	//FailureDetail FailureDetail
+}
+
+type OutputGroup struct {
+	Name        string
+	Incomplete  bool
+	InlineFiles []TestFile
+	FileSets    NamedSetOfFiles
+}
+
+type NamedSetOfFiles struct {
+	Files    []TestFile
+	FileSets *NamedSetOfFiles
+}
+
+type TargetPair struct {
+	Configuration TargetConfigured
+	Completion    TargetComplete
+	DurationInMs  int64
 }

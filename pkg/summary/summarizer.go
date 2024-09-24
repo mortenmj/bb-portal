@@ -111,6 +111,14 @@ func (s Summarizer) ProcessEvent(buildEvent *events.BuildEvent) error {
 		if err != nil {
 			return err
 		}
+
+	case *bes.BuildEventId_TargetConfigured:
+		s.handleTargetConfigured(buildEvent.GetConfigured(), buildEvent.GetTargetConfiguredLabel(), time.Now())
+
+	case *bes.BuildEventId_TargetCompleted:
+		//get the time we saw this event
+		s.handleTargetCompleted(buildEvent.GetCompleted(), buildEvent.GetTargetCompletedLabel(), time.Now())
+
 	case *bes.BuildEventId_TestResult:
 		s.handleTestResult(buildEvent.GetTestResult(), buildEvent.GetId().GetTestResult().Label)
 
@@ -145,6 +153,62 @@ func (s Summarizer) handleStarted(started *bes.BuildStarted) {
 	s.summary.StartedAt = startedAt
 	s.summary.InvocationID = started.GetUuid()
 	s.summary.BazelVersion = started.GetBuildToolVersion()
+}
+
+func (s Summarizer) handleTargetConfigured(target *bes.TargetConfigured, label string, timestamp time.Time) {
+	// tag, target kind,, and test size
+	if target == nil {
+		return
+	}
+	if len(label) == 0 {
+		panic("that shit aint right")
+	}
+
+	if s.summary.Targets == nil {
+		s.summary.Targets = make(map[string]TargetPair)
+	}
+
+	s.summary.Targets[label] = TargetPair{
+		Configuration: TargetConfigured{
+			StartTimeInMs: timestamp.UnixMilli(),
+			TargetKind:    target.TargetKind,
+			TestSize:      TestSize(target.TestSize),
+			Tag:           target.Tag,
+		},
+	}
+}
+
+func (s Summarizer) handleTargetCompleted(target *bes.TargetComplete, label string, timestamp time.Time) {
+	//
+	if target == nil {
+		return
+	}
+	if len(label) == 0 {
+		panic("that shit aint right")
+	}
+
+	//this should never happen really...and if it does, timing data would be super jacked, so just panic for now
+	if s.summary.Targets == nil {
+		panic("oh boy...")
+	}
+
+	var targetPair TargetPair
+	targetPair, ok := s.summary.Targets[label]
+
+	if !ok {
+		panic("again...this is bad")
+	}
+	var targetCompletion TargetComplete = TargetComplete{
+		Success:            target.Success,
+		Tag:                target.Tag,
+		TestTimeoutSeconds: target.TestTimeout.Seconds,
+		TestTimeout:        target.TestTimeout.Seconds,
+		EndTimeInMs:        timestamp.UnixMilli(),
+	}
+	targetPair.Completion = targetCompletion
+	targetPair.DurationInMs = targetPair.Completion.EndTimeInMs - targetPair.Configuration.StartTimeInMs
+	s.summary.Targets[label] = targetPair
+
 }
 
 func (s Summarizer) handleTestResult(testResult *bes.TestResult, label string) {

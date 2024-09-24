@@ -435,8 +435,8 @@ func (act SaveActor) createMetrics(ctx context.Context, summary *summary.Summary
 			SetMnemonic(ad.Mnemonic).
 			SetFirstStartedMs(ad.FirstStartedMs).
 			SetLastEndedMs(ad.LastEndedMs).
-			SetSystemTime(ad.SystemTime.Milliseconds()).
-			SetUserTime(ad.UserTime.Milliseconds()).
+			SetSystemTime(ad.SystemTime).
+			SetUserTime(ad.UserTime).
 			Save(ctx)
 
 		if err != nil {
