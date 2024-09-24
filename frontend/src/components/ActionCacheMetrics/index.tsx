@@ -1,21 +1,14 @@
 import React, { useCallback, useState } from "react";
-import { PieChart, Pie, Sector, Cell, Legend, BarChart, Bar, LabelList } from 'recharts';
-import { Table, Row, Col, Statistic, Tooltip, Space } from 'antd';
+import { PieChart, Pie, Cell, Legend, BarChart, Bar, LabelList } from 'recharts';
+import { Table, Row, Col, Statistic, Tooltip, Space, Typography } from 'antd';
 import type { StatisticProps, TableColumnsType } from "antd/lib";
 import CountUp from 'react-countup';
-import { ActionCacheStatistics, ActionSummary, MissDetail, ActionData } from "@/graphql/__generated__/graphql";
+import { ActionCacheStatistics, ActionSummary, MissDetail } from "@/graphql/__generated__/graphql";
 import PortalCard from "../PortalCard";
-import {
-    BuildOutlined,
-    FileSearchOutlined,
-    PieChartOutlined,
-    ExclamationCircleOutlined,
-    NodeCollapseOutlined,
-    DeploymentUnitOutlined,
-    ExperimentOutlined,
-} from "@ant-design/icons";
-import internal from "stream";
-
+import { PieChartOutlined, DashboardOutlined, HddOutlined } from "@ant-design/icons";
+import { renderActiveShape } from "../Utilities/renderShape"
+import { nullPercent } from "../Utilities/nullPercent";
+import "./index.module.css"
 interface MissDetailDisplayDataType {
     key: React.Key;
     name: string;
@@ -23,35 +16,25 @@ interface MissDetailDisplayDataType {
     rate: string;
 }
 
-
 const formatter: StatisticProps['formatter'] = (value) => (
     <CountUp end={value as number} separator="," />
 );
 
-
-const generateColor = () => {
-    let randomColorString = "#";
-    const arrayOfColorFunctions = "0123456789abcdef";
-    for (let x = 0; x < 6; x++) {
-        let index = Math.floor(Math.random() * 16);
-        let value = arrayOfColorFunctions[index];
-
-        randomColorString += value;
-    }
-    return randomColorString;
-};
-
-
-const colorMap: Map<number, string> = new Map();
-const selectedColors: Map<string, boolean> = new Map();
-
-var ac_colors = ["#00cc66", "#0099ff", "#9900cc", "#ff9900", "#ff5050", "#ffff66", "#ff00ff"]
-
+var ac_colors =
+    [
+        "#9f9f9f", //unknown
+        "#336bff", //different action key
+        "#9900cc", //different deps
+        "#ff00c9", //different env
+        "#db6a17", //diff files
+        "#ff5733", //corrupted cache entry
+        "#ffbd33"] //not cached
 
 const ac_columns: TableColumnsType<MissDetailDisplayDataType> = [
     {
         title: "Miss Reason",
         dataIndex: "name",
+        // render: (idx, x) => <span className={"ac-miss-detail-" + x.name}>{x.name}</span>,
     },
     {
         title: "Count",
@@ -65,101 +48,7 @@ const ac_columns: TableColumnsType<MissDetailDisplayDataType> = [
     }
 ]
 
-function nullPercent(val: number | null | undefined, total: number | null | undefined, fixed: number = 2) {
-    return String((((val ?? 0) / (total ?? 1)) * 100).toFixed(fixed)) + "%";
-}
 
-const renderActiveShape = (props: any) => {
-    const RADIAN = Math.PI / 180;
-    const {
-        cx,
-        cy,
-        midAngle,
-        innerRadius,
-        outerRadius,
-        startAngle,
-        endAngle,
-        fill,
-        payload,
-        percent,
-        value
-    } = props;
-    const sin = Math.sin(-RADIAN * midAngle);
-    const cos = Math.cos(-RADIAN * midAngle);
-    const sx = cx + (outerRadius + 10) * cos;
-    const sy = cy + (outerRadius + 10) * sin;
-    const mx = cx + (outerRadius + 30) * cos;
-    const my = cy + (outerRadius + 30) * sin;
-    const ex = mx + (cos >= 0 ? 1 : -1) * 22;
-    const ey = my;
-    const textAnchor = cos >= 0 ? "start" : "end";
-
-    return (
-        <g>
-            <text x={cx} y={cy} dy={8} textAnchor="middle" fill={fill}>
-                {value}
-            </text>
-            <Sector
-                cx={cx}
-                cy={cy}
-                innerRadius={innerRadius}
-                outerRadius={outerRadius}
-                startAngle={startAngle}
-                endAngle={endAngle}
-                fill={fill}
-            />
-            <Sector
-                cx={cx}
-                cy={cy}
-                startAngle={startAngle}
-                endAngle={endAngle}
-                innerRadius={outerRadius + 6}
-                outerRadius={outerRadius + 10}
-                fill={fill}
-            />
-            <path
-                d={`M${sx},${sy}L${mx},${my}L${ex},${ey}`}
-                stroke={fill}
-                fill="none"
-            />
-            <circle cx={ex} cy={ey} r={2} fill={fill} stroke="none" />
-            <text
-                x={ex + (cos >= 0 ? 1 : -1) * 12}
-                y={ey}
-                textAnchor={textAnchor}
-                fill="#333"
-            >{`${payload.name}`}</text>
-            <text
-                x={ex + (cos >= 0 ? 1 : -1) * 12}
-                y={ey}
-                dy={18}
-                textAnchor={textAnchor}
-                fill="#999"
-            >
-                {`(Rate ${(percent * 100).toFixed(2)}%)`}
-            </text>
-        </g>
-    );
-};
-
-const newColorFind = (id: number) => {
-    // If already generated and assigned, return
-    if (colorMap.get(id)) return colorMap.get(id);
-
-    // Generate new random color
-    let newColor;
-
-    do {
-        newColor = generateColor();
-    } while (selectedColors.get(newColor));
-
-    // Found a new random, unassigned color
-    colorMap.set(id, newColor);
-    selectedColors.set(newColor, true);
-
-    // Return next new color
-    return newColor;
-}
 const AcMetrics: React.FC<{ acMetrics: ActionSummary | undefined; }> = ({ acMetrics }) => {
 
     const acMetricsData: ActionCacheStatistics | undefined = acMetrics?.actionCacheStatistics?.at(0)
@@ -199,16 +88,13 @@ const AcMetrics: React.FC<{ acMetrics: ActionSummary | undefined; }> = ({ acMetr
         [setActiveIndexRunner]
     );
     const acTitle: React.ReactNode[] = [<span key="label">Action Cache Statitics</span>];
-    const actionsTitle: React.ReactNode[] = [<span key="label">Actions Data</span>];
-    const userTimeTitle: React.ReactNode[] = [<span key="label">User Time</span>];
+
 
     return (
         <Space direction="vertical" size="middle" style={{ display: 'flex' }} >
-
-
-            <PortalCard icon={<PieChartOutlined />} titleBits={acTitle} >
-                <Row justify="space-around" align="middle" >
-                    <Col span="2">
+            <PortalCard icon={<DashboardOutlined />} titleBits={acTitle} >
+                <Row>
+                    <Space size="large">
                         <BarChart width={170} height={150} data={hits_data} margin={{ top: 0, left: 10, bottom: 10, right: 10 }}>
                             <Bar dataKey="Miss" fill={"#8884d8"} stackId="a">
                                 <LabelList dataKey="miss_label" position="center" />
@@ -219,50 +105,55 @@ const AcMetrics: React.FC<{ acMetrics: ActionSummary | undefined; }> = ({ acMetr
                             <Tooltip />
                             <Legend />
                         </BarChart>
-                        <Statistic title="Hits" value={acMetricsData?.hits ?? 0} formatter={formatter} />
-                        <Statistic title="Misses" value={acMetricsData?.misses ?? 0} formatter={formatter} />
+                        <Statistic title="Hits" value={acMetricsData?.hits ?? 0} formatter={formatter} valueStyle={{ color: "#82ca9d" }} />
+                        <Statistic title="Misses" value={acMetricsData?.misses ?? 0} formatter={formatter} valueStyle={{ color: "#8884d8" }} />
                         <Statistic title="Size (bytes)" value={acMetricsData?.sizeInBytes ?? 0} formatter={formatter} />
-                        {/* <Statistic title="Load Time(ms)" value={acMetricsData.loadTimeInMs ?? 0} formatter={formatter} /> */}
                         <Statistic title="Save Time(ms)" value={acMetricsData?.saveTimeInMs ?? 0} formatter={formatter} />
-                    </Col>
-                    <Col span="8">
+                        <Statistic title="Load Time(ms)" value={acMetricsData?.loadTimeInMs ?? 0} formatter={formatter} />
 
-                        <PieChart width={600} height={500}>
+                    </Space>
+                </Row>
+                <Row justify="space-around" align="top" >
+                    <Col span="12">
+                        <PortalCard icon={<PieChartOutlined />} titleBits={["Miss Detail Breakdown"]}>
+                            <PieChart width={600} height={500}>
 
-                            <Pie
-                                activeIndex={activeIndexRunner}
-                                activeShape={renderActiveShape}
-                                data={ac_data}
-                                dataKey="value"
-                                nameKey="name"
-                                cx="50%"
-                                cy="50%"
-                                innerRadius={70}
-                                outerRadius={90}
-                                onMouseEnter={onRunnerPieEnter}>
-                                {
-                                    ac_data.map((entry, runner_index) => (
-                                        <Cell key={`cell-${runner_index}`} fill={ac_colors[runner_index]} />
-                                    ))
-                                }
-                            </Pie>
-                            <Legend layout="vertical" />
-                        </PieChart>
+                                <Pie
+                                    activeIndex={activeIndexRunner}
+                                    activeShape={renderActiveShape}
+                                    data={ac_data}
+                                    dataKey="value"
+                                    nameKey="name"
+                                    cx="50%"
+                                    cy="50%"
+                                    innerRadius={70}
+                                    outerRadius={90}
+                                    onMouseEnter={onRunnerPieEnter}>
+                                    {
+                                        ac_data.map((entry, runner_index) => (
+                                            <Cell key={`cell-${runner_index}`} fill={ac_colors[runner_index]} />
+                                        ))
+                                    }
+                                </Pie>
+                                <Legend layout="vertical" />
+                            </PieChart>
+                        </PortalCard>
+
                     </Col>
                     <Col span="12">
-                        <Table
-                            columns={ac_columns}
-                            dataSource={ac_data}
-                            showSorterTooltip={{ target: 'sorter-icon' }}
-                        />
+                        <PortalCard icon={<HddOutlined />} titleBits={["Miss Detail Data"]}>
+                            <Table
+                                columns={ac_columns}
+                                dataSource={ac_data}
+                                showSorterTooltip={{ target: 'sorter-icon' }}
+                                pagination={false}
+                                rowClassName={(record, _) => ("ac-miss-detail-" + record.name)}
+                            />
+                        </PortalCard>
                     </Col>
-                    <Col span="2" />
                 </Row >
             </PortalCard>
         </Space>
-
-
-
     )
 }
 

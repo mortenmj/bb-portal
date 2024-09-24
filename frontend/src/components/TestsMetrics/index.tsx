@@ -1,6 +1,5 @@
-import React, { useCallback, useState, RefAttributes } from "react";
-import { PieChart, Pie, Sector, Cell, Legend } from 'recharts';
-import { CardProps, Table, Row, Col, Statistic, Tag, Space } from 'antd';
+import React from "react";
+import { Table, Row, Col, Statistic, Tag, Space } from 'antd';
 import type { StatisticProps, TableColumnsType } from "antd/lib";
 import CountUp from 'react-countup';
 import TestStatusTag from "../TestStatusTag";
@@ -8,13 +7,8 @@ import { TestCollection } from "@/graphql/__generated__/graphql";
 import { TestStatusEnum } from "../TestStatusTag";
 import NullBooleanTag from "../NullableBooleanTag";
 import PortalCard from "../PortalCard";
-import { SearchFilterIcon, SearchWidget, TimeRangeSelector } from '@/components/SearchWidgets';
-import {
-
-    SearchOutlined,
-    ExperimentOutlined,
-} from "@ant-design/icons";
-import { string } from "zod";
+import { SearchFilterIcon, SearchWidget } from '@/components/SearchWidgets';
+import { SearchOutlined, ExperimentOutlined, } from "@ant-design/icons";
 
 interface TestDataType {
     key: React.Key;
@@ -86,26 +80,74 @@ const test_columns: TableColumnsType<TestDataType> = [
         dataIndex: "name",
 
         //TODO working search w/autocomplete
-
+        filterSearch: true,
+        filterDropdown: filterProps => (
+            <SearchWidget placeholder="Target Pattern..." {...filterProps} />
+        ),
         filterIcon: filtered => <SearchFilterIcon icon={<SearchOutlined />} filtered={filtered} />,
-
-        // onFilter: (val, record) =>  record.name.includes(val) ,
+        onFilter: (value, record) => (record.name.includes(value.toString()) ? true : false)
     },
 
     {
         title: "Strategy",
-        dataIndex: "strategy"
-        //sorter: (a, b) => a.target_type < b.target_type,
+        dataIndex: "strategy",
+        sorter: (a, b) => a.strategy.localeCompare(b.strategy),
+        filters: [
+            {
+                text: "Remote Cache Hit",
+                value: "remote cache hit"
+            },
+            {
+                text: "Remote",
+                value: "remote"
+            },
+            {
+                text: "Linux Sandbox",
+                value: "linux-sandbox"
+            },
+            {
+                text: "None",
+                value: ""
+            },
+        ],
+        filterIcon: filtered => <SearchFilterIcon icon={<SearchOutlined />} filtered={filtered} />,
+        onFilter: (value, record) => record.strategy == value
     },
     {
         title: "Cached Locally",
         dataIndex: "cached_local",
-        render: (x) => <NullBooleanTag key="cached_local" status={x as boolean | null} />,
+        render: (x) => <NullBooleanTag key="cached_locally" status={x as boolean | null} />,
+        sorter: (a, b) => Number(a.cached_local) - Number(b.cached_local),
+        filters: [
+            {
+                text: "Yes",
+                value: true
+            },
+            {
+                text: "No",
+                value: false
+            }
+        ],
+        filterIcon: filtered => <SearchFilterIcon icon={<SearchOutlined />} filtered={filtered} />,
+        onFilter: (value, record) => record.cached_local == value,
     },
     {
         title: "Cached Remotely",
         dataIndex: "cached_remote",
         render: (x) => <NullBooleanTag key="cached_remotely" status={x as boolean | null} />,
+        sorter: (a, b) => Number(a.cached_local) - Number(b.cached_local),
+        filters: [
+            {
+                text: "Yes",
+                value: true
+            },
+            {
+                text: "No",
+                value: false
+            }
+        ],
+        filterIcon: filtered => <SearchFilterIcon icon={<SearchOutlined />} filtered={filtered} />,
+        onFilter: (value, record) => record.cached_remote == value
     },
     {
         title: "Duration(ms)",
@@ -115,20 +157,12 @@ const test_columns: TableColumnsType<TestDataType> = [
 
 ]
 
-
-
-function nullPercent(val: number | null | undefined, total: number | null | undefined) {
-    return (((val ?? 0) / (total ?? 1)) * 100).toFixed(2);
-}
-
-
 const TestMetricsDisplay: React.FC<{ testMetrics: TestCollection[] | undefined | null }> = ({
     testMetrics
 }) => {
-    const target_data = [
-        { key: 1, name /* mnuemnic */: '//av/tools:rbe1', value: 21 /* duration */, target_type: "nodes_binary", target_status: "SUCCESS", cached: true },
+    const totalTests: number = testMetrics?.length ?? 0
 
-    ]
+
     const test_data: TestDataType[] = []
     testMetrics?.map((item: TestCollection, index) => {
         var ts = item.testSummary
@@ -146,24 +180,40 @@ const TestMetricsDisplay: React.FC<{ testMetrics: TestCollection[] | undefined |
         test_data.push(row);
     })
 
+    var numPassed = test_data.filter(x => x.status == "PASSED").length
+    var numFailed = test_data.filter(x => x.status == "FAILED").length
+    var numExecutedLocally = test_data.filter(x => x.strategy == "linux-sandbox").length
+    var numExecutedRemotely = test_data.filter(x => x.strategy == "remote").length
+    var localCacheHit = test_data.filter(x => x.strategy == "").length
+    var remoteCacheHit = test_data.filter(x => x.strategy == "remote cache hit").length
+
     return (
         <Space direction="vertical" size="middle" style={{ display: 'flex' }} >
             <PortalCard icon={<ExperimentOutlined />} titleBits={["Tests"]}>
+                <Row>
+                    <Space size="large">
+                        <Statistic title="Tests Completed" value={totalTests} formatter={formatter} />
+                        <Statistic title="Passed" value={numPassed} formatter={formatter} />
+                        <Statistic title="Failed" value={numFailed} formatter={formatter} />
+                        <Statistic title="Executed Locally" value={numExecutedLocally} formatter={formatter} />
+                        <Statistic title="Executed Remotely" value={numExecutedRemotely} formatter={formatter} />
+                        <Statistic title="Local Cache Hit" value={localCacheHit} formatter={formatter} />
+                        <Statistic title="Remote Cache Hit" value={remoteCacheHit} formatter={formatter} />
+                    </Space>
+                </Row>
+                <Row justify="space-around" align="middle">
+                    <Col span="1" />
+                    <Col span="22">
+                        <Table
+                            columns={test_columns}
+                            dataSource={test_data}
+                            showSorterTooltip={{ target: 'sorter-icon' }}
+                        />
+                    </Col>
+                    <Col span="1" />
+                </Row>
             </PortalCard>
-            <Row justify="space-around" align="middle">
-                <Col span="2">
 
-                </Col>
-                <Col span="12">
-                    <Table
-                        columns={test_columns}
-                        dataSource={test_data}
-                        showSorterTooltip={{ target: 'sorter-icon' }}
-                    />
-                </Col>
-
-                <Col span="2" />
-            </Row>
         </Space>
     )
 }

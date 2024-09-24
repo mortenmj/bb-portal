@@ -1,9 +1,14 @@
 import { RunnerCount } from "@/graphql/__generated__/graphql";
 import React, { useCallback, useState } from "react";
-import { PieChart, Pie, Sector, Cell, Legend } from 'recharts';
-import { Table, Row, Col } from 'antd';
+import { PieChart, Pie, Cell, Legend } from 'recharts';
+import { Table, Row, Col, Typography } from 'antd';
 import type { TableColumnsType } from "antd/lib";
-
+import { PieChartOutlined, PlayCircleOutlined } from "@ant-design/icons";
+import { renderActiveShape } from "../Utilities/renderShape";
+import { nullPercent } from "../Utilities/nullPercent";
+import PortalCard from "../PortalCard";
+import { BaseType } from "antd/es/typography/Base";
+import { styleText } from "util";
 interface RunnerDataType {
     key: React.Key;
     name: string;
@@ -11,12 +16,14 @@ interface RunnerDataType {
     value: number;
     rate: string;
     color: string;
+    text_type: string;
 }
 
 const runner_columns: TableColumnsType<RunnerDataType> = [
     {
         title: 'Runner Type',
         dataIndex: 'name',
+        render: (_, x) => <Typography.Text type={x.text_type as BaseType}>{x.name}</Typography.Text>,
     },
     {
         title: 'Execution Type',
@@ -50,88 +57,19 @@ const runner_columns: TableColumnsType<RunnerDataType> = [
 
 function colorSwitchOnExwc(exec: string) {
     switch (exec) {
-        case "Remote": return "#8884d8"
-        case "Local": return "#82ca9d"
-        default: return "#333333"
+        case "Remote": return "#49AA19"
+        case "Local": return "#DC4446"
+        default: return "#777777"
     }
 }
 
-function nullPercent(val: number | null | undefined, total: number | null | undefined) {
-    return (((val ?? 0) / (total ?? 1)) * 100).toFixed(2);
+function getTextType(exec: string) {
+    switch (exec) {
+        case "Remote": return "success"
+        case "Local": return "danger"
+        default: return "secondary"
+    }
 }
-
-const renderActiveShape = (props: any) => {
-    const RADIAN = Math.PI / 180;
-    const {
-        cx,
-        cy,
-        midAngle,
-        innerRadius,
-        outerRadius,
-        startAngle,
-        endAngle,
-        fill,
-        payload,
-        percent,
-        value
-    } = props;
-    const sin = Math.sin(-RADIAN * midAngle);
-    const cos = Math.cos(-RADIAN * midAngle);
-    const sx = cx + (outerRadius + 10) * cos;
-    const sy = cy + (outerRadius + 10) * sin;
-    const mx = cx + (outerRadius + 30) * cos;
-    const my = cy + (outerRadius + 30) * sin;
-    const ex = mx + (cos >= 0 ? 1 : -1) * 22;
-    const ey = my;
-    const textAnchor = cos >= 0 ? "start" : "end";
-
-    return (
-        <g>
-            <text x={cx} y={cy} dy={8} textAnchor="middle" fill={fill}>
-                {value}
-            </text>
-            <Sector
-                cx={cx}
-                cy={cy}
-                innerRadius={innerRadius}
-                outerRadius={outerRadius}
-                startAngle={startAngle}
-                endAngle={endAngle}
-                fill={fill}
-            />
-            <Sector
-                cx={cx}
-                cy={cy}
-                startAngle={startAngle}
-                endAngle={endAngle}
-                innerRadius={outerRadius + 6}
-                outerRadius={outerRadius + 10}
-                fill={fill}
-            />
-            <path
-                d={`M${sx},${sy}L${mx},${my}L${ex},${ey}`}
-                stroke={fill}
-                fill="none"
-            />
-            <circle cx={ex} cy={ey} r={2} fill={fill} stroke="none" />
-            <text
-                x={ex + (cos >= 0 ? 1 : -1) * 12}
-                y={ey}
-                textAnchor={textAnchor}
-                fill="#333"
-            >{`${payload.name}`}</text>
-            <text
-                x={ex + (cos >= 0 ? 1 : -1) * 12}
-                y={ey}
-                dy={18}
-                textAnchor={textAnchor}
-                fill="#999"
-            >
-                {`(Rate ${(percent * 100).toFixed(2)}%)`}
-            </text>
-        </g>
-    );
-};
 
 
 const RunnerMetrics: React.FC<{ runnerMetrics: RunnerCount[]; }> = ({ runnerMetrics }) => {
@@ -146,8 +84,8 @@ const RunnerMetrics: React.FC<{ runnerMetrics: RunnerCount[]; }> = ({ runnerMetr
             value: item.actionsExecuted ?? 0,
             exec: item.execKind ?? "",
             rate: nullPercent(item.actionsExecuted, totalCount),
-            color: colorSwitchOnExwc(item.execKind ?? "")
-
+            color: colorSwitchOnExwc(item.execKind ?? ""),
+            text_type: getTextType(item.execKind ?? ""),
         }
         count++;
         if (rd.name != "total") {
@@ -177,39 +115,40 @@ const RunnerMetrics: React.FC<{ runnerMetrics: RunnerCount[]; }> = ({ runnerMetr
     );
     return (
 
-        <Row justify="space-around" align="middle">
-            <Col span="2" />
-
-            <Col span="8">
-
-
-                <PieChart width={500} height={500}>
-                    <Pie
-                        activeIndex={activeIndexRunner}
-                        activeShape={renderActiveShape}
-                        data={runner_data}
-                        dataKey="value"
-                        nameKey="name"
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={70}
-                        outerRadius={90}
-                        onMouseEnter={onRunnerPieEnter}>
-                        {
-                            runner_data.map((entry, runner_index) => (
-                                <Cell key={`cell-${runner_index}`} fill={entry.color} />
-                            ))
-                        }
-                    </Pie>
-                    <Legend layout="vertical" />
-                </PieChart>
+        <Row justify="space-around" align="top">
+            <Col span="10">
+                <PortalCard icon={<PieChartOutlined />} titleBits={["Action Runners Breakdown"]}>
+                    <PieChart width={500} height={500}>
+                        <Pie
+                            activeIndex={activeIndexRunner}
+                            activeShape={renderActiveShape}
+                            data={runner_data}
+                            dataKey="value"
+                            nameKey="name"
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={70}
+                            outerRadius={90}
+                            onMouseEnter={onRunnerPieEnter}>
+                            {
+                                runner_data.map((entry, runner_index) => (
+                                    <Cell key={`cell-${runner_index}`} fill={entry.color} />
+                                ))
+                            }
+                        </Pie>
+                        <Legend layout="vertical" />
+                    </PieChart>
+                </PortalCard>
             </Col>
             <Col span="12">
-                <Table
-                    columns={runner_columns}
-                    dataSource={runner_data}
-                    showSorterTooltip={{ target: 'sorter-icon' }}
-                />
+                <PortalCard icon={<PlayCircleOutlined />} titleBits={["Action Runner Data"]}>
+                    <Table
+                        columns={runner_columns}
+                        dataSource={runner_data}
+                        showSorterTooltip={{ target: 'sorter-icon' }}
+                        pagination={false} />
+
+                </PortalCard>
             </Col>
             <Col span="2" />
         </Row>

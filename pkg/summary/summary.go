@@ -108,8 +108,8 @@ type ActionData struct {
 	ActionsExecuted int64
 	FirstStartedMs  int64
 	LastEndedMs     int64
-	SystemTime      time.Duration
-	UserTime        time.Duration
+	SystemTime      int64
+	UserTime        int64
 }
 
 type RunnerCount struct {

@@ -10,17 +10,19 @@ import {
   NetworkMetrics,
   TestCollection,
 } from "@/graphql/__generated__/graphql";
+import styles from "../AppBar/index.module.css"
 import React from "react";
 import PortalDuration from "@/components/PortalDuration";
 import PortalCard from "@/components/PortalCard";
-import { Space, Tabs } from "antd";
+import { Space, Tabs, Typography } from "antd";
 import type { TabsProps } from "antd/lib";
 import CopyTextButton from "@/components/CopyTextButton";
+
 import PortalAlert from "@/components/PortalAlert";
 import {
   BuildOutlined,
   FileSearchOutlined,
-  PieChartOutlined,
+  ClusterOutlined,
   ExclamationCircleOutlined,
   NodeCollapseOutlined,
   DeploymentUnitOutlined,
@@ -30,6 +32,7 @@ import {
   FieldTimeOutlined,
   WifiOutlined,
   ThunderboltOutlined,
+  HddOutlined,
 } from "@ant-design/icons";
 import themeStyles from '@/theme/theme.module.css';
 import { debugMode } from "@/components/Utilities/debugMode";
@@ -89,6 +92,9 @@ const BazelInvocation: React.FC<{
 
   //netowrk metrics
   var networkMetrics: NetworkMetrics | undefined = metrics?.networkMetrics?.at(0)
+  const bytesRecv = networkMetrics?.systemNetworkStats?.at(0)?.bytesRecv ?? 0
+  const bytesSent = networkMetrics?.systemNetworkStats?.at(0)?.bytesSent ?? 0
+  const hideNetworkMetricsTab: boolean = bytesRecv == 0 && bytesSent == 0
 
   //test data
   var testCollections: TestCollection[] | undefined | null = testCollection
@@ -97,13 +103,16 @@ const BazelInvocation: React.FC<{
   exitCode = exitCode ?? null;
   const titleBits: React.ReactNode[] = [<span key="label">User: {user?.LDAP}</span>];
   titleBits.push(<span key="label">Invocation: {invocationID}</span>)
+  titleBits.push(<span className={styles.copyIcon}>
+    <Typography.Text copyable={{ text: invocationID ?? "Copy" }}></Typography.Text>
+  </span>)
   if (exitCode?.name) {
     titleBits.push(<BuildStepResultTag key="result" result={exitCode?.name as BuildStepResultEnum} />);
   }
 
   const logs: string = buildLogs ?? "no build log data found..."
 
-  const items: TabsProps['items'] = [
+  var items: TabsProps['items'] = [
     {
       key: 'BazelInvocationTabs-1',
       label: 'Problems',
@@ -136,7 +145,7 @@ const BazelInvocation: React.FC<{
     {
       key: 'BazelInvocationTabs-3',
       label: 'Runners',
-      icon: <PieChartOutlined />,
+      icon: <ClusterOutlined />,
       children: <Space direction="vertical" size="middle" className={themeStyles.space}>
         <RunnerMetrics runnerMetrics={runnerMetrics} />
       </Space>,
@@ -144,7 +153,7 @@ const BazelInvocation: React.FC<{
     {
       key: 'BazelInvocationTabs-4',
       label: 'Action Cache',
-      icon: <NodeCollapseOutlined />,
+      icon: <HddOutlined />,
       children: <Space direction="vertical" size="middle" className={themeStyles.space}>
 
         <AcMetrics acMetrics={acMetrics} />
@@ -192,30 +201,7 @@ const BazelInvocation: React.FC<{
 
       </Space>,
     },
-    {
-      key: 'BazelInvocationTabs-11',
-      label: 'Network',
-      icon: <WifiOutlined />,
-      children: <Space direction="vertical" size="middle" className={themeStyles.space}>
 
-        <NetworkMetricsDisplay networkMetrics={networkMetrics} />
-
-      </Space>,
-    },
-    {
-      key: 'BazelInvocationTabs-12',
-      label: 'Dynamic Execution',
-      icon: <ThunderboltOutlined />,
-      children: <Space direction="vertical" size="middle" className={themeStyles.space}>
-
-        {/* <TargetMetrics
-          targetsLoaded={targetsLoaded}
-          targetsConfigured={targetsConfigured}
-          targetsConfiguredNotIncludingAspects={targetsConfiguredNotIncludingAspects}
-        /> */}
-
-      </Space>,
-    },
     {
       key: 'BazelInvocationTabs-6',
       label: 'Targets',
@@ -235,7 +221,25 @@ const BazelInvocation: React.FC<{
 
       </Space>,
     },
+    {
+      key: 'BazelInvocationTabs-11',
+      label: 'Network',
+      icon: <WifiOutlined />,
+      children: <Space direction="vertical" size="middle" className={themeStyles.space}>
+
+        <NetworkMetricsDisplay networkMetrics={networkMetrics} />
+
+      </Space>,
+    },
   ];
+
+  if (hideNetworkMetricsTab == true) {
+    var idx = items.findIndex((x, _) => x.key == "BazelInvocationTabs-11")
+    if (idx > -1) {
+      items.splice(idx, 1);
+    }
+    //items = items.slice(0, 10)
+  }
 
 
   const extraBits: React.ReactNode[] = [

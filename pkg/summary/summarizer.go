@@ -328,8 +328,8 @@ func (s Summarizer) handleBuildMetrics(metrics *bes.BuildMetrics) {
 	for _, ad := range metrics.ActionSummary.ActionData {
 		action_data := ActionData{
 			Mnemonic:        ad.Mnemonic,
-			UserTime:        ad.UserTime.AsDuration(),
-			SystemTime:      ad.SystemTime.AsDuration(),
+			UserTime:        ad.UserTime.AsDuration().Milliseconds(),
+			SystemTime:      ad.SystemTime.AsDuration().Milliseconds(),
 			ActionsExecuted: ad.ActionsExecuted,
 			FirstStartedMs:  ad.FirstStartedMs,
 			LastEndedMs:     ad.LastEndedMs,

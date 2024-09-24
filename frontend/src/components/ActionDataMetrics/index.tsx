@@ -1,20 +1,12 @@
 import React, { useCallback, useState } from "react";
-import { PieChart, Pie, Sector, Cell, Legend, BarChart, Bar, LabelList } from 'recharts';
-import { Table, Row, Col, Statistic, Tooltip, Space } from 'antd';
+import { PieChart, Pie, Cell } from 'recharts';
+import { Table, Row, Col, Space, Statistic } from 'antd';
+import { BuildOutlined, PieChartOutlined } from "@ant-design/icons";
 import type { StatisticProps, TableColumnsType } from "antd/lib";
 import CountUp from 'react-countup';
-import { ActionCacheStatistics, ActionSummary, MissDetail, ActionData } from "@/graphql/__generated__/graphql";
+import { ActionSummary, ActionData } from "@/graphql/__generated__/graphql";
 import PortalCard from "../PortalCard";
-import {
-    BuildOutlined,
-    FileSearchOutlined,
-    PieChartOutlined,
-    ExclamationCircleOutlined,
-    NodeCollapseOutlined,
-    DeploymentUnitOutlined,
-    ExperimentOutlined,
-} from "@ant-design/icons";
-
+import { renderActiveShape, newColorFind } from "../Utilities/renderShape"
 interface ActionDataGraphDisplayType {
     key: React.Key;
     name: string;
@@ -25,24 +17,6 @@ interface ActionDataGraphDisplayType {
 const formatter: StatisticProps['formatter'] = (value) => (
     <CountUp end={value as number} separator="," />
 );
-
-
-const generateColor = () => {
-    let randomColorString = "#";
-    const arrayOfColorFunctions = "0123456789abcdef";
-    for (let x = 0; x < 6; x++) {
-        let index = Math.floor(Math.random() * 16);
-        let value = arrayOfColorFunctions[index];
-
-        randomColorString += value;
-    }
-    return randomColorString;
-};
-
-
-const colorMap: Map<number, string> = new Map();
-const selectedColors: Map<string, boolean> = new Map();
-
 
 const ad_columns: TableColumnsType<ActionData> = [
     {
@@ -81,102 +55,6 @@ const ad_columns: TableColumnsType<ActionData> = [
     },
 ]
 
-
-function nullPercent(val: number | null | undefined, total: number | null | undefined, fixed: number = 2) {
-    return String((((val ?? 0) / (total ?? 1)) * 100).toFixed(fixed)) + "%";
-}
-
-const renderActiveShape = (props: any) => {
-    const RADIAN = Math.PI / 180;
-    const {
-        cx,
-        cy,
-        midAngle,
-        innerRadius,
-        outerRadius,
-        startAngle,
-        endAngle,
-        fill,
-        payload,
-        percent,
-        value
-    } = props;
-    const sin = Math.sin(-RADIAN * midAngle);
-    const cos = Math.cos(-RADIAN * midAngle);
-    const sx = cx + (outerRadius + 10) * cos;
-    const sy = cy + (outerRadius + 10) * sin;
-    const mx = cx + (outerRadius + 30) * cos;
-    const my = cy + (outerRadius + 30) * sin;
-    const ex = mx + (cos >= 0 ? 1 : -1) * 22;
-    const ey = my;
-    const textAnchor = cos >= 0 ? "start" : "end";
-
-    return (
-        <g>
-            <text x={cx} y={cy} dy={8} textAnchor="middle" fill={fill}>
-                {value}
-            </text>
-            <Sector
-                cx={cx}
-                cy={cy}
-                innerRadius={innerRadius}
-                outerRadius={outerRadius}
-                startAngle={startAngle}
-                endAngle={endAngle}
-                fill={fill}
-            />
-            <Sector
-                cx={cx}
-                cy={cy}
-                startAngle={startAngle}
-                endAngle={endAngle}
-                innerRadius={outerRadius + 6}
-                outerRadius={outerRadius + 10}
-                fill={fill}
-            />
-            <path
-                d={`M${sx},${sy}L${mx},${my}L${ex},${ey}`}
-                stroke={fill}
-                fill="none"
-            />
-            <circle cx={ex} cy={ey} r={2} fill={fill} stroke="none" />
-            <text
-                x={ex + (cos >= 0 ? 1 : -1) * 12}
-                y={ey}
-                textAnchor={textAnchor}
-                fill="#333"
-            >{`${payload.name}`}</text>
-            <text
-                x={ex + (cos >= 0 ? 1 : -1) * 12}
-                y={ey}
-                dy={18}
-                textAnchor={textAnchor}
-                fill="#999"
-            >
-                {`(Rate ${(percent * 100).toFixed(2)}%)`}
-            </text>
-        </g>
-    );
-};
-const newColorFind = (id: number) => {
-    // If already generated and assigned, return
-    if (colorMap.get(id)) return colorMap.get(id);
-
-    // Generate new random color
-    let newColor;
-
-    do {
-        newColor = generateColor();
-    } while (selectedColors.get(newColor));
-
-    // Found a new random, unassigned color
-    colorMap.set(id, newColor);
-    selectedColors.set(newColor, true);
-
-    // Return next new color
-    return newColor;
-}
-
 const ActionDataMetrics: React.FC<{ acMetrics: ActionSummary | undefined; }> = ({ acMetrics }) => {
 
     const actions_data: ActionData[] = [];
@@ -192,9 +70,6 @@ const ActionDataMetrics: React.FC<{ acMetrics: ActionSummary | undefined; }> = (
         actions_graph_data.push(agd)
     });
 
-
-
-
     const [activeIndexRunner, setActiveIndexRunner] = useState(0);
     const onRunnerPieEnter = useCallback(
         (_: any, runner_idx: any) => {
@@ -202,38 +77,45 @@ const ActionDataMetrics: React.FC<{ acMetrics: ActionSummary | undefined; }> = (
         },
         [setActiveIndexRunner]
     );
-    const acTitle: React.ReactNode[] = [<span key="label">Action Cache Statitics</span>];
-    const actionsTitle: React.ReactNode[] = [<span key="label">Actions Data</span>];
-    const userTimeTitle: React.ReactNode[] = [<span key="label">User Time</span>];
+    var totalUserTime = actions_data.reduce((accumulator, item) => accumulator + (item.userTime ?? 0), 0);
+    var totalSystemTime = actions_data.reduce((accumulator, item) => accumulator + (item.systemTime ?? 0), 0);
+    var totalActionsExecuted = actions_data.reduce((accumulator, item) => accumulator + (item.actionsExecuted ?? 0), 0);
+    var totalActionsCreated = actions_data.reduce((accumulator, item) => accumulator + (item.actionsCreated ?? 0), 0);
 
     return (
         <Space direction="vertical" size="middle" style={{ display: 'flex' }} >
-            <PortalCard icon={<BuildOutlined />} titleBits={actionsTitle}>
-                <Row justify="space-around" align="middle">
-                    <Col span="18">
-                        <Table
-                            columns={ad_columns}
-                            dataSource={actions_data}
-                            showSorterTooltip={{ target: 'sorter-icon' }}
-                        />
+            <PortalCard icon={<PieChart />} titleBits={["Actions"]}>
+                <Row>
+                    <Space size={"large"}>
+                        <Statistic title="Actions Executed" value={totalActionsExecuted} formatter={formatter} />
+                        <Statistic title="Actions Created" value={totalActionsCreated} formatter={formatter} />
+                        <Statistic title="Total User Time(ms)" value={totalUserTime} formatter={formatter} />
+                        <Statistic title="Total System Time(ms)" value={totalSystemTime} formatter={formatter} />
+                    </Space>
+                </Row>
+                <Row justify="space-around" align="top">
+                    <Col span="14">
+                        <PortalCard icon={<BuildOutlined />} titleBits={["Actions Data"]}>
+                            <Table
+                                columns={ad_columns}
+                                dataSource={actions_data}
+                                showSorterTooltip={{ target: 'sorter-icon' }}
+                            />
+                        </PortalCard>
                     </Col>
-                    <Col span="6">
-                        <PortalCard icon={<PieChartOutlined />} titleBits={userTimeTitle}>
-
+                    <Col span="10">
+                        <PortalCard icon={<PieChartOutlined />} titleBits={["User Time(ms)"]}>
                             <PieChart width={600} height={556}>
-
                                 <Pie
                                     activeIndex={activeIndexRunner}
                                     activeShape={renderActiveShape}
-
                                     data={actions_graph_data}
                                     dataKey="value"
                                     cx="50%"
                                     cy="50%"
                                     innerRadius={50}
                                     outerRadius={90}
-                                    onMouseEnter={onRunnerPieEnter}
-                                >
+                                    onMouseEnter={onRunnerPieEnter}>
                                     {
                                         actions_graph_data.map((entry, actions_index) => (
                                             <Cell key={`cell-${actions_index}`} fill={entry.color} />
@@ -241,16 +123,11 @@ const ActionDataMetrics: React.FC<{ acMetrics: ActionSummary | undefined; }> = (
                                     }
                                 </Pie>
                             </PieChart>
-
                         </PortalCard>
                     </Col>
                 </Row>
             </PortalCard>
-
         </Space>
-
-
-
     )
 }
 

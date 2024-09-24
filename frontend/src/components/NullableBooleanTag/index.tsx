@@ -2,11 +2,8 @@ import React from 'react';
 import {
     CheckCircleFilled,
     CloseCircleFilled,
-    InfoCircleFilled,
-    LoadingOutlined,
-    MinusCircleFilled,
     QuestionCircleFilled,
-    StopOutlined,
+
 } from '@ant-design/icons';
 import { Tag } from 'antd';
 import themeStyles from '@/theme/theme.module.css';
@@ -25,15 +22,15 @@ export type NilBoolEnum = BoolTuple[number]
 
 const BOOL_TAGS: { [key in NilBoolEnum]: React.ReactNode } = {
     false_tag: (
-        <Tag icon={<CloseCircleFilled />} color="red" className={themeStyles.tag} />
+        <Tag icon={<CloseCircleFilled />} color="red" className={themeStyles.tag}>No</Tag>
 
     ),
     true_tag: (
-        <Tag icon={<CheckCircleFilled />} color="green" className={themeStyles.tag} />
+        <Tag icon={<CheckCircleFilled />} color="green" className={themeStyles.tag}>Yes</Tag>
 
     ),
     null_tag: (
-        <Tag icon={<QuestionCircleFilled />} color="orange" className={themeStyles.tag} />
+        <Tag icon={<QuestionCircleFilled />} color="orange" className={themeStyles.tag}>?</Tag>
 
     ),
 };
