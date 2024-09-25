@@ -106,6 +106,10 @@ const test_columns: TableColumnsType<TestDataType> = [
                 value: "linux-sandbox"
             },
             {
+                text: "Disk Cache Hit",
+                value: "disk cache hit"
+            },
+            {
                 text: "None",
                 value: ""
             },
@@ -165,17 +169,16 @@ const TestMetricsDisplay: React.FC<{ testMetrics: TestCollection[] | undefined |
 
     const test_data: TestDataType[] = []
     testMetrics?.map((item: TestCollection, index) => {
-        var ts = item.testSummary
-        var tr0 = item.testResults?.at(0)
+
         var row: TestDataType = {
             key: "test-data-type-row-" + index,
             name: item.label ?? "",
-            value: ts?.totalRunDuration ?? 0,
-            strategy: tr0?.executionInfo?.strategy ?? "",
-            cached_local: tr0?.cachedLocally ?? null,
-            cached_remote: tr0?.executionInfo?.cachedRemotely ?? null,
-            duration: ts?.totalRunDuration ?? 0,
-            status: ts?.overallStatus ?? ""
+            value: item.durationMs ?? 0,
+            strategy: item.strategy ?? "",
+            cached_local: item.cachedLocally ?? null,
+            cached_remote: item.cachedRemotely ?? null,
+            duration: item.durationMs ?? 0,
+            status: item.overallStatus ?? ""
         }
         test_data.push(row);
     })
@@ -184,8 +187,11 @@ const TestMetricsDisplay: React.FC<{ testMetrics: TestCollection[] | undefined |
     var numFailed = test_data.filter(x => x.status == "FAILED").length
     var numExecutedLocally = test_data.filter(x => x.strategy == "linux-sandbox").length
     var numExecutedRemotely = test_data.filter(x => x.strategy == "remote").length
-    var localCacheHit = test_data.filter(x => x.strategy == "").length
-    var remoteCacheHit = test_data.filter(x => x.strategy == "remote cache hit").length
+    var localCacheHit = test_data.filter(x => x.strategy in ["disk cache hit", ""] || x.cached_local == true).length
+    var remoteCacheHit = test_data.filter(x => x.strategy == "remote cache hit" || x.cached_remote == true).length
+    //var localCacheHit = test_data.filter(x => x.strategy in ["disk cache hit", ""]).length
+    //var remoteCacheHit = test_data.filter(x => x.strategy == "remote cache hit").length
+
 
     return (
         <Space direction="vertical" size="middle" style={{ display: 'flex' }} >
@@ -213,7 +219,6 @@ const TestMetricsDisplay: React.FC<{ testMetrics: TestCollection[] | undefined |
                     <Col span="1" />
                 </Row>
             </PortalCard>
-
         </Space>
     )
 }

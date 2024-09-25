@@ -3,6 +3,10 @@
 package testcollection
 
 import (
+	"fmt"
+	"io"
+	"strconv"
+
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 )
@@ -14,6 +18,16 @@ const (
 	FieldID = "id"
 	// FieldLabel holds the string denoting the label field in the database.
 	FieldLabel = "label"
+	// FieldOverallStatus holds the string denoting the overall_status field in the database.
+	FieldOverallStatus = "overall_status"
+	// FieldStrategy holds the string denoting the strategy field in the database.
+	FieldStrategy = "strategy"
+	// FieldCachedLocally holds the string denoting the cached_locally field in the database.
+	FieldCachedLocally = "cached_locally"
+	// FieldCachedRemotely holds the string denoting the cached_remotely field in the database.
+	FieldCachedRemotely = "cached_remotely"
+	// FieldDurationMs holds the string denoting the duration_ms field in the database.
+	FieldDurationMs = "duration_ms"
 	// EdgeBazelInvocation holds the string denoting the bazel_invocation edge name in mutations.
 	EdgeBazelInvocation = "bazel_invocation"
 	// EdgeTestSummary holds the string denoting the test_summary edge name in mutations.
@@ -47,6 +61,11 @@ const (
 var Columns = []string{
 	FieldID,
 	FieldLabel,
+	FieldOverallStatus,
+	FieldStrategy,
+	FieldCachedLocally,
+	FieldCachedRemotely,
+	FieldDurationMs,
 }
 
 // ForeignKeys holds the SQL foreign-keys that are owned by the "test_collections"
@@ -76,6 +95,39 @@ func ValidColumn(column string) bool {
 	return false
 }
 
+// OverallStatus defines the type for the "overall_status" enum field.
+type OverallStatus string
+
+// OverallStatusNO_STATUS is the default value of the OverallStatus enum.
+const DefaultOverallStatus = OverallStatusNO_STATUS
+
+// OverallStatus values.
+const (
+	OverallStatusNO_STATUS                  OverallStatus = "NO_STATUS"
+	OverallStatusPASSED                     OverallStatus = "PASSED"
+	OverallStatusFLAKY                      OverallStatus = "FLAKY"
+	OverallStatusTIMEOUT                    OverallStatus = "TIMEOUT"
+	OverallStatusFAILED                     OverallStatus = "FAILED"
+	OverallStatusINCOMPLETE                 OverallStatus = "INCOMPLETE"
+	OverallStatusREMOTE_FAILURE             OverallStatus = "REMOTE_FAILURE"
+	OverallStatusFAILED_TO_BUILD            OverallStatus = "FAILED_TO_BUILD"
+	OverallStatusTOOL_HALTED_BEFORE_TESTING OverallStatus = "TOOL_HALTED_BEFORE_TESTING"
+)
+
+func (os OverallStatus) String() string {
+	return string(os)
+}
+
+// OverallStatusValidator is a validator for the "overall_status" field enum values. It is called by the builders before save.
+func OverallStatusValidator(os OverallStatus) error {
+	switch os {
+	case OverallStatusNO_STATUS, OverallStatusPASSED, OverallStatusFLAKY, OverallStatusTIMEOUT, OverallStatusFAILED, OverallStatusINCOMPLETE, OverallStatusREMOTE_FAILURE, OverallStatusFAILED_TO_BUILD, OverallStatusTOOL_HALTED_BEFORE_TESTING:
+		return nil
+	default:
+		return fmt.Errorf("testcollection: invalid enum value for overall_status field: %q", os)
+	}
+}
+
 // OrderOption defines the ordering options for the TestCollection queries.
 type OrderOption func(*sql.Selector)
 
@@ -87,6 +139,31 @@ func ByID(opts ...sql.OrderTermOption) OrderOption {
 // ByLabel orders the results by the label field.
 func ByLabel(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldLabel, opts...).ToFunc()
+}
+
+// ByOverallStatus orders the results by the overall_status field.
+func ByOverallStatus(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldOverallStatus, opts...).ToFunc()
+}
+
+// ByStrategy orders the results by the strategy field.
+func ByStrategy(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldStrategy, opts...).ToFunc()
+}
+
+// ByCachedLocally orders the results by the cached_locally field.
+func ByCachedLocally(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCachedLocally, opts...).ToFunc()
+}
+
+// ByCachedRemotely orders the results by the cached_remotely field.
+func ByCachedRemotely(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCachedRemotely, opts...).ToFunc()
+}
+
+// ByDurationMs orders the results by the duration_ms field.
+func ByDurationMs(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDurationMs, opts...).ToFunc()
 }
 
 // ByBazelInvocationCount orders the results by bazel_invocation count.
@@ -143,4 +220,22 @@ func newTestResultsStep() *sqlgraph.Step {
 		sqlgraph.To(TestResultsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, TestResultsTable, TestResultsColumn),
 	)
+}
+
+// MarshalGQL implements graphql.Marshaler interface.
+func (e OverallStatus) MarshalGQL(w io.Writer) {
+	io.WriteString(w, strconv.Quote(e.String()))
+}
+
+// UnmarshalGQL implements graphql.Unmarshaler interface.
+func (e *OverallStatus) UnmarshalGQL(val interface{}) error {
+	str, ok := val.(string)
+	if !ok {
+		return fmt.Errorf("enum %T must be a string", val)
+	}
+	*e = OverallStatus(str)
+	if err := OverallStatusValidator(*e); err != nil {
+		return fmt.Errorf("%s is not a valid OverallStatus", str)
+	}
+	return nil
 }

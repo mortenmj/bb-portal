@@ -22,6 +22,12 @@ type TargetPair struct {
 	Label string `json:"label,omitempty"`
 	// DurationInMs holds the value of the "duration_in_ms" field.
 	DurationInMs int64 `json:"duration_in_ms,omitempty"`
+	// Success holds the value of the "success" field.
+	Success bool `json:"success,omitempty"`
+	// TargetKind holds the value of the "target_kind" field.
+	TargetKind string `json:"target_kind,omitempty"`
+	// TestSize holds the value of the "test_size" field.
+	TestSize targetpair.TestSize `json:"test_size,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the TargetPairQuery when eager-loading is set.
 	Edges                     TargetPairEdges `json:"edges"`
@@ -83,9 +89,11 @@ func (*TargetPair) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case targetpair.FieldSuccess:
+			values[i] = new(sql.NullBool)
 		case targetpair.FieldID, targetpair.FieldDurationInMs:
 			values[i] = new(sql.NullInt64)
-		case targetpair.FieldLabel:
+		case targetpair.FieldLabel, targetpair.FieldTargetKind, targetpair.FieldTestSize:
 			values[i] = new(sql.NullString)
 		case targetpair.ForeignKeys[0]: // target_pair_configuration
 			values[i] = new(sql.NullInt64)
@@ -123,6 +131,24 @@ func (tp *TargetPair) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field duration_in_ms", values[i])
 			} else if value.Valid {
 				tp.DurationInMs = value.Int64
+			}
+		case targetpair.FieldSuccess:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field success", values[i])
+			} else if value.Valid {
+				tp.Success = value.Bool
+			}
+		case targetpair.FieldTargetKind:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field target_kind", values[i])
+			} else if value.Valid {
+				tp.TargetKind = value.String
+			}
+		case targetpair.FieldTestSize:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field test_size", values[i])
+			} else if value.Valid {
+				tp.TestSize = targetpair.TestSize(value.String)
 			}
 		case targetpair.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -194,6 +220,15 @@ func (tp *TargetPair) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("duration_in_ms=")
 	builder.WriteString(fmt.Sprintf("%v", tp.DurationInMs))
+	builder.WriteString(", ")
+	builder.WriteString("success=")
+	builder.WriteString(fmt.Sprintf("%v", tp.Success))
+	builder.WriteString(", ")
+	builder.WriteString("target_kind=")
+	builder.WriteString(tp.TargetKind)
+	builder.WriteString(", ")
+	builder.WriteString("test_size=")
+	builder.WriteString(fmt.Sprintf("%v", tp.TestSize))
 	builder.WriteByte(')')
 	return builder.String()
 }

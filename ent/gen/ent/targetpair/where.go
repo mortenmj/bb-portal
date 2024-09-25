@@ -58,6 +58,16 @@ func DurationInMs(v int64) predicate.TargetPair {
 	return predicate.TargetPair(sql.FieldEQ(FieldDurationInMs, v))
 }
 
+// Success applies equality check predicate on the "success" field. It's identical to SuccessEQ.
+func Success(v bool) predicate.TargetPair {
+	return predicate.TargetPair(sql.FieldEQ(FieldSuccess, v))
+}
+
+// TargetKind applies equality check predicate on the "target_kind" field. It's identical to TargetKindEQ.
+func TargetKind(v string) predicate.TargetPair {
+	return predicate.TargetPair(sql.FieldEQ(FieldTargetKind, v))
+}
+
 // LabelEQ applies the EQ predicate on the "label" field.
 func LabelEQ(v string) predicate.TargetPair {
 	return predicate.TargetPair(sql.FieldEQ(FieldLabel, v))
@@ -181,6 +191,131 @@ func DurationInMsIsNil() predicate.TargetPair {
 // DurationInMsNotNil applies the NotNil predicate on the "duration_in_ms" field.
 func DurationInMsNotNil() predicate.TargetPair {
 	return predicate.TargetPair(sql.FieldNotNull(FieldDurationInMs))
+}
+
+// SuccessEQ applies the EQ predicate on the "success" field.
+func SuccessEQ(v bool) predicate.TargetPair {
+	return predicate.TargetPair(sql.FieldEQ(FieldSuccess, v))
+}
+
+// SuccessNEQ applies the NEQ predicate on the "success" field.
+func SuccessNEQ(v bool) predicate.TargetPair {
+	return predicate.TargetPair(sql.FieldNEQ(FieldSuccess, v))
+}
+
+// SuccessIsNil applies the IsNil predicate on the "success" field.
+func SuccessIsNil() predicate.TargetPair {
+	return predicate.TargetPair(sql.FieldIsNull(FieldSuccess))
+}
+
+// SuccessNotNil applies the NotNil predicate on the "success" field.
+func SuccessNotNil() predicate.TargetPair {
+	return predicate.TargetPair(sql.FieldNotNull(FieldSuccess))
+}
+
+// TargetKindEQ applies the EQ predicate on the "target_kind" field.
+func TargetKindEQ(v string) predicate.TargetPair {
+	return predicate.TargetPair(sql.FieldEQ(FieldTargetKind, v))
+}
+
+// TargetKindNEQ applies the NEQ predicate on the "target_kind" field.
+func TargetKindNEQ(v string) predicate.TargetPair {
+	return predicate.TargetPair(sql.FieldNEQ(FieldTargetKind, v))
+}
+
+// TargetKindIn applies the In predicate on the "target_kind" field.
+func TargetKindIn(vs ...string) predicate.TargetPair {
+	return predicate.TargetPair(sql.FieldIn(FieldTargetKind, vs...))
+}
+
+// TargetKindNotIn applies the NotIn predicate on the "target_kind" field.
+func TargetKindNotIn(vs ...string) predicate.TargetPair {
+	return predicate.TargetPair(sql.FieldNotIn(FieldTargetKind, vs...))
+}
+
+// TargetKindGT applies the GT predicate on the "target_kind" field.
+func TargetKindGT(v string) predicate.TargetPair {
+	return predicate.TargetPair(sql.FieldGT(FieldTargetKind, v))
+}
+
+// TargetKindGTE applies the GTE predicate on the "target_kind" field.
+func TargetKindGTE(v string) predicate.TargetPair {
+	return predicate.TargetPair(sql.FieldGTE(FieldTargetKind, v))
+}
+
+// TargetKindLT applies the LT predicate on the "target_kind" field.
+func TargetKindLT(v string) predicate.TargetPair {
+	return predicate.TargetPair(sql.FieldLT(FieldTargetKind, v))
+}
+
+// TargetKindLTE applies the LTE predicate on the "target_kind" field.
+func TargetKindLTE(v string) predicate.TargetPair {
+	return predicate.TargetPair(sql.FieldLTE(FieldTargetKind, v))
+}
+
+// TargetKindContains applies the Contains predicate on the "target_kind" field.
+func TargetKindContains(v string) predicate.TargetPair {
+	return predicate.TargetPair(sql.FieldContains(FieldTargetKind, v))
+}
+
+// TargetKindHasPrefix applies the HasPrefix predicate on the "target_kind" field.
+func TargetKindHasPrefix(v string) predicate.TargetPair {
+	return predicate.TargetPair(sql.FieldHasPrefix(FieldTargetKind, v))
+}
+
+// TargetKindHasSuffix applies the HasSuffix predicate on the "target_kind" field.
+func TargetKindHasSuffix(v string) predicate.TargetPair {
+	return predicate.TargetPair(sql.FieldHasSuffix(FieldTargetKind, v))
+}
+
+// TargetKindIsNil applies the IsNil predicate on the "target_kind" field.
+func TargetKindIsNil() predicate.TargetPair {
+	return predicate.TargetPair(sql.FieldIsNull(FieldTargetKind))
+}
+
+// TargetKindNotNil applies the NotNil predicate on the "target_kind" field.
+func TargetKindNotNil() predicate.TargetPair {
+	return predicate.TargetPair(sql.FieldNotNull(FieldTargetKind))
+}
+
+// TargetKindEqualFold applies the EqualFold predicate on the "target_kind" field.
+func TargetKindEqualFold(v string) predicate.TargetPair {
+	return predicate.TargetPair(sql.FieldEqualFold(FieldTargetKind, v))
+}
+
+// TargetKindContainsFold applies the ContainsFold predicate on the "target_kind" field.
+func TargetKindContainsFold(v string) predicate.TargetPair {
+	return predicate.TargetPair(sql.FieldContainsFold(FieldTargetKind, v))
+}
+
+// TestSizeEQ applies the EQ predicate on the "test_size" field.
+func TestSizeEQ(v TestSize) predicate.TargetPair {
+	return predicate.TargetPair(sql.FieldEQ(FieldTestSize, v))
+}
+
+// TestSizeNEQ applies the NEQ predicate on the "test_size" field.
+func TestSizeNEQ(v TestSize) predicate.TargetPair {
+	return predicate.TargetPair(sql.FieldNEQ(FieldTestSize, v))
+}
+
+// TestSizeIn applies the In predicate on the "test_size" field.
+func TestSizeIn(vs ...TestSize) predicate.TargetPair {
+	return predicate.TargetPair(sql.FieldIn(FieldTestSize, vs...))
+}
+
+// TestSizeNotIn applies the NotIn predicate on the "test_size" field.
+func TestSizeNotIn(vs ...TestSize) predicate.TargetPair {
+	return predicate.TargetPair(sql.FieldNotIn(FieldTestSize, vs...))
+}
+
+// TestSizeIsNil applies the IsNil predicate on the "test_size" field.
+func TestSizeIsNil() predicate.TargetPair {
+	return predicate.TargetPair(sql.FieldIsNull(FieldTestSize))
+}
+
+// TestSizeNotNil applies the NotNil predicate on the "test_size" field.
+func TestSizeNotNil() predicate.TargetPair {
+	return predicate.TargetPair(sql.FieldNotNull(FieldTestSize))
 }
 
 // HasBazelInvocation applies the HasEdge predicate on the "bazel_invocation" edge.

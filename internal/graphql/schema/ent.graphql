@@ -3049,9 +3049,22 @@ type TargetPair implements Node {
   id: ID!
   label: String
   durationInMs: Int
+  success: Boolean
+  targetKind: String
+  testSize: TargetPairTestSize
   bazelInvocation: [BazelInvocation!]
   configuration: TargetConfigured
   completion: TargetComplete
+}
+"""
+TargetPairTestSize is enum for the field test_size
+"""
+enum TargetPairTestSize @goModel(model: "github.com/buildbarn/bb-portal/ent/gen/ent/targetpair.TestSize") {
+  UNKNOWN
+  SMALL
+  MEDIUM
+  LARGE
+  ENORMOUS
 }
 """
 TargetPairWhereInput is used for filtering TargetPair objects.
@@ -3104,6 +3117,40 @@ input TargetPairWhereInput {
   durationInMsIsNil: Boolean
   durationInMsNotNil: Boolean
   """
+  success field predicates
+  """
+  success: Boolean
+  successNEQ: Boolean
+  successIsNil: Boolean
+  successNotNil: Boolean
+  """
+  target_kind field predicates
+  """
+  targetKind: String
+  targetKindNEQ: String
+  targetKindIn: [String!]
+  targetKindNotIn: [String!]
+  targetKindGT: String
+  targetKindGTE: String
+  targetKindLT: String
+  targetKindLTE: String
+  targetKindContains: String
+  targetKindHasPrefix: String
+  targetKindHasSuffix: String
+  targetKindIsNil: Boolean
+  targetKindNotNil: Boolean
+  targetKindEqualFold: String
+  targetKindContainsFold: String
+  """
+  test_size field predicates
+  """
+  testSize: TargetPairTestSize
+  testSizeNEQ: TargetPairTestSize
+  testSizeIn: [TargetPairTestSize!]
+  testSizeNotIn: [TargetPairTestSize!]
+  testSizeIsNil: Boolean
+  testSizeNotNil: Boolean
+  """
   bazel_invocation edge predicates
   """
   hasBazelInvocation: Boolean
@@ -3122,9 +3169,28 @@ input TargetPairWhereInput {
 type TestCollection implements Node {
   id: ID!
   label: String
+  overallStatus: TestCollectionOverallStatus
+  strategy: String
+  cachedLocally: Boolean
+  cachedRemotely: Boolean
+  durationMs: Int
   bazelInvocation: [BazelInvocation!]
   testSummary: TestSummary
   testResults: [TestResultBES!]
+}
+"""
+TestCollectionOverallStatus is enum for the field overall_status
+"""
+enum TestCollectionOverallStatus @goModel(model: "github.com/buildbarn/bb-portal/ent/gen/ent/testcollection.OverallStatus") {
+  NO_STATUS
+  PASSED
+  FLAKY
+  TIMEOUT
+  FAILED
+  INCOMPLETE
+  REMOTE_FAILURE
+  FAILED_TO_BUILD
+  TOOL_HALTED_BEFORE_TESTING
 }
 """
 TestCollectionWhereInput is used for filtering TestCollection objects.
@@ -3163,6 +3229,60 @@ input TestCollectionWhereInput {
   labelNotNil: Boolean
   labelEqualFold: String
   labelContainsFold: String
+  """
+  overall_status field predicates
+  """
+  overallStatus: TestCollectionOverallStatus
+  overallStatusNEQ: TestCollectionOverallStatus
+  overallStatusIn: [TestCollectionOverallStatus!]
+  overallStatusNotIn: [TestCollectionOverallStatus!]
+  overallStatusIsNil: Boolean
+  overallStatusNotNil: Boolean
+  """
+  strategy field predicates
+  """
+  strategy: String
+  strategyNEQ: String
+  strategyIn: [String!]
+  strategyNotIn: [String!]
+  strategyGT: String
+  strategyGTE: String
+  strategyLT: String
+  strategyLTE: String
+  strategyContains: String
+  strategyHasPrefix: String
+  strategyHasSuffix: String
+  strategyIsNil: Boolean
+  strategyNotNil: Boolean
+  strategyEqualFold: String
+  strategyContainsFold: String
+  """
+  cached_locally field predicates
+  """
+  cachedLocally: Boolean
+  cachedLocallyNEQ: Boolean
+  cachedLocallyIsNil: Boolean
+  cachedLocallyNotNil: Boolean
+  """
+  cached_remotely field predicates
+  """
+  cachedRemotely: Boolean
+  cachedRemotelyNEQ: Boolean
+  cachedRemotelyIsNil: Boolean
+  cachedRemotelyNotNil: Boolean
+  """
+  duration_ms field predicates
+  """
+  durationMs: Int
+  durationMsNEQ: Int
+  durationMsIn: [Int!]
+  durationMsNotIn: [Int!]
+  durationMsGT: Int
+  durationMsGTE: Int
+  durationMsLT: Int
+  durationMsLTE: Int
+  durationMsIsNil: Boolean
+  durationMsNotNil: Boolean
   """
   bazel_invocation edge predicates
   """

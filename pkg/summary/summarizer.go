@@ -175,6 +175,9 @@ func (s Summarizer) handleTargetConfigured(target *bes.TargetConfigured, label s
 			TestSize:      TestSize(target.TestSize),
 			Tag:           target.Tag,
 		},
+		Success:    false, //set it to false, change it when we get a complete
+		TargetKind: target.TargetKind,
+		TestSize:   TestSize(target.TestSize),
 	}
 }
 
@@ -199,11 +202,13 @@ func (s Summarizer) handleTargetCompleted(target *bes.TargetComplete, label stri
 		panic("again...this is bad")
 	}
 	var targetCompletion TargetComplete = TargetComplete{
-		Success:            target.Success,
-		Tag:                target.Tag,
-		TestTimeoutSeconds: target.TestTimeout.Seconds,
-		TestTimeout:        target.TestTimeout.Seconds,
-		EndTimeInMs:        timestamp.UnixMilli(),
+		Success:     target.Success,
+		Tag:         target.Tag,
+		EndTimeInMs: timestamp.UnixMilli(),
+	}
+	if target.TestTimeout != nil {
+		targetCompletion.TestTimeoutSeconds = target.TestTimeout.Seconds
+		targetCompletion.TestTimeout = target.TestTimeout.Seconds
 	}
 	targetPair.Completion = targetCompletion
 	targetPair.DurationInMs = targetPair.Completion.EndTimeInMs - targetPair.Configuration.StartTimeInMs
@@ -297,7 +302,12 @@ func (s Summarizer) handleTestResult(testResult *bes.TestResult, label string) {
 	}
 
 	testResults = append(testResults, tr)
-	testcollection.TestResults = testResults //update the copy with the new test results
+	testcollection.TestResults = testResults                                                      //update the copy with the new test results
+	if testResult.Status == bes.TestStatus_PASSED || testResult.Status == bes.TestStatus_FAILED { //if the test passed on this run, update the summary object w/missing data
+		testcollection.CachedLocally = tr.CachedLocally
+		testcollection.CachedRemotely = tr.ExecutionInfo.CachedRemotely
+		testcollection.Strategy = tr.ExecutionInfo.Strategy
+	}
 
 	// add the copy to the summarizer
 	s.summary.Tests[label] = testcollection
@@ -327,6 +337,8 @@ func (s Summarizer) handleTestSummary(testSummary *bes.TestSummary, label string
 	tSummary.TotalRunDuration = testSummary.TotalRunDuration.AsDuration().Microseconds()
 
 	testCollection.TestSummary = tSummary
+	testCollection.OverallStatus = tSummary.Status
+	testCollection.DurationMs = tSummary.TotalRunDuration
 	s.summary.Tests[label] = testCollection
 
 }

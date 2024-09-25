@@ -24592,6 +24592,9 @@ type TargetPairMutation struct {
 	label                   *string
 	duration_in_ms          *int64
 	addduration_in_ms       *int64
+	success                 *bool
+	target_kind             *string
+	test_size               *targetpair.TestSize
 	clearedFields           map[string]struct{}
 	bazel_invocation        map[int]struct{}
 	removedbazel_invocation map[int]struct{}
@@ -24822,6 +24825,153 @@ func (m *TargetPairMutation) ResetDurationInMs() {
 	delete(m.clearedFields, targetpair.FieldDurationInMs)
 }
 
+// SetSuccess sets the "success" field.
+func (m *TargetPairMutation) SetSuccess(b bool) {
+	m.success = &b
+}
+
+// Success returns the value of the "success" field in the mutation.
+func (m *TargetPairMutation) Success() (r bool, exists bool) {
+	v := m.success
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSuccess returns the old "success" field's value of the TargetPair entity.
+// If the TargetPair object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TargetPairMutation) OldSuccess(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSuccess is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSuccess requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSuccess: %w", err)
+	}
+	return oldValue.Success, nil
+}
+
+// ClearSuccess clears the value of the "success" field.
+func (m *TargetPairMutation) ClearSuccess() {
+	m.success = nil
+	m.clearedFields[targetpair.FieldSuccess] = struct{}{}
+}
+
+// SuccessCleared returns if the "success" field was cleared in this mutation.
+func (m *TargetPairMutation) SuccessCleared() bool {
+	_, ok := m.clearedFields[targetpair.FieldSuccess]
+	return ok
+}
+
+// ResetSuccess resets all changes to the "success" field.
+func (m *TargetPairMutation) ResetSuccess() {
+	m.success = nil
+	delete(m.clearedFields, targetpair.FieldSuccess)
+}
+
+// SetTargetKind sets the "target_kind" field.
+func (m *TargetPairMutation) SetTargetKind(s string) {
+	m.target_kind = &s
+}
+
+// TargetKind returns the value of the "target_kind" field in the mutation.
+func (m *TargetPairMutation) TargetKind() (r string, exists bool) {
+	v := m.target_kind
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTargetKind returns the old "target_kind" field's value of the TargetPair entity.
+// If the TargetPair object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TargetPairMutation) OldTargetKind(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTargetKind is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTargetKind requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTargetKind: %w", err)
+	}
+	return oldValue.TargetKind, nil
+}
+
+// ClearTargetKind clears the value of the "target_kind" field.
+func (m *TargetPairMutation) ClearTargetKind() {
+	m.target_kind = nil
+	m.clearedFields[targetpair.FieldTargetKind] = struct{}{}
+}
+
+// TargetKindCleared returns if the "target_kind" field was cleared in this mutation.
+func (m *TargetPairMutation) TargetKindCleared() bool {
+	_, ok := m.clearedFields[targetpair.FieldTargetKind]
+	return ok
+}
+
+// ResetTargetKind resets all changes to the "target_kind" field.
+func (m *TargetPairMutation) ResetTargetKind() {
+	m.target_kind = nil
+	delete(m.clearedFields, targetpair.FieldTargetKind)
+}
+
+// SetTestSize sets the "test_size" field.
+func (m *TargetPairMutation) SetTestSize(ts targetpair.TestSize) {
+	m.test_size = &ts
+}
+
+// TestSize returns the value of the "test_size" field in the mutation.
+func (m *TargetPairMutation) TestSize() (r targetpair.TestSize, exists bool) {
+	v := m.test_size
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTestSize returns the old "test_size" field's value of the TargetPair entity.
+// If the TargetPair object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TargetPairMutation) OldTestSize(ctx context.Context) (v targetpair.TestSize, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTestSize is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTestSize requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTestSize: %w", err)
+	}
+	return oldValue.TestSize, nil
+}
+
+// ClearTestSize clears the value of the "test_size" field.
+func (m *TargetPairMutation) ClearTestSize() {
+	m.test_size = nil
+	m.clearedFields[targetpair.FieldTestSize] = struct{}{}
+}
+
+// TestSizeCleared returns if the "test_size" field was cleared in this mutation.
+func (m *TargetPairMutation) TestSizeCleared() bool {
+	_, ok := m.clearedFields[targetpair.FieldTestSize]
+	return ok
+}
+
+// ResetTestSize resets all changes to the "test_size" field.
+func (m *TargetPairMutation) ResetTestSize() {
+	m.test_size = nil
+	delete(m.clearedFields, targetpair.FieldTestSize)
+}
+
 // AddBazelInvocationIDs adds the "bazel_invocation" edge to the BazelInvocation entity by ids.
 func (m *TargetPairMutation) AddBazelInvocationIDs(ids ...int) {
 	if m.bazel_invocation == nil {
@@ -24988,12 +25138,21 @@ func (m *TargetPairMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *TargetPairMutation) Fields() []string {
-	fields := make([]string, 0, 2)
+	fields := make([]string, 0, 5)
 	if m.label != nil {
 		fields = append(fields, targetpair.FieldLabel)
 	}
 	if m.duration_in_ms != nil {
 		fields = append(fields, targetpair.FieldDurationInMs)
+	}
+	if m.success != nil {
+		fields = append(fields, targetpair.FieldSuccess)
+	}
+	if m.target_kind != nil {
+		fields = append(fields, targetpair.FieldTargetKind)
+	}
+	if m.test_size != nil {
+		fields = append(fields, targetpair.FieldTestSize)
 	}
 	return fields
 }
@@ -25007,6 +25166,12 @@ func (m *TargetPairMutation) Field(name string) (ent.Value, bool) {
 		return m.Label()
 	case targetpair.FieldDurationInMs:
 		return m.DurationInMs()
+	case targetpair.FieldSuccess:
+		return m.Success()
+	case targetpair.FieldTargetKind:
+		return m.TargetKind()
+	case targetpair.FieldTestSize:
+		return m.TestSize()
 	}
 	return nil, false
 }
@@ -25020,6 +25185,12 @@ func (m *TargetPairMutation) OldField(ctx context.Context, name string) (ent.Val
 		return m.OldLabel(ctx)
 	case targetpair.FieldDurationInMs:
 		return m.OldDurationInMs(ctx)
+	case targetpair.FieldSuccess:
+		return m.OldSuccess(ctx)
+	case targetpair.FieldTargetKind:
+		return m.OldTargetKind(ctx)
+	case targetpair.FieldTestSize:
+		return m.OldTestSize(ctx)
 	}
 	return nil, fmt.Errorf("unknown TargetPair field %s", name)
 }
@@ -25042,6 +25213,27 @@ func (m *TargetPairMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetDurationInMs(v)
+		return nil
+	case targetpair.FieldSuccess:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSuccess(v)
+		return nil
+	case targetpair.FieldTargetKind:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTargetKind(v)
+		return nil
+	case targetpair.FieldTestSize:
+		v, ok := value.(targetpair.TestSize)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTestSize(v)
 		return nil
 	}
 	return fmt.Errorf("unknown TargetPair field %s", name)
@@ -25094,6 +25286,15 @@ func (m *TargetPairMutation) ClearedFields() []string {
 	if m.FieldCleared(targetpair.FieldDurationInMs) {
 		fields = append(fields, targetpair.FieldDurationInMs)
 	}
+	if m.FieldCleared(targetpair.FieldSuccess) {
+		fields = append(fields, targetpair.FieldSuccess)
+	}
+	if m.FieldCleared(targetpair.FieldTargetKind) {
+		fields = append(fields, targetpair.FieldTargetKind)
+	}
+	if m.FieldCleared(targetpair.FieldTestSize) {
+		fields = append(fields, targetpair.FieldTestSize)
+	}
 	return fields
 }
 
@@ -25114,6 +25315,15 @@ func (m *TargetPairMutation) ClearField(name string) error {
 	case targetpair.FieldDurationInMs:
 		m.ClearDurationInMs()
 		return nil
+	case targetpair.FieldSuccess:
+		m.ClearSuccess()
+		return nil
+	case targetpair.FieldTargetKind:
+		m.ClearTargetKind()
+		return nil
+	case targetpair.FieldTestSize:
+		m.ClearTestSize()
+		return nil
 	}
 	return fmt.Errorf("unknown TargetPair nullable field %s", name)
 }
@@ -25127,6 +25337,15 @@ func (m *TargetPairMutation) ResetField(name string) error {
 		return nil
 	case targetpair.FieldDurationInMs:
 		m.ResetDurationInMs()
+		return nil
+	case targetpair.FieldSuccess:
+		m.ResetSuccess()
+		return nil
+	case targetpair.FieldTargetKind:
+		m.ResetTargetKind()
+		return nil
+	case targetpair.FieldTestSize:
+		m.ResetTestSize()
 		return nil
 	}
 	return fmt.Errorf("unknown TargetPair field %s", name)
@@ -25259,6 +25478,12 @@ type TestCollectionMutation struct {
 	typ                     string
 	id                      *int
 	label                   *string
+	overall_status          *testcollection.OverallStatus
+	strategy                *string
+	cached_locally          *bool
+	cached_remotely         *bool
+	duration_ms             *int64
+	addduration_ms          *int64
 	clearedFields           map[string]struct{}
 	bazel_invocation        map[int]struct{}
 	removedbazel_invocation map[int]struct{}
@@ -25418,6 +25643,272 @@ func (m *TestCollectionMutation) LabelCleared() bool {
 func (m *TestCollectionMutation) ResetLabel() {
 	m.label = nil
 	delete(m.clearedFields, testcollection.FieldLabel)
+}
+
+// SetOverallStatus sets the "overall_status" field.
+func (m *TestCollectionMutation) SetOverallStatus(ts testcollection.OverallStatus) {
+	m.overall_status = &ts
+}
+
+// OverallStatus returns the value of the "overall_status" field in the mutation.
+func (m *TestCollectionMutation) OverallStatus() (r testcollection.OverallStatus, exists bool) {
+	v := m.overall_status
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldOverallStatus returns the old "overall_status" field's value of the TestCollection entity.
+// If the TestCollection object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TestCollectionMutation) OldOverallStatus(ctx context.Context) (v testcollection.OverallStatus, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldOverallStatus is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldOverallStatus requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldOverallStatus: %w", err)
+	}
+	return oldValue.OverallStatus, nil
+}
+
+// ClearOverallStatus clears the value of the "overall_status" field.
+func (m *TestCollectionMutation) ClearOverallStatus() {
+	m.overall_status = nil
+	m.clearedFields[testcollection.FieldOverallStatus] = struct{}{}
+}
+
+// OverallStatusCleared returns if the "overall_status" field was cleared in this mutation.
+func (m *TestCollectionMutation) OverallStatusCleared() bool {
+	_, ok := m.clearedFields[testcollection.FieldOverallStatus]
+	return ok
+}
+
+// ResetOverallStatus resets all changes to the "overall_status" field.
+func (m *TestCollectionMutation) ResetOverallStatus() {
+	m.overall_status = nil
+	delete(m.clearedFields, testcollection.FieldOverallStatus)
+}
+
+// SetStrategy sets the "strategy" field.
+func (m *TestCollectionMutation) SetStrategy(s string) {
+	m.strategy = &s
+}
+
+// Strategy returns the value of the "strategy" field in the mutation.
+func (m *TestCollectionMutation) Strategy() (r string, exists bool) {
+	v := m.strategy
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStrategy returns the old "strategy" field's value of the TestCollection entity.
+// If the TestCollection object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TestCollectionMutation) OldStrategy(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStrategy is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStrategy requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStrategy: %w", err)
+	}
+	return oldValue.Strategy, nil
+}
+
+// ClearStrategy clears the value of the "strategy" field.
+func (m *TestCollectionMutation) ClearStrategy() {
+	m.strategy = nil
+	m.clearedFields[testcollection.FieldStrategy] = struct{}{}
+}
+
+// StrategyCleared returns if the "strategy" field was cleared in this mutation.
+func (m *TestCollectionMutation) StrategyCleared() bool {
+	_, ok := m.clearedFields[testcollection.FieldStrategy]
+	return ok
+}
+
+// ResetStrategy resets all changes to the "strategy" field.
+func (m *TestCollectionMutation) ResetStrategy() {
+	m.strategy = nil
+	delete(m.clearedFields, testcollection.FieldStrategy)
+}
+
+// SetCachedLocally sets the "cached_locally" field.
+func (m *TestCollectionMutation) SetCachedLocally(b bool) {
+	m.cached_locally = &b
+}
+
+// CachedLocally returns the value of the "cached_locally" field in the mutation.
+func (m *TestCollectionMutation) CachedLocally() (r bool, exists bool) {
+	v := m.cached_locally
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCachedLocally returns the old "cached_locally" field's value of the TestCollection entity.
+// If the TestCollection object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TestCollectionMutation) OldCachedLocally(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCachedLocally is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCachedLocally requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCachedLocally: %w", err)
+	}
+	return oldValue.CachedLocally, nil
+}
+
+// ClearCachedLocally clears the value of the "cached_locally" field.
+func (m *TestCollectionMutation) ClearCachedLocally() {
+	m.cached_locally = nil
+	m.clearedFields[testcollection.FieldCachedLocally] = struct{}{}
+}
+
+// CachedLocallyCleared returns if the "cached_locally" field was cleared in this mutation.
+func (m *TestCollectionMutation) CachedLocallyCleared() bool {
+	_, ok := m.clearedFields[testcollection.FieldCachedLocally]
+	return ok
+}
+
+// ResetCachedLocally resets all changes to the "cached_locally" field.
+func (m *TestCollectionMutation) ResetCachedLocally() {
+	m.cached_locally = nil
+	delete(m.clearedFields, testcollection.FieldCachedLocally)
+}
+
+// SetCachedRemotely sets the "cached_remotely" field.
+func (m *TestCollectionMutation) SetCachedRemotely(b bool) {
+	m.cached_remotely = &b
+}
+
+// CachedRemotely returns the value of the "cached_remotely" field in the mutation.
+func (m *TestCollectionMutation) CachedRemotely() (r bool, exists bool) {
+	v := m.cached_remotely
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCachedRemotely returns the old "cached_remotely" field's value of the TestCollection entity.
+// If the TestCollection object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TestCollectionMutation) OldCachedRemotely(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCachedRemotely is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCachedRemotely requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCachedRemotely: %w", err)
+	}
+	return oldValue.CachedRemotely, nil
+}
+
+// ClearCachedRemotely clears the value of the "cached_remotely" field.
+func (m *TestCollectionMutation) ClearCachedRemotely() {
+	m.cached_remotely = nil
+	m.clearedFields[testcollection.FieldCachedRemotely] = struct{}{}
+}
+
+// CachedRemotelyCleared returns if the "cached_remotely" field was cleared in this mutation.
+func (m *TestCollectionMutation) CachedRemotelyCleared() bool {
+	_, ok := m.clearedFields[testcollection.FieldCachedRemotely]
+	return ok
+}
+
+// ResetCachedRemotely resets all changes to the "cached_remotely" field.
+func (m *TestCollectionMutation) ResetCachedRemotely() {
+	m.cached_remotely = nil
+	delete(m.clearedFields, testcollection.FieldCachedRemotely)
+}
+
+// SetDurationMs sets the "duration_ms" field.
+func (m *TestCollectionMutation) SetDurationMs(i int64) {
+	m.duration_ms = &i
+	m.addduration_ms = nil
+}
+
+// DurationMs returns the value of the "duration_ms" field in the mutation.
+func (m *TestCollectionMutation) DurationMs() (r int64, exists bool) {
+	v := m.duration_ms
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDurationMs returns the old "duration_ms" field's value of the TestCollection entity.
+// If the TestCollection object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TestCollectionMutation) OldDurationMs(ctx context.Context) (v int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDurationMs is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDurationMs requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDurationMs: %w", err)
+	}
+	return oldValue.DurationMs, nil
+}
+
+// AddDurationMs adds i to the "duration_ms" field.
+func (m *TestCollectionMutation) AddDurationMs(i int64) {
+	if m.addduration_ms != nil {
+		*m.addduration_ms += i
+	} else {
+		m.addduration_ms = &i
+	}
+}
+
+// AddedDurationMs returns the value that was added to the "duration_ms" field in this mutation.
+func (m *TestCollectionMutation) AddedDurationMs() (r int64, exists bool) {
+	v := m.addduration_ms
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearDurationMs clears the value of the "duration_ms" field.
+func (m *TestCollectionMutation) ClearDurationMs() {
+	m.duration_ms = nil
+	m.addduration_ms = nil
+	m.clearedFields[testcollection.FieldDurationMs] = struct{}{}
+}
+
+// DurationMsCleared returns if the "duration_ms" field was cleared in this mutation.
+func (m *TestCollectionMutation) DurationMsCleared() bool {
+	_, ok := m.clearedFields[testcollection.FieldDurationMs]
+	return ok
+}
+
+// ResetDurationMs resets all changes to the "duration_ms" field.
+func (m *TestCollectionMutation) ResetDurationMs() {
+	m.duration_ms = nil
+	m.addduration_ms = nil
+	delete(m.clearedFields, testcollection.FieldDurationMs)
 }
 
 // AddBazelInvocationIDs adds the "bazel_invocation" edge to the BazelInvocation entity by ids.
@@ -25601,9 +26092,24 @@ func (m *TestCollectionMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *TestCollectionMutation) Fields() []string {
-	fields := make([]string, 0, 1)
+	fields := make([]string, 0, 6)
 	if m.label != nil {
 		fields = append(fields, testcollection.FieldLabel)
+	}
+	if m.overall_status != nil {
+		fields = append(fields, testcollection.FieldOverallStatus)
+	}
+	if m.strategy != nil {
+		fields = append(fields, testcollection.FieldStrategy)
+	}
+	if m.cached_locally != nil {
+		fields = append(fields, testcollection.FieldCachedLocally)
+	}
+	if m.cached_remotely != nil {
+		fields = append(fields, testcollection.FieldCachedRemotely)
+	}
+	if m.duration_ms != nil {
+		fields = append(fields, testcollection.FieldDurationMs)
 	}
 	return fields
 }
@@ -25615,6 +26121,16 @@ func (m *TestCollectionMutation) Field(name string) (ent.Value, bool) {
 	switch name {
 	case testcollection.FieldLabel:
 		return m.Label()
+	case testcollection.FieldOverallStatus:
+		return m.OverallStatus()
+	case testcollection.FieldStrategy:
+		return m.Strategy()
+	case testcollection.FieldCachedLocally:
+		return m.CachedLocally()
+	case testcollection.FieldCachedRemotely:
+		return m.CachedRemotely()
+	case testcollection.FieldDurationMs:
+		return m.DurationMs()
 	}
 	return nil, false
 }
@@ -25626,6 +26142,16 @@ func (m *TestCollectionMutation) OldField(ctx context.Context, name string) (ent
 	switch name {
 	case testcollection.FieldLabel:
 		return m.OldLabel(ctx)
+	case testcollection.FieldOverallStatus:
+		return m.OldOverallStatus(ctx)
+	case testcollection.FieldStrategy:
+		return m.OldStrategy(ctx)
+	case testcollection.FieldCachedLocally:
+		return m.OldCachedLocally(ctx)
+	case testcollection.FieldCachedRemotely:
+		return m.OldCachedRemotely(ctx)
+	case testcollection.FieldDurationMs:
+		return m.OldDurationMs(ctx)
 	}
 	return nil, fmt.Errorf("unknown TestCollection field %s", name)
 }
@@ -25642,6 +26168,41 @@ func (m *TestCollectionMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetLabel(v)
 		return nil
+	case testcollection.FieldOverallStatus:
+		v, ok := value.(testcollection.OverallStatus)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetOverallStatus(v)
+		return nil
+	case testcollection.FieldStrategy:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStrategy(v)
+		return nil
+	case testcollection.FieldCachedLocally:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCachedLocally(v)
+		return nil
+	case testcollection.FieldCachedRemotely:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCachedRemotely(v)
+		return nil
+	case testcollection.FieldDurationMs:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDurationMs(v)
+		return nil
 	}
 	return fmt.Errorf("unknown TestCollection field %s", name)
 }
@@ -25649,13 +26210,21 @@ func (m *TestCollectionMutation) SetField(name string, value ent.Value) error {
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *TestCollectionMutation) AddedFields() []string {
-	return nil
+	var fields []string
+	if m.addduration_ms != nil {
+		fields = append(fields, testcollection.FieldDurationMs)
+	}
+	return fields
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *TestCollectionMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case testcollection.FieldDurationMs:
+		return m.AddedDurationMs()
+	}
 	return nil, false
 }
 
@@ -25664,6 +26233,13 @@ func (m *TestCollectionMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *TestCollectionMutation) AddField(name string, value ent.Value) error {
 	switch name {
+	case testcollection.FieldDurationMs:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddDurationMs(v)
+		return nil
 	}
 	return fmt.Errorf("unknown TestCollection numeric field %s", name)
 }
@@ -25674,6 +26250,21 @@ func (m *TestCollectionMutation) ClearedFields() []string {
 	var fields []string
 	if m.FieldCleared(testcollection.FieldLabel) {
 		fields = append(fields, testcollection.FieldLabel)
+	}
+	if m.FieldCleared(testcollection.FieldOverallStatus) {
+		fields = append(fields, testcollection.FieldOverallStatus)
+	}
+	if m.FieldCleared(testcollection.FieldStrategy) {
+		fields = append(fields, testcollection.FieldStrategy)
+	}
+	if m.FieldCleared(testcollection.FieldCachedLocally) {
+		fields = append(fields, testcollection.FieldCachedLocally)
+	}
+	if m.FieldCleared(testcollection.FieldCachedRemotely) {
+		fields = append(fields, testcollection.FieldCachedRemotely)
+	}
+	if m.FieldCleared(testcollection.FieldDurationMs) {
+		fields = append(fields, testcollection.FieldDurationMs)
 	}
 	return fields
 }
@@ -25692,6 +26283,21 @@ func (m *TestCollectionMutation) ClearField(name string) error {
 	case testcollection.FieldLabel:
 		m.ClearLabel()
 		return nil
+	case testcollection.FieldOverallStatus:
+		m.ClearOverallStatus()
+		return nil
+	case testcollection.FieldStrategy:
+		m.ClearStrategy()
+		return nil
+	case testcollection.FieldCachedLocally:
+		m.ClearCachedLocally()
+		return nil
+	case testcollection.FieldCachedRemotely:
+		m.ClearCachedRemotely()
+		return nil
+	case testcollection.FieldDurationMs:
+		m.ClearDurationMs()
+		return nil
 	}
 	return fmt.Errorf("unknown TestCollection nullable field %s", name)
 }
@@ -25702,6 +26308,21 @@ func (m *TestCollectionMutation) ResetField(name string) error {
 	switch name {
 	case testcollection.FieldLabel:
 		m.ResetLabel()
+		return nil
+	case testcollection.FieldOverallStatus:
+		m.ResetOverallStatus()
+		return nil
+	case testcollection.FieldStrategy:
+		m.ResetStrategy()
+		return nil
+	case testcollection.FieldCachedLocally:
+		m.ResetCachedLocally()
+		return nil
+	case testcollection.FieldCachedRemotely:
+		m.ResetCachedRemotely()
+		return nil
+	case testcollection.FieldDurationMs:
+		m.ResetDurationMs()
 		return nil
 	}
 	return fmt.Errorf("unknown TestCollection field %s", name)

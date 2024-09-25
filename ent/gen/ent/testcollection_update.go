@@ -50,6 +50,113 @@ func (tcu *TestCollectionUpdate) ClearLabel() *TestCollectionUpdate {
 	return tcu
 }
 
+// SetOverallStatus sets the "overall_status" field.
+func (tcu *TestCollectionUpdate) SetOverallStatus(ts testcollection.OverallStatus) *TestCollectionUpdate {
+	tcu.mutation.SetOverallStatus(ts)
+	return tcu
+}
+
+// SetNillableOverallStatus sets the "overall_status" field if the given value is not nil.
+func (tcu *TestCollectionUpdate) SetNillableOverallStatus(ts *testcollection.OverallStatus) *TestCollectionUpdate {
+	if ts != nil {
+		tcu.SetOverallStatus(*ts)
+	}
+	return tcu
+}
+
+// ClearOverallStatus clears the value of the "overall_status" field.
+func (tcu *TestCollectionUpdate) ClearOverallStatus() *TestCollectionUpdate {
+	tcu.mutation.ClearOverallStatus()
+	return tcu
+}
+
+// SetStrategy sets the "strategy" field.
+func (tcu *TestCollectionUpdate) SetStrategy(s string) *TestCollectionUpdate {
+	tcu.mutation.SetStrategy(s)
+	return tcu
+}
+
+// SetNillableStrategy sets the "strategy" field if the given value is not nil.
+func (tcu *TestCollectionUpdate) SetNillableStrategy(s *string) *TestCollectionUpdate {
+	if s != nil {
+		tcu.SetStrategy(*s)
+	}
+	return tcu
+}
+
+// ClearStrategy clears the value of the "strategy" field.
+func (tcu *TestCollectionUpdate) ClearStrategy() *TestCollectionUpdate {
+	tcu.mutation.ClearStrategy()
+	return tcu
+}
+
+// SetCachedLocally sets the "cached_locally" field.
+func (tcu *TestCollectionUpdate) SetCachedLocally(b bool) *TestCollectionUpdate {
+	tcu.mutation.SetCachedLocally(b)
+	return tcu
+}
+
+// SetNillableCachedLocally sets the "cached_locally" field if the given value is not nil.
+func (tcu *TestCollectionUpdate) SetNillableCachedLocally(b *bool) *TestCollectionUpdate {
+	if b != nil {
+		tcu.SetCachedLocally(*b)
+	}
+	return tcu
+}
+
+// ClearCachedLocally clears the value of the "cached_locally" field.
+func (tcu *TestCollectionUpdate) ClearCachedLocally() *TestCollectionUpdate {
+	tcu.mutation.ClearCachedLocally()
+	return tcu
+}
+
+// SetCachedRemotely sets the "cached_remotely" field.
+func (tcu *TestCollectionUpdate) SetCachedRemotely(b bool) *TestCollectionUpdate {
+	tcu.mutation.SetCachedRemotely(b)
+	return tcu
+}
+
+// SetNillableCachedRemotely sets the "cached_remotely" field if the given value is not nil.
+func (tcu *TestCollectionUpdate) SetNillableCachedRemotely(b *bool) *TestCollectionUpdate {
+	if b != nil {
+		tcu.SetCachedRemotely(*b)
+	}
+	return tcu
+}
+
+// ClearCachedRemotely clears the value of the "cached_remotely" field.
+func (tcu *TestCollectionUpdate) ClearCachedRemotely() *TestCollectionUpdate {
+	tcu.mutation.ClearCachedRemotely()
+	return tcu
+}
+
+// SetDurationMs sets the "duration_ms" field.
+func (tcu *TestCollectionUpdate) SetDurationMs(i int64) *TestCollectionUpdate {
+	tcu.mutation.ResetDurationMs()
+	tcu.mutation.SetDurationMs(i)
+	return tcu
+}
+
+// SetNillableDurationMs sets the "duration_ms" field if the given value is not nil.
+func (tcu *TestCollectionUpdate) SetNillableDurationMs(i *int64) *TestCollectionUpdate {
+	if i != nil {
+		tcu.SetDurationMs(*i)
+	}
+	return tcu
+}
+
+// AddDurationMs adds i to the "duration_ms" field.
+func (tcu *TestCollectionUpdate) AddDurationMs(i int64) *TestCollectionUpdate {
+	tcu.mutation.AddDurationMs(i)
+	return tcu
+}
+
+// ClearDurationMs clears the value of the "duration_ms" field.
+func (tcu *TestCollectionUpdate) ClearDurationMs() *TestCollectionUpdate {
+	tcu.mutation.ClearDurationMs()
+	return tcu
+}
+
 // AddBazelInvocationIDs adds the "bazel_invocation" edge to the BazelInvocation entity by IDs.
 func (tcu *TestCollectionUpdate) AddBazelInvocationIDs(ids ...int) *TestCollectionUpdate {
 	tcu.mutation.AddBazelInvocationIDs(ids...)
@@ -179,7 +286,20 @@ func (tcu *TestCollectionUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (tcu *TestCollectionUpdate) check() error {
+	if v, ok := tcu.mutation.OverallStatus(); ok {
+		if err := testcollection.OverallStatusValidator(v); err != nil {
+			return &ValidationError{Name: "overall_status", err: fmt.Errorf(`ent: validator failed for field "TestCollection.overall_status": %w`, err)}
+		}
+	}
+	return nil
+}
+
 func (tcu *TestCollectionUpdate) sqlSave(ctx context.Context) (n int, err error) {
+	if err := tcu.check(); err != nil {
+		return n, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(testcollection.Table, testcollection.Columns, sqlgraph.NewFieldSpec(testcollection.FieldID, field.TypeInt))
 	if ps := tcu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
@@ -193,6 +313,39 @@ func (tcu *TestCollectionUpdate) sqlSave(ctx context.Context) (n int, err error)
 	}
 	if tcu.mutation.LabelCleared() {
 		_spec.ClearField(testcollection.FieldLabel, field.TypeString)
+	}
+	if value, ok := tcu.mutation.OverallStatus(); ok {
+		_spec.SetField(testcollection.FieldOverallStatus, field.TypeEnum, value)
+	}
+	if tcu.mutation.OverallStatusCleared() {
+		_spec.ClearField(testcollection.FieldOverallStatus, field.TypeEnum)
+	}
+	if value, ok := tcu.mutation.Strategy(); ok {
+		_spec.SetField(testcollection.FieldStrategy, field.TypeString, value)
+	}
+	if tcu.mutation.StrategyCleared() {
+		_spec.ClearField(testcollection.FieldStrategy, field.TypeString)
+	}
+	if value, ok := tcu.mutation.CachedLocally(); ok {
+		_spec.SetField(testcollection.FieldCachedLocally, field.TypeBool, value)
+	}
+	if tcu.mutation.CachedLocallyCleared() {
+		_spec.ClearField(testcollection.FieldCachedLocally, field.TypeBool)
+	}
+	if value, ok := tcu.mutation.CachedRemotely(); ok {
+		_spec.SetField(testcollection.FieldCachedRemotely, field.TypeBool, value)
+	}
+	if tcu.mutation.CachedRemotelyCleared() {
+		_spec.ClearField(testcollection.FieldCachedRemotely, field.TypeBool)
+	}
+	if value, ok := tcu.mutation.DurationMs(); ok {
+		_spec.SetField(testcollection.FieldDurationMs, field.TypeInt64, value)
+	}
+	if value, ok := tcu.mutation.AddedDurationMs(); ok {
+		_spec.AddField(testcollection.FieldDurationMs, field.TypeInt64, value)
+	}
+	if tcu.mutation.DurationMsCleared() {
+		_spec.ClearField(testcollection.FieldDurationMs, field.TypeInt64)
 	}
 	if tcu.mutation.BazelInvocationCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -353,6 +506,113 @@ func (tcuo *TestCollectionUpdateOne) ClearLabel() *TestCollectionUpdateOne {
 	return tcuo
 }
 
+// SetOverallStatus sets the "overall_status" field.
+func (tcuo *TestCollectionUpdateOne) SetOverallStatus(ts testcollection.OverallStatus) *TestCollectionUpdateOne {
+	tcuo.mutation.SetOverallStatus(ts)
+	return tcuo
+}
+
+// SetNillableOverallStatus sets the "overall_status" field if the given value is not nil.
+func (tcuo *TestCollectionUpdateOne) SetNillableOverallStatus(ts *testcollection.OverallStatus) *TestCollectionUpdateOne {
+	if ts != nil {
+		tcuo.SetOverallStatus(*ts)
+	}
+	return tcuo
+}
+
+// ClearOverallStatus clears the value of the "overall_status" field.
+func (tcuo *TestCollectionUpdateOne) ClearOverallStatus() *TestCollectionUpdateOne {
+	tcuo.mutation.ClearOverallStatus()
+	return tcuo
+}
+
+// SetStrategy sets the "strategy" field.
+func (tcuo *TestCollectionUpdateOne) SetStrategy(s string) *TestCollectionUpdateOne {
+	tcuo.mutation.SetStrategy(s)
+	return tcuo
+}
+
+// SetNillableStrategy sets the "strategy" field if the given value is not nil.
+func (tcuo *TestCollectionUpdateOne) SetNillableStrategy(s *string) *TestCollectionUpdateOne {
+	if s != nil {
+		tcuo.SetStrategy(*s)
+	}
+	return tcuo
+}
+
+// ClearStrategy clears the value of the "strategy" field.
+func (tcuo *TestCollectionUpdateOne) ClearStrategy() *TestCollectionUpdateOne {
+	tcuo.mutation.ClearStrategy()
+	return tcuo
+}
+
+// SetCachedLocally sets the "cached_locally" field.
+func (tcuo *TestCollectionUpdateOne) SetCachedLocally(b bool) *TestCollectionUpdateOne {
+	tcuo.mutation.SetCachedLocally(b)
+	return tcuo
+}
+
+// SetNillableCachedLocally sets the "cached_locally" field if the given value is not nil.
+func (tcuo *TestCollectionUpdateOne) SetNillableCachedLocally(b *bool) *TestCollectionUpdateOne {
+	if b != nil {
+		tcuo.SetCachedLocally(*b)
+	}
+	return tcuo
+}
+
+// ClearCachedLocally clears the value of the "cached_locally" field.
+func (tcuo *TestCollectionUpdateOne) ClearCachedLocally() *TestCollectionUpdateOne {
+	tcuo.mutation.ClearCachedLocally()
+	return tcuo
+}
+
+// SetCachedRemotely sets the "cached_remotely" field.
+func (tcuo *TestCollectionUpdateOne) SetCachedRemotely(b bool) *TestCollectionUpdateOne {
+	tcuo.mutation.SetCachedRemotely(b)
+	return tcuo
+}
+
+// SetNillableCachedRemotely sets the "cached_remotely" field if the given value is not nil.
+func (tcuo *TestCollectionUpdateOne) SetNillableCachedRemotely(b *bool) *TestCollectionUpdateOne {
+	if b != nil {
+		tcuo.SetCachedRemotely(*b)
+	}
+	return tcuo
+}
+
+// ClearCachedRemotely clears the value of the "cached_remotely" field.
+func (tcuo *TestCollectionUpdateOne) ClearCachedRemotely() *TestCollectionUpdateOne {
+	tcuo.mutation.ClearCachedRemotely()
+	return tcuo
+}
+
+// SetDurationMs sets the "duration_ms" field.
+func (tcuo *TestCollectionUpdateOne) SetDurationMs(i int64) *TestCollectionUpdateOne {
+	tcuo.mutation.ResetDurationMs()
+	tcuo.mutation.SetDurationMs(i)
+	return tcuo
+}
+
+// SetNillableDurationMs sets the "duration_ms" field if the given value is not nil.
+func (tcuo *TestCollectionUpdateOne) SetNillableDurationMs(i *int64) *TestCollectionUpdateOne {
+	if i != nil {
+		tcuo.SetDurationMs(*i)
+	}
+	return tcuo
+}
+
+// AddDurationMs adds i to the "duration_ms" field.
+func (tcuo *TestCollectionUpdateOne) AddDurationMs(i int64) *TestCollectionUpdateOne {
+	tcuo.mutation.AddDurationMs(i)
+	return tcuo
+}
+
+// ClearDurationMs clears the value of the "duration_ms" field.
+func (tcuo *TestCollectionUpdateOne) ClearDurationMs() *TestCollectionUpdateOne {
+	tcuo.mutation.ClearDurationMs()
+	return tcuo
+}
+
 // AddBazelInvocationIDs adds the "bazel_invocation" edge to the BazelInvocation entity by IDs.
 func (tcuo *TestCollectionUpdateOne) AddBazelInvocationIDs(ids ...int) *TestCollectionUpdateOne {
 	tcuo.mutation.AddBazelInvocationIDs(ids...)
@@ -495,7 +755,20 @@ func (tcuo *TestCollectionUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (tcuo *TestCollectionUpdateOne) check() error {
+	if v, ok := tcuo.mutation.OverallStatus(); ok {
+		if err := testcollection.OverallStatusValidator(v); err != nil {
+			return &ValidationError{Name: "overall_status", err: fmt.Errorf(`ent: validator failed for field "TestCollection.overall_status": %w`, err)}
+		}
+	}
+	return nil
+}
+
 func (tcuo *TestCollectionUpdateOne) sqlSave(ctx context.Context) (_node *TestCollection, err error) {
+	if err := tcuo.check(); err != nil {
+		return _node, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(testcollection.Table, testcollection.Columns, sqlgraph.NewFieldSpec(testcollection.FieldID, field.TypeInt))
 	id, ok := tcuo.mutation.ID()
 	if !ok {
@@ -526,6 +799,39 @@ func (tcuo *TestCollectionUpdateOne) sqlSave(ctx context.Context) (_node *TestCo
 	}
 	if tcuo.mutation.LabelCleared() {
 		_spec.ClearField(testcollection.FieldLabel, field.TypeString)
+	}
+	if value, ok := tcuo.mutation.OverallStatus(); ok {
+		_spec.SetField(testcollection.FieldOverallStatus, field.TypeEnum, value)
+	}
+	if tcuo.mutation.OverallStatusCleared() {
+		_spec.ClearField(testcollection.FieldOverallStatus, field.TypeEnum)
+	}
+	if value, ok := tcuo.mutation.Strategy(); ok {
+		_spec.SetField(testcollection.FieldStrategy, field.TypeString, value)
+	}
+	if tcuo.mutation.StrategyCleared() {
+		_spec.ClearField(testcollection.FieldStrategy, field.TypeString)
+	}
+	if value, ok := tcuo.mutation.CachedLocally(); ok {
+		_spec.SetField(testcollection.FieldCachedLocally, field.TypeBool, value)
+	}
+	if tcuo.mutation.CachedLocallyCleared() {
+		_spec.ClearField(testcollection.FieldCachedLocally, field.TypeBool)
+	}
+	if value, ok := tcuo.mutation.CachedRemotely(); ok {
+		_spec.SetField(testcollection.FieldCachedRemotely, field.TypeBool, value)
+	}
+	if tcuo.mutation.CachedRemotelyCleared() {
+		_spec.ClearField(testcollection.FieldCachedRemotely, field.TypeBool)
+	}
+	if value, ok := tcuo.mutation.DurationMs(); ok {
+		_spec.SetField(testcollection.FieldDurationMs, field.TypeInt64, value)
+	}
+	if value, ok := tcuo.mutation.AddedDurationMs(); ok {
+		_spec.AddField(testcollection.FieldDurationMs, field.TypeInt64, value)
+	}
+	if tcuo.mutation.DurationMsCleared() {
+		_spec.ClearField(testcollection.FieldDurationMs, field.TypeInt64)
 	}
 	if tcuo.mutation.BazelInvocationCleared() {
 		edge := &sqlgraph.EdgeSpec{

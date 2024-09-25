@@ -3417,6 +3417,21 @@ func (tp *TargetPairQuery) collectField(ctx context.Context, oneNode bool, opCtx
 				selectedFields = append(selectedFields, targetpair.FieldDurationInMs)
 				fieldSeen[targetpair.FieldDurationInMs] = struct{}{}
 			}
+		case "success":
+			if _, ok := fieldSeen[targetpair.FieldSuccess]; !ok {
+				selectedFields = append(selectedFields, targetpair.FieldSuccess)
+				fieldSeen[targetpair.FieldSuccess] = struct{}{}
+			}
+		case "targetKind":
+			if _, ok := fieldSeen[targetpair.FieldTargetKind]; !ok {
+				selectedFields = append(selectedFields, targetpair.FieldTargetKind)
+				fieldSeen[targetpair.FieldTargetKind] = struct{}{}
+			}
+		case "testSize":
+			if _, ok := fieldSeen[targetpair.FieldTestSize]; !ok {
+				selectedFields = append(selectedFields, targetpair.FieldTestSize)
+				fieldSeen[targetpair.FieldTestSize] = struct{}{}
+			}
 		case "id":
 		case "__typename":
 		default:
@@ -3520,6 +3535,31 @@ func (tc *TestCollectionQuery) collectField(ctx context.Context, oneNode bool, o
 			if _, ok := fieldSeen[testcollection.FieldLabel]; !ok {
 				selectedFields = append(selectedFields, testcollection.FieldLabel)
 				fieldSeen[testcollection.FieldLabel] = struct{}{}
+			}
+		case "overallStatus":
+			if _, ok := fieldSeen[testcollection.FieldOverallStatus]; !ok {
+				selectedFields = append(selectedFields, testcollection.FieldOverallStatus)
+				fieldSeen[testcollection.FieldOverallStatus] = struct{}{}
+			}
+		case "strategy":
+			if _, ok := fieldSeen[testcollection.FieldStrategy]; !ok {
+				selectedFields = append(selectedFields, testcollection.FieldStrategy)
+				fieldSeen[testcollection.FieldStrategy] = struct{}{}
+			}
+		case "cachedLocally":
+			if _, ok := fieldSeen[testcollection.FieldCachedLocally]; !ok {
+				selectedFields = append(selectedFields, testcollection.FieldCachedLocally)
+				fieldSeen[testcollection.FieldCachedLocally] = struct{}{}
+			}
+		case "cachedRemotely":
+			if _, ok := fieldSeen[testcollection.FieldCachedRemotely]; !ok {
+				selectedFields = append(selectedFields, testcollection.FieldCachedRemotely)
+				fieldSeen[testcollection.FieldCachedRemotely] = struct{}{}
+			}
+		case "durationMs":
+			if _, ok := fieldSeen[testcollection.FieldDurationMs]; !ok {
+				selectedFields = append(selectedFields, testcollection.FieldDurationMs)
+				fieldSeen[testcollection.FieldDurationMs] = struct{}{}
 			}
 		case "id":
 		case "__typename":

@@ -35,6 +35,76 @@ func (tcc *TestCollectionCreate) SetNillableLabel(s *string) *TestCollectionCrea
 	return tcc
 }
 
+// SetOverallStatus sets the "overall_status" field.
+func (tcc *TestCollectionCreate) SetOverallStatus(ts testcollection.OverallStatus) *TestCollectionCreate {
+	tcc.mutation.SetOverallStatus(ts)
+	return tcc
+}
+
+// SetNillableOverallStatus sets the "overall_status" field if the given value is not nil.
+func (tcc *TestCollectionCreate) SetNillableOverallStatus(ts *testcollection.OverallStatus) *TestCollectionCreate {
+	if ts != nil {
+		tcc.SetOverallStatus(*ts)
+	}
+	return tcc
+}
+
+// SetStrategy sets the "strategy" field.
+func (tcc *TestCollectionCreate) SetStrategy(s string) *TestCollectionCreate {
+	tcc.mutation.SetStrategy(s)
+	return tcc
+}
+
+// SetNillableStrategy sets the "strategy" field if the given value is not nil.
+func (tcc *TestCollectionCreate) SetNillableStrategy(s *string) *TestCollectionCreate {
+	if s != nil {
+		tcc.SetStrategy(*s)
+	}
+	return tcc
+}
+
+// SetCachedLocally sets the "cached_locally" field.
+func (tcc *TestCollectionCreate) SetCachedLocally(b bool) *TestCollectionCreate {
+	tcc.mutation.SetCachedLocally(b)
+	return tcc
+}
+
+// SetNillableCachedLocally sets the "cached_locally" field if the given value is not nil.
+func (tcc *TestCollectionCreate) SetNillableCachedLocally(b *bool) *TestCollectionCreate {
+	if b != nil {
+		tcc.SetCachedLocally(*b)
+	}
+	return tcc
+}
+
+// SetCachedRemotely sets the "cached_remotely" field.
+func (tcc *TestCollectionCreate) SetCachedRemotely(b bool) *TestCollectionCreate {
+	tcc.mutation.SetCachedRemotely(b)
+	return tcc
+}
+
+// SetNillableCachedRemotely sets the "cached_remotely" field if the given value is not nil.
+func (tcc *TestCollectionCreate) SetNillableCachedRemotely(b *bool) *TestCollectionCreate {
+	if b != nil {
+		tcc.SetCachedRemotely(*b)
+	}
+	return tcc
+}
+
+// SetDurationMs sets the "duration_ms" field.
+func (tcc *TestCollectionCreate) SetDurationMs(i int64) *TestCollectionCreate {
+	tcc.mutation.SetDurationMs(i)
+	return tcc
+}
+
+// SetNillableDurationMs sets the "duration_ms" field if the given value is not nil.
+func (tcc *TestCollectionCreate) SetNillableDurationMs(i *int64) *TestCollectionCreate {
+	if i != nil {
+		tcc.SetDurationMs(*i)
+	}
+	return tcc
+}
+
 // AddBazelInvocationIDs adds the "bazel_invocation" edge to the BazelInvocation entity by IDs.
 func (tcc *TestCollectionCreate) AddBazelInvocationIDs(ids ...int) *TestCollectionCreate {
 	tcc.mutation.AddBazelInvocationIDs(ids...)
@@ -91,6 +161,7 @@ func (tcc *TestCollectionCreate) Mutation() *TestCollectionMutation {
 
 // Save creates the TestCollection in the database.
 func (tcc *TestCollectionCreate) Save(ctx context.Context) (*TestCollection, error) {
+	tcc.defaults()
 	return withHooks(ctx, tcc.sqlSave, tcc.mutation, tcc.hooks)
 }
 
@@ -116,8 +187,21 @@ func (tcc *TestCollectionCreate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (tcc *TestCollectionCreate) defaults() {
+	if _, ok := tcc.mutation.OverallStatus(); !ok {
+		v := testcollection.DefaultOverallStatus
+		tcc.mutation.SetOverallStatus(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (tcc *TestCollectionCreate) check() error {
+	if v, ok := tcc.mutation.OverallStatus(); ok {
+		if err := testcollection.OverallStatusValidator(v); err != nil {
+			return &ValidationError{Name: "overall_status", err: fmt.Errorf(`ent: validator failed for field "TestCollection.overall_status": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -147,6 +231,26 @@ func (tcc *TestCollectionCreate) createSpec() (*TestCollection, *sqlgraph.Create
 	if value, ok := tcc.mutation.Label(); ok {
 		_spec.SetField(testcollection.FieldLabel, field.TypeString, value)
 		_node.Label = value
+	}
+	if value, ok := tcc.mutation.OverallStatus(); ok {
+		_spec.SetField(testcollection.FieldOverallStatus, field.TypeEnum, value)
+		_node.OverallStatus = value
+	}
+	if value, ok := tcc.mutation.Strategy(); ok {
+		_spec.SetField(testcollection.FieldStrategy, field.TypeString, value)
+		_node.Strategy = value
+	}
+	if value, ok := tcc.mutation.CachedLocally(); ok {
+		_spec.SetField(testcollection.FieldCachedLocally, field.TypeBool, value)
+		_node.CachedLocally = value
+	}
+	if value, ok := tcc.mutation.CachedRemotely(); ok {
+		_spec.SetField(testcollection.FieldCachedRemotely, field.TypeBool, value)
+		_node.CachedRemotely = value
+	}
+	if value, ok := tcc.mutation.DurationMs(); ok {
+		_spec.SetField(testcollection.FieldDurationMs, field.TypeInt64, value)
+		_node.DurationMs = value
 	}
 	if nodes := tcc.mutation.BazelInvocationIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -218,6 +322,7 @@ func (tccb *TestCollectionCreateBulk) Save(ctx context.Context) ([]*TestCollecti
 	for i := range tccb.builders {
 		func(i int, root context.Context) {
 			builder := tccb.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*TestCollectionMutation)
 				if !ok {

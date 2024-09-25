@@ -14,6 +14,8 @@ import (
 	"github.com/buildbarn/bb-portal/ent/gen/ent/missdetail"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/targetcomplete"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/targetconfigured"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/targetpair"
+	"github.com/buildbarn/bb-portal/ent/gen/ent/testcollection"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/testresultbes"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/testsummary"
 	"github.com/buildbarn/bb-portal/pkg/summary"
@@ -298,6 +300,9 @@ func (act SaveActor) createTargets(ctx context.Context, summary *summary.Summary
 			SetConfiguration(target_configuration).
 			SetLabel(targetLabel).
 			SetDurationInMs(targetPair.DurationInMs).
+			SetSuccess(targetPair.Success).
+			SetTargetKind(targetPair.TargetKind).
+			SetTestSize(targetpair.TestSize(targetPair.TestSize.String())).
 			Save(ctx)
 		if err != nil {
 			slog.Error("problem saving target pair object: %w", err)
@@ -318,13 +323,13 @@ func (act SaveActor) createTestResults(ctx context.Context, summary *summary.Sum
 
 	var err error = nil
 
-	var test_collections []*ent.TestCollection
+	var result []*ent.TestCollection
 
-	for test_label, test_collection := range summary.Tests {
+	for testLabel, testCollection := range summary.Tests {
 
 		//test summary
-		slog.Debug("processing test summary for %s", test_label)
-		var ts = test_collection.TestSummary
+		slog.Debug("processing test summary for %s", testLabel)
+		var ts = testCollection.TestSummary
 		var db_test_summary *ent.TestSummary
 		db_test_summary, err = act.db.TestSummary.Create().
 			SetOverallStatus(testsummary.OverallStatus(ts.Status.String())).
@@ -336,7 +341,7 @@ func (act SaveActor) createTestResults(ctx context.Context, summary *summary.Sum
 			SetTotalRunCount(ts.TotalRunCount).
 			SetTotalNumCached(ts.TotalNumCached).
 			SetTotalRunDuration(ts.TotalRunDuration).
-			SetLabel(test_label).
+			SetLabel(testLabel).
 			AddPassed().
 			AddFailed().
 			Save(ctx)
@@ -349,7 +354,7 @@ func (act SaveActor) createTestResults(ctx context.Context, summary *summary.Sum
 		//test results
 		slog.Debug("processing test results")
 		var test_results []*ent.TestResultBES
-		for _, tr := range test_collection.TestResults {
+		for _, tr := range testCollection.TestResults {
 
 			//create the timing children
 			var timing_children []*ent.TimingChild
@@ -441,15 +446,20 @@ func (act SaveActor) createTestResults(ctx context.Context, summary *summary.Sum
 
 		var test_collection *ent.TestCollection
 		test_collection, err = act.db.TestCollection.Create().
-			SetLabel(test_label).
+			SetLabel(testLabel).
 			SetTestSummary(db_test_summary).
 			AddTestResults(test_results...).
+			SetOverallStatus(testcollection.OverallStatus(testCollection.OverallStatus.String())).
+			SetStrategy(testCollection.Strategy).
+			SetCachedLocally(testCollection.CachedLocally).
+			SetCachedRemotely(testCollection.CachedRemotely).
+			SetDurationMs(testCollection.DurationMs).
 			Save(ctx)
 		if err != nil {
 			slog.Error("problem saving test collection object: %w", err)
 			err = nil
 		}
-		test_collections = append(test_collections, test_collection)
+		result = append(result, test_collection)
 
 	}
 
@@ -457,7 +467,7 @@ func (act SaveActor) createTestResults(ctx context.Context, summary *summary.Sum
 		return nil, err
 	}
 
-	return test_collections, nil
+	return result, nil
 }
 
 func (act SaveActor) createMetrics(ctx context.Context, summary *summary.Summary) (*ent.Metrics, error) {
@@ -802,47 +812,64 @@ func (act SaveActor) createMetrics(ctx context.Context, summary *summary.Summary
 		err = nil
 	}
 
-	slog.Debug("creating network metrics")
-	//create the system network stats
-	var systemNetworkStats *ent.SystemNetworkStats
-	systemNetworkStats, err = act.db.SystemNetworkStats.Create().
-		SetBytesRecv(int64(summary.Metrics.NetworkMetrics.SystemNetworkStats.BytesRecv)).
-		SetBytesSent(int64(summary.Metrics.NetworkMetrics.SystemNetworkStats.BytesSent)).
-		SetPacketsRecv(int64(summary.Metrics.NetworkMetrics.SystemNetworkStats.PacketsRecv)).
-		SetPacketsSent(int64(summary.Metrics.NetworkMetrics.SystemNetworkStats.PacketsSent)).
-		SetPeakBytesRecvPerSec(int64(summary.Metrics.NetworkMetrics.SystemNetworkStats.PeakBytesRecvPerSec)).
-		SetPeakBytesSentPerSec(int64(summary.Metrics.NetworkMetrics.SystemNetworkStats.PeakBytesSentPerSec)).
-		SetPeakPacketsRecvPerSec(int64(summary.Metrics.NetworkMetrics.SystemNetworkStats.PeakPacketsRecvPerSec)).
-		SetPeakBytesSentPerSec(int64(summary.Metrics.NetworkMetrics.SystemNetworkStats.PeakPacketsSentPerSec)).
-		Save(ctx)
-	if err != nil {
-		slog.Error("error creating system network stats metrics. %w", err)
-		err = nil
-	}
-
-	//create the network metrics
 	var networkMetrics *ent.NetworkMetrics
-	networkMetrics, err = act.db.NetworkMetrics.Create().
-		AddSystemNetworkStats(systemNetworkStats).
-		Save(ctx)
-	if err != nil {
-		slog.Error("error creating network metrics. %w", err)
-		err = nil
+	if summary.Metrics.NetworkMetrics.SystemNetworkStats != nil {
+		var systemNetworkStats *ent.SystemNetworkStats
+		slog.Debug("creating network metrics")
+		//create the system network stats
+		//TODO: need null checking for when the bazel command crashes
+		systemNetworkStats, err = act.db.SystemNetworkStats.Create().
+			SetBytesRecv(int64(summary.Metrics.NetworkMetrics.SystemNetworkStats.BytesRecv)).
+			SetBytesSent(int64(summary.Metrics.NetworkMetrics.SystemNetworkStats.BytesSent)).
+			SetPacketsRecv(int64(summary.Metrics.NetworkMetrics.SystemNetworkStats.PacketsRecv)).
+			SetPacketsSent(int64(summary.Metrics.NetworkMetrics.SystemNetworkStats.PacketsSent)).
+			SetPeakBytesRecvPerSec(int64(summary.Metrics.NetworkMetrics.SystemNetworkStats.PeakBytesRecvPerSec)).
+			SetPeakBytesSentPerSec(int64(summary.Metrics.NetworkMetrics.SystemNetworkStats.PeakBytesSentPerSec)).
+			SetPeakPacketsRecvPerSec(int64(summary.Metrics.NetworkMetrics.SystemNetworkStats.PeakPacketsRecvPerSec)).
+			SetPeakBytesSentPerSec(int64(summary.Metrics.NetworkMetrics.SystemNetworkStats.PeakPacketsSentPerSec)).
+			Save(ctx)
+		if err != nil {
+			slog.Error("error creating system network stats metrics. %w", err)
+			err = nil
+		}
+		//create the network metrics
+		networkMetrics, err = act.db.NetworkMetrics.Create().
+			AddSystemNetworkStats(systemNetworkStats).
+			Save(ctx)
+		if err != nil {
+			slog.Error("error creating network metrics. %w", err)
+			err = nil
+		}
 	}
 
 	//create the metrics object
 	slog.Debug("creating metrics object")
-	metrics, err = act.db.Metrics.Create().
-		AddActionSummary(actionSummary).
-		AddBuildGraphMetrics(buildGraphMetrics).
-		AddMemoryMetrics(memoryMetrics).
-		AddTargetMetrics(targetMetrics).
-		AddPackageMetrics(packageMetrics).
-		AddCumulativeMetrics(cumulativeMetrics).
-		AddTimingMetrics(timingMetrics).
-		AddArtifactMetrics(artifactMetrics).
-		AddNetworkMetrics(networkMetrics).
-		Save(ctx)
+
+	//there has to be a more elegant way to do this...
+	if networkMetrics != nil {
+		metrics, err = act.db.Metrics.Create().
+			AddActionSummary(actionSummary).
+			AddBuildGraphMetrics(buildGraphMetrics).
+			AddMemoryMetrics(memoryMetrics).
+			AddTargetMetrics(targetMetrics).
+			AddPackageMetrics(packageMetrics).
+			AddCumulativeMetrics(cumulativeMetrics).
+			AddTimingMetrics(timingMetrics).
+			AddArtifactMetrics(artifactMetrics).
+			AddNetworkMetrics(networkMetrics).
+			Save(ctx)
+	} else {
+		metrics, err = act.db.Metrics.Create().
+			AddActionSummary(actionSummary).
+			AddBuildGraphMetrics(buildGraphMetrics).
+			AddMemoryMetrics(memoryMetrics).
+			AddTargetMetrics(targetMetrics).
+			AddPackageMetrics(packageMetrics).
+			AddCumulativeMetrics(cumulativeMetrics).
+			AddTimingMetrics(timingMetrics).
+			AddArtifactMetrics(artifactMetrics).
+			Save(ctx)
+	}
 
 	if err != nil {
 		return nil, fmt.Errorf("unable to create metrics %w", err)

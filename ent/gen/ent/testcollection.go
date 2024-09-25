@@ -19,6 +19,16 @@ type TestCollection struct {
 	ID int `json:"id,omitempty"`
 	// Label holds the value of the "label" field.
 	Label string `json:"label,omitempty"`
+	// OverallStatus holds the value of the "overall_status" field.
+	OverallStatus testcollection.OverallStatus `json:"overall_status,omitempty"`
+	// Strategy holds the value of the "strategy" field.
+	Strategy string `json:"strategy,omitempty"`
+	// CachedLocally holds the value of the "cached_locally" field.
+	CachedLocally bool `json:"cached_locally,omitempty"`
+	// CachedRemotely holds the value of the "cached_remotely" field.
+	CachedRemotely bool `json:"cached_remotely,omitempty"`
+	// DurationMs holds the value of the "duration_ms" field.
+	DurationMs int64 `json:"duration_ms,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the TestCollectionQuery when eager-loading is set.
 	Edges                        TestCollectionEdges `json:"edges"`
@@ -78,9 +88,11 @@ func (*TestCollection) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case testcollection.FieldID:
+		case testcollection.FieldCachedLocally, testcollection.FieldCachedRemotely:
+			values[i] = new(sql.NullBool)
+		case testcollection.FieldID, testcollection.FieldDurationMs:
 			values[i] = new(sql.NullInt64)
-		case testcollection.FieldLabel:
+		case testcollection.FieldLabel, testcollection.FieldOverallStatus, testcollection.FieldStrategy:
 			values[i] = new(sql.NullString)
 		case testcollection.ForeignKeys[0]: // test_collection_test_summary
 			values[i] = new(sql.NullInt64)
@@ -110,6 +122,36 @@ func (tc *TestCollection) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field label", values[i])
 			} else if value.Valid {
 				tc.Label = value.String
+			}
+		case testcollection.FieldOverallStatus:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field overall_status", values[i])
+			} else if value.Valid {
+				tc.OverallStatus = testcollection.OverallStatus(value.String)
+			}
+		case testcollection.FieldStrategy:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field strategy", values[i])
+			} else if value.Valid {
+				tc.Strategy = value.String
+			}
+		case testcollection.FieldCachedLocally:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field cached_locally", values[i])
+			} else if value.Valid {
+				tc.CachedLocally = value.Bool
+			}
+		case testcollection.FieldCachedRemotely:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field cached_remotely", values[i])
+			} else if value.Valid {
+				tc.CachedRemotely = value.Bool
+			}
+		case testcollection.FieldDurationMs:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field duration_ms", values[i])
+			} else if value.Valid {
+				tc.DurationMs = value.Int64
 			}
 		case testcollection.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -171,6 +213,21 @@ func (tc *TestCollection) String() string {
 	builder.WriteString(fmt.Sprintf("id=%v, ", tc.ID))
 	builder.WriteString("label=")
 	builder.WriteString(tc.Label)
+	builder.WriteString(", ")
+	builder.WriteString("overall_status=")
+	builder.WriteString(fmt.Sprintf("%v", tc.OverallStatus))
+	builder.WriteString(", ")
+	builder.WriteString("strategy=")
+	builder.WriteString(tc.Strategy)
+	builder.WriteString(", ")
+	builder.WriteString("cached_locally=")
+	builder.WriteString(fmt.Sprintf("%v", tc.CachedLocally))
+	builder.WriteString(", ")
+	builder.WriteString("cached_remotely=")
+	builder.WriteString(fmt.Sprintf("%v", tc.CachedRemotely))
+	builder.WriteString(", ")
+	builder.WriteString("duration_ms=")
+	builder.WriteString(fmt.Sprintf("%v", tc.DurationMs))
 	builder.WriteByte(')')
 	return builder.String()
 }

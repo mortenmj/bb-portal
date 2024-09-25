@@ -77,6 +77,66 @@ func (tpu *TargetPairUpdate) ClearDurationInMs() *TargetPairUpdate {
 	return tpu
 }
 
+// SetSuccess sets the "success" field.
+func (tpu *TargetPairUpdate) SetSuccess(b bool) *TargetPairUpdate {
+	tpu.mutation.SetSuccess(b)
+	return tpu
+}
+
+// SetNillableSuccess sets the "success" field if the given value is not nil.
+func (tpu *TargetPairUpdate) SetNillableSuccess(b *bool) *TargetPairUpdate {
+	if b != nil {
+		tpu.SetSuccess(*b)
+	}
+	return tpu
+}
+
+// ClearSuccess clears the value of the "success" field.
+func (tpu *TargetPairUpdate) ClearSuccess() *TargetPairUpdate {
+	tpu.mutation.ClearSuccess()
+	return tpu
+}
+
+// SetTargetKind sets the "target_kind" field.
+func (tpu *TargetPairUpdate) SetTargetKind(s string) *TargetPairUpdate {
+	tpu.mutation.SetTargetKind(s)
+	return tpu
+}
+
+// SetNillableTargetKind sets the "target_kind" field if the given value is not nil.
+func (tpu *TargetPairUpdate) SetNillableTargetKind(s *string) *TargetPairUpdate {
+	if s != nil {
+		tpu.SetTargetKind(*s)
+	}
+	return tpu
+}
+
+// ClearTargetKind clears the value of the "target_kind" field.
+func (tpu *TargetPairUpdate) ClearTargetKind() *TargetPairUpdate {
+	tpu.mutation.ClearTargetKind()
+	return tpu
+}
+
+// SetTestSize sets the "test_size" field.
+func (tpu *TargetPairUpdate) SetTestSize(ts targetpair.TestSize) *TargetPairUpdate {
+	tpu.mutation.SetTestSize(ts)
+	return tpu
+}
+
+// SetNillableTestSize sets the "test_size" field if the given value is not nil.
+func (tpu *TargetPairUpdate) SetNillableTestSize(ts *targetpair.TestSize) *TargetPairUpdate {
+	if ts != nil {
+		tpu.SetTestSize(*ts)
+	}
+	return tpu
+}
+
+// ClearTestSize clears the value of the "test_size" field.
+func (tpu *TargetPairUpdate) ClearTestSize() *TargetPairUpdate {
+	tpu.mutation.ClearTestSize()
+	return tpu
+}
+
 // AddBazelInvocationIDs adds the "bazel_invocation" edge to the BazelInvocation entity by IDs.
 func (tpu *TargetPairUpdate) AddBazelInvocationIDs(ids ...int) *TargetPairUpdate {
 	tpu.mutation.AddBazelInvocationIDs(ids...)
@@ -195,7 +255,20 @@ func (tpu *TargetPairUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (tpu *TargetPairUpdate) check() error {
+	if v, ok := tpu.mutation.TestSize(); ok {
+		if err := targetpair.TestSizeValidator(v); err != nil {
+			return &ValidationError{Name: "test_size", err: fmt.Errorf(`ent: validator failed for field "TargetPair.test_size": %w`, err)}
+		}
+	}
+	return nil
+}
+
 func (tpu *TargetPairUpdate) sqlSave(ctx context.Context) (n int, err error) {
+	if err := tpu.check(); err != nil {
+		return n, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(targetpair.Table, targetpair.Columns, sqlgraph.NewFieldSpec(targetpair.FieldID, field.TypeInt))
 	if ps := tpu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
@@ -218,6 +291,24 @@ func (tpu *TargetPairUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if tpu.mutation.DurationInMsCleared() {
 		_spec.ClearField(targetpair.FieldDurationInMs, field.TypeInt64)
+	}
+	if value, ok := tpu.mutation.Success(); ok {
+		_spec.SetField(targetpair.FieldSuccess, field.TypeBool, value)
+	}
+	if tpu.mutation.SuccessCleared() {
+		_spec.ClearField(targetpair.FieldSuccess, field.TypeBool)
+	}
+	if value, ok := tpu.mutation.TargetKind(); ok {
+		_spec.SetField(targetpair.FieldTargetKind, field.TypeString, value)
+	}
+	if tpu.mutation.TargetKindCleared() {
+		_spec.ClearField(targetpair.FieldTargetKind, field.TypeString)
+	}
+	if value, ok := tpu.mutation.TestSize(); ok {
+		_spec.SetField(targetpair.FieldTestSize, field.TypeEnum, value)
+	}
+	if tpu.mutation.TestSizeCleared() {
+		_spec.ClearField(targetpair.FieldTestSize, field.TypeEnum)
 	}
 	if tpu.mutation.BazelInvocationCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -389,6 +480,66 @@ func (tpuo *TargetPairUpdateOne) ClearDurationInMs() *TargetPairUpdateOne {
 	return tpuo
 }
 
+// SetSuccess sets the "success" field.
+func (tpuo *TargetPairUpdateOne) SetSuccess(b bool) *TargetPairUpdateOne {
+	tpuo.mutation.SetSuccess(b)
+	return tpuo
+}
+
+// SetNillableSuccess sets the "success" field if the given value is not nil.
+func (tpuo *TargetPairUpdateOne) SetNillableSuccess(b *bool) *TargetPairUpdateOne {
+	if b != nil {
+		tpuo.SetSuccess(*b)
+	}
+	return tpuo
+}
+
+// ClearSuccess clears the value of the "success" field.
+func (tpuo *TargetPairUpdateOne) ClearSuccess() *TargetPairUpdateOne {
+	tpuo.mutation.ClearSuccess()
+	return tpuo
+}
+
+// SetTargetKind sets the "target_kind" field.
+func (tpuo *TargetPairUpdateOne) SetTargetKind(s string) *TargetPairUpdateOne {
+	tpuo.mutation.SetTargetKind(s)
+	return tpuo
+}
+
+// SetNillableTargetKind sets the "target_kind" field if the given value is not nil.
+func (tpuo *TargetPairUpdateOne) SetNillableTargetKind(s *string) *TargetPairUpdateOne {
+	if s != nil {
+		tpuo.SetTargetKind(*s)
+	}
+	return tpuo
+}
+
+// ClearTargetKind clears the value of the "target_kind" field.
+func (tpuo *TargetPairUpdateOne) ClearTargetKind() *TargetPairUpdateOne {
+	tpuo.mutation.ClearTargetKind()
+	return tpuo
+}
+
+// SetTestSize sets the "test_size" field.
+func (tpuo *TargetPairUpdateOne) SetTestSize(ts targetpair.TestSize) *TargetPairUpdateOne {
+	tpuo.mutation.SetTestSize(ts)
+	return tpuo
+}
+
+// SetNillableTestSize sets the "test_size" field if the given value is not nil.
+func (tpuo *TargetPairUpdateOne) SetNillableTestSize(ts *targetpair.TestSize) *TargetPairUpdateOne {
+	if ts != nil {
+		tpuo.SetTestSize(*ts)
+	}
+	return tpuo
+}
+
+// ClearTestSize clears the value of the "test_size" field.
+func (tpuo *TargetPairUpdateOne) ClearTestSize() *TargetPairUpdateOne {
+	tpuo.mutation.ClearTestSize()
+	return tpuo
+}
+
 // AddBazelInvocationIDs adds the "bazel_invocation" edge to the BazelInvocation entity by IDs.
 func (tpuo *TargetPairUpdateOne) AddBazelInvocationIDs(ids ...int) *TargetPairUpdateOne {
 	tpuo.mutation.AddBazelInvocationIDs(ids...)
@@ -520,7 +671,20 @@ func (tpuo *TargetPairUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (tpuo *TargetPairUpdateOne) check() error {
+	if v, ok := tpuo.mutation.TestSize(); ok {
+		if err := targetpair.TestSizeValidator(v); err != nil {
+			return &ValidationError{Name: "test_size", err: fmt.Errorf(`ent: validator failed for field "TargetPair.test_size": %w`, err)}
+		}
+	}
+	return nil
+}
+
 func (tpuo *TargetPairUpdateOne) sqlSave(ctx context.Context) (_node *TargetPair, err error) {
+	if err := tpuo.check(); err != nil {
+		return _node, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(targetpair.Table, targetpair.Columns, sqlgraph.NewFieldSpec(targetpair.FieldID, field.TypeInt))
 	id, ok := tpuo.mutation.ID()
 	if !ok {
@@ -560,6 +724,24 @@ func (tpuo *TargetPairUpdateOne) sqlSave(ctx context.Context) (_node *TargetPair
 	}
 	if tpuo.mutation.DurationInMsCleared() {
 		_spec.ClearField(targetpair.FieldDurationInMs, field.TypeInt64)
+	}
+	if value, ok := tpuo.mutation.Success(); ok {
+		_spec.SetField(targetpair.FieldSuccess, field.TypeBool, value)
+	}
+	if tpuo.mutation.SuccessCleared() {
+		_spec.ClearField(targetpair.FieldSuccess, field.TypeBool)
+	}
+	if value, ok := tpuo.mutation.TargetKind(); ok {
+		_spec.SetField(targetpair.FieldTargetKind, field.TypeString, value)
+	}
+	if tpuo.mutation.TargetKindCleared() {
+		_spec.ClearField(targetpair.FieldTargetKind, field.TypeString)
+	}
+	if value, ok := tpuo.mutation.TestSize(); ok {
+		_spec.SetField(targetpair.FieldTestSize, field.TypeEnum, value)
+	}
+	if tpuo.mutation.TestSizeCleared() {
+		_spec.ClearField(targetpair.FieldTestSize, field.TypeEnum)
 	}
 	if tpuo.mutation.BazelInvocationCleared() {
 		edge := &sqlgraph.EdgeSpec{

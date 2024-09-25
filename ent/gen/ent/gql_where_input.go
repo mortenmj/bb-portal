@@ -10304,6 +10304,37 @@ type TargetPairWhereInput struct {
 	DurationInMsIsNil  bool    `json:"durationInMsIsNil,omitempty"`
 	DurationInMsNotNil bool    `json:"durationInMsNotNil,omitempty"`
 
+	// "success" field predicates.
+	Success       *bool `json:"success,omitempty"`
+	SuccessNEQ    *bool `json:"successNEQ,omitempty"`
+	SuccessIsNil  bool  `json:"successIsNil,omitempty"`
+	SuccessNotNil bool  `json:"successNotNil,omitempty"`
+
+	// "target_kind" field predicates.
+	TargetKind             *string  `json:"targetKind,omitempty"`
+	TargetKindNEQ          *string  `json:"targetKindNEQ,omitempty"`
+	TargetKindIn           []string `json:"targetKindIn,omitempty"`
+	TargetKindNotIn        []string `json:"targetKindNotIn,omitempty"`
+	TargetKindGT           *string  `json:"targetKindGT,omitempty"`
+	TargetKindGTE          *string  `json:"targetKindGTE,omitempty"`
+	TargetKindLT           *string  `json:"targetKindLT,omitempty"`
+	TargetKindLTE          *string  `json:"targetKindLTE,omitempty"`
+	TargetKindContains     *string  `json:"targetKindContains,omitempty"`
+	TargetKindHasPrefix    *string  `json:"targetKindHasPrefix,omitempty"`
+	TargetKindHasSuffix    *string  `json:"targetKindHasSuffix,omitempty"`
+	TargetKindIsNil        bool     `json:"targetKindIsNil,omitempty"`
+	TargetKindNotNil       bool     `json:"targetKindNotNil,omitempty"`
+	TargetKindEqualFold    *string  `json:"targetKindEqualFold,omitempty"`
+	TargetKindContainsFold *string  `json:"targetKindContainsFold,omitempty"`
+
+	// "test_size" field predicates.
+	TestSize       *targetpair.TestSize  `json:"testSize,omitempty"`
+	TestSizeNEQ    *targetpair.TestSize  `json:"testSizeNEQ,omitempty"`
+	TestSizeIn     []targetpair.TestSize `json:"testSizeIn,omitempty"`
+	TestSizeNotIn  []targetpair.TestSize `json:"testSizeNotIn,omitempty"`
+	TestSizeIsNil  bool                  `json:"testSizeIsNil,omitempty"`
+	TestSizeNotNil bool                  `json:"testSizeNotNil,omitempty"`
+
 	// "bazel_invocation" edge predicates.
 	HasBazelInvocation     *bool                        `json:"hasBazelInvocation,omitempty"`
 	HasBazelInvocationWith []*BazelInvocationWhereInput `json:"hasBazelInvocationWith,omitempty"`
@@ -10487,6 +10518,81 @@ func (i *TargetPairWhereInput) P() (predicate.TargetPair, error) {
 	if i.DurationInMsNotNil {
 		predicates = append(predicates, targetpair.DurationInMsNotNil())
 	}
+	if i.Success != nil {
+		predicates = append(predicates, targetpair.SuccessEQ(*i.Success))
+	}
+	if i.SuccessNEQ != nil {
+		predicates = append(predicates, targetpair.SuccessNEQ(*i.SuccessNEQ))
+	}
+	if i.SuccessIsNil {
+		predicates = append(predicates, targetpair.SuccessIsNil())
+	}
+	if i.SuccessNotNil {
+		predicates = append(predicates, targetpair.SuccessNotNil())
+	}
+	if i.TargetKind != nil {
+		predicates = append(predicates, targetpair.TargetKindEQ(*i.TargetKind))
+	}
+	if i.TargetKindNEQ != nil {
+		predicates = append(predicates, targetpair.TargetKindNEQ(*i.TargetKindNEQ))
+	}
+	if len(i.TargetKindIn) > 0 {
+		predicates = append(predicates, targetpair.TargetKindIn(i.TargetKindIn...))
+	}
+	if len(i.TargetKindNotIn) > 0 {
+		predicates = append(predicates, targetpair.TargetKindNotIn(i.TargetKindNotIn...))
+	}
+	if i.TargetKindGT != nil {
+		predicates = append(predicates, targetpair.TargetKindGT(*i.TargetKindGT))
+	}
+	if i.TargetKindGTE != nil {
+		predicates = append(predicates, targetpair.TargetKindGTE(*i.TargetKindGTE))
+	}
+	if i.TargetKindLT != nil {
+		predicates = append(predicates, targetpair.TargetKindLT(*i.TargetKindLT))
+	}
+	if i.TargetKindLTE != nil {
+		predicates = append(predicates, targetpair.TargetKindLTE(*i.TargetKindLTE))
+	}
+	if i.TargetKindContains != nil {
+		predicates = append(predicates, targetpair.TargetKindContains(*i.TargetKindContains))
+	}
+	if i.TargetKindHasPrefix != nil {
+		predicates = append(predicates, targetpair.TargetKindHasPrefix(*i.TargetKindHasPrefix))
+	}
+	if i.TargetKindHasSuffix != nil {
+		predicates = append(predicates, targetpair.TargetKindHasSuffix(*i.TargetKindHasSuffix))
+	}
+	if i.TargetKindIsNil {
+		predicates = append(predicates, targetpair.TargetKindIsNil())
+	}
+	if i.TargetKindNotNil {
+		predicates = append(predicates, targetpair.TargetKindNotNil())
+	}
+	if i.TargetKindEqualFold != nil {
+		predicates = append(predicates, targetpair.TargetKindEqualFold(*i.TargetKindEqualFold))
+	}
+	if i.TargetKindContainsFold != nil {
+		predicates = append(predicates, targetpair.TargetKindContainsFold(*i.TargetKindContainsFold))
+	}
+	if i.TestSize != nil {
+		predicates = append(predicates, targetpair.TestSizeEQ(*i.TestSize))
+	}
+	if i.TestSizeNEQ != nil {
+		predicates = append(predicates, targetpair.TestSizeNEQ(*i.TestSizeNEQ))
+	}
+	if len(i.TestSizeIn) > 0 {
+		predicates = append(predicates, targetpair.TestSizeIn(i.TestSizeIn...))
+	}
+	if len(i.TestSizeNotIn) > 0 {
+		predicates = append(predicates, targetpair.TestSizeNotIn(i.TestSizeNotIn...))
+	}
+	if i.TestSizeIsNil {
+		predicates = append(predicates, targetpair.TestSizeIsNil())
+	}
+	if i.TestSizeNotNil {
+		predicates = append(predicates, targetpair.TestSizeNotNil())
+	}
 
 	if i.HasBazelInvocation != nil {
 		p := targetpair.HasBazelInvocation()
@@ -10585,6 +10691,55 @@ type TestCollectionWhereInput struct {
 	LabelNotNil       bool     `json:"labelNotNil,omitempty"`
 	LabelEqualFold    *string  `json:"labelEqualFold,omitempty"`
 	LabelContainsFold *string  `json:"labelContainsFold,omitempty"`
+
+	// "overall_status" field predicates.
+	OverallStatus       *testcollection.OverallStatus  `json:"overallStatus,omitempty"`
+	OverallStatusNEQ    *testcollection.OverallStatus  `json:"overallStatusNEQ,omitempty"`
+	OverallStatusIn     []testcollection.OverallStatus `json:"overallStatusIn,omitempty"`
+	OverallStatusNotIn  []testcollection.OverallStatus `json:"overallStatusNotIn,omitempty"`
+	OverallStatusIsNil  bool                           `json:"overallStatusIsNil,omitempty"`
+	OverallStatusNotNil bool                           `json:"overallStatusNotNil,omitempty"`
+
+	// "strategy" field predicates.
+	Strategy             *string  `json:"strategy,omitempty"`
+	StrategyNEQ          *string  `json:"strategyNEQ,omitempty"`
+	StrategyIn           []string `json:"strategyIn,omitempty"`
+	StrategyNotIn        []string `json:"strategyNotIn,omitempty"`
+	StrategyGT           *string  `json:"strategyGT,omitempty"`
+	StrategyGTE          *string  `json:"strategyGTE,omitempty"`
+	StrategyLT           *string  `json:"strategyLT,omitempty"`
+	StrategyLTE          *string  `json:"strategyLTE,omitempty"`
+	StrategyContains     *string  `json:"strategyContains,omitempty"`
+	StrategyHasPrefix    *string  `json:"strategyHasPrefix,omitempty"`
+	StrategyHasSuffix    *string  `json:"strategyHasSuffix,omitempty"`
+	StrategyIsNil        bool     `json:"strategyIsNil,omitempty"`
+	StrategyNotNil       bool     `json:"strategyNotNil,omitempty"`
+	StrategyEqualFold    *string  `json:"strategyEqualFold,omitempty"`
+	StrategyContainsFold *string  `json:"strategyContainsFold,omitempty"`
+
+	// "cached_locally" field predicates.
+	CachedLocally       *bool `json:"cachedLocally,omitempty"`
+	CachedLocallyNEQ    *bool `json:"cachedLocallyNEQ,omitempty"`
+	CachedLocallyIsNil  bool  `json:"cachedLocallyIsNil,omitempty"`
+	CachedLocallyNotNil bool  `json:"cachedLocallyNotNil,omitempty"`
+
+	// "cached_remotely" field predicates.
+	CachedRemotely       *bool `json:"cachedRemotely,omitempty"`
+	CachedRemotelyNEQ    *bool `json:"cachedRemotelyNEQ,omitempty"`
+	CachedRemotelyIsNil  bool  `json:"cachedRemotelyIsNil,omitempty"`
+	CachedRemotelyNotNil bool  `json:"cachedRemotelyNotNil,omitempty"`
+
+	// "duration_ms" field predicates.
+	DurationMs       *int64  `json:"durationMs,omitempty"`
+	DurationMsNEQ    *int64  `json:"durationMsNEQ,omitempty"`
+	DurationMsIn     []int64 `json:"durationMsIn,omitempty"`
+	DurationMsNotIn  []int64 `json:"durationMsNotIn,omitempty"`
+	DurationMsGT     *int64  `json:"durationMsGT,omitempty"`
+	DurationMsGTE    *int64  `json:"durationMsGTE,omitempty"`
+	DurationMsLT     *int64  `json:"durationMsLT,omitempty"`
+	DurationMsLTE    *int64  `json:"durationMsLTE,omitempty"`
+	DurationMsIsNil  bool    `json:"durationMsIsNil,omitempty"`
+	DurationMsNotNil bool    `json:"durationMsNotNil,omitempty"`
 
 	// "bazel_invocation" edge predicates.
 	HasBazelInvocation     *bool                        `json:"hasBazelInvocation,omitempty"`
@@ -10738,6 +10893,123 @@ func (i *TestCollectionWhereInput) P() (predicate.TestCollection, error) {
 	}
 	if i.LabelContainsFold != nil {
 		predicates = append(predicates, testcollection.LabelContainsFold(*i.LabelContainsFold))
+	}
+	if i.OverallStatus != nil {
+		predicates = append(predicates, testcollection.OverallStatusEQ(*i.OverallStatus))
+	}
+	if i.OverallStatusNEQ != nil {
+		predicates = append(predicates, testcollection.OverallStatusNEQ(*i.OverallStatusNEQ))
+	}
+	if len(i.OverallStatusIn) > 0 {
+		predicates = append(predicates, testcollection.OverallStatusIn(i.OverallStatusIn...))
+	}
+	if len(i.OverallStatusNotIn) > 0 {
+		predicates = append(predicates, testcollection.OverallStatusNotIn(i.OverallStatusNotIn...))
+	}
+	if i.OverallStatusIsNil {
+		predicates = append(predicates, testcollection.OverallStatusIsNil())
+	}
+	if i.OverallStatusNotNil {
+		predicates = append(predicates, testcollection.OverallStatusNotNil())
+	}
+	if i.Strategy != nil {
+		predicates = append(predicates, testcollection.StrategyEQ(*i.Strategy))
+	}
+	if i.StrategyNEQ != nil {
+		predicates = append(predicates, testcollection.StrategyNEQ(*i.StrategyNEQ))
+	}
+	if len(i.StrategyIn) > 0 {
+		predicates = append(predicates, testcollection.StrategyIn(i.StrategyIn...))
+	}
+	if len(i.StrategyNotIn) > 0 {
+		predicates = append(predicates, testcollection.StrategyNotIn(i.StrategyNotIn...))
+	}
+	if i.StrategyGT != nil {
+		predicates = append(predicates, testcollection.StrategyGT(*i.StrategyGT))
+	}
+	if i.StrategyGTE != nil {
+		predicates = append(predicates, testcollection.StrategyGTE(*i.StrategyGTE))
+	}
+	if i.StrategyLT != nil {
+		predicates = append(predicates, testcollection.StrategyLT(*i.StrategyLT))
+	}
+	if i.StrategyLTE != nil {
+		predicates = append(predicates, testcollection.StrategyLTE(*i.StrategyLTE))
+	}
+	if i.StrategyContains != nil {
+		predicates = append(predicates, testcollection.StrategyContains(*i.StrategyContains))
+	}
+	if i.StrategyHasPrefix != nil {
+		predicates = append(predicates, testcollection.StrategyHasPrefix(*i.StrategyHasPrefix))
+	}
+	if i.StrategyHasSuffix != nil {
+		predicates = append(predicates, testcollection.StrategyHasSuffix(*i.StrategyHasSuffix))
+	}
+	if i.StrategyIsNil {
+		predicates = append(predicates, testcollection.StrategyIsNil())
+	}
+	if i.StrategyNotNil {
+		predicates = append(predicates, testcollection.StrategyNotNil())
+	}
+	if i.StrategyEqualFold != nil {
+		predicates = append(predicates, testcollection.StrategyEqualFold(*i.StrategyEqualFold))
+	}
+	if i.StrategyContainsFold != nil {
+		predicates = append(predicates, testcollection.StrategyContainsFold(*i.StrategyContainsFold))
+	}
+	if i.CachedLocally != nil {
+		predicates = append(predicates, testcollection.CachedLocallyEQ(*i.CachedLocally))
+	}
+	if i.CachedLocallyNEQ != nil {
+		predicates = append(predicates, testcollection.CachedLocallyNEQ(*i.CachedLocallyNEQ))
+	}
+	if i.CachedLocallyIsNil {
+		predicates = append(predicates, testcollection.CachedLocallyIsNil())
+	}
+	if i.CachedLocallyNotNil {
+		predicates = append(predicates, testcollection.CachedLocallyNotNil())
+	}
+	if i.CachedRemotely != nil {
+		predicates = append(predicates, testcollection.CachedRemotelyEQ(*i.CachedRemotely))
+	}
+	if i.CachedRemotelyNEQ != nil {
+		predicates = append(predicates, testcollection.CachedRemotelyNEQ(*i.CachedRemotelyNEQ))
+	}
+	if i.CachedRemotelyIsNil {
+		predicates = append(predicates, testcollection.CachedRemotelyIsNil())
+	}
+	if i.CachedRemotelyNotNil {
+		predicates = append(predicates, testcollection.CachedRemotelyNotNil())
+	}
+	if i.DurationMs != nil {
+		predicates = append(predicates, testcollection.DurationMsEQ(*i.DurationMs))
+	}
+	if i.DurationMsNEQ != nil {
+		predicates = append(predicates, testcollection.DurationMsNEQ(*i.DurationMsNEQ))
+	}
+	if len(i.DurationMsIn) > 0 {
+		predicates = append(predicates, testcollection.DurationMsIn(i.DurationMsIn...))
+	}
+	if len(i.DurationMsNotIn) > 0 {
+		predicates = append(predicates, testcollection.DurationMsNotIn(i.DurationMsNotIn...))
+	}
+	if i.DurationMsGT != nil {
+		predicates = append(predicates, testcollection.DurationMsGT(*i.DurationMsGT))
+	}
+	if i.DurationMsGTE != nil {
+		predicates = append(predicates, testcollection.DurationMsGTE(*i.DurationMsGTE))
+	}
+	if i.DurationMsLT != nil {
+		predicates = append(predicates, testcollection.DurationMsLT(*i.DurationMsLT))
+	}
+	if i.DurationMsLTE != nil {
+		predicates = append(predicates, testcollection.DurationMsLTE(*i.DurationMsLTE))
+	}
+	if i.DurationMsIsNil {
+		predicates = append(predicates, testcollection.DurationMsIsNil())
+	}
+	if i.DurationMsNotNil {
+		predicates = append(predicates, testcollection.DurationMsNotNil())
 	}
 
 	if i.HasBazelInvocation != nil {

@@ -49,6 +49,48 @@ func (tpc *TargetPairCreate) SetNillableDurationInMs(i *int64) *TargetPairCreate
 	return tpc
 }
 
+// SetSuccess sets the "success" field.
+func (tpc *TargetPairCreate) SetSuccess(b bool) *TargetPairCreate {
+	tpc.mutation.SetSuccess(b)
+	return tpc
+}
+
+// SetNillableSuccess sets the "success" field if the given value is not nil.
+func (tpc *TargetPairCreate) SetNillableSuccess(b *bool) *TargetPairCreate {
+	if b != nil {
+		tpc.SetSuccess(*b)
+	}
+	return tpc
+}
+
+// SetTargetKind sets the "target_kind" field.
+func (tpc *TargetPairCreate) SetTargetKind(s string) *TargetPairCreate {
+	tpc.mutation.SetTargetKind(s)
+	return tpc
+}
+
+// SetNillableTargetKind sets the "target_kind" field if the given value is not nil.
+func (tpc *TargetPairCreate) SetNillableTargetKind(s *string) *TargetPairCreate {
+	if s != nil {
+		tpc.SetTargetKind(*s)
+	}
+	return tpc
+}
+
+// SetTestSize sets the "test_size" field.
+func (tpc *TargetPairCreate) SetTestSize(ts targetpair.TestSize) *TargetPairCreate {
+	tpc.mutation.SetTestSize(ts)
+	return tpc
+}
+
+// SetNillableTestSize sets the "test_size" field if the given value is not nil.
+func (tpc *TargetPairCreate) SetNillableTestSize(ts *targetpair.TestSize) *TargetPairCreate {
+	if ts != nil {
+		tpc.SetTestSize(*ts)
+	}
+	return tpc
+}
+
 // AddBazelInvocationIDs adds the "bazel_invocation" edge to the BazelInvocation entity by IDs.
 func (tpc *TargetPairCreate) AddBazelInvocationIDs(ids ...int) *TargetPairCreate {
 	tpc.mutation.AddBazelInvocationIDs(ids...)
@@ -109,6 +151,7 @@ func (tpc *TargetPairCreate) Mutation() *TargetPairMutation {
 
 // Save creates the TargetPair in the database.
 func (tpc *TargetPairCreate) Save(ctx context.Context) (*TargetPair, error) {
+	tpc.defaults()
 	return withHooks(ctx, tpc.sqlSave, tpc.mutation, tpc.hooks)
 }
 
@@ -134,8 +177,25 @@ func (tpc *TargetPairCreate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (tpc *TargetPairCreate) defaults() {
+	if _, ok := tpc.mutation.Success(); !ok {
+		v := targetpair.DefaultSuccess
+		tpc.mutation.SetSuccess(v)
+	}
+	if _, ok := tpc.mutation.TestSize(); !ok {
+		v := targetpair.DefaultTestSize
+		tpc.mutation.SetTestSize(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (tpc *TargetPairCreate) check() error {
+	if v, ok := tpc.mutation.TestSize(); ok {
+		if err := targetpair.TestSizeValidator(v); err != nil {
+			return &ValidationError{Name: "test_size", err: fmt.Errorf(`ent: validator failed for field "TargetPair.test_size": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -169,6 +229,18 @@ func (tpc *TargetPairCreate) createSpec() (*TargetPair, *sqlgraph.CreateSpec) {
 	if value, ok := tpc.mutation.DurationInMs(); ok {
 		_spec.SetField(targetpair.FieldDurationInMs, field.TypeInt64, value)
 		_node.DurationInMs = value
+	}
+	if value, ok := tpc.mutation.Success(); ok {
+		_spec.SetField(targetpair.FieldSuccess, field.TypeBool, value)
+		_node.Success = value
+	}
+	if value, ok := tpc.mutation.TargetKind(); ok {
+		_spec.SetField(targetpair.FieldTargetKind, field.TypeString, value)
+		_node.TargetKind = value
+	}
+	if value, ok := tpc.mutation.TestSize(); ok {
+		_spec.SetField(targetpair.FieldTestSize, field.TypeEnum, value)
+		_node.TestSize = value
 	}
 	if nodes := tpc.mutation.BazelInvocationIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -241,6 +313,7 @@ func (tpcb *TargetPairCreateBulk) Save(ctx context.Context) ([]*TargetPair, erro
 	for i := range tpcb.builders {
 		func(i int, root context.Context) {
 			builder := tpcb.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*TargetPairMutation)
 				if !ok {

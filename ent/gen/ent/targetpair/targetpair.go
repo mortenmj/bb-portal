@@ -3,6 +3,10 @@
 package targetpair
 
 import (
+	"fmt"
+	"io"
+	"strconv"
+
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 )
@@ -16,6 +20,12 @@ const (
 	FieldLabel = "label"
 	// FieldDurationInMs holds the string denoting the duration_in_ms field in the database.
 	FieldDurationInMs = "duration_in_ms"
+	// FieldSuccess holds the string denoting the success field in the database.
+	FieldSuccess = "success"
+	// FieldTargetKind holds the string denoting the target_kind field in the database.
+	FieldTargetKind = "target_kind"
+	// FieldTestSize holds the string denoting the test_size field in the database.
+	FieldTestSize = "test_size"
 	// EdgeBazelInvocation holds the string denoting the bazel_invocation edge name in mutations.
 	EdgeBazelInvocation = "bazel_invocation"
 	// EdgeConfiguration holds the string denoting the configuration edge name in mutations.
@@ -50,6 +60,9 @@ var Columns = []string{
 	FieldID,
 	FieldLabel,
 	FieldDurationInMs,
+	FieldSuccess,
+	FieldTargetKind,
+	FieldTestSize,
 }
 
 // ForeignKeys holds the SQL foreign-keys that are owned by the "target_pairs"
@@ -80,6 +93,40 @@ func ValidColumn(column string) bool {
 	return false
 }
 
+var (
+	// DefaultSuccess holds the default value on creation for the "success" field.
+	DefaultSuccess bool
+)
+
+// TestSize defines the type for the "test_size" enum field.
+type TestSize string
+
+// TestSizeUNKNOWN is the default value of the TestSize enum.
+const DefaultTestSize = TestSizeUNKNOWN
+
+// TestSize values.
+const (
+	TestSizeUNKNOWN  TestSize = "UNKNOWN"
+	TestSizeSMALL    TestSize = "SMALL"
+	TestSizeMEDIUM   TestSize = "MEDIUM"
+	TestSizeLARGE    TestSize = "LARGE"
+	TestSizeENORMOUS TestSize = "ENORMOUS"
+)
+
+func (ts TestSize) String() string {
+	return string(ts)
+}
+
+// TestSizeValidator is a validator for the "test_size" field enum values. It is called by the builders before save.
+func TestSizeValidator(ts TestSize) error {
+	switch ts {
+	case TestSizeUNKNOWN, TestSizeSMALL, TestSizeMEDIUM, TestSizeLARGE, TestSizeENORMOUS:
+		return nil
+	default:
+		return fmt.Errorf("targetpair: invalid enum value for test_size field: %q", ts)
+	}
+}
+
 // OrderOption defines the ordering options for the TargetPair queries.
 type OrderOption func(*sql.Selector)
 
@@ -96,6 +143,21 @@ func ByLabel(opts ...sql.OrderTermOption) OrderOption {
 // ByDurationInMs orders the results by the duration_in_ms field.
 func ByDurationInMs(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDurationInMs, opts...).ToFunc()
+}
+
+// BySuccess orders the results by the success field.
+func BySuccess(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSuccess, opts...).ToFunc()
+}
+
+// ByTargetKind orders the results by the target_kind field.
+func ByTargetKind(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTargetKind, opts...).ToFunc()
+}
+
+// ByTestSize orders the results by the test_size field.
+func ByTestSize(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTestSize, opts...).ToFunc()
 }
 
 // ByBazelInvocationCount orders the results by bazel_invocation count.
@@ -145,4 +207,22 @@ func newCompletionStep() *sqlgraph.Step {
 		sqlgraph.To(CompletionInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, false, CompletionTable, CompletionColumn),
 	)
+}
+
+// MarshalGQL implements graphql.Marshaler interface.
+func (e TestSize) MarshalGQL(w io.Writer) {
+	io.WriteString(w, strconv.Quote(e.String()))
+}
+
+// UnmarshalGQL implements graphql.Unmarshaler interface.
+func (e *TestSize) UnmarshalGQL(val interface{}) error {
+	str, ok := val.(string)
+	if !ok {
+		return fmt.Errorf("enum %T must be a string", val)
+	}
+	*e = TestSize(str)
+	if err := TestSizeValidator(*e); err != nil {
+		return fmt.Errorf("%s is not a valid TestSize", str)
+	}
+	return nil
 }

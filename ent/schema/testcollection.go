@@ -15,6 +15,13 @@ type TestCollection struct {
 func (TestCollection) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("label").Optional(),
+		field.Enum("overall_status").Optional().
+			Values("NO_STATUS", "PASSED", "FLAKY", "TIMEOUT", "FAILED", "INCOMPLETE", "REMOTE_FAILURE", "FAILED_TO_BUILD", "TOOL_HALTED_BEFORE_TESTING").
+			Default("NO_STATUS"),
+		field.String("strategy").Optional(),
+		field.Bool("cached_locally").Optional(),
+		field.Bool("cached_remotely").Optional(),
+		field.Int64("duration_ms").Optional(),
 	}
 }
 

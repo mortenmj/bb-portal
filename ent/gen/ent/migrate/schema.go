@@ -596,6 +596,9 @@ var (
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "label", Type: field.TypeString, Nullable: true},
 		{Name: "duration_in_ms", Type: field.TypeInt64, Nullable: true},
+		{Name: "success", Type: field.TypeBool, Nullable: true, Default: false},
+		{Name: "target_kind", Type: field.TypeString, Nullable: true},
+		{Name: "test_size", Type: field.TypeEnum, Nullable: true, Enums: []string{"UNKNOWN", "SMALL", "MEDIUM", "LARGE", "ENORMOUS"}, Default: "UNKNOWN"},
 		{Name: "target_pair_configuration", Type: field.TypeInt, Nullable: true},
 		{Name: "target_pair_completion", Type: field.TypeInt, Nullable: true},
 	}
@@ -607,13 +610,13 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "target_pairs_target_configureds_configuration",
-				Columns:    []*schema.Column{TargetPairsColumns[3]},
+				Columns:    []*schema.Column{TargetPairsColumns[6]},
 				RefColumns: []*schema.Column{TargetConfiguredsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "target_pairs_target_completes_completion",
-				Columns:    []*schema.Column{TargetPairsColumns[4]},
+				Columns:    []*schema.Column{TargetPairsColumns[7]},
 				RefColumns: []*schema.Column{TargetCompletesColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
@@ -623,6 +626,11 @@ var (
 	TestCollectionsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "label", Type: field.TypeString, Nullable: true},
+		{Name: "overall_status", Type: field.TypeEnum, Nullable: true, Enums: []string{"NO_STATUS", "PASSED", "FLAKY", "TIMEOUT", "FAILED", "INCOMPLETE", "REMOTE_FAILURE", "FAILED_TO_BUILD", "TOOL_HALTED_BEFORE_TESTING"}, Default: "NO_STATUS"},
+		{Name: "strategy", Type: field.TypeString, Nullable: true},
+		{Name: "cached_locally", Type: field.TypeBool, Nullable: true},
+		{Name: "cached_remotely", Type: field.TypeBool, Nullable: true},
+		{Name: "duration_ms", Type: field.TypeInt64, Nullable: true},
 		{Name: "test_collection_test_summary", Type: field.TypeInt, Nullable: true},
 	}
 	// TestCollectionsTable holds the schema information for the "test_collections" table.
@@ -633,7 +641,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "test_collections_test_summaries_test_summary",
-				Columns:    []*schema.Column{TestCollectionsColumns[2]},
+				Columns:    []*schema.Column{TestCollectionsColumns[7]},
 				RefColumns: []*schema.Column{TestSummariesColumns[0]},
 				OnDelete:   schema.SetNull,
 			},

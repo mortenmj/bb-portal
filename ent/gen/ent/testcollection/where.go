@@ -53,6 +53,26 @@ func IDLTE(id int) predicate.TestCollection {
 	return predicate.TestCollection(sql.FieldLTE(FieldID, id))
 }
 
+// Strategy applies equality check predicate on the "strategy" field. It's identical to StrategyEQ.
+func Strategy(v string) predicate.TestCollection {
+	return predicate.TestCollection(sql.FieldEQ(FieldStrategy, v))
+}
+
+// CachedLocally applies equality check predicate on the "cached_locally" field. It's identical to CachedLocallyEQ.
+func CachedLocally(v bool) predicate.TestCollection {
+	return predicate.TestCollection(sql.FieldEQ(FieldCachedLocally, v))
+}
+
+// CachedRemotely applies equality check predicate on the "cached_remotely" field. It's identical to CachedRemotelyEQ.
+func CachedRemotely(v bool) predicate.TestCollection {
+	return predicate.TestCollection(sql.FieldEQ(FieldCachedRemotely, v))
+}
+
+// DurationMs applies equality check predicate on the "duration_ms" field. It's identical to DurationMsEQ.
+func DurationMs(v int64) predicate.TestCollection {
+	return predicate.TestCollection(sql.FieldEQ(FieldDurationMs, v))
+}
+
 // LabelEQ applies the EQ predicate on the "label" field.
 func LabelEQ(v string) predicate.TestCollection {
 	return predicate.TestCollection(sql.FieldEQ(FieldLabel, v))
@@ -126,6 +146,201 @@ func LabelEqualFold(v string) predicate.TestCollection {
 // LabelContainsFold applies the ContainsFold predicate on the "label" field.
 func LabelContainsFold(v string) predicate.TestCollection {
 	return predicate.TestCollection(sql.FieldContainsFold(FieldLabel, v))
+}
+
+// OverallStatusEQ applies the EQ predicate on the "overall_status" field.
+func OverallStatusEQ(v OverallStatus) predicate.TestCollection {
+	return predicate.TestCollection(sql.FieldEQ(FieldOverallStatus, v))
+}
+
+// OverallStatusNEQ applies the NEQ predicate on the "overall_status" field.
+func OverallStatusNEQ(v OverallStatus) predicate.TestCollection {
+	return predicate.TestCollection(sql.FieldNEQ(FieldOverallStatus, v))
+}
+
+// OverallStatusIn applies the In predicate on the "overall_status" field.
+func OverallStatusIn(vs ...OverallStatus) predicate.TestCollection {
+	return predicate.TestCollection(sql.FieldIn(FieldOverallStatus, vs...))
+}
+
+// OverallStatusNotIn applies the NotIn predicate on the "overall_status" field.
+func OverallStatusNotIn(vs ...OverallStatus) predicate.TestCollection {
+	return predicate.TestCollection(sql.FieldNotIn(FieldOverallStatus, vs...))
+}
+
+// OverallStatusIsNil applies the IsNil predicate on the "overall_status" field.
+func OverallStatusIsNil() predicate.TestCollection {
+	return predicate.TestCollection(sql.FieldIsNull(FieldOverallStatus))
+}
+
+// OverallStatusNotNil applies the NotNil predicate on the "overall_status" field.
+func OverallStatusNotNil() predicate.TestCollection {
+	return predicate.TestCollection(sql.FieldNotNull(FieldOverallStatus))
+}
+
+// StrategyEQ applies the EQ predicate on the "strategy" field.
+func StrategyEQ(v string) predicate.TestCollection {
+	return predicate.TestCollection(sql.FieldEQ(FieldStrategy, v))
+}
+
+// StrategyNEQ applies the NEQ predicate on the "strategy" field.
+func StrategyNEQ(v string) predicate.TestCollection {
+	return predicate.TestCollection(sql.FieldNEQ(FieldStrategy, v))
+}
+
+// StrategyIn applies the In predicate on the "strategy" field.
+func StrategyIn(vs ...string) predicate.TestCollection {
+	return predicate.TestCollection(sql.FieldIn(FieldStrategy, vs...))
+}
+
+// StrategyNotIn applies the NotIn predicate on the "strategy" field.
+func StrategyNotIn(vs ...string) predicate.TestCollection {
+	return predicate.TestCollection(sql.FieldNotIn(FieldStrategy, vs...))
+}
+
+// StrategyGT applies the GT predicate on the "strategy" field.
+func StrategyGT(v string) predicate.TestCollection {
+	return predicate.TestCollection(sql.FieldGT(FieldStrategy, v))
+}
+
+// StrategyGTE applies the GTE predicate on the "strategy" field.
+func StrategyGTE(v string) predicate.TestCollection {
+	return predicate.TestCollection(sql.FieldGTE(FieldStrategy, v))
+}
+
+// StrategyLT applies the LT predicate on the "strategy" field.
+func StrategyLT(v string) predicate.TestCollection {
+	return predicate.TestCollection(sql.FieldLT(FieldStrategy, v))
+}
+
+// StrategyLTE applies the LTE predicate on the "strategy" field.
+func StrategyLTE(v string) predicate.TestCollection {
+	return predicate.TestCollection(sql.FieldLTE(FieldStrategy, v))
+}
+
+// StrategyContains applies the Contains predicate on the "strategy" field.
+func StrategyContains(v string) predicate.TestCollection {
+	return predicate.TestCollection(sql.FieldContains(FieldStrategy, v))
+}
+
+// StrategyHasPrefix applies the HasPrefix predicate on the "strategy" field.
+func StrategyHasPrefix(v string) predicate.TestCollection {
+	return predicate.TestCollection(sql.FieldHasPrefix(FieldStrategy, v))
+}
+
+// StrategyHasSuffix applies the HasSuffix predicate on the "strategy" field.
+func StrategyHasSuffix(v string) predicate.TestCollection {
+	return predicate.TestCollection(sql.FieldHasSuffix(FieldStrategy, v))
+}
+
+// StrategyIsNil applies the IsNil predicate on the "strategy" field.
+func StrategyIsNil() predicate.TestCollection {
+	return predicate.TestCollection(sql.FieldIsNull(FieldStrategy))
+}
+
+// StrategyNotNil applies the NotNil predicate on the "strategy" field.
+func StrategyNotNil() predicate.TestCollection {
+	return predicate.TestCollection(sql.FieldNotNull(FieldStrategy))
+}
+
+// StrategyEqualFold applies the EqualFold predicate on the "strategy" field.
+func StrategyEqualFold(v string) predicate.TestCollection {
+	return predicate.TestCollection(sql.FieldEqualFold(FieldStrategy, v))
+}
+
+// StrategyContainsFold applies the ContainsFold predicate on the "strategy" field.
+func StrategyContainsFold(v string) predicate.TestCollection {
+	return predicate.TestCollection(sql.FieldContainsFold(FieldStrategy, v))
+}
+
+// CachedLocallyEQ applies the EQ predicate on the "cached_locally" field.
+func CachedLocallyEQ(v bool) predicate.TestCollection {
+	return predicate.TestCollection(sql.FieldEQ(FieldCachedLocally, v))
+}
+
+// CachedLocallyNEQ applies the NEQ predicate on the "cached_locally" field.
+func CachedLocallyNEQ(v bool) predicate.TestCollection {
+	return predicate.TestCollection(sql.FieldNEQ(FieldCachedLocally, v))
+}
+
+// CachedLocallyIsNil applies the IsNil predicate on the "cached_locally" field.
+func CachedLocallyIsNil() predicate.TestCollection {
+	return predicate.TestCollection(sql.FieldIsNull(FieldCachedLocally))
+}
+
+// CachedLocallyNotNil applies the NotNil predicate on the "cached_locally" field.
+func CachedLocallyNotNil() predicate.TestCollection {
+	return predicate.TestCollection(sql.FieldNotNull(FieldCachedLocally))
+}
+
+// CachedRemotelyEQ applies the EQ predicate on the "cached_remotely" field.
+func CachedRemotelyEQ(v bool) predicate.TestCollection {
+	return predicate.TestCollection(sql.FieldEQ(FieldCachedRemotely, v))
+}
+
+// CachedRemotelyNEQ applies the NEQ predicate on the "cached_remotely" field.
+func CachedRemotelyNEQ(v bool) predicate.TestCollection {
+	return predicate.TestCollection(sql.FieldNEQ(FieldCachedRemotely, v))
+}
+
+// CachedRemotelyIsNil applies the IsNil predicate on the "cached_remotely" field.
+func CachedRemotelyIsNil() predicate.TestCollection {
+	return predicate.TestCollection(sql.FieldIsNull(FieldCachedRemotely))
+}
+
+// CachedRemotelyNotNil applies the NotNil predicate on the "cached_remotely" field.
+func CachedRemotelyNotNil() predicate.TestCollection {
+	return predicate.TestCollection(sql.FieldNotNull(FieldCachedRemotely))
+}
+
+// DurationMsEQ applies the EQ predicate on the "duration_ms" field.
+func DurationMsEQ(v int64) predicate.TestCollection {
+	return predicate.TestCollection(sql.FieldEQ(FieldDurationMs, v))
+}
+
+// DurationMsNEQ applies the NEQ predicate on the "duration_ms" field.
+func DurationMsNEQ(v int64) predicate.TestCollection {
+	return predicate.TestCollection(sql.FieldNEQ(FieldDurationMs, v))
+}
+
+// DurationMsIn applies the In predicate on the "duration_ms" field.
+func DurationMsIn(vs ...int64) predicate.TestCollection {
+	return predicate.TestCollection(sql.FieldIn(FieldDurationMs, vs...))
+}
+
+// DurationMsNotIn applies the NotIn predicate on the "duration_ms" field.
+func DurationMsNotIn(vs ...int64) predicate.TestCollection {
+	return predicate.TestCollection(sql.FieldNotIn(FieldDurationMs, vs...))
+}
+
+// DurationMsGT applies the GT predicate on the "duration_ms" field.
+func DurationMsGT(v int64) predicate.TestCollection {
+	return predicate.TestCollection(sql.FieldGT(FieldDurationMs, v))
+}
+
+// DurationMsGTE applies the GTE predicate on the "duration_ms" field.
+func DurationMsGTE(v int64) predicate.TestCollection {
+	return predicate.TestCollection(sql.FieldGTE(FieldDurationMs, v))
+}
+
+// DurationMsLT applies the LT predicate on the "duration_ms" field.
+func DurationMsLT(v int64) predicate.TestCollection {
+	return predicate.TestCollection(sql.FieldLT(FieldDurationMs, v))
+}
+
+// DurationMsLTE applies the LTE predicate on the "duration_ms" field.
+func DurationMsLTE(v int64) predicate.TestCollection {
+	return predicate.TestCollection(sql.FieldLTE(FieldDurationMs, v))
+}
+
+// DurationMsIsNil applies the IsNil predicate on the "duration_ms" field.
+func DurationMsIsNil() predicate.TestCollection {
+	return predicate.TestCollection(sql.FieldIsNull(FieldDurationMs))
+}
+
+// DurationMsNotNil applies the NotNil predicate on the "duration_ms" field.
+func DurationMsNotNil() predicate.TestCollection {
+	return predicate.TestCollection(sql.FieldNotNull(FieldDurationMs))
 }
 
 // HasBazelInvocation applies the HasEdge predicate on the "bazel_invocation" edge.

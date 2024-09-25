@@ -131,11 +131,6 @@ type Summary struct {
 	Targets        map[string]TargetPair
 }
 
-type TestsCollection struct {
-	TestSummary TestSummary
-	TestResults []TestResult
-}
-
 type Metrics struct {
 	ActionSummary           ActionSummary
 	MemoryMetrics           MemoryMetrics
@@ -419,8 +414,21 @@ type NamedSetOfFiles struct {
 	FileSets *NamedSetOfFiles
 }
 
+// summary objects
+type TestsCollection struct {
+	TestSummary    TestSummary
+	TestResults    []TestResult
+	OverallStatus  TestStatus
+	Strategy       string
+	CachedLocally  bool
+	CachedRemotely bool
+	DurationMs     int64
+}
 type TargetPair struct {
 	Configuration TargetConfigured
 	Completion    TargetComplete
 	DurationInMs  int64
+	Success       bool
+	TargetKind    string
+	TestSize      TestSize
 }

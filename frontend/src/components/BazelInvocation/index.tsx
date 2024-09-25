@@ -9,6 +9,7 @@ import {
   TimingMetrics,
   NetworkMetrics,
   TestCollection,
+  TargetPair,
 } from "@/graphql/__generated__/graphql";
 import styles from "../AppBar/index.module.css"
 import React from "react";
@@ -66,7 +67,8 @@ const BazelInvocation: React.FC<{
     relatedFiles,
     user,
     metrics,
-    testCollection
+    testCollection,
+    targets
 
   } = invocationOverview;
 
@@ -82,7 +84,7 @@ const BazelInvocation: React.FC<{
   var artifactMetrics: ArtifactMetrics | undefined = metrics?.artifactMetrics?.at(0);
 
   //data for target metrics
-  var targetMetrics: TargetMetrics | undefined = metrics?.targetMetrics?.at(0)
+  var targetMetrics: TargetMetrics | undefined | null = metrics?.targetMetrics?.at(0)
 
   //memory metrics
   var memoryMetrics: MemoryMetrics | undefined = metrics?.memoryMetrics?.at(0)
@@ -98,6 +100,7 @@ const BazelInvocation: React.FC<{
 
   //test data
   var testCollections: TestCollection[] | undefined | null = testCollection
+  var targetData: TargetPair[] | undefined | null = targets
 
   let { exitCode } = state;
   exitCode = exitCode ?? null;
@@ -208,7 +211,7 @@ const BazelInvocation: React.FC<{
       icon: <DeploymentUnitOutlined />,
       children: <Space direction="vertical" size="middle" className={themeStyles.space}>
 
-        <TargetMetricsDisplay targetMetrics={targetMetrics} />
+        <TargetMetricsDisplay targetMetrics={targetMetrics} targetData={targetData} />
       </Space>,
     },
     {

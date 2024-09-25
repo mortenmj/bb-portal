@@ -169,7 +169,6 @@ fragment BazelInvocationInfo on BazelInvocation {
       }
     }
   }
-
   bazelCommand {
     command
     executable
@@ -183,23 +182,22 @@ fragment BazelInvocationInfo on BazelInvocation {
     id
     buildUUID
   }
-  testCollection{
+  targets {
     id
     label
-    testSummary{
-      id
-      totalRunDuration
-      overallStatus
-    }
-    testResults{
-      id
-      cachedLocally
-      executionInfo{
-        id
-        strategy
-        cachedRemotely
-      }
-    }
+    success
+    testSize
+    targetKind
+    durationInMs
+  }
+  testCollection {
+    id
+    label
+    strategy
+    durationMs
+    overallStatus
+    cachedLocally
+    cachedRemotely
   }
   relatedFiles {
     name
@@ -209,7 +207,6 @@ fragment BazelInvocationInfo on BazelInvocation {
     Email
     LDAP
   }
-
   startedAt
   endedAt
   state {
