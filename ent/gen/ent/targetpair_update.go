@@ -137,6 +137,26 @@ func (tpu *TargetPairUpdate) ClearTestSize() *TargetPairUpdate {
 	return tpu
 }
 
+// SetAbortReason sets the "abort_reason" field.
+func (tpu *TargetPairUpdate) SetAbortReason(tr targetpair.AbortReason) *TargetPairUpdate {
+	tpu.mutation.SetAbortReason(tr)
+	return tpu
+}
+
+// SetNillableAbortReason sets the "abort_reason" field if the given value is not nil.
+func (tpu *TargetPairUpdate) SetNillableAbortReason(tr *targetpair.AbortReason) *TargetPairUpdate {
+	if tr != nil {
+		tpu.SetAbortReason(*tr)
+	}
+	return tpu
+}
+
+// ClearAbortReason clears the value of the "abort_reason" field.
+func (tpu *TargetPairUpdate) ClearAbortReason() *TargetPairUpdate {
+	tpu.mutation.ClearAbortReason()
+	return tpu
+}
+
 // AddBazelInvocationIDs adds the "bazel_invocation" edge to the BazelInvocation entity by IDs.
 func (tpu *TargetPairUpdate) AddBazelInvocationIDs(ids ...int) *TargetPairUpdate {
 	tpu.mutation.AddBazelInvocationIDs(ids...)
@@ -262,6 +282,11 @@ func (tpu *TargetPairUpdate) check() error {
 			return &ValidationError{Name: "test_size", err: fmt.Errorf(`ent: validator failed for field "TargetPair.test_size": %w`, err)}
 		}
 	}
+	if v, ok := tpu.mutation.AbortReason(); ok {
+		if err := targetpair.AbortReasonValidator(v); err != nil {
+			return &ValidationError{Name: "abort_reason", err: fmt.Errorf(`ent: validator failed for field "TargetPair.abort_reason": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -309,6 +334,12 @@ func (tpu *TargetPairUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if tpu.mutation.TestSizeCleared() {
 		_spec.ClearField(targetpair.FieldTestSize, field.TypeEnum)
+	}
+	if value, ok := tpu.mutation.AbortReason(); ok {
+		_spec.SetField(targetpair.FieldAbortReason, field.TypeEnum, value)
+	}
+	if tpu.mutation.AbortReasonCleared() {
+		_spec.ClearField(targetpair.FieldAbortReason, field.TypeEnum)
 	}
 	if tpu.mutation.BazelInvocationCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -540,6 +571,26 @@ func (tpuo *TargetPairUpdateOne) ClearTestSize() *TargetPairUpdateOne {
 	return tpuo
 }
 
+// SetAbortReason sets the "abort_reason" field.
+func (tpuo *TargetPairUpdateOne) SetAbortReason(tr targetpair.AbortReason) *TargetPairUpdateOne {
+	tpuo.mutation.SetAbortReason(tr)
+	return tpuo
+}
+
+// SetNillableAbortReason sets the "abort_reason" field if the given value is not nil.
+func (tpuo *TargetPairUpdateOne) SetNillableAbortReason(tr *targetpair.AbortReason) *TargetPairUpdateOne {
+	if tr != nil {
+		tpuo.SetAbortReason(*tr)
+	}
+	return tpuo
+}
+
+// ClearAbortReason clears the value of the "abort_reason" field.
+func (tpuo *TargetPairUpdateOne) ClearAbortReason() *TargetPairUpdateOne {
+	tpuo.mutation.ClearAbortReason()
+	return tpuo
+}
+
 // AddBazelInvocationIDs adds the "bazel_invocation" edge to the BazelInvocation entity by IDs.
 func (tpuo *TargetPairUpdateOne) AddBazelInvocationIDs(ids ...int) *TargetPairUpdateOne {
 	tpuo.mutation.AddBazelInvocationIDs(ids...)
@@ -678,6 +729,11 @@ func (tpuo *TargetPairUpdateOne) check() error {
 			return &ValidationError{Name: "test_size", err: fmt.Errorf(`ent: validator failed for field "TargetPair.test_size": %w`, err)}
 		}
 	}
+	if v, ok := tpuo.mutation.AbortReason(); ok {
+		if err := targetpair.AbortReasonValidator(v); err != nil {
+			return &ValidationError{Name: "abort_reason", err: fmt.Errorf(`ent: validator failed for field "TargetPair.abort_reason": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -742,6 +798,12 @@ func (tpuo *TargetPairUpdateOne) sqlSave(ctx context.Context) (_node *TargetPair
 	}
 	if tpuo.mutation.TestSizeCleared() {
 		_spec.ClearField(targetpair.FieldTestSize, field.TypeEnum)
+	}
+	if value, ok := tpuo.mutation.AbortReason(); ok {
+		_spec.SetField(targetpair.FieldAbortReason, field.TypeEnum, value)
+	}
+	if tpuo.mutation.AbortReasonCleared() {
+		_spec.ClearField(targetpair.FieldAbortReason, field.TypeEnum)
 	}
 	if tpuo.mutation.BazelInvocationCleared() {
 		edge := &sqlgraph.EdgeSpec{

@@ -1,7 +1,7 @@
 import React from "react";
 
 
-import { Statistic } from 'antd';
+import { Statistic, Space, Row, Col } from 'antd';
 
 import {
     FieldTimeOutlined,
@@ -22,18 +22,22 @@ const NetworkMetricsDisplay: React.FC<{ networkMetrics: NetworkMetrics | undefin
 }) => {
     const systemNetworkStats: SystemNetworkStats | undefined = networkMetrics?.systemNetworkStats?.at(0)
     return (
-        <PortalCard titleBits={["Systen Network Metrics"]} icon={<FieldTimeOutlined />}>
-            <Statistic title="Bytes Recieved" value={systemNetworkStats?.bytesRecv ?? 0} formatter={formatter} />
-            <Statistic title="Bytes Sent" value={systemNetworkStats?.bytesSent ?? 0} formatter={formatter} />
-            <Statistic title="Packets Recieved" value={systemNetworkStats?.packetsRecv ?? 0} formatter={formatter} />
-            <Statistic title="Packets Sent" value={systemNetworkStats?.packetsSent ?? 0} formatter={formatter} />
-            <Statistic title="Peak Bytes Recieved(/s)" value={systemNetworkStats?.peakBytesRecvPerSec ?? 0} formatter={formatter} />
-            <Statistic title="Peak Bytes Sent(/s)" value={systemNetworkStats?.peakBytesSentPerSec ?? 0} formatter={formatter} />
-            <Statistic title="Peak Packets Recieved(/s)" value={systemNetworkStats?.peakPacketsRecvPerSec ?? 0} formatter={formatter} />
-            <Statistic title="Peak Packets Sent(/s)" value={systemNetworkStats?.peakPacketsSentPerSec ?? 0} formatter={formatter} />
-
-        </PortalCard>
-
+        <Space direction="vertical" size="middle" style={{ display: 'flex' }} >
+            <PortalCard titleBits={["Systen Network Metrics"]} icon={<FieldTimeOutlined />}>
+                <Row>
+                    <Space size="large">
+                        <Statistic title="Bytes Recieved" value={systemNetworkStats?.bytesRecv ?? 0} formatter={formatter} />
+                        <Statistic title="Bytes Sent" value={systemNetworkStats?.bytesSent ?? 0} formatter={formatter} />
+                        <Statistic title="Packets Recieved" value={systemNetworkStats?.packetsRecv ?? 0} formatter={formatter} />
+                        <Statistic title="Packets Sent" value={systemNetworkStats?.packetsSent ?? 0} formatter={formatter} />
+                        <Statistic title="Peak Bytes Recieved(/s)" value={systemNetworkStats?.peakBytesRecvPerSec ?? 0} formatter={formatter} />
+                        <Statistic title="Peak Bytes Sent(/s)" value={systemNetworkStats?.peakBytesSentPerSec ?? 0} formatter={formatter} />
+                        <Statistic title="Peak Packets Recieved(/s)" value={systemNetworkStats?.peakPacketsRecvPerSec ?? 0} formatter={formatter} />
+                        <Statistic title="Peak Packets Sent(/s)" value={systemNetworkStats?.peakPacketsSentPerSec ?? 0} formatter={formatter} />
+                    </Space>
+                </Row>
+            </PortalCard>
+        </Space>
     )
 }
 

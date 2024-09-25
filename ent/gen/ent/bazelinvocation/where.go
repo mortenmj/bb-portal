@@ -106,6 +106,26 @@ func BuildLogs(v string) predicate.BazelInvocation {
 	return predicate.BazelInvocation(sql.FieldEQ(FieldBuildLogs, v))
 }
 
+// CPU applies equality check predicate on the "cpu" field. It's identical to CPUEQ.
+func CPU(v string) predicate.BazelInvocation {
+	return predicate.BazelInvocation(sql.FieldEQ(FieldCPU, v))
+}
+
+// PlatformName applies equality check predicate on the "platform_name" field. It's identical to PlatformNameEQ.
+func PlatformName(v string) predicate.BazelInvocation {
+	return predicate.BazelInvocation(sql.FieldEQ(FieldPlatformName, v))
+}
+
+// ConfigurationMnemonic applies equality check predicate on the "configuration_mnemonic" field. It's identical to ConfigurationMnemonicEQ.
+func ConfigurationMnemonic(v string) predicate.BazelInvocation {
+	return predicate.BazelInvocation(sql.FieldEQ(FieldConfigurationMnemonic, v))
+}
+
+// NumFetches applies equality check predicate on the "num_fetches" field. It's identical to NumFetchesEQ.
+func NumFetches(v int64) predicate.BazelInvocation {
+	return predicate.BazelInvocation(sql.FieldEQ(FieldNumFetches, v))
+}
+
 // InvocationIDEQ applies the EQ predicate on the "invocation_id" field.
 func InvocationIDEQ(v uuid.UUID) predicate.BazelInvocation {
 	return predicate.BazelInvocation(sql.FieldEQ(FieldInvocationID, v))
@@ -644,6 +664,281 @@ func BuildLogsEqualFold(v string) predicate.BazelInvocation {
 // BuildLogsContainsFold applies the ContainsFold predicate on the "build_logs" field.
 func BuildLogsContainsFold(v string) predicate.BazelInvocation {
 	return predicate.BazelInvocation(sql.FieldContainsFold(FieldBuildLogs, v))
+}
+
+// CPUEQ applies the EQ predicate on the "cpu" field.
+func CPUEQ(v string) predicate.BazelInvocation {
+	return predicate.BazelInvocation(sql.FieldEQ(FieldCPU, v))
+}
+
+// CPUNEQ applies the NEQ predicate on the "cpu" field.
+func CPUNEQ(v string) predicate.BazelInvocation {
+	return predicate.BazelInvocation(sql.FieldNEQ(FieldCPU, v))
+}
+
+// CPUIn applies the In predicate on the "cpu" field.
+func CPUIn(vs ...string) predicate.BazelInvocation {
+	return predicate.BazelInvocation(sql.FieldIn(FieldCPU, vs...))
+}
+
+// CPUNotIn applies the NotIn predicate on the "cpu" field.
+func CPUNotIn(vs ...string) predicate.BazelInvocation {
+	return predicate.BazelInvocation(sql.FieldNotIn(FieldCPU, vs...))
+}
+
+// CPUGT applies the GT predicate on the "cpu" field.
+func CPUGT(v string) predicate.BazelInvocation {
+	return predicate.BazelInvocation(sql.FieldGT(FieldCPU, v))
+}
+
+// CPUGTE applies the GTE predicate on the "cpu" field.
+func CPUGTE(v string) predicate.BazelInvocation {
+	return predicate.BazelInvocation(sql.FieldGTE(FieldCPU, v))
+}
+
+// CPULT applies the LT predicate on the "cpu" field.
+func CPULT(v string) predicate.BazelInvocation {
+	return predicate.BazelInvocation(sql.FieldLT(FieldCPU, v))
+}
+
+// CPULTE applies the LTE predicate on the "cpu" field.
+func CPULTE(v string) predicate.BazelInvocation {
+	return predicate.BazelInvocation(sql.FieldLTE(FieldCPU, v))
+}
+
+// CPUContains applies the Contains predicate on the "cpu" field.
+func CPUContains(v string) predicate.BazelInvocation {
+	return predicate.BazelInvocation(sql.FieldContains(FieldCPU, v))
+}
+
+// CPUHasPrefix applies the HasPrefix predicate on the "cpu" field.
+func CPUHasPrefix(v string) predicate.BazelInvocation {
+	return predicate.BazelInvocation(sql.FieldHasPrefix(FieldCPU, v))
+}
+
+// CPUHasSuffix applies the HasSuffix predicate on the "cpu" field.
+func CPUHasSuffix(v string) predicate.BazelInvocation {
+	return predicate.BazelInvocation(sql.FieldHasSuffix(FieldCPU, v))
+}
+
+// CPUIsNil applies the IsNil predicate on the "cpu" field.
+func CPUIsNil() predicate.BazelInvocation {
+	return predicate.BazelInvocation(sql.FieldIsNull(FieldCPU))
+}
+
+// CPUNotNil applies the NotNil predicate on the "cpu" field.
+func CPUNotNil() predicate.BazelInvocation {
+	return predicate.BazelInvocation(sql.FieldNotNull(FieldCPU))
+}
+
+// CPUEqualFold applies the EqualFold predicate on the "cpu" field.
+func CPUEqualFold(v string) predicate.BazelInvocation {
+	return predicate.BazelInvocation(sql.FieldEqualFold(FieldCPU, v))
+}
+
+// CPUContainsFold applies the ContainsFold predicate on the "cpu" field.
+func CPUContainsFold(v string) predicate.BazelInvocation {
+	return predicate.BazelInvocation(sql.FieldContainsFold(FieldCPU, v))
+}
+
+// PlatformNameEQ applies the EQ predicate on the "platform_name" field.
+func PlatformNameEQ(v string) predicate.BazelInvocation {
+	return predicate.BazelInvocation(sql.FieldEQ(FieldPlatformName, v))
+}
+
+// PlatformNameNEQ applies the NEQ predicate on the "platform_name" field.
+func PlatformNameNEQ(v string) predicate.BazelInvocation {
+	return predicate.BazelInvocation(sql.FieldNEQ(FieldPlatformName, v))
+}
+
+// PlatformNameIn applies the In predicate on the "platform_name" field.
+func PlatformNameIn(vs ...string) predicate.BazelInvocation {
+	return predicate.BazelInvocation(sql.FieldIn(FieldPlatformName, vs...))
+}
+
+// PlatformNameNotIn applies the NotIn predicate on the "platform_name" field.
+func PlatformNameNotIn(vs ...string) predicate.BazelInvocation {
+	return predicate.BazelInvocation(sql.FieldNotIn(FieldPlatformName, vs...))
+}
+
+// PlatformNameGT applies the GT predicate on the "platform_name" field.
+func PlatformNameGT(v string) predicate.BazelInvocation {
+	return predicate.BazelInvocation(sql.FieldGT(FieldPlatformName, v))
+}
+
+// PlatformNameGTE applies the GTE predicate on the "platform_name" field.
+func PlatformNameGTE(v string) predicate.BazelInvocation {
+	return predicate.BazelInvocation(sql.FieldGTE(FieldPlatformName, v))
+}
+
+// PlatformNameLT applies the LT predicate on the "platform_name" field.
+func PlatformNameLT(v string) predicate.BazelInvocation {
+	return predicate.BazelInvocation(sql.FieldLT(FieldPlatformName, v))
+}
+
+// PlatformNameLTE applies the LTE predicate on the "platform_name" field.
+func PlatformNameLTE(v string) predicate.BazelInvocation {
+	return predicate.BazelInvocation(sql.FieldLTE(FieldPlatformName, v))
+}
+
+// PlatformNameContains applies the Contains predicate on the "platform_name" field.
+func PlatformNameContains(v string) predicate.BazelInvocation {
+	return predicate.BazelInvocation(sql.FieldContains(FieldPlatformName, v))
+}
+
+// PlatformNameHasPrefix applies the HasPrefix predicate on the "platform_name" field.
+func PlatformNameHasPrefix(v string) predicate.BazelInvocation {
+	return predicate.BazelInvocation(sql.FieldHasPrefix(FieldPlatformName, v))
+}
+
+// PlatformNameHasSuffix applies the HasSuffix predicate on the "platform_name" field.
+func PlatformNameHasSuffix(v string) predicate.BazelInvocation {
+	return predicate.BazelInvocation(sql.FieldHasSuffix(FieldPlatformName, v))
+}
+
+// PlatformNameIsNil applies the IsNil predicate on the "platform_name" field.
+func PlatformNameIsNil() predicate.BazelInvocation {
+	return predicate.BazelInvocation(sql.FieldIsNull(FieldPlatformName))
+}
+
+// PlatformNameNotNil applies the NotNil predicate on the "platform_name" field.
+func PlatformNameNotNil() predicate.BazelInvocation {
+	return predicate.BazelInvocation(sql.FieldNotNull(FieldPlatformName))
+}
+
+// PlatformNameEqualFold applies the EqualFold predicate on the "platform_name" field.
+func PlatformNameEqualFold(v string) predicate.BazelInvocation {
+	return predicate.BazelInvocation(sql.FieldEqualFold(FieldPlatformName, v))
+}
+
+// PlatformNameContainsFold applies the ContainsFold predicate on the "platform_name" field.
+func PlatformNameContainsFold(v string) predicate.BazelInvocation {
+	return predicate.BazelInvocation(sql.FieldContainsFold(FieldPlatformName, v))
+}
+
+// ConfigurationMnemonicEQ applies the EQ predicate on the "configuration_mnemonic" field.
+func ConfigurationMnemonicEQ(v string) predicate.BazelInvocation {
+	return predicate.BazelInvocation(sql.FieldEQ(FieldConfigurationMnemonic, v))
+}
+
+// ConfigurationMnemonicNEQ applies the NEQ predicate on the "configuration_mnemonic" field.
+func ConfigurationMnemonicNEQ(v string) predicate.BazelInvocation {
+	return predicate.BazelInvocation(sql.FieldNEQ(FieldConfigurationMnemonic, v))
+}
+
+// ConfigurationMnemonicIn applies the In predicate on the "configuration_mnemonic" field.
+func ConfigurationMnemonicIn(vs ...string) predicate.BazelInvocation {
+	return predicate.BazelInvocation(sql.FieldIn(FieldConfigurationMnemonic, vs...))
+}
+
+// ConfigurationMnemonicNotIn applies the NotIn predicate on the "configuration_mnemonic" field.
+func ConfigurationMnemonicNotIn(vs ...string) predicate.BazelInvocation {
+	return predicate.BazelInvocation(sql.FieldNotIn(FieldConfigurationMnemonic, vs...))
+}
+
+// ConfigurationMnemonicGT applies the GT predicate on the "configuration_mnemonic" field.
+func ConfigurationMnemonicGT(v string) predicate.BazelInvocation {
+	return predicate.BazelInvocation(sql.FieldGT(FieldConfigurationMnemonic, v))
+}
+
+// ConfigurationMnemonicGTE applies the GTE predicate on the "configuration_mnemonic" field.
+func ConfigurationMnemonicGTE(v string) predicate.BazelInvocation {
+	return predicate.BazelInvocation(sql.FieldGTE(FieldConfigurationMnemonic, v))
+}
+
+// ConfigurationMnemonicLT applies the LT predicate on the "configuration_mnemonic" field.
+func ConfigurationMnemonicLT(v string) predicate.BazelInvocation {
+	return predicate.BazelInvocation(sql.FieldLT(FieldConfigurationMnemonic, v))
+}
+
+// ConfigurationMnemonicLTE applies the LTE predicate on the "configuration_mnemonic" field.
+func ConfigurationMnemonicLTE(v string) predicate.BazelInvocation {
+	return predicate.BazelInvocation(sql.FieldLTE(FieldConfigurationMnemonic, v))
+}
+
+// ConfigurationMnemonicContains applies the Contains predicate on the "configuration_mnemonic" field.
+func ConfigurationMnemonicContains(v string) predicate.BazelInvocation {
+	return predicate.BazelInvocation(sql.FieldContains(FieldConfigurationMnemonic, v))
+}
+
+// ConfigurationMnemonicHasPrefix applies the HasPrefix predicate on the "configuration_mnemonic" field.
+func ConfigurationMnemonicHasPrefix(v string) predicate.BazelInvocation {
+	return predicate.BazelInvocation(sql.FieldHasPrefix(FieldConfigurationMnemonic, v))
+}
+
+// ConfigurationMnemonicHasSuffix applies the HasSuffix predicate on the "configuration_mnemonic" field.
+func ConfigurationMnemonicHasSuffix(v string) predicate.BazelInvocation {
+	return predicate.BazelInvocation(sql.FieldHasSuffix(FieldConfigurationMnemonic, v))
+}
+
+// ConfigurationMnemonicIsNil applies the IsNil predicate on the "configuration_mnemonic" field.
+func ConfigurationMnemonicIsNil() predicate.BazelInvocation {
+	return predicate.BazelInvocation(sql.FieldIsNull(FieldConfigurationMnemonic))
+}
+
+// ConfigurationMnemonicNotNil applies the NotNil predicate on the "configuration_mnemonic" field.
+func ConfigurationMnemonicNotNil() predicate.BazelInvocation {
+	return predicate.BazelInvocation(sql.FieldNotNull(FieldConfigurationMnemonic))
+}
+
+// ConfigurationMnemonicEqualFold applies the EqualFold predicate on the "configuration_mnemonic" field.
+func ConfigurationMnemonicEqualFold(v string) predicate.BazelInvocation {
+	return predicate.BazelInvocation(sql.FieldEqualFold(FieldConfigurationMnemonic, v))
+}
+
+// ConfigurationMnemonicContainsFold applies the ContainsFold predicate on the "configuration_mnemonic" field.
+func ConfigurationMnemonicContainsFold(v string) predicate.BazelInvocation {
+	return predicate.BazelInvocation(sql.FieldContainsFold(FieldConfigurationMnemonic, v))
+}
+
+// NumFetchesEQ applies the EQ predicate on the "num_fetches" field.
+func NumFetchesEQ(v int64) predicate.BazelInvocation {
+	return predicate.BazelInvocation(sql.FieldEQ(FieldNumFetches, v))
+}
+
+// NumFetchesNEQ applies the NEQ predicate on the "num_fetches" field.
+func NumFetchesNEQ(v int64) predicate.BazelInvocation {
+	return predicate.BazelInvocation(sql.FieldNEQ(FieldNumFetches, v))
+}
+
+// NumFetchesIn applies the In predicate on the "num_fetches" field.
+func NumFetchesIn(vs ...int64) predicate.BazelInvocation {
+	return predicate.BazelInvocation(sql.FieldIn(FieldNumFetches, vs...))
+}
+
+// NumFetchesNotIn applies the NotIn predicate on the "num_fetches" field.
+func NumFetchesNotIn(vs ...int64) predicate.BazelInvocation {
+	return predicate.BazelInvocation(sql.FieldNotIn(FieldNumFetches, vs...))
+}
+
+// NumFetchesGT applies the GT predicate on the "num_fetches" field.
+func NumFetchesGT(v int64) predicate.BazelInvocation {
+	return predicate.BazelInvocation(sql.FieldGT(FieldNumFetches, v))
+}
+
+// NumFetchesGTE applies the GTE predicate on the "num_fetches" field.
+func NumFetchesGTE(v int64) predicate.BazelInvocation {
+	return predicate.BazelInvocation(sql.FieldGTE(FieldNumFetches, v))
+}
+
+// NumFetchesLT applies the LT predicate on the "num_fetches" field.
+func NumFetchesLT(v int64) predicate.BazelInvocation {
+	return predicate.BazelInvocation(sql.FieldLT(FieldNumFetches, v))
+}
+
+// NumFetchesLTE applies the LTE predicate on the "num_fetches" field.
+func NumFetchesLTE(v int64) predicate.BazelInvocation {
+	return predicate.BazelInvocation(sql.FieldLTE(FieldNumFetches, v))
+}
+
+// NumFetchesIsNil applies the IsNil predicate on the "num_fetches" field.
+func NumFetchesIsNil() predicate.BazelInvocation {
+	return predicate.BazelInvocation(sql.FieldIsNull(FieldNumFetches))
+}
+
+// NumFetchesNotNil applies the NotNil predicate on the "num_fetches" field.
+func NumFetchesNotNil() predicate.BazelInvocation {
+	return predicate.BazelInvocation(sql.FieldNotNull(FieldNumFetches))
 }
 
 // HasEventFile applies the HasEdge predicate on the "event_file" edge.

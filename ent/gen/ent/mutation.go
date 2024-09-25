@@ -3914,6 +3914,11 @@ type BazelInvocationMutation struct {
 	user_email             *string
 	user_ldap              *string
 	build_logs             *string
+	cpu                    *string
+	platform_name          *string
+	configuration_mnemonic *string
+	num_fetches            *int64
+	addnum_fetches         *int64
 	clearedFields          map[string]struct{}
 	event_file             *int
 	clearedevent_file      bool
@@ -4598,6 +4603,223 @@ func (m *BazelInvocationMutation) ResetBuildLogs() {
 	delete(m.clearedFields, bazelinvocation.FieldBuildLogs)
 }
 
+// SetCPU sets the "cpu" field.
+func (m *BazelInvocationMutation) SetCPU(s string) {
+	m.cpu = &s
+}
+
+// CPU returns the value of the "cpu" field in the mutation.
+func (m *BazelInvocationMutation) CPU() (r string, exists bool) {
+	v := m.cpu
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCPU returns the old "cpu" field's value of the BazelInvocation entity.
+// If the BazelInvocation object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BazelInvocationMutation) OldCPU(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCPU is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCPU requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCPU: %w", err)
+	}
+	return oldValue.CPU, nil
+}
+
+// ClearCPU clears the value of the "cpu" field.
+func (m *BazelInvocationMutation) ClearCPU() {
+	m.cpu = nil
+	m.clearedFields[bazelinvocation.FieldCPU] = struct{}{}
+}
+
+// CPUCleared returns if the "cpu" field was cleared in this mutation.
+func (m *BazelInvocationMutation) CPUCleared() bool {
+	_, ok := m.clearedFields[bazelinvocation.FieldCPU]
+	return ok
+}
+
+// ResetCPU resets all changes to the "cpu" field.
+func (m *BazelInvocationMutation) ResetCPU() {
+	m.cpu = nil
+	delete(m.clearedFields, bazelinvocation.FieldCPU)
+}
+
+// SetPlatformName sets the "platform_name" field.
+func (m *BazelInvocationMutation) SetPlatformName(s string) {
+	m.platform_name = &s
+}
+
+// PlatformName returns the value of the "platform_name" field in the mutation.
+func (m *BazelInvocationMutation) PlatformName() (r string, exists bool) {
+	v := m.platform_name
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPlatformName returns the old "platform_name" field's value of the BazelInvocation entity.
+// If the BazelInvocation object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BazelInvocationMutation) OldPlatformName(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPlatformName is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPlatformName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPlatformName: %w", err)
+	}
+	return oldValue.PlatformName, nil
+}
+
+// ClearPlatformName clears the value of the "platform_name" field.
+func (m *BazelInvocationMutation) ClearPlatformName() {
+	m.platform_name = nil
+	m.clearedFields[bazelinvocation.FieldPlatformName] = struct{}{}
+}
+
+// PlatformNameCleared returns if the "platform_name" field was cleared in this mutation.
+func (m *BazelInvocationMutation) PlatformNameCleared() bool {
+	_, ok := m.clearedFields[bazelinvocation.FieldPlatformName]
+	return ok
+}
+
+// ResetPlatformName resets all changes to the "platform_name" field.
+func (m *BazelInvocationMutation) ResetPlatformName() {
+	m.platform_name = nil
+	delete(m.clearedFields, bazelinvocation.FieldPlatformName)
+}
+
+// SetConfigurationMnemonic sets the "configuration_mnemonic" field.
+func (m *BazelInvocationMutation) SetConfigurationMnemonic(s string) {
+	m.configuration_mnemonic = &s
+}
+
+// ConfigurationMnemonic returns the value of the "configuration_mnemonic" field in the mutation.
+func (m *BazelInvocationMutation) ConfigurationMnemonic() (r string, exists bool) {
+	v := m.configuration_mnemonic
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldConfigurationMnemonic returns the old "configuration_mnemonic" field's value of the BazelInvocation entity.
+// If the BazelInvocation object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BazelInvocationMutation) OldConfigurationMnemonic(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldConfigurationMnemonic is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldConfigurationMnemonic requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldConfigurationMnemonic: %w", err)
+	}
+	return oldValue.ConfigurationMnemonic, nil
+}
+
+// ClearConfigurationMnemonic clears the value of the "configuration_mnemonic" field.
+func (m *BazelInvocationMutation) ClearConfigurationMnemonic() {
+	m.configuration_mnemonic = nil
+	m.clearedFields[bazelinvocation.FieldConfigurationMnemonic] = struct{}{}
+}
+
+// ConfigurationMnemonicCleared returns if the "configuration_mnemonic" field was cleared in this mutation.
+func (m *BazelInvocationMutation) ConfigurationMnemonicCleared() bool {
+	_, ok := m.clearedFields[bazelinvocation.FieldConfigurationMnemonic]
+	return ok
+}
+
+// ResetConfigurationMnemonic resets all changes to the "configuration_mnemonic" field.
+func (m *BazelInvocationMutation) ResetConfigurationMnemonic() {
+	m.configuration_mnemonic = nil
+	delete(m.clearedFields, bazelinvocation.FieldConfigurationMnemonic)
+}
+
+// SetNumFetches sets the "num_fetches" field.
+func (m *BazelInvocationMutation) SetNumFetches(i int64) {
+	m.num_fetches = &i
+	m.addnum_fetches = nil
+}
+
+// NumFetches returns the value of the "num_fetches" field in the mutation.
+func (m *BazelInvocationMutation) NumFetches() (r int64, exists bool) {
+	v := m.num_fetches
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldNumFetches returns the old "num_fetches" field's value of the BazelInvocation entity.
+// If the BazelInvocation object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BazelInvocationMutation) OldNumFetches(ctx context.Context) (v int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldNumFetches is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldNumFetches requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldNumFetches: %w", err)
+	}
+	return oldValue.NumFetches, nil
+}
+
+// AddNumFetches adds i to the "num_fetches" field.
+func (m *BazelInvocationMutation) AddNumFetches(i int64) {
+	if m.addnum_fetches != nil {
+		*m.addnum_fetches += i
+	} else {
+		m.addnum_fetches = &i
+	}
+}
+
+// AddedNumFetches returns the value that was added to the "num_fetches" field in this mutation.
+func (m *BazelInvocationMutation) AddedNumFetches() (r int64, exists bool) {
+	v := m.addnum_fetches
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearNumFetches clears the value of the "num_fetches" field.
+func (m *BazelInvocationMutation) ClearNumFetches() {
+	m.num_fetches = nil
+	m.addnum_fetches = nil
+	m.clearedFields[bazelinvocation.FieldNumFetches] = struct{}{}
+}
+
+// NumFetchesCleared returns if the "num_fetches" field was cleared in this mutation.
+func (m *BazelInvocationMutation) NumFetchesCleared() bool {
+	_, ok := m.clearedFields[bazelinvocation.FieldNumFetches]
+	return ok
+}
+
+// ResetNumFetches resets all changes to the "num_fetches" field.
+func (m *BazelInvocationMutation) ResetNumFetches() {
+	m.num_fetches = nil
+	m.addnum_fetches = nil
+	delete(m.clearedFields, bazelinvocation.FieldNumFetches)
+}
+
 // SetEventFileID sets the "event_file" edge to the EventFile entity by id.
 func (m *BazelInvocationMutation) SetEventFileID(id int) {
 	m.event_file = &id
@@ -4911,7 +5133,7 @@ func (m *BazelInvocationMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *BazelInvocationMutation) Fields() []string {
-	fields := make([]string, 0, 12)
+	fields := make([]string, 0, 16)
 	if m.invocation_id != nil {
 		fields = append(fields, bazelinvocation.FieldInvocationID)
 	}
@@ -4948,6 +5170,18 @@ func (m *BazelInvocationMutation) Fields() []string {
 	if m.build_logs != nil {
 		fields = append(fields, bazelinvocation.FieldBuildLogs)
 	}
+	if m.cpu != nil {
+		fields = append(fields, bazelinvocation.FieldCPU)
+	}
+	if m.platform_name != nil {
+		fields = append(fields, bazelinvocation.FieldPlatformName)
+	}
+	if m.configuration_mnemonic != nil {
+		fields = append(fields, bazelinvocation.FieldConfigurationMnemonic)
+	}
+	if m.num_fetches != nil {
+		fields = append(fields, bazelinvocation.FieldNumFetches)
+	}
 	return fields
 }
 
@@ -4980,6 +5214,14 @@ func (m *BazelInvocationMutation) Field(name string) (ent.Value, bool) {
 		return m.UserLdap()
 	case bazelinvocation.FieldBuildLogs:
 		return m.BuildLogs()
+	case bazelinvocation.FieldCPU:
+		return m.CPU()
+	case bazelinvocation.FieldPlatformName:
+		return m.PlatformName()
+	case bazelinvocation.FieldConfigurationMnemonic:
+		return m.ConfigurationMnemonic()
+	case bazelinvocation.FieldNumFetches:
+		return m.NumFetches()
 	}
 	return nil, false
 }
@@ -5013,6 +5255,14 @@ func (m *BazelInvocationMutation) OldField(ctx context.Context, name string) (en
 		return m.OldUserLdap(ctx)
 	case bazelinvocation.FieldBuildLogs:
 		return m.OldBuildLogs(ctx)
+	case bazelinvocation.FieldCPU:
+		return m.OldCPU(ctx)
+	case bazelinvocation.FieldPlatformName:
+		return m.OldPlatformName(ctx)
+	case bazelinvocation.FieldConfigurationMnemonic:
+		return m.OldConfigurationMnemonic(ctx)
+	case bazelinvocation.FieldNumFetches:
+		return m.OldNumFetches(ctx)
 	}
 	return nil, fmt.Errorf("unknown BazelInvocation field %s", name)
 }
@@ -5106,6 +5356,34 @@ func (m *BazelInvocationMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetBuildLogs(v)
 		return nil
+	case bazelinvocation.FieldCPU:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCPU(v)
+		return nil
+	case bazelinvocation.FieldPlatformName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPlatformName(v)
+		return nil
+	case bazelinvocation.FieldConfigurationMnemonic:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetConfigurationMnemonic(v)
+		return nil
+	case bazelinvocation.FieldNumFetches:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetNumFetches(v)
+		return nil
 	}
 	return fmt.Errorf("unknown BazelInvocation field %s", name)
 }
@@ -5120,6 +5398,9 @@ func (m *BazelInvocationMutation) AddedFields() []string {
 	if m.addpatchset_number != nil {
 		fields = append(fields, bazelinvocation.FieldPatchsetNumber)
 	}
+	if m.addnum_fetches != nil {
+		fields = append(fields, bazelinvocation.FieldNumFetches)
+	}
 	return fields
 }
 
@@ -5132,6 +5413,8 @@ func (m *BazelInvocationMutation) AddedField(name string) (ent.Value, bool) {
 		return m.AddedChangeNumber()
 	case bazelinvocation.FieldPatchsetNumber:
 		return m.AddedPatchsetNumber()
+	case bazelinvocation.FieldNumFetches:
+		return m.AddedNumFetches()
 	}
 	return nil, false
 }
@@ -5154,6 +5437,13 @@ func (m *BazelInvocationMutation) AddField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.AddPatchsetNumber(v)
+		return nil
+	case bazelinvocation.FieldNumFetches:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddNumFetches(v)
 		return nil
 	}
 	return fmt.Errorf("unknown BazelInvocation numeric field %s", name)
@@ -5183,6 +5473,18 @@ func (m *BazelInvocationMutation) ClearedFields() []string {
 	}
 	if m.FieldCleared(bazelinvocation.FieldBuildLogs) {
 		fields = append(fields, bazelinvocation.FieldBuildLogs)
+	}
+	if m.FieldCleared(bazelinvocation.FieldCPU) {
+		fields = append(fields, bazelinvocation.FieldCPU)
+	}
+	if m.FieldCleared(bazelinvocation.FieldPlatformName) {
+		fields = append(fields, bazelinvocation.FieldPlatformName)
+	}
+	if m.FieldCleared(bazelinvocation.FieldConfigurationMnemonic) {
+		fields = append(fields, bazelinvocation.FieldConfigurationMnemonic)
+	}
+	if m.FieldCleared(bazelinvocation.FieldNumFetches) {
+		fields = append(fields, bazelinvocation.FieldNumFetches)
 	}
 	return fields
 }
@@ -5218,6 +5520,18 @@ func (m *BazelInvocationMutation) ClearField(name string) error {
 		return nil
 	case bazelinvocation.FieldBuildLogs:
 		m.ClearBuildLogs()
+		return nil
+	case bazelinvocation.FieldCPU:
+		m.ClearCPU()
+		return nil
+	case bazelinvocation.FieldPlatformName:
+		m.ClearPlatformName()
+		return nil
+	case bazelinvocation.FieldConfigurationMnemonic:
+		m.ClearConfigurationMnemonic()
+		return nil
+	case bazelinvocation.FieldNumFetches:
+		m.ClearNumFetches()
 		return nil
 	}
 	return fmt.Errorf("unknown BazelInvocation nullable field %s", name)
@@ -5262,6 +5576,18 @@ func (m *BazelInvocationMutation) ResetField(name string) error {
 		return nil
 	case bazelinvocation.FieldBuildLogs:
 		m.ResetBuildLogs()
+		return nil
+	case bazelinvocation.FieldCPU:
+		m.ResetCPU()
+		return nil
+	case bazelinvocation.FieldPlatformName:
+		m.ResetPlatformName()
+		return nil
+	case bazelinvocation.FieldConfigurationMnemonic:
+		m.ResetConfigurationMnemonic()
+		return nil
+	case bazelinvocation.FieldNumFetches:
+		m.ResetNumFetches()
 		return nil
 	}
 	return fmt.Errorf("unknown BazelInvocation field %s", name)
@@ -24595,6 +24921,7 @@ type TargetPairMutation struct {
 	success                 *bool
 	target_kind             *string
 	test_size               *targetpair.TestSize
+	abort_reason            *targetpair.AbortReason
 	clearedFields           map[string]struct{}
 	bazel_invocation        map[int]struct{}
 	removedbazel_invocation map[int]struct{}
@@ -24972,6 +25299,55 @@ func (m *TargetPairMutation) ResetTestSize() {
 	delete(m.clearedFields, targetpair.FieldTestSize)
 }
 
+// SetAbortReason sets the "abort_reason" field.
+func (m *TargetPairMutation) SetAbortReason(tr targetpair.AbortReason) {
+	m.abort_reason = &tr
+}
+
+// AbortReason returns the value of the "abort_reason" field in the mutation.
+func (m *TargetPairMutation) AbortReason() (r targetpair.AbortReason, exists bool) {
+	v := m.abort_reason
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAbortReason returns the old "abort_reason" field's value of the TargetPair entity.
+// If the TargetPair object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TargetPairMutation) OldAbortReason(ctx context.Context) (v targetpair.AbortReason, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAbortReason is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAbortReason requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAbortReason: %w", err)
+	}
+	return oldValue.AbortReason, nil
+}
+
+// ClearAbortReason clears the value of the "abort_reason" field.
+func (m *TargetPairMutation) ClearAbortReason() {
+	m.abort_reason = nil
+	m.clearedFields[targetpair.FieldAbortReason] = struct{}{}
+}
+
+// AbortReasonCleared returns if the "abort_reason" field was cleared in this mutation.
+func (m *TargetPairMutation) AbortReasonCleared() bool {
+	_, ok := m.clearedFields[targetpair.FieldAbortReason]
+	return ok
+}
+
+// ResetAbortReason resets all changes to the "abort_reason" field.
+func (m *TargetPairMutation) ResetAbortReason() {
+	m.abort_reason = nil
+	delete(m.clearedFields, targetpair.FieldAbortReason)
+}
+
 // AddBazelInvocationIDs adds the "bazel_invocation" edge to the BazelInvocation entity by ids.
 func (m *TargetPairMutation) AddBazelInvocationIDs(ids ...int) {
 	if m.bazel_invocation == nil {
@@ -25138,7 +25514,7 @@ func (m *TargetPairMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *TargetPairMutation) Fields() []string {
-	fields := make([]string, 0, 5)
+	fields := make([]string, 0, 6)
 	if m.label != nil {
 		fields = append(fields, targetpair.FieldLabel)
 	}
@@ -25153,6 +25529,9 @@ func (m *TargetPairMutation) Fields() []string {
 	}
 	if m.test_size != nil {
 		fields = append(fields, targetpair.FieldTestSize)
+	}
+	if m.abort_reason != nil {
+		fields = append(fields, targetpair.FieldAbortReason)
 	}
 	return fields
 }
@@ -25172,6 +25551,8 @@ func (m *TargetPairMutation) Field(name string) (ent.Value, bool) {
 		return m.TargetKind()
 	case targetpair.FieldTestSize:
 		return m.TestSize()
+	case targetpair.FieldAbortReason:
+		return m.AbortReason()
 	}
 	return nil, false
 }
@@ -25191,6 +25572,8 @@ func (m *TargetPairMutation) OldField(ctx context.Context, name string) (ent.Val
 		return m.OldTargetKind(ctx)
 	case targetpair.FieldTestSize:
 		return m.OldTestSize(ctx)
+	case targetpair.FieldAbortReason:
+		return m.OldAbortReason(ctx)
 	}
 	return nil, fmt.Errorf("unknown TargetPair field %s", name)
 }
@@ -25234,6 +25617,13 @@ func (m *TargetPairMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetTestSize(v)
+		return nil
+	case targetpair.FieldAbortReason:
+		v, ok := value.(targetpair.AbortReason)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAbortReason(v)
 		return nil
 	}
 	return fmt.Errorf("unknown TargetPair field %s", name)
@@ -25295,6 +25685,9 @@ func (m *TargetPairMutation) ClearedFields() []string {
 	if m.FieldCleared(targetpair.FieldTestSize) {
 		fields = append(fields, targetpair.FieldTestSize)
 	}
+	if m.FieldCleared(targetpair.FieldAbortReason) {
+		fields = append(fields, targetpair.FieldAbortReason)
+	}
 	return fields
 }
 
@@ -25324,6 +25717,9 @@ func (m *TargetPairMutation) ClearField(name string) error {
 	case targetpair.FieldTestSize:
 		m.ClearTestSize()
 		return nil
+	case targetpair.FieldAbortReason:
+		m.ClearAbortReason()
+		return nil
 	}
 	return fmt.Errorf("unknown TargetPair nullable field %s", name)
 }
@@ -25346,6 +25742,9 @@ func (m *TargetPairMutation) ResetField(name string) error {
 		return nil
 	case targetpair.FieldTestSize:
 		m.ResetTestSize()
+		return nil
+	case targetpair.FieldAbortReason:
+		m.ResetAbortReason()
 		return nil
 	}
 	return fmt.Errorf("unknown TargetPair field %s", name)

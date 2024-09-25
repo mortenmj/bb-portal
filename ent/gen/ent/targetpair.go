@@ -28,6 +28,8 @@ type TargetPair struct {
 	TargetKind string `json:"target_kind,omitempty"`
 	// TestSize holds the value of the "test_size" field.
 	TestSize targetpair.TestSize `json:"test_size,omitempty"`
+	// AbortReason holds the value of the "abort_reason" field.
+	AbortReason targetpair.AbortReason `json:"abort_reason,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the TargetPairQuery when eager-loading is set.
 	Edges                     TargetPairEdges `json:"edges"`
@@ -93,7 +95,7 @@ func (*TargetPair) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case targetpair.FieldID, targetpair.FieldDurationInMs:
 			values[i] = new(sql.NullInt64)
-		case targetpair.FieldLabel, targetpair.FieldTargetKind, targetpair.FieldTestSize:
+		case targetpair.FieldLabel, targetpair.FieldTargetKind, targetpair.FieldTestSize, targetpair.FieldAbortReason:
 			values[i] = new(sql.NullString)
 		case targetpair.ForeignKeys[0]: // target_pair_configuration
 			values[i] = new(sql.NullInt64)
@@ -149,6 +151,12 @@ func (tp *TargetPair) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field test_size", values[i])
 			} else if value.Valid {
 				tp.TestSize = targetpair.TestSize(value.String)
+			}
+		case targetpair.FieldAbortReason:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field abort_reason", values[i])
+			} else if value.Valid {
+				tp.AbortReason = targetpair.AbortReason(value.String)
 			}
 		case targetpair.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -229,6 +237,9 @@ func (tp *TargetPair) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("test_size=")
 	builder.WriteString(fmt.Sprintf("%v", tp.TestSize))
+	builder.WriteString(", ")
+	builder.WriteString("abort_reason=")
+	builder.WriteString(fmt.Sprintf("%v", tp.AbortReason))
 	builder.WriteByte(')')
 	return builder.String()
 }

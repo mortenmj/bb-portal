@@ -189,6 +189,7 @@ fragment BazelInvocationInfo on BazelInvocation {
     testSize
     targetKind
     durationInMs
+    abortReason
   }
   testCollection {
     id

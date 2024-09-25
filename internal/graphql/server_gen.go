@@ -201,27 +201,31 @@ type ComplexityRoot struct {
 	}
 
 	BazelInvocation struct {
-		BazelCommand   func(childComplexity int) int
-		BepCompleted   func(childComplexity int) int
-		Build          func(childComplexity int) int
-		BuildLogs      func(childComplexity int) int
-		ChangeNumber   func(childComplexity int) int
-		EndedAt        func(childComplexity int) int
-		EventFile      func(childComplexity int) int
-		ID             func(childComplexity int) int
-		InvocationID   func(childComplexity int) int
-		Metrics        func(childComplexity int) int
-		PatchsetNumber func(childComplexity int) int
-		Problems       func(childComplexity int) int
-		RelatedFiles   func(childComplexity int) int
-		StartedAt      func(childComplexity int) int
-		State          func(childComplexity int) int
-		StepLabel      func(childComplexity int) int
-		Targets        func(childComplexity int) int
-		TestCollection func(childComplexity int) int
-		User           func(childComplexity int) int
-		UserEmail      func(childComplexity int) int
-		UserLdap       func(childComplexity int) int
+		BazelCommand          func(childComplexity int) int
+		BepCompleted          func(childComplexity int) int
+		Build                 func(childComplexity int) int
+		BuildLogs             func(childComplexity int) int
+		CPU                   func(childComplexity int) int
+		ChangeNumber          func(childComplexity int) int
+		ConfigurationMnemonic func(childComplexity int) int
+		EndedAt               func(childComplexity int) int
+		EventFile             func(childComplexity int) int
+		ID                    func(childComplexity int) int
+		InvocationID          func(childComplexity int) int
+		Metrics               func(childComplexity int) int
+		NumFetches            func(childComplexity int) int
+		PatchsetNumber        func(childComplexity int) int
+		PlatformName          func(childComplexity int) int
+		Problems              func(childComplexity int) int
+		RelatedFiles          func(childComplexity int) int
+		StartedAt             func(childComplexity int) int
+		State                 func(childComplexity int) int
+		StepLabel             func(childComplexity int) int
+		Targets               func(childComplexity int) int
+		TestCollection        func(childComplexity int) int
+		User                  func(childComplexity int) int
+		UserEmail             func(childComplexity int) int
+		UserLdap              func(childComplexity int) int
 	}
 
 	BazelInvocationConnection struct {
@@ -565,6 +569,7 @@ type ComplexityRoot struct {
 	}
 
 	TargetPair struct {
+		AbortReason     func(childComplexity int) int
 		BazelInvocation func(childComplexity int) int
 		Completion      func(childComplexity int) int
 		Configuration   func(childComplexity int) int
@@ -1569,12 +1574,26 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.BazelInvocation.BuildLogs(childComplexity), true
 
+	case "BazelInvocation.cpu":
+		if e.complexity.BazelInvocation.CPU == nil {
+			break
+		}
+
+		return e.complexity.BazelInvocation.CPU(childComplexity), true
+
 	case "BazelInvocation.changeNumber":
 		if e.complexity.BazelInvocation.ChangeNumber == nil {
 			break
 		}
 
 		return e.complexity.BazelInvocation.ChangeNumber(childComplexity), true
+
+	case "BazelInvocation.configurationMnemonic":
+		if e.complexity.BazelInvocation.ConfigurationMnemonic == nil {
+			break
+		}
+
+		return e.complexity.BazelInvocation.ConfigurationMnemonic(childComplexity), true
 
 	case "BazelInvocation.endedAt":
 		if e.complexity.BazelInvocation.EndedAt == nil {
@@ -1611,12 +1630,26 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.BazelInvocation.Metrics(childComplexity), true
 
+	case "BazelInvocation.numFetches":
+		if e.complexity.BazelInvocation.NumFetches == nil {
+			break
+		}
+
+		return e.complexity.BazelInvocation.NumFetches(childComplexity), true
+
 	case "BazelInvocation.patchsetNumber":
 		if e.complexity.BazelInvocation.PatchsetNumber == nil {
 			break
 		}
 
 		return e.complexity.BazelInvocation.PatchsetNumber(childComplexity), true
+
+	case "BazelInvocation.platformName":
+		if e.complexity.BazelInvocation.PlatformName == nil {
+			break
+		}
+
+		return e.complexity.BazelInvocation.PlatformName(childComplexity), true
 
 	case "BazelInvocation.problems":
 		if e.complexity.BazelInvocation.Problems == nil {
@@ -3225,6 +3258,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.TargetMetrics.TargetsLoaded(childComplexity), true
+
+	case "TargetPair.abortReason":
+		if e.complexity.TargetPair.AbortReason == nil {
+			break
+		}
+
+		return e.complexity.TargetPair.AbortReason(childComplexity), true
 
 	case "TargetPair.bazelInvocation":
 		if e.complexity.TargetPair.BazelInvocation == nil {
@@ -6752,6 +6792,170 @@ func (ec *executionContext) fieldContext_BazelInvocation_buildLogs(_ context.Con
 	return fc, nil
 }
 
+func (ec *executionContext) _BazelInvocation_cpu(ctx context.Context, field graphql.CollectedField, obj *ent.BazelInvocation) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BazelInvocation_cpu(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CPU, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalOString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BazelInvocation_cpu(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BazelInvocation",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BazelInvocation_platformName(ctx context.Context, field graphql.CollectedField, obj *ent.BazelInvocation) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BazelInvocation_platformName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PlatformName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalOString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BazelInvocation_platformName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BazelInvocation",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BazelInvocation_configurationMnemonic(ctx context.Context, field graphql.CollectedField, obj *ent.BazelInvocation) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BazelInvocation_configurationMnemonic(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ConfigurationMnemonic, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalOString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BazelInvocation_configurationMnemonic(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BazelInvocation",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BazelInvocation_numFetches(ctx context.Context, field graphql.CollectedField, obj *ent.BazelInvocation) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BazelInvocation_numFetches(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.NumFetches, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalOInt2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BazelInvocation_numFetches(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BazelInvocation",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _BazelInvocation_eventFile(ctx context.Context, field graphql.CollectedField, obj *ent.BazelInvocation) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_BazelInvocation_eventFile(ctx, field)
 	if err != nil {
@@ -7049,6 +7253,8 @@ func (ec *executionContext) fieldContext_BazelInvocation_targets(_ context.Conte
 				return ec.fieldContext_TargetPair_targetKind(ctx, field)
 			case "testSize":
 				return ec.fieldContext_TargetPair_testSize(ctx, field)
+			case "abortReason":
+				return ec.fieldContext_TargetPair_abortReason(ctx, field)
 			case "bazelInvocation":
 				return ec.fieldContext_TargetPair_bazelInvocation(ctx, field)
 			case "configuration":
@@ -7520,6 +7726,14 @@ func (ec *executionContext) fieldContext_BazelInvocationEdge_node(_ context.Cont
 				return ec.fieldContext_BazelInvocation_userLdap(ctx, field)
 			case "buildLogs":
 				return ec.fieldContext_BazelInvocation_buildLogs(ctx, field)
+			case "cpu":
+				return ec.fieldContext_BazelInvocation_cpu(ctx, field)
+			case "platformName":
+				return ec.fieldContext_BazelInvocation_platformName(ctx, field)
+			case "configurationMnemonic":
+				return ec.fieldContext_BazelInvocation_configurationMnemonic(ctx, field)
+			case "numFetches":
+				return ec.fieldContext_BazelInvocation_numFetches(ctx, field)
 			case "eventFile":
 				return ec.fieldContext_BazelInvocation_eventFile(ctx, field)
 			case "build":
@@ -7781,6 +7995,14 @@ func (ec *executionContext) fieldContext_BazelInvocationProblem_bazelInvocation(
 				return ec.fieldContext_BazelInvocation_userLdap(ctx, field)
 			case "buildLogs":
 				return ec.fieldContext_BazelInvocation_buildLogs(ctx, field)
+			case "cpu":
+				return ec.fieldContext_BazelInvocation_cpu(ctx, field)
+			case "platformName":
+				return ec.fieldContext_BazelInvocation_platformName(ctx, field)
+			case "configurationMnemonic":
+				return ec.fieldContext_BazelInvocation_configurationMnemonic(ctx, field)
+			case "numFetches":
+				return ec.fieldContext_BazelInvocation_numFetches(ctx, field)
 			case "eventFile":
 				return ec.fieldContext_BazelInvocation_eventFile(ctx, field)
 			case "build":
@@ -8651,6 +8873,14 @@ func (ec *executionContext) fieldContext_Build_invocations(_ context.Context, fi
 				return ec.fieldContext_BazelInvocation_userLdap(ctx, field)
 			case "buildLogs":
 				return ec.fieldContext_BazelInvocation_buildLogs(ctx, field)
+			case "cpu":
+				return ec.fieldContext_BazelInvocation_cpu(ctx, field)
+			case "platformName":
+				return ec.fieldContext_BazelInvocation_platformName(ctx, field)
+			case "configurationMnemonic":
+				return ec.fieldContext_BazelInvocation_configurationMnemonic(ctx, field)
+			case "numFetches":
+				return ec.fieldContext_BazelInvocation_numFetches(ctx, field)
 			case "eventFile":
 				return ec.fieldContext_BazelInvocation_eventFile(ctx, field)
 			case "build":
@@ -10687,6 +10917,14 @@ func (ec *executionContext) fieldContext_EventFile_bazelInvocation(_ context.Con
 				return ec.fieldContext_BazelInvocation_userLdap(ctx, field)
 			case "buildLogs":
 				return ec.fieldContext_BazelInvocation_buildLogs(ctx, field)
+			case "cpu":
+				return ec.fieldContext_BazelInvocation_cpu(ctx, field)
+			case "platformName":
+				return ec.fieldContext_BazelInvocation_platformName(ctx, field)
+			case "configurationMnemonic":
+				return ec.fieldContext_BazelInvocation_configurationMnemonic(ctx, field)
+			case "numFetches":
+				return ec.fieldContext_BazelInvocation_numFetches(ctx, field)
 			case "eventFile":
 				return ec.fieldContext_BazelInvocation_eventFile(ctx, field)
 			case "build":
@@ -11984,6 +12222,14 @@ func (ec *executionContext) fieldContext_Metrics_bazelInvocation(_ context.Conte
 				return ec.fieldContext_BazelInvocation_userLdap(ctx, field)
 			case "buildLogs":
 				return ec.fieldContext_BazelInvocation_buildLogs(ctx, field)
+			case "cpu":
+				return ec.fieldContext_BazelInvocation_cpu(ctx, field)
+			case "platformName":
+				return ec.fieldContext_BazelInvocation_platformName(ctx, field)
+			case "configurationMnemonic":
+				return ec.fieldContext_BazelInvocation_configurationMnemonic(ctx, field)
+			case "numFetches":
+				return ec.fieldContext_BazelInvocation_numFetches(ctx, field)
 			case "eventFile":
 				return ec.fieldContext_BazelInvocation_eventFile(ctx, field)
 			case "build":
@@ -15206,6 +15452,14 @@ func (ec *executionContext) fieldContext_Query_bazelInvocation(ctx context.Conte
 				return ec.fieldContext_BazelInvocation_userLdap(ctx, field)
 			case "buildLogs":
 				return ec.fieldContext_BazelInvocation_buildLogs(ctx, field)
+			case "cpu":
+				return ec.fieldContext_BazelInvocation_cpu(ctx, field)
+			case "platformName":
+				return ec.fieldContext_BazelInvocation_platformName(ctx, field)
+			case "configurationMnemonic":
+				return ec.fieldContext_BazelInvocation_configurationMnemonic(ctx, field)
+			case "numFetches":
+				return ec.fieldContext_BazelInvocation_numFetches(ctx, field)
 			case "eventFile":
 				return ec.fieldContext_BazelInvocation_eventFile(ctx, field)
 			case "build":
@@ -17190,6 +17444,8 @@ func (ec *executionContext) fieldContext_TargetComplete_targetPair(_ context.Con
 				return ec.fieldContext_TargetPair_targetKind(ctx, field)
 			case "testSize":
 				return ec.fieldContext_TargetPair_testSize(ctx, field)
+			case "abortReason":
+				return ec.fieldContext_TargetPair_abortReason(ctx, field)
 			case "bazelInvocation":
 				return ec.fieldContext_TargetPair_bazelInvocation(ctx, field)
 			case "configuration":
@@ -17628,6 +17884,8 @@ func (ec *executionContext) fieldContext_TargetConfigured_targetPair(_ context.C
 				return ec.fieldContext_TargetPair_targetKind(ctx, field)
 			case "testSize":
 				return ec.fieldContext_TargetPair_testSize(ctx, field)
+			case "abortReason":
+				return ec.fieldContext_TargetPair_abortReason(ctx, field)
 			case "bazelInvocation":
 				return ec.fieldContext_TargetPair_bazelInvocation(ctx, field)
 			case "configuration":
@@ -18128,6 +18386,47 @@ func (ec *executionContext) fieldContext_TargetPair_testSize(_ context.Context, 
 	return fc, nil
 }
 
+func (ec *executionContext) _TargetPair_abortReason(ctx context.Context, field graphql.CollectedField, obj *ent.TargetPair) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TargetPair_abortReason(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AbortReason, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(targetpair.AbortReason)
+	fc.Result = res
+	return ec.marshalOTargetPairAbortReason2githubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚋtargetpairᚐAbortReason(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TargetPair_abortReason(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TargetPair",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type TargetPairAbortReason does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _TargetPair_bazelInvocation(ctx context.Context, field graphql.CollectedField, obj *ent.TargetPair) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_TargetPair_bazelInvocation(ctx, field)
 	if err != nil {
@@ -18186,6 +18485,14 @@ func (ec *executionContext) fieldContext_TargetPair_bazelInvocation(_ context.Co
 				return ec.fieldContext_BazelInvocation_userLdap(ctx, field)
 			case "buildLogs":
 				return ec.fieldContext_BazelInvocation_buildLogs(ctx, field)
+			case "cpu":
+				return ec.fieldContext_BazelInvocation_cpu(ctx, field)
+			case "platformName":
+				return ec.fieldContext_BazelInvocation_platformName(ctx, field)
+			case "configurationMnemonic":
+				return ec.fieldContext_BazelInvocation_configurationMnemonic(ctx, field)
+			case "numFetches":
+				return ec.fieldContext_BazelInvocation_numFetches(ctx, field)
 			case "eventFile":
 				return ec.fieldContext_BazelInvocation_eventFile(ctx, field)
 			case "build":
@@ -18771,6 +19078,14 @@ func (ec *executionContext) fieldContext_TestCollection_bazelInvocation(_ contex
 				return ec.fieldContext_BazelInvocation_userLdap(ctx, field)
 			case "buildLogs":
 				return ec.fieldContext_BazelInvocation_buildLogs(ctx, field)
+			case "cpu":
+				return ec.fieldContext_BazelInvocation_cpu(ctx, field)
+			case "platformName":
+				return ec.fieldContext_BazelInvocation_platformName(ctx, field)
+			case "configurationMnemonic":
+				return ec.fieldContext_BazelInvocation_configurationMnemonic(ctx, field)
+			case "numFetches":
+				return ec.fieldContext_BazelInvocation_numFetches(ctx, field)
 			case "eventFile":
 				return ec.fieldContext_BazelInvocation_eventFile(ctx, field)
 			case "build":
@@ -25817,7 +26132,7 @@ func (ec *executionContext) unmarshalInputBazelInvocationWhereInput(ctx context.
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"not", "and", "or", "id", "idNEQ", "idIn", "idNotIn", "idGT", "idGTE", "idLT", "idLTE", "invocationID", "invocationIDNEQ", "invocationIDIn", "invocationIDNotIn", "invocationIDGT", "invocationIDGTE", "invocationIDLT", "invocationIDLTE", "startedAt", "startedAtNEQ", "startedAtIn", "startedAtNotIn", "startedAtGT", "startedAtGTE", "startedAtLT", "startedAtLTE", "endedAt", "endedAtNEQ", "endedAtIn", "endedAtNotIn", "endedAtGT", "endedAtGTE", "endedAtLT", "endedAtLTE", "endedAtIsNil", "endedAtNotNil", "changeNumber", "changeNumberNEQ", "changeNumberIn", "changeNumberNotIn", "changeNumberGT", "changeNumberGTE", "changeNumberLT", "changeNumberLTE", "changeNumberIsNil", "changeNumberNotNil", "patchsetNumber", "patchsetNumberNEQ", "patchsetNumberIn", "patchsetNumberNotIn", "patchsetNumberGT", "patchsetNumberGTE", "patchsetNumberLT", "patchsetNumberLTE", "patchsetNumberIsNil", "patchsetNumberNotNil", "bepCompleted", "bepCompletedNEQ", "bepCompletedIsNil", "bepCompletedNotNil", "stepLabel", "stepLabelNEQ", "stepLabelIn", "stepLabelNotIn", "stepLabelGT", "stepLabelGTE", "stepLabelLT", "stepLabelLTE", "stepLabelContains", "stepLabelHasPrefix", "stepLabelHasSuffix", "stepLabelEqualFold", "stepLabelContainsFold", "userEmail", "userEmailNEQ", "userEmailIn", "userEmailNotIn", "userEmailGT", "userEmailGTE", "userEmailLT", "userEmailLTE", "userEmailContains", "userEmailHasPrefix", "userEmailHasSuffix", "userEmailIsNil", "userEmailNotNil", "userEmailEqualFold", "userEmailContainsFold", "userLdap", "userLdapNEQ", "userLdapIn", "userLdapNotIn", "userLdapGT", "userLdapGTE", "userLdapLT", "userLdapLTE", "userLdapContains", "userLdapHasPrefix", "userLdapHasSuffix", "userLdapIsNil", "userLdapNotNil", "userLdapEqualFold", "userLdapContainsFold", "buildLogs", "buildLogsNEQ", "buildLogsIn", "buildLogsNotIn", "buildLogsGT", "buildLogsGTE", "buildLogsLT", "buildLogsLTE", "buildLogsContains", "buildLogsHasPrefix", "buildLogsHasSuffix", "buildLogsIsNil", "buildLogsNotNil", "buildLogsEqualFold", "buildLogsContainsFold", "hasEventFile", "hasEventFileWith", "hasBuild", "hasBuildWith", "hasMetrics", "hasMetricsWith", "hasProblems", "hasProblemsWith", "hasTestCollection", "hasTestCollectionWith", "hasTargets", "hasTargetsWith"}
+	fieldsInOrder := [...]string{"not", "and", "or", "id", "idNEQ", "idIn", "idNotIn", "idGT", "idGTE", "idLT", "idLTE", "invocationID", "invocationIDNEQ", "invocationIDIn", "invocationIDNotIn", "invocationIDGT", "invocationIDGTE", "invocationIDLT", "invocationIDLTE", "startedAt", "startedAtNEQ", "startedAtIn", "startedAtNotIn", "startedAtGT", "startedAtGTE", "startedAtLT", "startedAtLTE", "endedAt", "endedAtNEQ", "endedAtIn", "endedAtNotIn", "endedAtGT", "endedAtGTE", "endedAtLT", "endedAtLTE", "endedAtIsNil", "endedAtNotNil", "changeNumber", "changeNumberNEQ", "changeNumberIn", "changeNumberNotIn", "changeNumberGT", "changeNumberGTE", "changeNumberLT", "changeNumberLTE", "changeNumberIsNil", "changeNumberNotNil", "patchsetNumber", "patchsetNumberNEQ", "patchsetNumberIn", "patchsetNumberNotIn", "patchsetNumberGT", "patchsetNumberGTE", "patchsetNumberLT", "patchsetNumberLTE", "patchsetNumberIsNil", "patchsetNumberNotNil", "bepCompleted", "bepCompletedNEQ", "bepCompletedIsNil", "bepCompletedNotNil", "stepLabel", "stepLabelNEQ", "stepLabelIn", "stepLabelNotIn", "stepLabelGT", "stepLabelGTE", "stepLabelLT", "stepLabelLTE", "stepLabelContains", "stepLabelHasPrefix", "stepLabelHasSuffix", "stepLabelEqualFold", "stepLabelContainsFold", "userEmail", "userEmailNEQ", "userEmailIn", "userEmailNotIn", "userEmailGT", "userEmailGTE", "userEmailLT", "userEmailLTE", "userEmailContains", "userEmailHasPrefix", "userEmailHasSuffix", "userEmailIsNil", "userEmailNotNil", "userEmailEqualFold", "userEmailContainsFold", "userLdap", "userLdapNEQ", "userLdapIn", "userLdapNotIn", "userLdapGT", "userLdapGTE", "userLdapLT", "userLdapLTE", "userLdapContains", "userLdapHasPrefix", "userLdapHasSuffix", "userLdapIsNil", "userLdapNotNil", "userLdapEqualFold", "userLdapContainsFold", "buildLogs", "buildLogsNEQ", "buildLogsIn", "buildLogsNotIn", "buildLogsGT", "buildLogsGTE", "buildLogsLT", "buildLogsLTE", "buildLogsContains", "buildLogsHasPrefix", "buildLogsHasSuffix", "buildLogsIsNil", "buildLogsNotNil", "buildLogsEqualFold", "buildLogsContainsFold", "cpu", "cpuNEQ", "cpuIn", "cpuNotIn", "cpuGT", "cpuGTE", "cpuLT", "cpuLTE", "cpuContains", "cpuHasPrefix", "cpuHasSuffix", "cpuIsNil", "cpuNotNil", "cpuEqualFold", "cpuContainsFold", "platformName", "platformNameNEQ", "platformNameIn", "platformNameNotIn", "platformNameGT", "platformNameGTE", "platformNameLT", "platformNameLTE", "platformNameContains", "platformNameHasPrefix", "platformNameHasSuffix", "platformNameIsNil", "platformNameNotNil", "platformNameEqualFold", "platformNameContainsFold", "configurationMnemonic", "configurationMnemonicNEQ", "configurationMnemonicIn", "configurationMnemonicNotIn", "configurationMnemonicGT", "configurationMnemonicGTE", "configurationMnemonicLT", "configurationMnemonicLTE", "configurationMnemonicContains", "configurationMnemonicHasPrefix", "configurationMnemonicHasSuffix", "configurationMnemonicIsNil", "configurationMnemonicNotNil", "configurationMnemonicEqualFold", "configurationMnemonicContainsFold", "numFetches", "numFetchesNEQ", "numFetchesIn", "numFetchesNotIn", "numFetchesGT", "numFetchesGTE", "numFetchesLT", "numFetchesLTE", "numFetchesIsNil", "numFetchesNotNil", "hasEventFile", "hasEventFileWith", "hasBuild", "hasBuildWith", "hasMetrics", "hasMetricsWith", "hasProblems", "hasProblemsWith", "hasTestCollection", "hasTestCollectionWith", "hasTargets", "hasTargetsWith"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -26673,6 +26988,391 @@ func (ec *executionContext) unmarshalInputBazelInvocationWhereInput(ctx context.
 				return it, err
 			}
 			it.BuildLogsContainsFold = data
+		case "cpu":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cpu"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CPU = data
+		case "cpuNEQ":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cpuNEQ"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CPUNEQ = data
+		case "cpuIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cpuIn"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CPUIn = data
+		case "cpuNotIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cpuNotIn"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CPUNotIn = data
+		case "cpuGT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cpuGT"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CPUGT = data
+		case "cpuGTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cpuGTE"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CPUGTE = data
+		case "cpuLT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cpuLT"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CPULT = data
+		case "cpuLTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cpuLTE"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CPULTE = data
+		case "cpuContains":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cpuContains"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CPUContains = data
+		case "cpuHasPrefix":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cpuHasPrefix"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CPUHasPrefix = data
+		case "cpuHasSuffix":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cpuHasSuffix"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CPUHasSuffix = data
+		case "cpuIsNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cpuIsNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CPUIsNil = data
+		case "cpuNotNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cpuNotNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CPUNotNil = data
+		case "cpuEqualFold":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cpuEqualFold"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CPUEqualFold = data
+		case "cpuContainsFold":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cpuContainsFold"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CPUContainsFold = data
+		case "platformName":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("platformName"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.PlatformName = data
+		case "platformNameNEQ":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("platformNameNEQ"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.PlatformNameNEQ = data
+		case "platformNameIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("platformNameIn"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.PlatformNameIn = data
+		case "platformNameNotIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("platformNameNotIn"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.PlatformNameNotIn = data
+		case "platformNameGT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("platformNameGT"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.PlatformNameGT = data
+		case "platformNameGTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("platformNameGTE"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.PlatformNameGTE = data
+		case "platformNameLT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("platformNameLT"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.PlatformNameLT = data
+		case "platformNameLTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("platformNameLTE"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.PlatformNameLTE = data
+		case "platformNameContains":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("platformNameContains"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.PlatformNameContains = data
+		case "platformNameHasPrefix":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("platformNameHasPrefix"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.PlatformNameHasPrefix = data
+		case "platformNameHasSuffix":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("platformNameHasSuffix"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.PlatformNameHasSuffix = data
+		case "platformNameIsNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("platformNameIsNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.PlatformNameIsNil = data
+		case "platformNameNotNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("platformNameNotNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.PlatformNameNotNil = data
+		case "platformNameEqualFold":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("platformNameEqualFold"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.PlatformNameEqualFold = data
+		case "platformNameContainsFold":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("platformNameContainsFold"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.PlatformNameContainsFold = data
+		case "configurationMnemonic":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("configurationMnemonic"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ConfigurationMnemonic = data
+		case "configurationMnemonicNEQ":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("configurationMnemonicNEQ"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ConfigurationMnemonicNEQ = data
+		case "configurationMnemonicIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("configurationMnemonicIn"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ConfigurationMnemonicIn = data
+		case "configurationMnemonicNotIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("configurationMnemonicNotIn"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ConfigurationMnemonicNotIn = data
+		case "configurationMnemonicGT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("configurationMnemonicGT"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ConfigurationMnemonicGT = data
+		case "configurationMnemonicGTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("configurationMnemonicGTE"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ConfigurationMnemonicGTE = data
+		case "configurationMnemonicLT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("configurationMnemonicLT"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ConfigurationMnemonicLT = data
+		case "configurationMnemonicLTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("configurationMnemonicLTE"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ConfigurationMnemonicLTE = data
+		case "configurationMnemonicContains":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("configurationMnemonicContains"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ConfigurationMnemonicContains = data
+		case "configurationMnemonicHasPrefix":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("configurationMnemonicHasPrefix"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ConfigurationMnemonicHasPrefix = data
+		case "configurationMnemonicHasSuffix":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("configurationMnemonicHasSuffix"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ConfigurationMnemonicHasSuffix = data
+		case "configurationMnemonicIsNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("configurationMnemonicIsNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ConfigurationMnemonicIsNil = data
+		case "configurationMnemonicNotNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("configurationMnemonicNotNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ConfigurationMnemonicNotNil = data
+		case "configurationMnemonicEqualFold":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("configurationMnemonicEqualFold"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ConfigurationMnemonicEqualFold = data
+		case "configurationMnemonicContainsFold":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("configurationMnemonicContainsFold"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ConfigurationMnemonicContainsFold = data
+		case "numFetches":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("numFetches"))
+			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NumFetches = data
+		case "numFetchesNEQ":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("numFetchesNEQ"))
+			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NumFetchesNEQ = data
+		case "numFetchesIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("numFetchesIn"))
+			data, err := ec.unmarshalOInt2ᚕint64ᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NumFetchesIn = data
+		case "numFetchesNotIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("numFetchesNotIn"))
+			data, err := ec.unmarshalOInt2ᚕint64ᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NumFetchesNotIn = data
+		case "numFetchesGT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("numFetchesGT"))
+			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NumFetchesGT = data
+		case "numFetchesGTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("numFetchesGTE"))
+			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NumFetchesGTE = data
+		case "numFetchesLT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("numFetchesLT"))
+			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NumFetchesLT = data
+		case "numFetchesLTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("numFetchesLTE"))
+			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NumFetchesLTE = data
+		case "numFetchesIsNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("numFetchesIsNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NumFetchesIsNil = data
+		case "numFetchesNotNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("numFetchesNotNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NumFetchesNotNil = data
 		case "hasEventFile":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasEventFile"))
 			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
@@ -36217,7 +36917,7 @@ func (ec *executionContext) unmarshalInputTargetPairWhereInput(ctx context.Conte
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"not", "and", "or", "id", "idNEQ", "idIn", "idNotIn", "idGT", "idGTE", "idLT", "idLTE", "label", "labelNEQ", "labelIn", "labelNotIn", "labelGT", "labelGTE", "labelLT", "labelLTE", "labelContains", "labelHasPrefix", "labelHasSuffix", "labelIsNil", "labelNotNil", "labelEqualFold", "labelContainsFold", "durationInMs", "durationInMsNEQ", "durationInMsIn", "durationInMsNotIn", "durationInMsGT", "durationInMsGTE", "durationInMsLT", "durationInMsLTE", "durationInMsIsNil", "durationInMsNotNil", "success", "successNEQ", "successIsNil", "successNotNil", "targetKind", "targetKindNEQ", "targetKindIn", "targetKindNotIn", "targetKindGT", "targetKindGTE", "targetKindLT", "targetKindLTE", "targetKindContains", "targetKindHasPrefix", "targetKindHasSuffix", "targetKindIsNil", "targetKindNotNil", "targetKindEqualFold", "targetKindContainsFold", "testSize", "testSizeNEQ", "testSizeIn", "testSizeNotIn", "testSizeIsNil", "testSizeNotNil", "hasBazelInvocation", "hasBazelInvocationWith", "hasConfiguration", "hasConfigurationWith", "hasCompletion", "hasCompletionWith"}
+	fieldsInOrder := [...]string{"not", "and", "or", "id", "idNEQ", "idIn", "idNotIn", "idGT", "idGTE", "idLT", "idLTE", "label", "labelNEQ", "labelIn", "labelNotIn", "labelGT", "labelGTE", "labelLT", "labelLTE", "labelContains", "labelHasPrefix", "labelHasSuffix", "labelIsNil", "labelNotNil", "labelEqualFold", "labelContainsFold", "durationInMs", "durationInMsNEQ", "durationInMsIn", "durationInMsNotIn", "durationInMsGT", "durationInMsGTE", "durationInMsLT", "durationInMsLTE", "durationInMsIsNil", "durationInMsNotNil", "success", "successNEQ", "successIsNil", "successNotNil", "targetKind", "targetKindNEQ", "targetKindIn", "targetKindNotIn", "targetKindGT", "targetKindGTE", "targetKindLT", "targetKindLTE", "targetKindContains", "targetKindHasPrefix", "targetKindHasSuffix", "targetKindIsNil", "targetKindNotNil", "targetKindEqualFold", "targetKindContainsFold", "testSize", "testSizeNEQ", "testSizeIn", "testSizeNotIn", "testSizeIsNil", "testSizeNotNil", "abortReason", "abortReasonNEQ", "abortReasonIn", "abortReasonNotIn", "abortReasonIsNil", "abortReasonNotNil", "hasBazelInvocation", "hasBazelInvocationWith", "hasConfiguration", "hasConfigurationWith", "hasCompletion", "hasCompletionWith"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -36667,6 +37367,48 @@ func (ec *executionContext) unmarshalInputTargetPairWhereInput(ctx context.Conte
 				return it, err
 			}
 			it.TestSizeNotNil = data
+		case "abortReason":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("abortReason"))
+			data, err := ec.unmarshalOTargetPairAbortReason2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚋtargetpairᚐAbortReason(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AbortReason = data
+		case "abortReasonNEQ":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("abortReasonNEQ"))
+			data, err := ec.unmarshalOTargetPairAbortReason2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚋtargetpairᚐAbortReason(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AbortReasonNEQ = data
+		case "abortReasonIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("abortReasonIn"))
+			data, err := ec.unmarshalOTargetPairAbortReason2ᚕgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚋtargetpairᚐAbortReasonᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AbortReasonIn = data
+		case "abortReasonNotIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("abortReasonNotIn"))
+			data, err := ec.unmarshalOTargetPairAbortReason2ᚕgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚋtargetpairᚐAbortReasonᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AbortReasonNotIn = data
+		case "abortReasonIsNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("abortReasonIsNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AbortReasonIsNil = data
+		case "abortReasonNotNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("abortReasonNotNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AbortReasonNotNil = data
 		case "hasBazelInvocation":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasBazelInvocation"))
 			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
@@ -41898,6 +42640,14 @@ func (ec *executionContext) _BazelInvocation(ctx context.Context, sel ast.Select
 			out.Values[i] = ec._BazelInvocation_userLdap(ctx, field, obj)
 		case "buildLogs":
 			out.Values[i] = ec._BazelInvocation_buildLogs(ctx, field, obj)
+		case "cpu":
+			out.Values[i] = ec._BazelInvocation_cpu(ctx, field, obj)
+		case "platformName":
+			out.Values[i] = ec._BazelInvocation_platformName(ctx, field, obj)
+		case "configurationMnemonic":
+			out.Values[i] = ec._BazelInvocation_configurationMnemonic(ctx, field, obj)
+		case "numFetches":
+			out.Values[i] = ec._BazelInvocation_numFetches(ctx, field, obj)
 		case "eventFile":
 			field := field
 
@@ -47191,6 +47941,8 @@ func (ec *executionContext) _TargetPair(ctx context.Context, sel ast.SelectionSe
 			out.Values[i] = ec._TargetPair_targetKind(ctx, field, obj)
 		case "testSize":
 			out.Values[i] = ec._TargetPair_testSize(ctx, field, obj)
+		case "abortReason":
+			out.Values[i] = ec._TargetPair_abortReason(ctx, field, obj)
 		case "bazelInvocation":
 			field := field
 
@@ -49859,6 +50611,16 @@ func (ec *executionContext) marshalNTargetPair2ᚖgithubᚗcomᚋbuildbarnᚋbb�
 		return graphql.Null
 	}
 	return ec._TargetPair(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNTargetPairAbortReason2githubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚋtargetpairᚐAbortReason(ctx context.Context, v interface{}) (targetpair.AbortReason, error) {
+	var res targetpair.AbortReason
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNTargetPairAbortReason2githubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚋtargetpairᚐAbortReason(ctx context.Context, sel ast.SelectionSet, v targetpair.AbortReason) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) unmarshalNTargetPairTestSize2githubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚋtargetpairᚐTestSize(ctx context.Context, v interface{}) (targetpair.TestSize, error) {
@@ -53433,6 +54195,99 @@ func (ec *executionContext) marshalOTargetPair2ᚕᚖgithubᚗcomᚋbuildbarnᚋ
 	}
 
 	return ret
+}
+
+func (ec *executionContext) unmarshalOTargetPairAbortReason2githubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚋtargetpairᚐAbortReason(ctx context.Context, v interface{}) (targetpair.AbortReason, error) {
+	var res targetpair.AbortReason
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOTargetPairAbortReason2githubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚋtargetpairᚐAbortReason(ctx context.Context, sel ast.SelectionSet, v targetpair.AbortReason) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) unmarshalOTargetPairAbortReason2ᚕgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚋtargetpairᚐAbortReasonᚄ(ctx context.Context, v interface{}) ([]targetpair.AbortReason, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]targetpair.AbortReason, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNTargetPairAbortReason2githubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚋtargetpairᚐAbortReason(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalOTargetPairAbortReason2ᚕgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚋtargetpairᚐAbortReasonᚄ(ctx context.Context, sel ast.SelectionSet, v []targetpair.AbortReason) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNTargetPairAbortReason2githubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚋtargetpairᚐAbortReason(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) unmarshalOTargetPairAbortReason2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚋtargetpairᚐAbortReason(ctx context.Context, v interface{}) (*targetpair.AbortReason, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(targetpair.AbortReason)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOTargetPairAbortReason2ᚖgithubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚋtargetpairᚐAbortReason(ctx context.Context, sel ast.SelectionSet, v *targetpair.AbortReason) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
 }
 
 func (ec *executionContext) unmarshalOTargetPairTestSize2githubᚗcomᚋbuildbarnᚋbbᚑportalᚋentᚋgenᚋentᚋtargetpairᚐTestSize(ctx context.Context, v interface{}) (targetpair.TestSize, error) {

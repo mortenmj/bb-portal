@@ -10,6 +10,7 @@ import {
   NetworkMetrics,
   TestCollection,
   TargetPair,
+  BuildGraphMetrics,
 } from "@/graphql/__generated__/graphql";
 import styles from "../AppBar/index.module.css"
 import React from "react";
@@ -89,6 +90,9 @@ const BazelInvocation: React.FC<{
   //memory metrics
   var memoryMetrics: MemoryMetrics | undefined = metrics?.memoryMetrics?.at(0)
 
+  //build graph metrics
+  var buildGraphMetrics: BuildGraphMetrics | undefined = metrics?.buildGraphMetrics?.at(0)
+
   //timing metrics
   var timingMetrics: TimingMetrics | undefined = metrics?.timingMetrics?.at(0)
 
@@ -101,6 +105,14 @@ const BazelInvocation: React.FC<{
   //test data
   var testCollections: TestCollection[] | undefined | null = testCollection
   var targetData: TargetPair[] | undefined | null = targets
+  var testLabels: Map<string, boolean> = new Map<string, boolean>();
+
+  testCollections?.map(x => {
+    var l = x.label ?? "ZZZZZZTOP"
+    testLabels.set(l, true)
+  }
+  )
+
 
   let { exitCode } = state;
   exitCode = exitCode ?? null;
@@ -200,7 +212,7 @@ const BazelInvocation: React.FC<{
       icon: <FieldTimeOutlined />,
       children: <Space direction="vertical" size="middle" className={themeStyles.space}>
 
-        <TimingMetricsDisplay timingMetrics={timingMetrics} />
+        <TimingMetricsDisplay timingMetrics={timingMetrics} buildGraphMetrics={buildGraphMetrics} />
 
       </Space>,
     },
@@ -211,7 +223,7 @@ const BazelInvocation: React.FC<{
       icon: <DeploymentUnitOutlined />,
       children: <Space direction="vertical" size="middle" className={themeStyles.space}>
 
-        <TargetMetricsDisplay targetMetrics={targetMetrics} targetData={targetData} />
+        <TargetMetricsDisplay targetMetrics={targetMetrics} targetData={targetData} testLabels={testLabels} />
       </Space>,
     },
     {
@@ -241,7 +253,6 @@ const BazelInvocation: React.FC<{
     if (idx > -1) {
       items.splice(idx, 1);
     }
-    //items = items.slice(0, 10)
   }
 
 

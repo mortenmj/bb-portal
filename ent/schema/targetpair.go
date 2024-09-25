@@ -20,8 +20,27 @@ func (TargetPair) Fields() []ent.Field {
 		field.Bool("success").Optional().Default(false),
 		field.String("target_kind").Optional(),
 		field.Enum("test_size").
-			Values("UNKNOWN", "SMALL", "MEDIUM", "LARGE", "ENORMOUS").
-			Default("UNKNOWN").Optional(),
+			Values("UNKNOWN",
+				"SMALL",
+				"MEDIUM",
+				"LARGE",
+				"ENORMOUS").
+			Default("UNKNOWN").
+			Optional(),
+		field.Enum("abort_reason").
+			Values("UNKNOWN",
+				"USER_INTERRUPTED",
+				"NO_ANALYZE",
+				"NO_BUILD",
+				"TIME_OUT",
+				"REMOTE_ENVIRONMENT_FAILURE",
+				"INTERNAL",
+				"LOADING_FAILURE",
+				"ANALYSIS_FAILURE",
+				"SKIPPED",
+				"INCOMPLETE",
+				"OUT_OF_MEMORY").
+			Optional(),
 	}
 }
 

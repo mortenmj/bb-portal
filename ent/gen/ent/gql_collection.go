@@ -642,6 +642,26 @@ func (bi *BazelInvocationQuery) collectField(ctx context.Context, oneNode bool, 
 				selectedFields = append(selectedFields, bazelinvocation.FieldBuildLogs)
 				fieldSeen[bazelinvocation.FieldBuildLogs] = struct{}{}
 			}
+		case "cpu":
+			if _, ok := fieldSeen[bazelinvocation.FieldCPU]; !ok {
+				selectedFields = append(selectedFields, bazelinvocation.FieldCPU)
+				fieldSeen[bazelinvocation.FieldCPU] = struct{}{}
+			}
+		case "platformName":
+			if _, ok := fieldSeen[bazelinvocation.FieldPlatformName]; !ok {
+				selectedFields = append(selectedFields, bazelinvocation.FieldPlatformName)
+				fieldSeen[bazelinvocation.FieldPlatformName] = struct{}{}
+			}
+		case "configurationMnemonic":
+			if _, ok := fieldSeen[bazelinvocation.FieldConfigurationMnemonic]; !ok {
+				selectedFields = append(selectedFields, bazelinvocation.FieldConfigurationMnemonic)
+				fieldSeen[bazelinvocation.FieldConfigurationMnemonic] = struct{}{}
+			}
+		case "numFetches":
+			if _, ok := fieldSeen[bazelinvocation.FieldNumFetches]; !ok {
+				selectedFields = append(selectedFields, bazelinvocation.FieldNumFetches)
+				fieldSeen[bazelinvocation.FieldNumFetches] = struct{}{}
+			}
 		case "id":
 		case "__typename":
 		default:
@@ -3431,6 +3451,11 @@ func (tp *TargetPairQuery) collectField(ctx context.Context, oneNode bool, opCtx
 			if _, ok := fieldSeen[targetpair.FieldTestSize]; !ok {
 				selectedFields = append(selectedFields, targetpair.FieldTestSize)
 				fieldSeen[targetpair.FieldTestSize] = struct{}{}
+			}
+		case "abortReason":
+			if _, ok := fieldSeen[targetpair.FieldAbortReason]; !ok {
+				selectedFields = append(selectedFields, targetpair.FieldAbortReason)
+				fieldSeen[targetpair.FieldAbortReason] = struct{}{}
 			}
 		case "id":
 		case "__typename":

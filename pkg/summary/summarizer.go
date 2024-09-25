@@ -111,13 +111,18 @@ func (s Summarizer) ProcessEvent(buildEvent *events.BuildEvent) error {
 		if err != nil {
 			return err
 		}
+	case *bes.BuildEventId_Configuration:
+		s.handleBuildConfiguration(buildEvent.GetConfiguration())
 
 	case *bes.BuildEventId_TargetConfigured:
 		s.handleTargetConfigured(buildEvent.GetConfigured(), buildEvent.GetTargetConfiguredLabel(), time.Now())
 
 	case *bes.BuildEventId_TargetCompleted:
-		//get the time we saw this event
-		s.handleTargetCompleted(buildEvent.GetCompleted(), buildEvent.GetTargetCompletedLabel(), time.Now())
+		//is ths an aborted event?
+		s.handleTargetCompleted(buildEvent.GetCompleted(), buildEvent.GetTargetCompletedLabel(), buildEvent.GetAborted(), time.Now())
+
+	case *bes.BuildEventId_Fetch:
+		s.handleFetch(buildEvent.GetFetch())
 
 	case *bes.BuildEventId_TestResult:
 		s.handleTestResult(buildEvent.GetTestResult(), buildEvent.GetId().GetTestResult().Label)
@@ -155,6 +160,18 @@ func (s Summarizer) handleStarted(started *bes.BuildStarted) {
 	s.summary.BazelVersion = started.GetBuildToolVersion()
 }
 
+func (s Summarizer) handleFetch(fetch *bes.Fetch) {
+	if fetch.Success {
+		s.summary.NumFetches++
+	}
+}
+
+func (s Summarizer) handleBuildConfiguration(configuration *bes.Configuration) {
+	s.summary.CPU = configuration.Cpu
+	s.summary.PlatformName = configuration.PlatformName
+	s.summary.ConfigrationMnemonic = configuration.Mnemonic
+}
+
 func (s Summarizer) handleTargetConfigured(target *bes.TargetConfigured, label string, timestamp time.Time) {
 	// tag, target kind,, and test size
 	if target == nil {
@@ -181,37 +198,53 @@ func (s Summarizer) handleTargetConfigured(target *bes.TargetConfigured, label s
 	}
 }
 
-func (s Summarizer) handleTargetCompleted(target *bes.TargetComplete, label string, timestamp time.Time) {
-	//
-	if target == nil {
-		return
-	}
+func (s Summarizer) handleTargetCompleted(target *bes.TargetComplete, label string, aborted *bes.Aborted, timestamp time.Time) {
+
 	if len(label) == 0 {
-		panic("that shit aint right")
+		panic("label is empty for a target completed event")
 	}
 
-	//this should never happen really...and if it does, timing data would be super jacked, so just panic for now
 	if s.summary.Targets == nil {
-		panic("oh boy...")
+		panic("target completed event received before any target configured messages")
 	}
 
 	var targetPair TargetPair
 	targetPair, ok := s.summary.Targets[label]
 
 	if !ok {
-		panic("again...this is bad")
+		//TODO this doesn't HAVE to be fatal...timing data is just messed up and unreliable at best
+		panic(fmt.Sprintf("target completed event recieved for label %s before target configured message recieved", label))
 	}
-	var targetCompletion TargetComplete = TargetComplete{
-		Success:     target.Success,
-		Tag:         target.Tag,
-		EndTimeInMs: timestamp.UnixMilli(),
+
+	var targetCompletion TargetComplete
+
+	if target == nil {
+		//f;ag
+		targetCompletion = TargetComplete{
+			Success:     false,
+			EndTimeInMs: timestamp.UnixMilli(),
+		}
+	} else {
+		targetCompletion = TargetComplete{
+			Success:     target.Success,
+			Tag:         target.Tag,
+			EndTimeInMs: timestamp.UnixMilli(),
+		}
+		if target.TestTimeout != nil {
+			targetCompletion.TestTimeoutSeconds = target.TestTimeout.Seconds
+			targetCompletion.TestTimeout = target.TestTimeout.Seconds
+		}
+
 	}
-	if target.TestTimeout != nil {
-		targetCompletion.TestTimeoutSeconds = target.TestTimeout.Seconds
-		targetCompletion.TestTimeout = target.TestTimeout.Seconds
-	}
+
 	targetPair.Completion = targetCompletion
 	targetPair.DurationInMs = targetPair.Completion.EndTimeInMs - targetPair.Configuration.StartTimeInMs
+	targetPair.Success = targetCompletion.Success
+
+	if aborted != nil {
+		targetPair.AbortReason = AbortReason(aborted.Reason)
+	}
+
 	s.summary.Targets[label] = targetPair
 
 }
@@ -514,7 +547,7 @@ func (s Summarizer) handleBuildMetrics(metrics *bes.BuildMetrics) {
 		NumBuilds:   metrics.CumulativeMetrics.NumBuilds,
 	}
 
-	//TODO: dynamic metrics are not on the proto
+	//TODO: dynamic metrics are not on the proto.  are we possibly using an outdated proto definition?  is there some way to pull them from the raw request data?
 	var race_statistics []RaceStatistics = make([]RaceStatistics, 0)
 	// for _,rc := range metrics.
 	dynamic_metrics := DynamicExecutionMetrics{
@@ -543,7 +576,7 @@ func (s Summarizer) handleBuildMetrics(metrics *bes.BuildMetrics) {
 		SystemNetworkStats: &system_network_stats,
 	}
 
-	//TODO: these vaues are not on the proto.
+	//TODO: these values are not on the proto.
 	var dirtied_values []EvaluationStat = make([]EvaluationStat, 0)
 	var changed_values []EvaluationStat = make([]EvaluationStat, 0)
 	var built_values []EvaluationStat = make([]EvaluationStat, 0)

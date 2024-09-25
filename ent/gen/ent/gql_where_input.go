@@ -1647,6 +1647,69 @@ type BazelInvocationWhereInput struct {
 	BuildLogsEqualFold    *string  `json:"buildLogsEqualFold,omitempty"`
 	BuildLogsContainsFold *string  `json:"buildLogsContainsFold,omitempty"`
 
+	// "cpu" field predicates.
+	CPU             *string  `json:"cpu,omitempty"`
+	CPUNEQ          *string  `json:"cpuNEQ,omitempty"`
+	CPUIn           []string `json:"cpuIn,omitempty"`
+	CPUNotIn        []string `json:"cpuNotIn,omitempty"`
+	CPUGT           *string  `json:"cpuGT,omitempty"`
+	CPUGTE          *string  `json:"cpuGTE,omitempty"`
+	CPULT           *string  `json:"cpuLT,omitempty"`
+	CPULTE          *string  `json:"cpuLTE,omitempty"`
+	CPUContains     *string  `json:"cpuContains,omitempty"`
+	CPUHasPrefix    *string  `json:"cpuHasPrefix,omitempty"`
+	CPUHasSuffix    *string  `json:"cpuHasSuffix,omitempty"`
+	CPUIsNil        bool     `json:"cpuIsNil,omitempty"`
+	CPUNotNil       bool     `json:"cpuNotNil,omitempty"`
+	CPUEqualFold    *string  `json:"cpuEqualFold,omitempty"`
+	CPUContainsFold *string  `json:"cpuContainsFold,omitempty"`
+
+	// "platform_name" field predicates.
+	PlatformName             *string  `json:"platformName,omitempty"`
+	PlatformNameNEQ          *string  `json:"platformNameNEQ,omitempty"`
+	PlatformNameIn           []string `json:"platformNameIn,omitempty"`
+	PlatformNameNotIn        []string `json:"platformNameNotIn,omitempty"`
+	PlatformNameGT           *string  `json:"platformNameGT,omitempty"`
+	PlatformNameGTE          *string  `json:"platformNameGTE,omitempty"`
+	PlatformNameLT           *string  `json:"platformNameLT,omitempty"`
+	PlatformNameLTE          *string  `json:"platformNameLTE,omitempty"`
+	PlatformNameContains     *string  `json:"platformNameContains,omitempty"`
+	PlatformNameHasPrefix    *string  `json:"platformNameHasPrefix,omitempty"`
+	PlatformNameHasSuffix    *string  `json:"platformNameHasSuffix,omitempty"`
+	PlatformNameIsNil        bool     `json:"platformNameIsNil,omitempty"`
+	PlatformNameNotNil       bool     `json:"platformNameNotNil,omitempty"`
+	PlatformNameEqualFold    *string  `json:"platformNameEqualFold,omitempty"`
+	PlatformNameContainsFold *string  `json:"platformNameContainsFold,omitempty"`
+
+	// "configuration_mnemonic" field predicates.
+	ConfigurationMnemonic             *string  `json:"configurationMnemonic,omitempty"`
+	ConfigurationMnemonicNEQ          *string  `json:"configurationMnemonicNEQ,omitempty"`
+	ConfigurationMnemonicIn           []string `json:"configurationMnemonicIn,omitempty"`
+	ConfigurationMnemonicNotIn        []string `json:"configurationMnemonicNotIn,omitempty"`
+	ConfigurationMnemonicGT           *string  `json:"configurationMnemonicGT,omitempty"`
+	ConfigurationMnemonicGTE          *string  `json:"configurationMnemonicGTE,omitempty"`
+	ConfigurationMnemonicLT           *string  `json:"configurationMnemonicLT,omitempty"`
+	ConfigurationMnemonicLTE          *string  `json:"configurationMnemonicLTE,omitempty"`
+	ConfigurationMnemonicContains     *string  `json:"configurationMnemonicContains,omitempty"`
+	ConfigurationMnemonicHasPrefix    *string  `json:"configurationMnemonicHasPrefix,omitempty"`
+	ConfigurationMnemonicHasSuffix    *string  `json:"configurationMnemonicHasSuffix,omitempty"`
+	ConfigurationMnemonicIsNil        bool     `json:"configurationMnemonicIsNil,omitempty"`
+	ConfigurationMnemonicNotNil       bool     `json:"configurationMnemonicNotNil,omitempty"`
+	ConfigurationMnemonicEqualFold    *string  `json:"configurationMnemonicEqualFold,omitempty"`
+	ConfigurationMnemonicContainsFold *string  `json:"configurationMnemonicContainsFold,omitempty"`
+
+	// "num_fetches" field predicates.
+	NumFetches       *int64  `json:"numFetches,omitempty"`
+	NumFetchesNEQ    *int64  `json:"numFetchesNEQ,omitempty"`
+	NumFetchesIn     []int64 `json:"numFetchesIn,omitempty"`
+	NumFetchesNotIn  []int64 `json:"numFetchesNotIn,omitempty"`
+	NumFetchesGT     *int64  `json:"numFetchesGT,omitempty"`
+	NumFetchesGTE    *int64  `json:"numFetchesGTE,omitempty"`
+	NumFetchesLT     *int64  `json:"numFetchesLT,omitempty"`
+	NumFetchesLTE    *int64  `json:"numFetchesLTE,omitempty"`
+	NumFetchesIsNil  bool    `json:"numFetchesIsNil,omitempty"`
+	NumFetchesNotNil bool    `json:"numFetchesNotNil,omitempty"`
+
 	// "event_file" edge predicates.
 	HasEventFile     *bool                  `json:"hasEventFile,omitempty"`
 	HasEventFileWith []*EventFileWhereInput `json:"hasEventFileWith,omitempty"`
@@ -2090,6 +2153,171 @@ func (i *BazelInvocationWhereInput) P() (predicate.BazelInvocation, error) {
 	}
 	if i.BuildLogsContainsFold != nil {
 		predicates = append(predicates, bazelinvocation.BuildLogsContainsFold(*i.BuildLogsContainsFold))
+	}
+	if i.CPU != nil {
+		predicates = append(predicates, bazelinvocation.CPUEQ(*i.CPU))
+	}
+	if i.CPUNEQ != nil {
+		predicates = append(predicates, bazelinvocation.CPUNEQ(*i.CPUNEQ))
+	}
+	if len(i.CPUIn) > 0 {
+		predicates = append(predicates, bazelinvocation.CPUIn(i.CPUIn...))
+	}
+	if len(i.CPUNotIn) > 0 {
+		predicates = append(predicates, bazelinvocation.CPUNotIn(i.CPUNotIn...))
+	}
+	if i.CPUGT != nil {
+		predicates = append(predicates, bazelinvocation.CPUGT(*i.CPUGT))
+	}
+	if i.CPUGTE != nil {
+		predicates = append(predicates, bazelinvocation.CPUGTE(*i.CPUGTE))
+	}
+	if i.CPULT != nil {
+		predicates = append(predicates, bazelinvocation.CPULT(*i.CPULT))
+	}
+	if i.CPULTE != nil {
+		predicates = append(predicates, bazelinvocation.CPULTE(*i.CPULTE))
+	}
+	if i.CPUContains != nil {
+		predicates = append(predicates, bazelinvocation.CPUContains(*i.CPUContains))
+	}
+	if i.CPUHasPrefix != nil {
+		predicates = append(predicates, bazelinvocation.CPUHasPrefix(*i.CPUHasPrefix))
+	}
+	if i.CPUHasSuffix != nil {
+		predicates = append(predicates, bazelinvocation.CPUHasSuffix(*i.CPUHasSuffix))
+	}
+	if i.CPUIsNil {
+		predicates = append(predicates, bazelinvocation.CPUIsNil())
+	}
+	if i.CPUNotNil {
+		predicates = append(predicates, bazelinvocation.CPUNotNil())
+	}
+	if i.CPUEqualFold != nil {
+		predicates = append(predicates, bazelinvocation.CPUEqualFold(*i.CPUEqualFold))
+	}
+	if i.CPUContainsFold != nil {
+		predicates = append(predicates, bazelinvocation.CPUContainsFold(*i.CPUContainsFold))
+	}
+	if i.PlatformName != nil {
+		predicates = append(predicates, bazelinvocation.PlatformNameEQ(*i.PlatformName))
+	}
+	if i.PlatformNameNEQ != nil {
+		predicates = append(predicates, bazelinvocation.PlatformNameNEQ(*i.PlatformNameNEQ))
+	}
+	if len(i.PlatformNameIn) > 0 {
+		predicates = append(predicates, bazelinvocation.PlatformNameIn(i.PlatformNameIn...))
+	}
+	if len(i.PlatformNameNotIn) > 0 {
+		predicates = append(predicates, bazelinvocation.PlatformNameNotIn(i.PlatformNameNotIn...))
+	}
+	if i.PlatformNameGT != nil {
+		predicates = append(predicates, bazelinvocation.PlatformNameGT(*i.PlatformNameGT))
+	}
+	if i.PlatformNameGTE != nil {
+		predicates = append(predicates, bazelinvocation.PlatformNameGTE(*i.PlatformNameGTE))
+	}
+	if i.PlatformNameLT != nil {
+		predicates = append(predicates, bazelinvocation.PlatformNameLT(*i.PlatformNameLT))
+	}
+	if i.PlatformNameLTE != nil {
+		predicates = append(predicates, bazelinvocation.PlatformNameLTE(*i.PlatformNameLTE))
+	}
+	if i.PlatformNameContains != nil {
+		predicates = append(predicates, bazelinvocation.PlatformNameContains(*i.PlatformNameContains))
+	}
+	if i.PlatformNameHasPrefix != nil {
+		predicates = append(predicates, bazelinvocation.PlatformNameHasPrefix(*i.PlatformNameHasPrefix))
+	}
+	if i.PlatformNameHasSuffix != nil {
+		predicates = append(predicates, bazelinvocation.PlatformNameHasSuffix(*i.PlatformNameHasSuffix))
+	}
+	if i.PlatformNameIsNil {
+		predicates = append(predicates, bazelinvocation.PlatformNameIsNil())
+	}
+	if i.PlatformNameNotNil {
+		predicates = append(predicates, bazelinvocation.PlatformNameNotNil())
+	}
+	if i.PlatformNameEqualFold != nil {
+		predicates = append(predicates, bazelinvocation.PlatformNameEqualFold(*i.PlatformNameEqualFold))
+	}
+	if i.PlatformNameContainsFold != nil {
+		predicates = append(predicates, bazelinvocation.PlatformNameContainsFold(*i.PlatformNameContainsFold))
+	}
+	if i.ConfigurationMnemonic != nil {
+		predicates = append(predicates, bazelinvocation.ConfigurationMnemonicEQ(*i.ConfigurationMnemonic))
+	}
+	if i.ConfigurationMnemonicNEQ != nil {
+		predicates = append(predicates, bazelinvocation.ConfigurationMnemonicNEQ(*i.ConfigurationMnemonicNEQ))
+	}
+	if len(i.ConfigurationMnemonicIn) > 0 {
+		predicates = append(predicates, bazelinvocation.ConfigurationMnemonicIn(i.ConfigurationMnemonicIn...))
+	}
+	if len(i.ConfigurationMnemonicNotIn) > 0 {
+		predicates = append(predicates, bazelinvocation.ConfigurationMnemonicNotIn(i.ConfigurationMnemonicNotIn...))
+	}
+	if i.ConfigurationMnemonicGT != nil {
+		predicates = append(predicates, bazelinvocation.ConfigurationMnemonicGT(*i.ConfigurationMnemonicGT))
+	}
+	if i.ConfigurationMnemonicGTE != nil {
+		predicates = append(predicates, bazelinvocation.ConfigurationMnemonicGTE(*i.ConfigurationMnemonicGTE))
+	}
+	if i.ConfigurationMnemonicLT != nil {
+		predicates = append(predicates, bazelinvocation.ConfigurationMnemonicLT(*i.ConfigurationMnemonicLT))
+	}
+	if i.ConfigurationMnemonicLTE != nil {
+		predicates = append(predicates, bazelinvocation.ConfigurationMnemonicLTE(*i.ConfigurationMnemonicLTE))
+	}
+	if i.ConfigurationMnemonicContains != nil {
+		predicates = append(predicates, bazelinvocation.ConfigurationMnemonicContains(*i.ConfigurationMnemonicContains))
+	}
+	if i.ConfigurationMnemonicHasPrefix != nil {
+		predicates = append(predicates, bazelinvocation.ConfigurationMnemonicHasPrefix(*i.ConfigurationMnemonicHasPrefix))
+	}
+	if i.ConfigurationMnemonicHasSuffix != nil {
+		predicates = append(predicates, bazelinvocation.ConfigurationMnemonicHasSuffix(*i.ConfigurationMnemonicHasSuffix))
+	}
+	if i.ConfigurationMnemonicIsNil {
+		predicates = append(predicates, bazelinvocation.ConfigurationMnemonicIsNil())
+	}
+	if i.ConfigurationMnemonicNotNil {
+		predicates = append(predicates, bazelinvocation.ConfigurationMnemonicNotNil())
+	}
+	if i.ConfigurationMnemonicEqualFold != nil {
+		predicates = append(predicates, bazelinvocation.ConfigurationMnemonicEqualFold(*i.ConfigurationMnemonicEqualFold))
+	}
+	if i.ConfigurationMnemonicContainsFold != nil {
+		predicates = append(predicates, bazelinvocation.ConfigurationMnemonicContainsFold(*i.ConfigurationMnemonicContainsFold))
+	}
+	if i.NumFetches != nil {
+		predicates = append(predicates, bazelinvocation.NumFetchesEQ(*i.NumFetches))
+	}
+	if i.NumFetchesNEQ != nil {
+		predicates = append(predicates, bazelinvocation.NumFetchesNEQ(*i.NumFetchesNEQ))
+	}
+	if len(i.NumFetchesIn) > 0 {
+		predicates = append(predicates, bazelinvocation.NumFetchesIn(i.NumFetchesIn...))
+	}
+	if len(i.NumFetchesNotIn) > 0 {
+		predicates = append(predicates, bazelinvocation.NumFetchesNotIn(i.NumFetchesNotIn...))
+	}
+	if i.NumFetchesGT != nil {
+		predicates = append(predicates, bazelinvocation.NumFetchesGT(*i.NumFetchesGT))
+	}
+	if i.NumFetchesGTE != nil {
+		predicates = append(predicates, bazelinvocation.NumFetchesGTE(*i.NumFetchesGTE))
+	}
+	if i.NumFetchesLT != nil {
+		predicates = append(predicates, bazelinvocation.NumFetchesLT(*i.NumFetchesLT))
+	}
+	if i.NumFetchesLTE != nil {
+		predicates = append(predicates, bazelinvocation.NumFetchesLTE(*i.NumFetchesLTE))
+	}
+	if i.NumFetchesIsNil {
+		predicates = append(predicates, bazelinvocation.NumFetchesIsNil())
+	}
+	if i.NumFetchesNotNil {
+		predicates = append(predicates, bazelinvocation.NumFetchesNotNil())
 	}
 
 	if i.HasEventFile != nil {
@@ -10335,6 +10563,14 @@ type TargetPairWhereInput struct {
 	TestSizeIsNil  bool                  `json:"testSizeIsNil,omitempty"`
 	TestSizeNotNil bool                  `json:"testSizeNotNil,omitempty"`
 
+	// "abort_reason" field predicates.
+	AbortReason       *targetpair.AbortReason  `json:"abortReason,omitempty"`
+	AbortReasonNEQ    *targetpair.AbortReason  `json:"abortReasonNEQ,omitempty"`
+	AbortReasonIn     []targetpair.AbortReason `json:"abortReasonIn,omitempty"`
+	AbortReasonNotIn  []targetpair.AbortReason `json:"abortReasonNotIn,omitempty"`
+	AbortReasonIsNil  bool                     `json:"abortReasonIsNil,omitempty"`
+	AbortReasonNotNil bool                     `json:"abortReasonNotNil,omitempty"`
+
 	// "bazel_invocation" edge predicates.
 	HasBazelInvocation     *bool                        `json:"hasBazelInvocation,omitempty"`
 	HasBazelInvocationWith []*BazelInvocationWhereInput `json:"hasBazelInvocationWith,omitempty"`
@@ -10592,6 +10828,24 @@ func (i *TargetPairWhereInput) P() (predicate.TargetPair, error) {
 	}
 	if i.TestSizeNotNil {
 		predicates = append(predicates, targetpair.TestSizeNotNil())
+	}
+	if i.AbortReason != nil {
+		predicates = append(predicates, targetpair.AbortReasonEQ(*i.AbortReason))
+	}
+	if i.AbortReasonNEQ != nil {
+		predicates = append(predicates, targetpair.AbortReasonNEQ(*i.AbortReasonNEQ))
+	}
+	if len(i.AbortReasonIn) > 0 {
+		predicates = append(predicates, targetpair.AbortReasonIn(i.AbortReasonIn...))
+	}
+	if len(i.AbortReasonNotIn) > 0 {
+		predicates = append(predicates, targetpair.AbortReasonNotIn(i.AbortReasonNotIn...))
+	}
+	if i.AbortReasonIsNil {
+		predicates = append(predicates, targetpair.AbortReasonIsNil())
+	}
+	if i.AbortReasonNotNil {
+		predicates = append(predicates, targetpair.AbortReasonNotNil())
 	}
 
 	if i.HasBazelInvocation != nil {

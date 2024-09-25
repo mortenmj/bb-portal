@@ -26,6 +26,8 @@ const (
 	FieldTargetKind = "target_kind"
 	// FieldTestSize holds the string denoting the test_size field in the database.
 	FieldTestSize = "test_size"
+	// FieldAbortReason holds the string denoting the abort_reason field in the database.
+	FieldAbortReason = "abort_reason"
 	// EdgeBazelInvocation holds the string denoting the bazel_invocation edge name in mutations.
 	EdgeBazelInvocation = "bazel_invocation"
 	// EdgeConfiguration holds the string denoting the configuration edge name in mutations.
@@ -63,6 +65,7 @@ var Columns = []string{
 	FieldSuccess,
 	FieldTargetKind,
 	FieldTestSize,
+	FieldAbortReason,
 }
 
 // ForeignKeys holds the SQL foreign-keys that are owned by the "target_pairs"
@@ -127,6 +130,39 @@ func TestSizeValidator(ts TestSize) error {
 	}
 }
 
+// AbortReason defines the type for the "abort_reason" enum field.
+type AbortReason string
+
+// AbortReason values.
+const (
+	AbortReasonUNKNOWN                    AbortReason = "UNKNOWN"
+	AbortReasonUSER_INTERRUPTED           AbortReason = "USER_INTERRUPTED"
+	AbortReasonNO_ANALYZE                 AbortReason = "NO_ANALYZE"
+	AbortReasonNO_BUILD                   AbortReason = "NO_BUILD"
+	AbortReasonTIME_OUT                   AbortReason = "TIME_OUT"
+	AbortReasonREMOTE_ENVIRONMENT_FAILURE AbortReason = "REMOTE_ENVIRONMENT_FAILURE"
+	AbortReasonINTERNAL                   AbortReason = "INTERNAL"
+	AbortReasonLOADING_FAILURE            AbortReason = "LOADING_FAILURE"
+	AbortReasonANALYSIS_FAILURE           AbortReason = "ANALYSIS_FAILURE"
+	AbortReasonSKIPPED                    AbortReason = "SKIPPED"
+	AbortReasonINCOMPLETE                 AbortReason = "INCOMPLETE"
+	AbortReasonOUT_OF_MEMORY              AbortReason = "OUT_OF_MEMORY"
+)
+
+func (ar AbortReason) String() string {
+	return string(ar)
+}
+
+// AbortReasonValidator is a validator for the "abort_reason" field enum values. It is called by the builders before save.
+func AbortReasonValidator(ar AbortReason) error {
+	switch ar {
+	case AbortReasonUNKNOWN, AbortReasonUSER_INTERRUPTED, AbortReasonNO_ANALYZE, AbortReasonNO_BUILD, AbortReasonTIME_OUT, AbortReasonREMOTE_ENVIRONMENT_FAILURE, AbortReasonINTERNAL, AbortReasonLOADING_FAILURE, AbortReasonANALYSIS_FAILURE, AbortReasonSKIPPED, AbortReasonINCOMPLETE, AbortReasonOUT_OF_MEMORY:
+		return nil
+	default:
+		return fmt.Errorf("targetpair: invalid enum value for abort_reason field: %q", ar)
+	}
+}
+
 // OrderOption defines the ordering options for the TargetPair queries.
 type OrderOption func(*sql.Selector)
 
@@ -158,6 +194,11 @@ func ByTargetKind(opts ...sql.OrderTermOption) OrderOption {
 // ByTestSize orders the results by the test_size field.
 func ByTestSize(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldTestSize, opts...).ToFunc()
+}
+
+// ByAbortReason orders the results by the abort_reason field.
+func ByAbortReason(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldAbortReason, opts...).ToFunc()
 }
 
 // ByBazelInvocationCount orders the results by bazel_invocation count.
@@ -223,6 +264,24 @@ func (e *TestSize) UnmarshalGQL(val interface{}) error {
 	*e = TestSize(str)
 	if err := TestSizeValidator(*e); err != nil {
 		return fmt.Errorf("%s is not a valid TestSize", str)
+	}
+	return nil
+}
+
+// MarshalGQL implements graphql.Marshaler interface.
+func (e AbortReason) MarshalGQL(w io.Writer) {
+	io.WriteString(w, strconv.Quote(e.String()))
+}
+
+// UnmarshalGQL implements graphql.Unmarshaler interface.
+func (e *AbortReason) UnmarshalGQL(val interface{}) error {
+	str, ok := val.(string)
+	if !ok {
+		return fmt.Errorf("enum %T must be a string", val)
+	}
+	*e = AbortReason(str)
+	if err := AbortReasonValidator(*e); err != nil {
+		return fmt.Errorf("%s is not a valid AbortReason", str)
 	}
 	return nil
 }

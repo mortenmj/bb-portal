@@ -36,6 +36,14 @@ const (
 	FieldUserLdap = "user_ldap"
 	// FieldBuildLogs holds the string denoting the build_logs field in the database.
 	FieldBuildLogs = "build_logs"
+	// FieldCPU holds the string denoting the cpu field in the database.
+	FieldCPU = "cpu"
+	// FieldPlatformName holds the string denoting the platform_name field in the database.
+	FieldPlatformName = "platform_name"
+	// FieldConfigurationMnemonic holds the string denoting the configuration_mnemonic field in the database.
+	FieldConfigurationMnemonic = "configuration_mnemonic"
+	// FieldNumFetches holds the string denoting the num_fetches field in the database.
+	FieldNumFetches = "num_fetches"
 	// EdgeEventFile holds the string denoting the event_file edge name in mutations.
 	EdgeEventFile = "event_file"
 	// EdgeBuild holds the string denoting the build edge name in mutations.
@@ -105,6 +113,10 @@ var Columns = []string{
 	FieldUserEmail,
 	FieldUserLdap,
 	FieldBuildLogs,
+	FieldCPU,
+	FieldPlatformName,
+	FieldConfigurationMnemonic,
+	FieldNumFetches,
 }
 
 // ForeignKeys holds the SQL foreign-keys that are owned by the "bazel_invocations"
@@ -194,6 +206,26 @@ func ByUserLdap(opts ...sql.OrderTermOption) OrderOption {
 // ByBuildLogs orders the results by the build_logs field.
 func ByBuildLogs(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldBuildLogs, opts...).ToFunc()
+}
+
+// ByCPU orders the results by the cpu field.
+func ByCPU(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCPU, opts...).ToFunc()
+}
+
+// ByPlatformName orders the results by the platform_name field.
+func ByPlatformName(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPlatformName, opts...).ToFunc()
+}
+
+// ByConfigurationMnemonic orders the results by the configuration_mnemonic field.
+func ByConfigurationMnemonic(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldConfigurationMnemonic, opts...).ToFunc()
+}
+
+// ByNumFetches orders the results by the num_fetches field.
+func ByNumFetches(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldNumFetches, opts...).ToFunc()
 }
 
 // ByEventFileField orders the results by event_file field.

@@ -109,26 +109,69 @@ func (r TestSize) String() string {
 	}[r]
 }
 
+// ABORT REASON ENUM
+type AbortReason int32
+
+// set the order explictly
+const (
+	Aborted_UNKNOWN                    AbortReason = 0
+	Aborted_USER_INTERRUPTED           AbortReason = 1
+	Aborted_TIME_OUT                   AbortReason = 2
+	Aborted_REMOTE_ENVIRONMENT_FAILURE AbortReason = 3
+	Aborted_INTERNAL                   AbortReason = 4
+	Aborted_LOADING_FAILURE            AbortReason = 5
+	Aborted_ANALYSIS_FAILURE           AbortReason = 6
+	Aborted_SKIPPED                    AbortReason = 7
+	Aborted_NO_ANALYZE                 AbortReason = 8
+	Aborted_NO_BUILD                   AbortReason = 9
+	Aborted_INCOMPLETE                 AbortReason = 10
+	Aborted_OUT_OF_MEMORY              AbortReason = 11
+)
+
+func (r AbortReason) EnumIndex() int32 {
+	return int32(r)
+}
+func (r AbortReason) String() string {
+	return [...]string{
+		"UNKNOWN",
+		"USER_INTERRUPTED",
+		"TIME_OUT",
+		"REMOTE_ENVIRONMENT_FAILURE",
+		"INTERNAL",
+		"LOADING_FAILURE",
+		"ANALYSIS_FAILURE",
+		"SKIPPED",
+		"NO_ANALYZE",
+		"NO_BUILD",
+		"INCOMPLETE",
+		"OUT_OF_MEMORY",
+	}[r]
+}
+
 type Summary struct {
 	*InvocationSummary
-	Problems       []detectors.Problem
-	RelatedFiles   map[string]string
-	EventFileURL   string
-	BEPCompleted   bool
-	StartedAt      time.Time
-	InvocationID   string
-	StepLabel      string
-	EndedAt        *time.Time
-	ChangeNumber   int
-	PatchsetNumber int
-	BuildURL       string
-	BuildUUID      uuid.UUID
-	UserLDAP       string
-	UserEmail      string
-	BuildLogs      strings.Builder
-	Metrics        Metrics
-	Tests          map[string]TestsCollection
-	Targets        map[string]TargetPair
+	Problems             []detectors.Problem
+	RelatedFiles         map[string]string
+	EventFileURL         string
+	BEPCompleted         bool
+	StartedAt            time.Time
+	InvocationID         string
+	StepLabel            string
+	EndedAt              *time.Time
+	ChangeNumber         int
+	PatchsetNumber       int
+	BuildURL             string
+	BuildUUID            uuid.UUID
+	UserLDAP             string
+	UserEmail            string
+	BuildLogs            strings.Builder
+	Metrics              Metrics
+	Tests                map[string]TestsCollection
+	Targets              map[string]TargetPair
+	NumFetches           int64
+	CPU                  string
+	PlatformName         string
+	ConfigrationMnemonic string
 }
 
 type Metrics struct {
@@ -431,4 +474,5 @@ type TargetPair struct {
 	Success       bool
 	TargetKind    string
 	TestSize      TestSize
+	AbortReason   AbortReason
 }

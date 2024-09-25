@@ -156,6 +156,62 @@ func (bic *BazelInvocationCreate) SetNillableBuildLogs(s *string) *BazelInvocati
 	return bic
 }
 
+// SetCPU sets the "cpu" field.
+func (bic *BazelInvocationCreate) SetCPU(s string) *BazelInvocationCreate {
+	bic.mutation.SetCPU(s)
+	return bic
+}
+
+// SetNillableCPU sets the "cpu" field if the given value is not nil.
+func (bic *BazelInvocationCreate) SetNillableCPU(s *string) *BazelInvocationCreate {
+	if s != nil {
+		bic.SetCPU(*s)
+	}
+	return bic
+}
+
+// SetPlatformName sets the "platform_name" field.
+func (bic *BazelInvocationCreate) SetPlatformName(s string) *BazelInvocationCreate {
+	bic.mutation.SetPlatformName(s)
+	return bic
+}
+
+// SetNillablePlatformName sets the "platform_name" field if the given value is not nil.
+func (bic *BazelInvocationCreate) SetNillablePlatformName(s *string) *BazelInvocationCreate {
+	if s != nil {
+		bic.SetPlatformName(*s)
+	}
+	return bic
+}
+
+// SetConfigurationMnemonic sets the "configuration_mnemonic" field.
+func (bic *BazelInvocationCreate) SetConfigurationMnemonic(s string) *BazelInvocationCreate {
+	bic.mutation.SetConfigurationMnemonic(s)
+	return bic
+}
+
+// SetNillableConfigurationMnemonic sets the "configuration_mnemonic" field if the given value is not nil.
+func (bic *BazelInvocationCreate) SetNillableConfigurationMnemonic(s *string) *BazelInvocationCreate {
+	if s != nil {
+		bic.SetConfigurationMnemonic(*s)
+	}
+	return bic
+}
+
+// SetNumFetches sets the "num_fetches" field.
+func (bic *BazelInvocationCreate) SetNumFetches(i int64) *BazelInvocationCreate {
+	bic.mutation.SetNumFetches(i)
+	return bic
+}
+
+// SetNillableNumFetches sets the "num_fetches" field if the given value is not nil.
+func (bic *BazelInvocationCreate) SetNillableNumFetches(i *int64) *BazelInvocationCreate {
+	if i != nil {
+		bic.SetNumFetches(*i)
+	}
+	return bic
+}
+
 // SetEventFileID sets the "event_file" edge to the EventFile entity by ID.
 func (bic *BazelInvocationCreate) SetEventFileID(id int) *BazelInvocationCreate {
 	bic.mutation.SetEventFileID(id)
@@ -375,6 +431,22 @@ func (bic *BazelInvocationCreate) createSpec() (*BazelInvocation, *sqlgraph.Crea
 	if value, ok := bic.mutation.BuildLogs(); ok {
 		_spec.SetField(bazelinvocation.FieldBuildLogs, field.TypeString, value)
 		_node.BuildLogs = value
+	}
+	if value, ok := bic.mutation.CPU(); ok {
+		_spec.SetField(bazelinvocation.FieldCPU, field.TypeString, value)
+		_node.CPU = value
+	}
+	if value, ok := bic.mutation.PlatformName(); ok {
+		_spec.SetField(bazelinvocation.FieldPlatformName, field.TypeString, value)
+		_node.PlatformName = value
+	}
+	if value, ok := bic.mutation.ConfigurationMnemonic(); ok {
+		_spec.SetField(bazelinvocation.FieldConfigurationMnemonic, field.TypeString, value)
+		_node.ConfigurationMnemonic = value
+	}
+	if value, ok := bic.mutation.NumFetches(); ok {
+		_spec.SetField(bazelinvocation.FieldNumFetches, field.TypeInt64, value)
+		_node.NumFetches = value
 	}
 	if nodes := bic.mutation.EventFileIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

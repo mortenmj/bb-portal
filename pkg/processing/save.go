@@ -145,11 +145,14 @@ func (act SaveActor) saveBazelInvocation(
 		SetBepCompleted(summary.BEPCompleted).
 		SetStepLabel(summary.StepLabel).
 		SetUserEmail(summary.UserEmail).
+		SetCPU(summary.CPU).
+		SetConfigurationMnemonic(summary.ConfigrationMnemonic).
+		SetPlatformName(summary.PlatformName).
+		SetNumFetches(summary.NumFetches).
 		SetBuildLogs(summary.BuildLogs.String()).
 		SetUserLdap(summary.UserLDAP).
 		SetRelatedFiles(summary.RelatedFiles).
 		SetEventFile(eventFile).
-		//metrics
 		SetMetrics(metrics).
 		AddTestCollection(tests...).
 		AddTargets(targets...)
@@ -295,6 +298,7 @@ func (act SaveActor) createTargets(ctx context.Context, summary *summary.Summary
 		//process the target pair
 		slog.Debug("processing target pair for label %s on invocation %s", targetLabel, summary.InvocationID)
 		var target_pair *ent.TargetPair
+
 		target_pair, err = act.db.TargetPair.Create().
 			SetCompletion(target_completion).
 			SetConfiguration(target_configuration).
@@ -308,8 +312,20 @@ func (act SaveActor) createTargets(ctx context.Context, summary *summary.Summary
 			slog.Error("problem saving target pair object: %w", err)
 			err = nil
 		}
+		if !targetPair.Success {
+			var ab_reason targetpair.AbortReason = targetpair.AbortReason(targetPair.AbortReason.String())
+			update, err := act.db.TargetPair.UpdateOneID(target_pair.ID).
+				SetAbortReason(ab_reason).
+				Save(ctx)
+			if err != nil {
+				slog.Error("problem updating abort reason object: %w", err)
+				err = nil
+			}
+			result = append(result, update)
+		} else {
+			result = append(result, target_pair)
+		}
 
-		result = append(result, target_pair)
 	}
 
 	if err != nil {

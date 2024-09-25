@@ -17,7 +17,8 @@ interface TargetDataType {
     value: number;  //duration
     target_kind: string;
     test_size: string;
-
+    failure_reason: string
+    test_found: boolean;
 }
 
 const formatter: StatisticProps['formatter'] = (value) => (
@@ -27,10 +28,12 @@ const formatter: StatisticProps['formatter'] = (value) => (
 
 const TargetMetricsDisplay: React.FC<{
     targetMetrics: TargetMetrics | undefined | null,
-    targetData: TargetPair[] | undefined | null
+    targetData: TargetPair[] | undefined | null,
+    testLabels: Map<string, boolean>
 }> = ({
     targetMetrics,
-    targetData
+    targetData,
+    testLabels,
 }) => {
 
         var target_data: TargetDataType[] = []
@@ -39,6 +42,10 @@ const TargetMetricsDisplay: React.FC<{
         targetData?.map(x => {
             count++;
             var targetKind = x.targetKind ?? ""
+            var failureReason = x.abortReason ?? ""
+
+            var targetLabel: string = x.label ?? "EMPTY12345"
+
             var row: TargetDataType = {
                 key: "target_data_type" + count.toString(),
                 name: x.label ?? "",
@@ -46,9 +53,12 @@ const TargetMetricsDisplay: React.FC<{
                 value: x.durationInMs ?? 0,
                 target_kind: targetKind,
                 test_size: x.testSize ?? "",
+                failure_reason: failureReason,
+                test_found: testLabels.has(targetLabel)
             }
             all_types.push(targetKind)
             target_data.push(row)
+
         })
 
         const targets_analyzed: number = targetData?.length ?? 0
@@ -81,6 +91,30 @@ const TargetMetricsDisplay: React.FC<{
                 onFilter: (value, record) => (record.target_kind.includes(value.toString()) ? true : false),
                 sorter: (a, b) => a.target_kind.localeCompare(b.target_kind),
 
+            },
+            {
+                title: "Failure Reason",
+                dataIndex: "failure_reason",
+                sorter: (a, b) => a.failure_reason.localeCompare(b.failure_reason),
+
+            },
+            {
+                title: "Test Found",
+                dataIndex: "test_found",
+                render: (x) => <NullBooleanTag key="test_found" status={x as boolean | null} />,
+                sorter: (a, b) => Number(a.test_found) - Number(b.test_found),
+                filters: [
+                    {
+                        text: "Yes",
+                        value: true
+                    },
+                    {
+                        text: "No",
+                        value: false
+                    }
+                ],
+                filterIcon: filtered => <SearchFilterIcon icon={<SearchOutlined />} filtered={filtered} />,
+                onFilter: (value, record) => record.test_found == value,
             },
             {
                 title: "Test Size",

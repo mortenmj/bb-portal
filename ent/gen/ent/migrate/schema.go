@@ -88,6 +88,10 @@ var (
 		{Name: "user_email", Type: field.TypeString, Nullable: true},
 		{Name: "user_ldap", Type: field.TypeString, Nullable: true},
 		{Name: "build_logs", Type: field.TypeString, Nullable: true},
+		{Name: "cpu", Type: field.TypeString, Nullable: true},
+		{Name: "platform_name", Type: field.TypeString, Nullable: true},
+		{Name: "configuration_mnemonic", Type: field.TypeString, Nullable: true},
+		{Name: "num_fetches", Type: field.TypeInt64, Nullable: true},
 		{Name: "build_invocations", Type: field.TypeInt, Nullable: true},
 		{Name: "event_file_bazel_invocation", Type: field.TypeInt, Unique: true},
 	}
@@ -99,13 +103,13 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "bazel_invocations_builds_invocations",
-				Columns:    []*schema.Column{BazelInvocationsColumns[13]},
+				Columns:    []*schema.Column{BazelInvocationsColumns[17]},
 				RefColumns: []*schema.Column{BuildsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "bazel_invocations_event_files_bazel_invocation",
-				Columns:    []*schema.Column{BazelInvocationsColumns[14]},
+				Columns:    []*schema.Column{BazelInvocationsColumns[18]},
 				RefColumns: []*schema.Column{EventFilesColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -599,6 +603,7 @@ var (
 		{Name: "success", Type: field.TypeBool, Nullable: true, Default: false},
 		{Name: "target_kind", Type: field.TypeString, Nullable: true},
 		{Name: "test_size", Type: field.TypeEnum, Nullable: true, Enums: []string{"UNKNOWN", "SMALL", "MEDIUM", "LARGE", "ENORMOUS"}, Default: "UNKNOWN"},
+		{Name: "abort_reason", Type: field.TypeEnum, Nullable: true, Enums: []string{"UNKNOWN", "USER_INTERRUPTED", "NO_ANALYZE", "NO_BUILD", "TIME_OUT", "REMOTE_ENVIRONMENT_FAILURE", "INTERNAL", "LOADING_FAILURE", "ANALYSIS_FAILURE", "SKIPPED", "INCOMPLETE", "OUT_OF_MEMORY"}},
 		{Name: "target_pair_configuration", Type: field.TypeInt, Nullable: true},
 		{Name: "target_pair_completion", Type: field.TypeInt, Nullable: true},
 	}
@@ -610,13 +615,13 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "target_pairs_target_configureds_configuration",
-				Columns:    []*schema.Column{TargetPairsColumns[6]},
+				Columns:    []*schema.Column{TargetPairsColumns[7]},
 				RefColumns: []*schema.Column{TargetConfiguredsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "target_pairs_target_completes_completion",
-				Columns:    []*schema.Column{TargetPairsColumns[7]},
+				Columns:    []*schema.Column{TargetPairsColumns[8]},
 				RefColumns: []*schema.Column{TargetCompletesColumns[0]},
 				OnDelete:   schema.SetNull,
 			},

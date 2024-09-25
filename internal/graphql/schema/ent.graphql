@@ -405,6 +405,10 @@ type BazelInvocation implements Node {
   userEmail: String
   userLdap: String
   buildLogs: String
+  cpu: String
+  platformName: String
+  configurationMnemonic: String
+  numFetches: Int
   eventFile: EventFile!
   build: Build
   metrics: Metrics
@@ -661,6 +665,73 @@ input BazelInvocationWhereInput {
   buildLogsNotNil: Boolean
   buildLogsEqualFold: String
   buildLogsContainsFold: String
+  """
+  cpu field predicates
+  """
+  cpu: String
+  cpuNEQ: String
+  cpuIn: [String!]
+  cpuNotIn: [String!]
+  cpuGT: String
+  cpuGTE: String
+  cpuLT: String
+  cpuLTE: String
+  cpuContains: String
+  cpuHasPrefix: String
+  cpuHasSuffix: String
+  cpuIsNil: Boolean
+  cpuNotNil: Boolean
+  cpuEqualFold: String
+  cpuContainsFold: String
+  """
+  platform_name field predicates
+  """
+  platformName: String
+  platformNameNEQ: String
+  platformNameIn: [String!]
+  platformNameNotIn: [String!]
+  platformNameGT: String
+  platformNameGTE: String
+  platformNameLT: String
+  platformNameLTE: String
+  platformNameContains: String
+  platformNameHasPrefix: String
+  platformNameHasSuffix: String
+  platformNameIsNil: Boolean
+  platformNameNotNil: Boolean
+  platformNameEqualFold: String
+  platformNameContainsFold: String
+  """
+  configuration_mnemonic field predicates
+  """
+  configurationMnemonic: String
+  configurationMnemonicNEQ: String
+  configurationMnemonicIn: [String!]
+  configurationMnemonicNotIn: [String!]
+  configurationMnemonicGT: String
+  configurationMnemonicGTE: String
+  configurationMnemonicLT: String
+  configurationMnemonicLTE: String
+  configurationMnemonicContains: String
+  configurationMnemonicHasPrefix: String
+  configurationMnemonicHasSuffix: String
+  configurationMnemonicIsNil: Boolean
+  configurationMnemonicNotNil: Boolean
+  configurationMnemonicEqualFold: String
+  configurationMnemonicContainsFold: String
+  """
+  num_fetches field predicates
+  """
+  numFetches: Int
+  numFetchesNEQ: Int
+  numFetchesIn: [Int!]
+  numFetchesNotIn: [Int!]
+  numFetchesGT: Int
+  numFetchesGTE: Int
+  numFetchesLT: Int
+  numFetchesLTE: Int
+  numFetchesIsNil: Boolean
+  numFetchesNotNil: Boolean
   """
   event_file edge predicates
   """
@@ -3052,9 +3123,27 @@ type TargetPair implements Node {
   success: Boolean
   targetKind: String
   testSize: TargetPairTestSize
+  abortReason: TargetPairAbortReason
   bazelInvocation: [BazelInvocation!]
   configuration: TargetConfigured
   completion: TargetComplete
+}
+"""
+TargetPairAbortReason is enum for the field abort_reason
+"""
+enum TargetPairAbortReason @goModel(model: "github.com/buildbarn/bb-portal/ent/gen/ent/targetpair.AbortReason") {
+  UNKNOWN
+  USER_INTERRUPTED
+  NO_ANALYZE
+  NO_BUILD
+  TIME_OUT
+  REMOTE_ENVIRONMENT_FAILURE
+  INTERNAL
+  LOADING_FAILURE
+  ANALYSIS_FAILURE
+  SKIPPED
+  INCOMPLETE
+  OUT_OF_MEMORY
 }
 """
 TargetPairTestSize is enum for the field test_size
@@ -3150,6 +3239,15 @@ input TargetPairWhereInput {
   testSizeNotIn: [TargetPairTestSize!]
   testSizeIsNil: Boolean
   testSizeNotNil: Boolean
+  """
+  abort_reason field predicates
+  """
+  abortReason: TargetPairAbortReason
+  abortReasonNEQ: TargetPairAbortReason
+  abortReasonIn: [TargetPairAbortReason!]
+  abortReasonNotIn: [TargetPairAbortReason!]
+  abortReasonIsNil: Boolean
+  abortReasonNotNil: Boolean
   """
   bazel_invocation edge predicates
   """

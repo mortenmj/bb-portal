@@ -318,6 +318,36 @@ func TestSizeNotNil() predicate.TargetPair {
 	return predicate.TargetPair(sql.FieldNotNull(FieldTestSize))
 }
 
+// AbortReasonEQ applies the EQ predicate on the "abort_reason" field.
+func AbortReasonEQ(v AbortReason) predicate.TargetPair {
+	return predicate.TargetPair(sql.FieldEQ(FieldAbortReason, v))
+}
+
+// AbortReasonNEQ applies the NEQ predicate on the "abort_reason" field.
+func AbortReasonNEQ(v AbortReason) predicate.TargetPair {
+	return predicate.TargetPair(sql.FieldNEQ(FieldAbortReason, v))
+}
+
+// AbortReasonIn applies the In predicate on the "abort_reason" field.
+func AbortReasonIn(vs ...AbortReason) predicate.TargetPair {
+	return predicate.TargetPair(sql.FieldIn(FieldAbortReason, vs...))
+}
+
+// AbortReasonNotIn applies the NotIn predicate on the "abort_reason" field.
+func AbortReasonNotIn(vs ...AbortReason) predicate.TargetPair {
+	return predicate.TargetPair(sql.FieldNotIn(FieldAbortReason, vs...))
+}
+
+// AbortReasonIsNil applies the IsNil predicate on the "abort_reason" field.
+func AbortReasonIsNil() predicate.TargetPair {
+	return predicate.TargetPair(sql.FieldIsNull(FieldAbortReason))
+}
+
+// AbortReasonNotNil applies the NotNil predicate on the "abort_reason" field.
+func AbortReasonNotNil() predicate.TargetPair {
+	return predicate.TargetPair(sql.FieldNotNull(FieldAbortReason))
+}
+
 // HasBazelInvocation applies the HasEdge predicate on the "bazel_invocation" edge.
 func HasBazelInvocation() predicate.TargetPair {
 	return predicate.TargetPair(func(s *sql.Selector) {

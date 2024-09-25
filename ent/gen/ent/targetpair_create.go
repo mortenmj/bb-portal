@@ -91,6 +91,20 @@ func (tpc *TargetPairCreate) SetNillableTestSize(ts *targetpair.TestSize) *Targe
 	return tpc
 }
 
+// SetAbortReason sets the "abort_reason" field.
+func (tpc *TargetPairCreate) SetAbortReason(tr targetpair.AbortReason) *TargetPairCreate {
+	tpc.mutation.SetAbortReason(tr)
+	return tpc
+}
+
+// SetNillableAbortReason sets the "abort_reason" field if the given value is not nil.
+func (tpc *TargetPairCreate) SetNillableAbortReason(tr *targetpair.AbortReason) *TargetPairCreate {
+	if tr != nil {
+		tpc.SetAbortReason(*tr)
+	}
+	return tpc
+}
+
 // AddBazelInvocationIDs adds the "bazel_invocation" edge to the BazelInvocation entity by IDs.
 func (tpc *TargetPairCreate) AddBazelInvocationIDs(ids ...int) *TargetPairCreate {
 	tpc.mutation.AddBazelInvocationIDs(ids...)
@@ -196,6 +210,11 @@ func (tpc *TargetPairCreate) check() error {
 			return &ValidationError{Name: "test_size", err: fmt.Errorf(`ent: validator failed for field "TargetPair.test_size": %w`, err)}
 		}
 	}
+	if v, ok := tpc.mutation.AbortReason(); ok {
+		if err := targetpair.AbortReasonValidator(v); err != nil {
+			return &ValidationError{Name: "abort_reason", err: fmt.Errorf(`ent: validator failed for field "TargetPair.abort_reason": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -241,6 +260,10 @@ func (tpc *TargetPairCreate) createSpec() (*TargetPair, *sqlgraph.CreateSpec) {
 	if value, ok := tpc.mutation.TestSize(); ok {
 		_spec.SetField(targetpair.FieldTestSize, field.TypeEnum, value)
 		_node.TestSize = value
+	}
+	if value, ok := tpc.mutation.AbortReason(); ok {
+		_spec.SetField(targetpair.FieldAbortReason, field.TypeEnum, value)
+		_node.AbortReason = value
 	}
 	if nodes := tpc.mutation.BazelInvocationIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

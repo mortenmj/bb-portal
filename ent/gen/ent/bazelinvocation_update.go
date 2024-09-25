@@ -237,6 +237,93 @@ func (biu *BazelInvocationUpdate) ClearBuildLogs() *BazelInvocationUpdate {
 	return biu
 }
 
+// SetCPU sets the "cpu" field.
+func (biu *BazelInvocationUpdate) SetCPU(s string) *BazelInvocationUpdate {
+	biu.mutation.SetCPU(s)
+	return biu
+}
+
+// SetNillableCPU sets the "cpu" field if the given value is not nil.
+func (biu *BazelInvocationUpdate) SetNillableCPU(s *string) *BazelInvocationUpdate {
+	if s != nil {
+		biu.SetCPU(*s)
+	}
+	return biu
+}
+
+// ClearCPU clears the value of the "cpu" field.
+func (biu *BazelInvocationUpdate) ClearCPU() *BazelInvocationUpdate {
+	biu.mutation.ClearCPU()
+	return biu
+}
+
+// SetPlatformName sets the "platform_name" field.
+func (biu *BazelInvocationUpdate) SetPlatformName(s string) *BazelInvocationUpdate {
+	biu.mutation.SetPlatformName(s)
+	return biu
+}
+
+// SetNillablePlatformName sets the "platform_name" field if the given value is not nil.
+func (biu *BazelInvocationUpdate) SetNillablePlatformName(s *string) *BazelInvocationUpdate {
+	if s != nil {
+		biu.SetPlatformName(*s)
+	}
+	return biu
+}
+
+// ClearPlatformName clears the value of the "platform_name" field.
+func (biu *BazelInvocationUpdate) ClearPlatformName() *BazelInvocationUpdate {
+	biu.mutation.ClearPlatformName()
+	return biu
+}
+
+// SetConfigurationMnemonic sets the "configuration_mnemonic" field.
+func (biu *BazelInvocationUpdate) SetConfigurationMnemonic(s string) *BazelInvocationUpdate {
+	biu.mutation.SetConfigurationMnemonic(s)
+	return biu
+}
+
+// SetNillableConfigurationMnemonic sets the "configuration_mnemonic" field if the given value is not nil.
+func (biu *BazelInvocationUpdate) SetNillableConfigurationMnemonic(s *string) *BazelInvocationUpdate {
+	if s != nil {
+		biu.SetConfigurationMnemonic(*s)
+	}
+	return biu
+}
+
+// ClearConfigurationMnemonic clears the value of the "configuration_mnemonic" field.
+func (biu *BazelInvocationUpdate) ClearConfigurationMnemonic() *BazelInvocationUpdate {
+	biu.mutation.ClearConfigurationMnemonic()
+	return biu
+}
+
+// SetNumFetches sets the "num_fetches" field.
+func (biu *BazelInvocationUpdate) SetNumFetches(i int64) *BazelInvocationUpdate {
+	biu.mutation.ResetNumFetches()
+	biu.mutation.SetNumFetches(i)
+	return biu
+}
+
+// SetNillableNumFetches sets the "num_fetches" field if the given value is not nil.
+func (biu *BazelInvocationUpdate) SetNillableNumFetches(i *int64) *BazelInvocationUpdate {
+	if i != nil {
+		biu.SetNumFetches(*i)
+	}
+	return biu
+}
+
+// AddNumFetches adds i to the "num_fetches" field.
+func (biu *BazelInvocationUpdate) AddNumFetches(i int64) *BazelInvocationUpdate {
+	biu.mutation.AddNumFetches(i)
+	return biu
+}
+
+// ClearNumFetches clears the value of the "num_fetches" field.
+func (biu *BazelInvocationUpdate) ClearNumFetches() *BazelInvocationUpdate {
+	biu.mutation.ClearNumFetches()
+	return biu
+}
+
 // SetEventFileID sets the "event_file" edge to the EventFile entity by ID.
 func (biu *BazelInvocationUpdate) SetEventFileID(id int) *BazelInvocationUpdate {
 	biu.mutation.SetEventFileID(id)
@@ -523,6 +610,33 @@ func (biu *BazelInvocationUpdate) sqlSave(ctx context.Context) (n int, err error
 	}
 	if biu.mutation.BuildLogsCleared() {
 		_spec.ClearField(bazelinvocation.FieldBuildLogs, field.TypeString)
+	}
+	if value, ok := biu.mutation.CPU(); ok {
+		_spec.SetField(bazelinvocation.FieldCPU, field.TypeString, value)
+	}
+	if biu.mutation.CPUCleared() {
+		_spec.ClearField(bazelinvocation.FieldCPU, field.TypeString)
+	}
+	if value, ok := biu.mutation.PlatformName(); ok {
+		_spec.SetField(bazelinvocation.FieldPlatformName, field.TypeString, value)
+	}
+	if biu.mutation.PlatformNameCleared() {
+		_spec.ClearField(bazelinvocation.FieldPlatformName, field.TypeString)
+	}
+	if value, ok := biu.mutation.ConfigurationMnemonic(); ok {
+		_spec.SetField(bazelinvocation.FieldConfigurationMnemonic, field.TypeString, value)
+	}
+	if biu.mutation.ConfigurationMnemonicCleared() {
+		_spec.ClearField(bazelinvocation.FieldConfigurationMnemonic, field.TypeString)
+	}
+	if value, ok := biu.mutation.NumFetches(); ok {
+		_spec.SetField(bazelinvocation.FieldNumFetches, field.TypeInt64, value)
+	}
+	if value, ok := biu.mutation.AddedNumFetches(); ok {
+		_spec.AddField(bazelinvocation.FieldNumFetches, field.TypeInt64, value)
+	}
+	if biu.mutation.NumFetchesCleared() {
+		_spec.ClearField(bazelinvocation.FieldNumFetches, field.TypeInt64)
 	}
 	if biu.mutation.EventFileCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -968,6 +1082,93 @@ func (biuo *BazelInvocationUpdateOne) ClearBuildLogs() *BazelInvocationUpdateOne
 	return biuo
 }
 
+// SetCPU sets the "cpu" field.
+func (biuo *BazelInvocationUpdateOne) SetCPU(s string) *BazelInvocationUpdateOne {
+	biuo.mutation.SetCPU(s)
+	return biuo
+}
+
+// SetNillableCPU sets the "cpu" field if the given value is not nil.
+func (biuo *BazelInvocationUpdateOne) SetNillableCPU(s *string) *BazelInvocationUpdateOne {
+	if s != nil {
+		biuo.SetCPU(*s)
+	}
+	return biuo
+}
+
+// ClearCPU clears the value of the "cpu" field.
+func (biuo *BazelInvocationUpdateOne) ClearCPU() *BazelInvocationUpdateOne {
+	biuo.mutation.ClearCPU()
+	return biuo
+}
+
+// SetPlatformName sets the "platform_name" field.
+func (biuo *BazelInvocationUpdateOne) SetPlatformName(s string) *BazelInvocationUpdateOne {
+	biuo.mutation.SetPlatformName(s)
+	return biuo
+}
+
+// SetNillablePlatformName sets the "platform_name" field if the given value is not nil.
+func (biuo *BazelInvocationUpdateOne) SetNillablePlatformName(s *string) *BazelInvocationUpdateOne {
+	if s != nil {
+		biuo.SetPlatformName(*s)
+	}
+	return biuo
+}
+
+// ClearPlatformName clears the value of the "platform_name" field.
+func (biuo *BazelInvocationUpdateOne) ClearPlatformName() *BazelInvocationUpdateOne {
+	biuo.mutation.ClearPlatformName()
+	return biuo
+}
+
+// SetConfigurationMnemonic sets the "configuration_mnemonic" field.
+func (biuo *BazelInvocationUpdateOne) SetConfigurationMnemonic(s string) *BazelInvocationUpdateOne {
+	biuo.mutation.SetConfigurationMnemonic(s)
+	return biuo
+}
+
+// SetNillableConfigurationMnemonic sets the "configuration_mnemonic" field if the given value is not nil.
+func (biuo *BazelInvocationUpdateOne) SetNillableConfigurationMnemonic(s *string) *BazelInvocationUpdateOne {
+	if s != nil {
+		biuo.SetConfigurationMnemonic(*s)
+	}
+	return biuo
+}
+
+// ClearConfigurationMnemonic clears the value of the "configuration_mnemonic" field.
+func (biuo *BazelInvocationUpdateOne) ClearConfigurationMnemonic() *BazelInvocationUpdateOne {
+	biuo.mutation.ClearConfigurationMnemonic()
+	return biuo
+}
+
+// SetNumFetches sets the "num_fetches" field.
+func (biuo *BazelInvocationUpdateOne) SetNumFetches(i int64) *BazelInvocationUpdateOne {
+	biuo.mutation.ResetNumFetches()
+	biuo.mutation.SetNumFetches(i)
+	return biuo
+}
+
+// SetNillableNumFetches sets the "num_fetches" field if the given value is not nil.
+func (biuo *BazelInvocationUpdateOne) SetNillableNumFetches(i *int64) *BazelInvocationUpdateOne {
+	if i != nil {
+		biuo.SetNumFetches(*i)
+	}
+	return biuo
+}
+
+// AddNumFetches adds i to the "num_fetches" field.
+func (biuo *BazelInvocationUpdateOne) AddNumFetches(i int64) *BazelInvocationUpdateOne {
+	biuo.mutation.AddNumFetches(i)
+	return biuo
+}
+
+// ClearNumFetches clears the value of the "num_fetches" field.
+func (biuo *BazelInvocationUpdateOne) ClearNumFetches() *BazelInvocationUpdateOne {
+	biuo.mutation.ClearNumFetches()
+	return biuo
+}
+
 // SetEventFileID sets the "event_file" edge to the EventFile entity by ID.
 func (biuo *BazelInvocationUpdateOne) SetEventFileID(id int) *BazelInvocationUpdateOne {
 	biuo.mutation.SetEventFileID(id)
@@ -1284,6 +1485,33 @@ func (biuo *BazelInvocationUpdateOne) sqlSave(ctx context.Context) (_node *Bazel
 	}
 	if biuo.mutation.BuildLogsCleared() {
 		_spec.ClearField(bazelinvocation.FieldBuildLogs, field.TypeString)
+	}
+	if value, ok := biuo.mutation.CPU(); ok {
+		_spec.SetField(bazelinvocation.FieldCPU, field.TypeString, value)
+	}
+	if biuo.mutation.CPUCleared() {
+		_spec.ClearField(bazelinvocation.FieldCPU, field.TypeString)
+	}
+	if value, ok := biuo.mutation.PlatformName(); ok {
+		_spec.SetField(bazelinvocation.FieldPlatformName, field.TypeString, value)
+	}
+	if biuo.mutation.PlatformNameCleared() {
+		_spec.ClearField(bazelinvocation.FieldPlatformName, field.TypeString)
+	}
+	if value, ok := biuo.mutation.ConfigurationMnemonic(); ok {
+		_spec.SetField(bazelinvocation.FieldConfigurationMnemonic, field.TypeString, value)
+	}
+	if biuo.mutation.ConfigurationMnemonicCleared() {
+		_spec.ClearField(bazelinvocation.FieldConfigurationMnemonic, field.TypeString)
+	}
+	if value, ok := biuo.mutation.NumFetches(); ok {
+		_spec.SetField(bazelinvocation.FieldNumFetches, field.TypeInt64, value)
+	}
+	if value, ok := biuo.mutation.AddedNumFetches(); ok {
+		_spec.AddField(bazelinvocation.FieldNumFetches, field.TypeInt64, value)
+	}
+	if biuo.mutation.NumFetchesCleared() {
+		_spec.ClearField(bazelinvocation.FieldNumFetches, field.TypeInt64)
 	}
 	if biuo.mutation.EventFileCleared() {
 		edge := &sqlgraph.EdgeSpec{

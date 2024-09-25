@@ -47,6 +47,14 @@ type BazelInvocation struct {
 	UserLdap string `json:"user_ldap,omitempty"`
 	// BuildLogs holds the value of the "build_logs" field.
 	BuildLogs string `json:"build_logs,omitempty"`
+	// CPU holds the value of the "cpu" field.
+	CPU string `json:"cpu,omitempty"`
+	// PlatformName holds the value of the "platform_name" field.
+	PlatformName string `json:"platform_name,omitempty"`
+	// ConfigurationMnemonic holds the value of the "configuration_mnemonic" field.
+	ConfigurationMnemonic string `json:"configuration_mnemonic,omitempty"`
+	// NumFetches holds the value of the "num_fetches" field.
+	NumFetches int64 `json:"num_fetches,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the BazelInvocationQuery when eager-loading is set.
 	Edges                       BazelInvocationEdges `json:"edges"`
@@ -149,9 +157,9 @@ func (*BazelInvocation) scanValues(columns []string) ([]any, error) {
 			values[i] = new([]byte)
 		case bazelinvocation.FieldBepCompleted:
 			values[i] = new(sql.NullBool)
-		case bazelinvocation.FieldID, bazelinvocation.FieldChangeNumber, bazelinvocation.FieldPatchsetNumber:
+		case bazelinvocation.FieldID, bazelinvocation.FieldChangeNumber, bazelinvocation.FieldPatchsetNumber, bazelinvocation.FieldNumFetches:
 			values[i] = new(sql.NullInt64)
-		case bazelinvocation.FieldStepLabel, bazelinvocation.FieldUserEmail, bazelinvocation.FieldUserLdap, bazelinvocation.FieldBuildLogs:
+		case bazelinvocation.FieldStepLabel, bazelinvocation.FieldUserEmail, bazelinvocation.FieldUserLdap, bazelinvocation.FieldBuildLogs, bazelinvocation.FieldCPU, bazelinvocation.FieldPlatformName, bazelinvocation.FieldConfigurationMnemonic:
 			values[i] = new(sql.NullString)
 		case bazelinvocation.FieldStartedAt, bazelinvocation.FieldEndedAt:
 			values[i] = new(sql.NullTime)
@@ -257,6 +265,30 @@ func (bi *BazelInvocation) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field build_logs", values[i])
 			} else if value.Valid {
 				bi.BuildLogs = value.String
+			}
+		case bazelinvocation.FieldCPU:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field cpu", values[i])
+			} else if value.Valid {
+				bi.CPU = value.String
+			}
+		case bazelinvocation.FieldPlatformName:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field platform_name", values[i])
+			} else if value.Valid {
+				bi.PlatformName = value.String
+			}
+		case bazelinvocation.FieldConfigurationMnemonic:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field configuration_mnemonic", values[i])
+			} else if value.Valid {
+				bi.ConfigurationMnemonic = value.String
+			}
+		case bazelinvocation.FieldNumFetches:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field num_fetches", values[i])
+			} else if value.Valid {
+				bi.NumFetches = value.Int64
 			}
 		case bazelinvocation.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -373,6 +405,18 @@ func (bi *BazelInvocation) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("build_logs=")
 	builder.WriteString(bi.BuildLogs)
+	builder.WriteString(", ")
+	builder.WriteString("cpu=")
+	builder.WriteString(bi.CPU)
+	builder.WriteString(", ")
+	builder.WriteString("platform_name=")
+	builder.WriteString(bi.PlatformName)
+	builder.WriteString(", ")
+	builder.WriteString("configuration_mnemonic=")
+	builder.WriteString(bi.ConfigurationMnemonic)
+	builder.WriteString(", ")
+	builder.WriteString("num_fetches=")
+	builder.WriteString(fmt.Sprintf("%v", bi.NumFetches))
 	builder.WriteByte(')')
 	return builder.String()
 }

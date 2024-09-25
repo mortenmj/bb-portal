@@ -9,6 +9,7 @@ import { PieChartOutlined, DashboardOutlined, HddOutlined } from "@ant-design/ic
 import { renderActiveShape } from "../Utilities/renderShape"
 import { nullPercent } from "../Utilities/nullPercent";
 import "./index.module.css"
+import MissDetailTag, { MissDetailEnum } from "./ActionCacheMissTag";
 interface MissDetailDisplayDataType {
     key: React.Key;
     name: string;
@@ -22,18 +23,19 @@ const formatter: StatisticProps['formatter'] = (value) => (
 
 var ac_colors =
     [
-        "#9f9f9f", //unknown
-        "#336bff", //different action key
-        "#9900cc", //different deps
-        "#ff00c9", //different env
-        "#db6a17", //diff files
-        "#ff5733", //corrupted cache entry
-        "#ffbd33"] //not cached
+        "grey", //unknown
+        "blue", //different action key
+        "pink", //different deps
+        "purple", //different env
+        "cyan", //diff files
+        "orange", //corrupted cache entry
+        "red"] //not cached
 
 const ac_columns: TableColumnsType<MissDetailDisplayDataType> = [
     {
         title: "Miss Reason",
         dataIndex: "name",
+        render: (x) => <MissDetailTag key="status" status={x as MissDetailEnum} />,
         // render: (idx, x) => <span className={"ac-miss-detail-" + x.name}>{x.name}</span>,
     },
     {
