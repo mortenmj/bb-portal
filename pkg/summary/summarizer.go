@@ -173,18 +173,20 @@ func (s Summarizer) handleBuildConfiguration(configuration *bes.Configuration) {
 }
 
 func (s Summarizer) handleTargetConfigured(target *bes.TargetConfigured, label string, timestamp time.Time) {
-	// tag, target kind,, and test size
+	if len(label) == 0 {
+		panic("missing a target label for target configured event!")
+	}
 	if target == nil {
+		slog.Debug(fmt.Sprintf("missing target for label %s on targetConfigured", label))
 		return
 	}
-	if len(label) == 0 {
-		panic("that shit aint right")
-	}
 
+	//if this is the first target we've seen, initialize the targets collection
 	if s.summary.Targets == nil {
 		s.summary.Targets = make(map[string]TargetPair)
 	}
 
+	//create a target pair and at it to the targets collection
 	s.summary.Targets[label] = TargetPair{
 		Configuration: TargetConfigured{
 			StartTimeInMs: timestamp.UnixMilli(),
@@ -205,21 +207,20 @@ func (s Summarizer) handleTargetCompleted(target *bes.TargetComplete, label stri
 	}
 
 	if s.summary.Targets == nil {
-		panic("target completed event received before any target configured messages")
+		panic(fmt.Sprintf("target completed event received before any target configured messages for label %s,", label))
 	}
 
 	var targetPair TargetPair
 	targetPair, ok := s.summary.Targets[label]
 
 	if !ok {
-		//TODO this doesn't HAVE to be fatal...timing data is just messed up and unreliable at best
+		//TODO this doesn't HAVE to be fatal...timing data is just messed up and unreliable...which...its already sort of unreliable
 		panic(fmt.Sprintf("target completed event recieved for label %s before target configured message recieved", label))
 	}
 
 	var targetCompletion TargetComplete
 
-	if target == nil {
-		//f;ag
+	if target == nil { //this event was aborted
 		targetCompletion = TargetComplete{
 			Success:     false,
 			EndTimeInMs: timestamp.UnixMilli(),
@@ -234,7 +235,6 @@ func (s Summarizer) handleTargetCompleted(target *bes.TargetComplete, label stri
 			targetCompletion.TestTimeoutSeconds = target.TestTimeout.Seconds
 			targetCompletion.TestTimeout = target.TestTimeout.Seconds
 		}
-
 	}
 
 	targetPair.Completion = targetCompletion
@@ -251,20 +251,22 @@ func (s Summarizer) handleTargetCompleted(target *bes.TargetComplete, label stri
 
 func (s Summarizer) handleTestResult(testResult *bes.TestResult, label string) {
 
-	if testResult == nil {
-		return //nothing to do
+	if len(label) == 0 {
+		panic(fmt.Sprintf("missing label on TestResult event"))
 	}
 
-	if len(label) == 0 {
-		panic("....this might not work then")
+	if testResult == nil {
+		panic(fmt.Sprintf("missing TestResult for label %s", label))
 	}
 
 	var testResults []TestResult
 
+	//if this is the firsst test we have seen, initialize the tests collection
 	if s.summary.Tests == nil {
 		s.summary.Tests = make(map[string]TestsCollection)
 	}
 
+	//try to read the collection for this label
 	testcollection, ok := s.summary.Tests[label]
 
 	if !ok {
@@ -306,7 +308,6 @@ func (s Summarizer) handleTestResult(testResult *bes.TestResult, label string) {
 		execution_info.ExitCode = testResult.ExecutionInfo.ExitCode
 		execution_info.Hostname = testResult.ExecutionInfo.Hostname
 		execution_info.TimingBreakdown = timing_breakdown
-
 	}
 
 	//create a test result
@@ -342,22 +343,28 @@ func (s Summarizer) handleTestResult(testResult *bes.TestResult, label string) {
 		testcollection.Strategy = tr.ExecutionInfo.Strategy
 	}
 
-	// add the copy to the summarizer
+	// add the updated copy back to the summarizer
 	s.summary.Tests[label] = testcollection
 }
 
 func (s Summarizer) handleTestSummary(testSummary *bes.TestSummary, label string) {
-	if testSummary == nil {
-		return //nothing to do
-	}
+
 	if len(label) == 0 {
-		panic("this is not good")
+		panic("missing label on handleTestSummary event")
 	}
+
+	if testSummary == nil {
+		panic(fmt.Sprintf("missing test summary object for handleTestSummary event for label %s", label))
+	}
+
 	testCollection, ok := s.summary.Tests[label]
+
 	if !ok {
-		panic("this apparently doesn't work the way you think it should")
+		panic(fmt.Sprintf("received a test summary event but never first saw a test result for label %s", label))
 	}
+
 	var tSummary TestSummary = testCollection.TestSummary
+
 	tSummary.AttemptCount = testSummary.AttemptCount
 	tSummary.FirstStartTime = testSummary.FirstStartTime.AsTime().Unix()
 	tSummary.Label = label
@@ -402,9 +409,9 @@ func (s Summarizer) handleBuildMetadata(metadataProto *bes.BuildMetadata) {
 func (s Summarizer) handleBuildMetrics(metrics *bes.BuildMetrics) {
 
 	//action metrics
-
 	var miss_details []MissDetail = make([]MissDetail, 0)
 
+	//miss details
 	for _, md := range metrics.ActionSummary.ActionCacheStatistics.MissDetails {
 		miss_detail := MissDetail{
 			Count:  md.Count,
@@ -413,6 +420,7 @@ func (s Summarizer) handleBuildMetrics(metrics *bes.BuildMetrics) {
 		miss_details = append(miss_details, miss_detail)
 	}
 
+	//action cache statistics
 	action_cache_statistics := ActionCacheStatistics{
 		SizeInBytes:  metrics.ActionSummary.ActionCacheStatistics.SizeInBytes,
 		SaveTimeInMs: metrics.ActionSummary.ActionCacheStatistics.SaveTimeInMs,
@@ -501,7 +509,6 @@ func (s Summarizer) handleBuildMetrics(metrics *bes.BuildMetrics) {
 	}
 
 	//timing metrics
-
 	timing_metrics := TimingMetrics{
 		CpuTimeInMs:            metrics.TimingMetrics.CpuTimeInMs,
 		WallTimeInMs:           metrics.TimingMetrics.WallTimeInMs,
@@ -512,7 +519,6 @@ func (s Summarizer) handleBuildMetrics(metrics *bes.BuildMetrics) {
 	}
 
 	//artifact metrics
-
 	source_artifacts_read := FilesMetric{
 		SizeInBytes: metrics.ArtifactMetrics.SourceArtifactsRead.SizeInBytes,
 		Count:       metrics.ArtifactMetrics.SourceArtifactsRead.Count,
@@ -541,7 +547,6 @@ func (s Summarizer) handleBuildMetrics(metrics *bes.BuildMetrics) {
 	}
 
 	//cumulative metrics
-
 	cumulative_metrics := CumulativeMetrics{
 		NumAnalyses: metrics.CumulativeMetrics.NumAnalyses,
 		NumBuilds:   metrics.CumulativeMetrics.NumBuilds,
@@ -554,10 +559,7 @@ func (s Summarizer) handleBuildMetrics(metrics *bes.BuildMetrics) {
 		RaceStatistics: race_statistics,
 	}
 
-	//network metrics are currently empty...not sure why
-
 	var system_network_stats SystemNetworkStats
-
 	if metrics.NetworkMetrics != nil {
 
 		system_network_stats = SystemNetworkStats{
@@ -576,7 +578,7 @@ func (s Summarizer) handleBuildMetrics(metrics *bes.BuildMetrics) {
 		SystemNetworkStats: &system_network_stats,
 	}
 
-	//TODO: these values are not on the proto.
+	//TODO: these values are not on the proto currently.  once they are, update this code to pull them out
 	var dirtied_values []EvaluationStat = make([]EvaluationStat, 0)
 	var changed_values []EvaluationStat = make([]EvaluationStat, 0)
 	var built_values []EvaluationStat = make([]EvaluationStat, 0)
