@@ -105,13 +105,9 @@ const BazelInvocation: React.FC<{
   //test data
   var testCollections: TestCollection[] | undefined | null = testCollection
   var targetData: TargetPair[] | undefined | null = targets
-  var testLabels: Map<string, boolean> = new Map<string, boolean>();
+  var targetTimes: Map<string, number> = new Map<string, number>();
 
-  testCollections?.map(x => {
-    var l = x.label ?? "ZZZZZZTOP"
-    testLabels.set(l, true)
-  }
-  )
+  targetData?.map(x => { targetTimes.set(x.label ?? "", x.durationInMs ?? 0) })
 
 
   let { exitCode } = state;
@@ -170,9 +166,7 @@ const BazelInvocation: React.FC<{
       label: 'Action Cache',
       icon: <HddOutlined />,
       children: <Space direction="vertical" size="middle" className={themeStyles.space}>
-
         <AcMetrics acMetrics={acMetrics} />
-
       </Space>,
     },
     {
@@ -180,9 +174,7 @@ const BazelInvocation: React.FC<{
       label: 'Actions Data',
       icon: <NodeCollapseOutlined />,
       children: <Space direction="vertical" size="middle" className={themeStyles.space}>
-
         <ActionDataMetrics acMetrics={acMetrics} />
-
       </Space>,
     },
 
@@ -191,9 +183,7 @@ const BazelInvocation: React.FC<{
       label: 'Artifacts',
       icon: <RadiusUprightOutlined />,
       children: <Space direction="vertical" size="middle" className={themeStyles.space}>
-
         <ArtifactsDataMetrics artifactMetrics={artifactMetrics} />
-
       </Space>,
     },
     {
@@ -201,9 +191,7 @@ const BazelInvocation: React.FC<{
       label: 'Memory',
       icon: <AreaChartOutlined />,
       children: <Space direction="vertical" size="middle" className={themeStyles.space}>
-
         <MemoryMetricsDisplay memoryMetrics={memoryMetrics} />
-
       </Space>,
     },
     {
@@ -211,9 +199,7 @@ const BazelInvocation: React.FC<{
       label: 'Timing',
       icon: <FieldTimeOutlined />,
       children: <Space direction="vertical" size="middle" className={themeStyles.space}>
-
         <TimingMetricsDisplay timingMetrics={timingMetrics} buildGraphMetrics={buildGraphMetrics} />
-
       </Space>,
     },
 
@@ -222,8 +208,7 @@ const BazelInvocation: React.FC<{
       label: 'Targets',
       icon: <DeploymentUnitOutlined />,
       children: <Space direction="vertical" size="middle" className={themeStyles.space}>
-
-        <TargetMetricsDisplay targetMetrics={targetMetrics} targetData={targetData} testLabels={testLabels} />
+        <TargetMetricsDisplay targetMetrics={targetMetrics} targetData={targetData} />
       </Space>,
     },
     {
@@ -231,9 +216,7 @@ const BazelInvocation: React.FC<{
       label: 'Tests',
       icon: <ExperimentOutlined />,
       children: <Space direction="vertical" size="middle" className={themeStyles.space}>
-
-        <TestMetricsDisplay testMetrics={testCollections} />
-
+        <TestMetricsDisplay testMetrics={testCollections} targetTimes={targetTimes} />
       </Space>,
     },
     {
@@ -241,9 +224,7 @@ const BazelInvocation: React.FC<{
       label: 'Network',
       icon: <WifiOutlined />,
       children: <Space direction="vertical" size="middle" className={themeStyles.space}>
-
         <NetworkMetricsDisplay networkMetrics={networkMetrics} />
-
       </Space>,
     },
   ];

@@ -7,8 +7,7 @@ import { TargetMetrics, TargetPair } from "@/graphql/__generated__/graphql";
 import PortalCard from "../PortalCard";
 import { SearchFilterIcon, SearchWidget } from '@/components/SearchWidgets';
 import NullBooleanTag from "../NullableBooleanTag";
-import TargetTypeTag from "./targetType";
-import { TestSizeEnum } from "./targetType";
+import TargetAbortReasonTag, { AbortReasonsEnum } from "./targetAbortReasonTag";
 
 interface TargetDataType {
     key: React.Key;
@@ -16,9 +15,7 @@ interface TargetDataType {
     success: boolean;
     value: number;  //duration
     target_kind: string;
-    test_size: string;
     failure_reason: string
-    test_found: boolean;
 }
 
 const formatter: StatisticProps['formatter'] = (value) => (
@@ -29,22 +26,28 @@ const formatter: StatisticProps['formatter'] = (value) => (
 const TargetMetricsDisplay: React.FC<{
     targetMetrics: TargetMetrics | undefined | null,
     targetData: TargetPair[] | undefined | null,
-    testLabels: Map<string, boolean>
 }> = ({
     targetMetrics,
     targetData,
-    testLabels,
 }) => {
 
         var target_data: TargetDataType[] = []
         var count = 0;
         var all_types: string[] = []
+        var targets_skipped: number = 0;
+        var targets_built_successfully: number = 0;
         targetData?.map(x => {
             count++;
             var targetKind = x.targetKind ?? ""
             var failureReason = x.abortReason ?? ""
 
-            var targetLabel: string = x.label ?? "EMPTY12345"
+            if (failureReason == "SKIPPED") {
+                targets_skipped++;
+            }
+
+            if (x.success == true) {
+                targets_built_successfully++;
+            }
 
             var row: TargetDataType = {
                 key: "target_data_type" + count.toString(),
@@ -52,9 +55,7 @@ const TargetMetricsDisplay: React.FC<{
                 success: x.success ?? false,
                 value: x.durationInMs ?? 0,
                 target_kind: targetKind,
-                test_size: x.testSize ?? "",
                 failure_reason: failureReason,
-                test_found: testLabels.has(targetLabel)
             }
             all_types.push(targetKind)
             target_data.push(row)
@@ -62,7 +63,6 @@ const TargetMetricsDisplay: React.FC<{
         })
 
         const targets_analyzed: number = targetData?.length ?? 0
-
         const type_filters: string[] = Array.from(new Set(all_types))
 
         const target_columns: TableColumnsType<TargetDataType> = [
@@ -93,61 +93,62 @@ const TargetMetricsDisplay: React.FC<{
 
             },
             {
-                title: "Failure Reason",
+                title: "Abort Reason",
                 dataIndex: "failure_reason",
+                filters: [
+                    {
+                        text: "Skipped",
+                        value: "SKIPPED"
+                    },
+                    {
+                        text: "User Interrupted",
+                        value: "USER_INTERRUPTED"
+                    },
+                    {
+                        text: "Time Out",
+                        value: "TIME_OUT"
+                    },
+                    {
+                        text: "Remote Environment Failure",
+                        value: "REMOTE_ENVIRONMENT_FAILURE"
+                    },
+                    {
+                        text: "Internal",
+                        value: "INTERNAL"
+                    },
+                    {
+                        text: "Loading Failure",
+                        value: "LOADING_FAILURE"
+                    },
+                    {
+                        text: "Analysis Failure",
+                        value: "ANALYSIS_FAILURE"
+                    },
+                    {
+                        text: "No Analyze",
+                        value: "NO_ANALYZE"
+                    },
+                    {
+                        text: "No Build",
+                        value: "NO_BUILD"
+                    },
+                    {
+                        text: "Incomplete",
+                        value: "INCOMPLETE"
+                    },
+                    {
+                        text: "Out of Memory",
+                        value: "OUT_OF_MEMORY"
+                    },
+                ],
+                render: (x) => <TargetAbortReasonTag key="failure_reason" reason={x as AbortReasonsEnum} />,
+                filterIcon: filtered => <SearchFilterIcon icon={<SearchOutlined />} filtered={filtered} />,
+                onFilter: (value, record) => record.failure_reason == value,
                 sorter: (a, b) => a.failure_reason.localeCompare(b.failure_reason),
 
             },
             {
-                title: "Test Found",
-                dataIndex: "test_found",
-                render: (x) => <NullBooleanTag key="test_found" status={x as boolean | null} />,
-                sorter: (a, b) => Number(a.test_found) - Number(b.test_found),
-                filters: [
-                    {
-                        text: "Yes",
-                        value: true
-                    },
-                    {
-                        text: "No",
-                        value: false
-                    }
-                ],
-                filterIcon: filtered => <SearchFilterIcon icon={<SearchOutlined />} filtered={filtered} />,
-                onFilter: (value, record) => record.test_found == value,
-            },
-            {
-                title: "Test Size",
-                dataIndex: "test_size",
-                filters: [
-                    {
-                        text: "None",
-                        value: "UNKNOWN"
-                    },
-                    {
-                        text: "Small",
-                        value: "SMALL"
-                    },
-                    {
-                        text: "Medium",
-                        value: "MEDIUM"
-                    },
-                    {
-                        text: "Large",
-                        value: "LARGE"
-                    },
-                    {
-                        text: "Enormous",
-                        value: "ENORMOUS"
-                    },
-                ],
-                filterIcon: filtered => <SearchFilterIcon icon={<SearchOutlined />} filtered={filtered} />,
-                onFilter: (value, record) => record.test_size == value,
-                render: (x) => <TargetTypeTag key="test_size" size={x as TestSizeEnum} />,
-                sorter: (a, b) => a.test_size.localeCompare(b.test_size),
-            },
-            {
-                title: "Overall Status",
+                title: "Overall Success",
                 dataIndex: "success",
                 render: (x) => <NullBooleanTag key="success" status={x as boolean | null} />,
                 sorter: (a, b) => Number(a.success) - Number(b.success),
@@ -174,6 +175,8 @@ const TargetMetricsDisplay: React.FC<{
                         <Space size="large">
 
                             <Statistic title="Targets Analyzed" value={targets_analyzed} formatter={formatter} />
+                            <Statistic title="Targets Built Successfully" value={targets_built_successfully} formatter={formatter} valueStyle={{ color: "green" }} />
+                            <Statistic title="Targets Skipped" value={targets_skipped} formatter={formatter} valueStyle={{ color: "purple" }} />
                             <Statistic title="Targets Configured" value={targetMetrics?.targetsConfigured ?? 0} formatter={formatter} />
                             <Statistic title="Targets Configured Not Including Aspects" value={targetMetrics?.targetsConfiguredNotIncludingAspects ?? 0} formatter={formatter} />
                             {/* <Statistic title="Targets Loaded" value={targetMetrics?.targetsLoaded ?? 0} formatter={formatter} /> */}

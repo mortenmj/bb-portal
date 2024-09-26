@@ -161,66 +161,70 @@ const test_columns: TableColumnsType<TestDataType> = [
 
 ]
 
-const TestMetricsDisplay: React.FC<{ testMetrics: TestCollection[] | undefined | null }> = ({
-    testMetrics
+const TestMetricsDisplay: React.FC<{
+    testMetrics: TestCollection[] | undefined | null,
+    targetTimes: Map<string, number>,
+}> = ({
+    testMetrics,
+    targetTimes,
 }) => {
-    const totalTests: number = testMetrics?.length ?? 0
+        const totalTests: number = testMetrics?.length ?? 0
+
+        const test_data: TestDataType[] = []
+        testMetrics?.map((item: TestCollection, index) => {
+            var label = item.label ?? "NO_TARGET_LABEL"
+
+            var row: TestDataType = {
+                key: "test-data-type-row-" + index,
+                name: item.label ?? "",
+                value: item.durationMs ?? 0,
+                strategy: item.strategy ?? "",
+                cached_local: item.cachedLocally ?? null,
+                cached_remote: item.cachedRemotely ?? null,
+                duration: (item.durationMs ?? 0) + (targetTimes.get(item.label ?? "") ?? 0),
+                status: item.overallStatus ?? ""
+            }
+            test_data.push(row);
+        })
+
+        var numPassed = test_data.filter(x => x.status == "PASSED").length
+        var numFailed = test_data.filter(x => x.status == "FAILED").length
+        var numExecutedLocally = test_data.filter(x => x.strategy == "linux-sandbox").length
+        var numExecutedRemotely = test_data.filter(x => x.strategy == "remote").length
+        var localCacheHit = test_data.filter(x => x.strategy in ["disk cache hit", ""] || x.cached_local == true).length
+        var remoteCacheHit = test_data.filter(x => x.strategy == "remote cache hit" || x.cached_remote == true).length
+        //var localCacheHit = test_data.filter(x => x.strategy in ["disk cache hit", ""]).length
+        //var remoteCacheHit = test_data.filter(x => x.strategy == "remote cache hit").length
 
 
-    const test_data: TestDataType[] = []
-    testMetrics?.map((item: TestCollection, index) => {
-
-        var row: TestDataType = {
-            key: "test-data-type-row-" + index,
-            name: item.label ?? "",
-            value: item.durationMs ?? 0,
-            strategy: item.strategy ?? "",
-            cached_local: item.cachedLocally ?? null,
-            cached_remote: item.cachedRemotely ?? null,
-            duration: item.durationMs ?? 0,
-            status: item.overallStatus ?? ""
-        }
-        test_data.push(row);
-    })
-
-    var numPassed = test_data.filter(x => x.status == "PASSED").length
-    var numFailed = test_data.filter(x => x.status == "FAILED").length
-    var numExecutedLocally = test_data.filter(x => x.strategy == "linux-sandbox").length
-    var numExecutedRemotely = test_data.filter(x => x.strategy == "remote").length
-    var localCacheHit = test_data.filter(x => x.strategy in ["disk cache hit", ""] || x.cached_local == true).length
-    var remoteCacheHit = test_data.filter(x => x.strategy == "remote cache hit" || x.cached_remote == true).length
-    //var localCacheHit = test_data.filter(x => x.strategy in ["disk cache hit", ""]).length
-    //var remoteCacheHit = test_data.filter(x => x.strategy == "remote cache hit").length
-
-
-    return (
-        <Space direction="vertical" size="middle" style={{ display: 'flex' }} >
-            <PortalCard icon={<ExperimentOutlined />} titleBits={["Tests"]}>
-                <Row>
-                    <Space size="large">
-                        <Statistic title="Tests Completed" value={totalTests} formatter={formatter} />
-                        <Statistic title="Passed" value={numPassed} formatter={formatter} />
-                        <Statistic title="Failed" value={numFailed} formatter={formatter} />
-                        <Statistic title="Executed Locally" value={numExecutedLocally} formatter={formatter} />
-                        <Statistic title="Executed Remotely" value={numExecutedRemotely} formatter={formatter} />
-                        <Statistic title="Local Cache Hit" value={localCacheHit} formatter={formatter} />
-                        <Statistic title="Remote Cache Hit" value={remoteCacheHit} formatter={formatter} />
-                    </Space>
-                </Row>
-                <Row justify="space-around" align="middle">
-                    <Col span="1" />
-                    <Col span="22">
-                        <Table
-                            columns={test_columns}
-                            dataSource={test_data}
-                            showSorterTooltip={{ target: 'sorter-icon' }}
-                        />
-                    </Col>
-                    <Col span="1" />
-                </Row>
-            </PortalCard>
-        </Space>
-    )
-}
+        return (
+            <Space direction="vertical" size="middle" style={{ display: 'flex' }} >
+                <PortalCard icon={<ExperimentOutlined />} titleBits={["Tests"]}>
+                    <Row>
+                        <Space size="large">
+                            <Statistic title="Tests Completed" value={totalTests} formatter={formatter} />
+                            <Statistic title="Passed" value={numPassed} formatter={formatter} />
+                            <Statistic title="Failed" value={numFailed} formatter={formatter} />
+                            <Statistic title="Executed Locally" value={numExecutedLocally} formatter={formatter} />
+                            <Statistic title="Executed Remotely" value={numExecutedRemotely} formatter={formatter} />
+                            <Statistic title="Local Cache Hit" value={localCacheHit} formatter={formatter} />
+                            <Statistic title="Remote Cache Hit" value={remoteCacheHit} formatter={formatter} />
+                        </Space>
+                    </Row>
+                    <Row justify="space-around" align="middle">
+                        <Col span="1" />
+                        <Col span="22">
+                            <Table
+                                columns={test_columns}
+                                dataSource={test_data}
+                                showSorterTooltip={{ target: 'sorter-icon' }}
+                            />
+                        </Col>
+                        <Col span="1" />
+                    </Row>
+                </PortalCard>
+            </Space>
+        )
+    }
 
 export default TestMetricsDisplay;
