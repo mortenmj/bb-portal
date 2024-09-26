@@ -34,15 +34,15 @@ func (tcc *TimingChildCreate) SetNillableName(s *string) *TimingChildCreate {
 }
 
 // SetTime sets the "time" field.
-func (tcc *TimingChildCreate) SetTime(i int64) *TimingChildCreate {
-	tcc.mutation.SetTime(i)
+func (tcc *TimingChildCreate) SetTime(s string) *TimingChildCreate {
+	tcc.mutation.SetTime(s)
 	return tcc
 }
 
 // SetNillableTime sets the "time" field if the given value is not nil.
-func (tcc *TimingChildCreate) SetNillableTime(i *int64) *TimingChildCreate {
-	if i != nil {
-		tcc.SetTime(*i)
+func (tcc *TimingChildCreate) SetNillableTime(s *string) *TimingChildCreate {
+	if s != nil {
+		tcc.SetTime(*s)
 	}
 	return tcc
 }
@@ -127,7 +127,7 @@ func (tcc *TimingChildCreate) createSpec() (*TimingChild, *sqlgraph.CreateSpec) 
 		_node.Name = value
 	}
 	if value, ok := tcc.mutation.Time(); ok {
-		_spec.SetField(timingchild.FieldTime, field.TypeInt64, value)
+		_spec.SetField(timingchild.FieldTime, field.TypeString, value)
 		_node.Time = value
 	}
 	if nodes := tcc.mutation.TimingBreakdownIDs(); len(nodes) > 0 {

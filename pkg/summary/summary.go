@@ -35,10 +35,12 @@ const (
 	UNCONDITIONAL_EXECUTION
 )
 
+// Enum helper method
 func (r MissReason) EnumIndex() int32 {
 	return int32(r)
 }
 
+// Enum helper method
 func (r MissReason) String() string {
 	return [...]string{
 		"UNKNOWN",
@@ -67,10 +69,12 @@ const (
 	TOOL_HALTED_BEFORE_TESTING
 )
 
+// Enum helper method
 func (r TestStatus) EnumIndex() int32 {
 	return int32(r)
 }
 
+// Enum helper method
 func (r TestStatus) String() string {
 	return [...]string{
 		"NO_STATUS",
@@ -96,9 +100,12 @@ const (
 	ENORMOUS
 )
 
+// Enum helper method
 func (r TestSize) EnumIndex() int32 {
 	return int32(r)
 }
+
+// Enum helper method
 func (r TestSize) String() string {
 	return [...]string{
 		"UNKNOWN",
@@ -112,7 +119,7 @@ func (r TestSize) String() string {
 // ABORT REASON ENUM
 type AbortReason int32
 
-// set the order explictly
+// set the order explictly because of ordering mismatches!
 const (
 	Aborted_UNKNOWN                    AbortReason = 0
 	Aborted_USER_INTERRUPTED           AbortReason = 1
@@ -128,9 +135,12 @@ const (
 	Aborted_OUT_OF_MEMORY              AbortReason = 11
 )
 
+// Enum helper method
 func (r AbortReason) EnumIndex() int32 {
 	return int32(r)
 }
+
+// Enum helper method
 func (r AbortReason) String() string {
 	return [...]string{
 		"UNKNOWN",
@@ -148,6 +158,7 @@ func (r AbortReason) String() string {
 	}[r]
 }
 
+// The Invocation Summary object holds details about an invocation
 type Summary struct {
 	*InvocationSummary
 	Problems             []detectors.Problem
@@ -174,6 +185,9 @@ type Summary struct {
 	ConfigrationMnemonic string
 }
 
+// Build metrics details
+// This aligngs with data found in the ent schema
+// https://github.com/bazelbuild/bazel/blob/master/src/main/java/com/google/devtools/build/lib/buildeventstream/proto/build_event_stream.proto#L900
 type Metrics struct {
 	ActionSummary           ActionSummary
 	MemoryMetrics           MemoryMetrics
@@ -368,18 +382,15 @@ type ExecutionInfo struct {
 }
 
 type TestResult struct {
-	Status                      TestStatus
-	StatusDetails               string
-	CachedLocally               bool
-	TestAttemptDurationMillis   int64
-	TestAttemptStartMillisEpoch int64
-	Warning                     []string
-	Run                         int
-	Shard                       int
-	Attempt                     int
-	Label                       string
-	TestActionOutput            []TestFile
-	ExecutionInfo               ExecutionInfo
+	Status              TestStatus
+	StatusDetails       string
+	Label               string
+	Warning             []string
+	CachedLocally       bool
+	TestAttemptDuration int64
+	TestAttemptStart    string //timestamp
+	TestActionOutput    []TestFile
+	ExecutionInfo       ExecutionInfo
 }
 
 type TimingBreakdown struct {
@@ -425,7 +436,9 @@ type TargetConfigured struct {
 	Tag        []string
 	TargetKind string
 	TestSize   TestSize
-	//adding this to track time
+
+	//adding this to track time for a target
+	//not ideal, TODO: can we somehow get a more accurate measure for this data
 	StartTimeInMs int64
 }
 
@@ -440,8 +453,10 @@ type TargetComplete struct {
 	TestTimeoutSeconds int64
 	TestTimeout        int64
 	//adding this to track time
+	//not ideal, TODO: can we somehow get a more accurate measure for this data
 	EndTimeInMs int64
-	//to lazy to implement this...maybe if i ever figure out how to generate that crap
+
+	//TODO: Implement Faillure detail
 	//FailureDetail FailureDetail
 }
 
@@ -457,7 +472,7 @@ type NamedSetOfFiles struct {
 	FileSets *NamedSetOfFiles
 }
 
-// summary objects
+// summary object for a test
 type TestsCollection struct {
 	TestSummary    TestSummary
 	TestResults    []TestResult
@@ -467,6 +482,8 @@ type TestsCollection struct {
 	CachedRemotely bool
 	DurationMs     int64
 }
+
+// summary object for a target
 type TargetPair struct {
 	Configuration TargetConfigured
 	Completion    TargetComplete

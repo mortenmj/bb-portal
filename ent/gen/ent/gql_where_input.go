@@ -12939,16 +12939,21 @@ type TimingBreakdownWhereInput struct {
 	NameContainsFold *string  `json:"nameContainsFold,omitempty"`
 
 	// "time" field predicates.
-	Time       *int64  `json:"time,omitempty"`
-	TimeNEQ    *int64  `json:"timeNEQ,omitempty"`
-	TimeIn     []int64 `json:"timeIn,omitempty"`
-	TimeNotIn  []int64 `json:"timeNotIn,omitempty"`
-	TimeGT     *int64  `json:"timeGT,omitempty"`
-	TimeGTE    *int64  `json:"timeGTE,omitempty"`
-	TimeLT     *int64  `json:"timeLT,omitempty"`
-	TimeLTE    *int64  `json:"timeLTE,omitempty"`
-	TimeIsNil  bool    `json:"timeIsNil,omitempty"`
-	TimeNotNil bool    `json:"timeNotNil,omitempty"`
+	Time             *string  `json:"time,omitempty"`
+	TimeNEQ          *string  `json:"timeNEQ,omitempty"`
+	TimeIn           []string `json:"timeIn,omitempty"`
+	TimeNotIn        []string `json:"timeNotIn,omitempty"`
+	TimeGT           *string  `json:"timeGT,omitempty"`
+	TimeGTE          *string  `json:"timeGTE,omitempty"`
+	TimeLT           *string  `json:"timeLT,omitempty"`
+	TimeLTE          *string  `json:"timeLTE,omitempty"`
+	TimeContains     *string  `json:"timeContains,omitempty"`
+	TimeHasPrefix    *string  `json:"timeHasPrefix,omitempty"`
+	TimeHasSuffix    *string  `json:"timeHasSuffix,omitempty"`
+	TimeIsNil        bool     `json:"timeIsNil,omitempty"`
+	TimeNotNil       bool     `json:"timeNotNil,omitempty"`
+	TimeEqualFold    *string  `json:"timeEqualFold,omitempty"`
+	TimeContainsFold *string  `json:"timeContainsFold,omitempty"`
 
 	// "exection_info" edge predicates.
 	HasExectionInfo     *bool                     `json:"hasExectionInfo,omitempty"`
@@ -13123,11 +13128,26 @@ func (i *TimingBreakdownWhereInput) P() (predicate.TimingBreakdown, error) {
 	if i.TimeLTE != nil {
 		predicates = append(predicates, timingbreakdown.TimeLTE(*i.TimeLTE))
 	}
+	if i.TimeContains != nil {
+		predicates = append(predicates, timingbreakdown.TimeContains(*i.TimeContains))
+	}
+	if i.TimeHasPrefix != nil {
+		predicates = append(predicates, timingbreakdown.TimeHasPrefix(*i.TimeHasPrefix))
+	}
+	if i.TimeHasSuffix != nil {
+		predicates = append(predicates, timingbreakdown.TimeHasSuffix(*i.TimeHasSuffix))
+	}
 	if i.TimeIsNil {
 		predicates = append(predicates, timingbreakdown.TimeIsNil())
 	}
 	if i.TimeNotNil {
 		predicates = append(predicates, timingbreakdown.TimeNotNil())
+	}
+	if i.TimeEqualFold != nil {
+		predicates = append(predicates, timingbreakdown.TimeEqualFold(*i.TimeEqualFold))
+	}
+	if i.TimeContainsFold != nil {
+		predicates = append(predicates, timingbreakdown.TimeContainsFold(*i.TimeContainsFold))
 	}
 
 	if i.HasExectionInfo != nil {
@@ -13211,16 +13231,21 @@ type TimingChildWhereInput struct {
 	NameContainsFold *string  `json:"nameContainsFold,omitempty"`
 
 	// "time" field predicates.
-	Time       *int64  `json:"time,omitempty"`
-	TimeNEQ    *int64  `json:"timeNEQ,omitempty"`
-	TimeIn     []int64 `json:"timeIn,omitempty"`
-	TimeNotIn  []int64 `json:"timeNotIn,omitempty"`
-	TimeGT     *int64  `json:"timeGT,omitempty"`
-	TimeGTE    *int64  `json:"timeGTE,omitempty"`
-	TimeLT     *int64  `json:"timeLT,omitempty"`
-	TimeLTE    *int64  `json:"timeLTE,omitempty"`
-	TimeIsNil  bool    `json:"timeIsNil,omitempty"`
-	TimeNotNil bool    `json:"timeNotNil,omitempty"`
+	Time             *string  `json:"time,omitempty"`
+	TimeNEQ          *string  `json:"timeNEQ,omitempty"`
+	TimeIn           []string `json:"timeIn,omitempty"`
+	TimeNotIn        []string `json:"timeNotIn,omitempty"`
+	TimeGT           *string  `json:"timeGT,omitempty"`
+	TimeGTE          *string  `json:"timeGTE,omitempty"`
+	TimeLT           *string  `json:"timeLT,omitempty"`
+	TimeLTE          *string  `json:"timeLTE,omitempty"`
+	TimeContains     *string  `json:"timeContains,omitempty"`
+	TimeHasPrefix    *string  `json:"timeHasPrefix,omitempty"`
+	TimeHasSuffix    *string  `json:"timeHasSuffix,omitempty"`
+	TimeIsNil        bool     `json:"timeIsNil,omitempty"`
+	TimeNotNil       bool     `json:"timeNotNil,omitempty"`
+	TimeEqualFold    *string  `json:"timeEqualFold,omitempty"`
+	TimeContainsFold *string  `json:"timeContainsFold,omitempty"`
 
 	// "timing_breakdown" edge predicates.
 	HasTimingBreakdown     *bool                        `json:"hasTimingBreakdown,omitempty"`
@@ -13391,11 +13416,26 @@ func (i *TimingChildWhereInput) P() (predicate.TimingChild, error) {
 	if i.TimeLTE != nil {
 		predicates = append(predicates, timingchild.TimeLTE(*i.TimeLTE))
 	}
+	if i.TimeContains != nil {
+		predicates = append(predicates, timingchild.TimeContains(*i.TimeContains))
+	}
+	if i.TimeHasPrefix != nil {
+		predicates = append(predicates, timingchild.TimeHasPrefix(*i.TimeHasPrefix))
+	}
+	if i.TimeHasSuffix != nil {
+		predicates = append(predicates, timingchild.TimeHasSuffix(*i.TimeHasSuffix))
+	}
 	if i.TimeIsNil {
 		predicates = append(predicates, timingchild.TimeIsNil())
 	}
 	if i.TimeNotNil {
 		predicates = append(predicates, timingchild.TimeNotNil())
+	}
+	if i.TimeEqualFold != nil {
+		predicates = append(predicates, timingchild.TimeEqualFold(*i.TimeEqualFold))
+	}
+	if i.TimeContainsFold != nil {
+		predicates = append(predicates, timingchild.TimeContainsFold(*i.TimeContainsFold))
 	}
 
 	if i.HasTimingBreakdown != nil {

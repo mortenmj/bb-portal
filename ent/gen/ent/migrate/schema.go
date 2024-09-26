@@ -772,7 +772,7 @@ var (
 	TimingBreakdownsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "name", Type: field.TypeString, Nullable: true},
-		{Name: "time", Type: field.TypeInt64, Nullable: true},
+		{Name: "time", Type: field.TypeString, Nullable: true},
 	}
 	// TimingBreakdownsTable holds the schema information for the "timing_breakdowns" table.
 	TimingBreakdownsTable = &schema.Table{
@@ -784,7 +784,7 @@ var (
 	TimingChildsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "name", Type: field.TypeString, Nullable: true},
-		{Name: "time", Type: field.TypeInt64, Nullable: true},
+		{Name: "time", Type: field.TypeString, Nullable: true},
 	}
 	// TimingChildsTable holds the schema information for the "timing_childs" table.
 	TimingChildsTable = &schema.Table{

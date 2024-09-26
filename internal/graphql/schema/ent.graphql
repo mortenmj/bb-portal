@@ -3890,7 +3890,7 @@ scalar Time
 type TimingBreakdown implements Node {
   id: ID!
   name: String
-  time: Int
+  time: String
   exectionInfo: [ExectionInfo!]
   child: [TimingChild!]
 }
@@ -3934,16 +3934,21 @@ input TimingBreakdownWhereInput {
   """
   time field predicates
   """
-  time: Int
-  timeNEQ: Int
-  timeIn: [Int!]
-  timeNotIn: [Int!]
-  timeGT: Int
-  timeGTE: Int
-  timeLT: Int
-  timeLTE: Int
+  time: String
+  timeNEQ: String
+  timeIn: [String!]
+  timeNotIn: [String!]
+  timeGT: String
+  timeGTE: String
+  timeLT: String
+  timeLTE: String
+  timeContains: String
+  timeHasPrefix: String
+  timeHasSuffix: String
   timeIsNil: Boolean
   timeNotNil: Boolean
+  timeEqualFold: String
+  timeContainsFold: String
   """
   exection_info edge predicates
   """
@@ -3958,7 +3963,7 @@ input TimingBreakdownWhereInput {
 type TimingChild implements Node {
   id: ID!
   name: String
-  time: Int
+  time: String
   timingBreakdown: [TimingBreakdown!]
 }
 """
@@ -4001,16 +4006,21 @@ input TimingChildWhereInput {
   """
   time field predicates
   """
-  time: Int
-  timeNEQ: Int
-  timeIn: [Int!]
-  timeNotIn: [Int!]
-  timeGT: Int
-  timeGTE: Int
-  timeLT: Int
-  timeLTE: Int
+  time: String
+  timeNEQ: String
+  timeIn: [String!]
+  timeNotIn: [String!]
+  timeGT: String
+  timeGTE: String
+  timeLT: String
+  timeLTE: String
+  timeContains: String
+  timeHasPrefix: String
+  timeHasSuffix: String
   timeIsNil: Boolean
   timeNotNil: Boolean
+  timeEqualFold: String
+  timeContainsFold: String
   """
   timing_breakdown edge predicates
   """

@@ -50,23 +50,16 @@ func (tbu *TimingBreakdownUpdate) ClearName() *TimingBreakdownUpdate {
 }
 
 // SetTime sets the "time" field.
-func (tbu *TimingBreakdownUpdate) SetTime(i int64) *TimingBreakdownUpdate {
-	tbu.mutation.ResetTime()
-	tbu.mutation.SetTime(i)
+func (tbu *TimingBreakdownUpdate) SetTime(s string) *TimingBreakdownUpdate {
+	tbu.mutation.SetTime(s)
 	return tbu
 }
 
 // SetNillableTime sets the "time" field if the given value is not nil.
-func (tbu *TimingBreakdownUpdate) SetNillableTime(i *int64) *TimingBreakdownUpdate {
-	if i != nil {
-		tbu.SetTime(*i)
+func (tbu *TimingBreakdownUpdate) SetNillableTime(s *string) *TimingBreakdownUpdate {
+	if s != nil {
+		tbu.SetTime(*s)
 	}
-	return tbu
-}
-
-// AddTime adds i to the "time" field.
-func (tbu *TimingBreakdownUpdate) AddTime(i int64) *TimingBreakdownUpdate {
-	tbu.mutation.AddTime(i)
 	return tbu
 }
 
@@ -196,13 +189,10 @@ func (tbu *TimingBreakdownUpdate) sqlSave(ctx context.Context) (n int, err error
 		_spec.ClearField(timingbreakdown.FieldName, field.TypeString)
 	}
 	if value, ok := tbu.mutation.Time(); ok {
-		_spec.SetField(timingbreakdown.FieldTime, field.TypeInt64, value)
-	}
-	if value, ok := tbu.mutation.AddedTime(); ok {
-		_spec.AddField(timingbreakdown.FieldTime, field.TypeInt64, value)
+		_spec.SetField(timingbreakdown.FieldTime, field.TypeString, value)
 	}
 	if tbu.mutation.TimeCleared() {
-		_spec.ClearField(timingbreakdown.FieldTime, field.TypeInt64)
+		_spec.ClearField(timingbreakdown.FieldTime, field.TypeString)
 	}
 	if tbu.mutation.ExectionInfoCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -335,23 +325,16 @@ func (tbuo *TimingBreakdownUpdateOne) ClearName() *TimingBreakdownUpdateOne {
 }
 
 // SetTime sets the "time" field.
-func (tbuo *TimingBreakdownUpdateOne) SetTime(i int64) *TimingBreakdownUpdateOne {
-	tbuo.mutation.ResetTime()
-	tbuo.mutation.SetTime(i)
+func (tbuo *TimingBreakdownUpdateOne) SetTime(s string) *TimingBreakdownUpdateOne {
+	tbuo.mutation.SetTime(s)
 	return tbuo
 }
 
 // SetNillableTime sets the "time" field if the given value is not nil.
-func (tbuo *TimingBreakdownUpdateOne) SetNillableTime(i *int64) *TimingBreakdownUpdateOne {
-	if i != nil {
-		tbuo.SetTime(*i)
+func (tbuo *TimingBreakdownUpdateOne) SetNillableTime(s *string) *TimingBreakdownUpdateOne {
+	if s != nil {
+		tbuo.SetTime(*s)
 	}
-	return tbuo
-}
-
-// AddTime adds i to the "time" field.
-func (tbuo *TimingBreakdownUpdateOne) AddTime(i int64) *TimingBreakdownUpdateOne {
-	tbuo.mutation.AddTime(i)
 	return tbuo
 }
 
@@ -511,13 +494,10 @@ func (tbuo *TimingBreakdownUpdateOne) sqlSave(ctx context.Context) (_node *Timin
 		_spec.ClearField(timingbreakdown.FieldName, field.TypeString)
 	}
 	if value, ok := tbuo.mutation.Time(); ok {
-		_spec.SetField(timingbreakdown.FieldTime, field.TypeInt64, value)
-	}
-	if value, ok := tbuo.mutation.AddedTime(); ok {
-		_spec.AddField(timingbreakdown.FieldTime, field.TypeInt64, value)
+		_spec.SetField(timingbreakdown.FieldTime, field.TypeString, value)
 	}
 	if tbuo.mutation.TimeCleared() {
-		_spec.ClearField(timingbreakdown.FieldTime, field.TypeInt64)
+		_spec.ClearField(timingbreakdown.FieldTime, field.TypeString)
 	}
 	if tbuo.mutation.ExectionInfoCleared() {
 		edge := &sqlgraph.EdgeSpec{

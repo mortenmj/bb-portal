@@ -59,7 +59,7 @@ func Name(v string) predicate.TimingChild {
 }
 
 // Time applies equality check predicate on the "time" field. It's identical to TimeEQ.
-func Time(v int64) predicate.TimingChild {
+func Time(v string) predicate.TimingChild {
 	return predicate.TimingChild(sql.FieldEQ(FieldTime, v))
 }
 
@@ -139,43 +139,58 @@ func NameContainsFold(v string) predicate.TimingChild {
 }
 
 // TimeEQ applies the EQ predicate on the "time" field.
-func TimeEQ(v int64) predicate.TimingChild {
+func TimeEQ(v string) predicate.TimingChild {
 	return predicate.TimingChild(sql.FieldEQ(FieldTime, v))
 }
 
 // TimeNEQ applies the NEQ predicate on the "time" field.
-func TimeNEQ(v int64) predicate.TimingChild {
+func TimeNEQ(v string) predicate.TimingChild {
 	return predicate.TimingChild(sql.FieldNEQ(FieldTime, v))
 }
 
 // TimeIn applies the In predicate on the "time" field.
-func TimeIn(vs ...int64) predicate.TimingChild {
+func TimeIn(vs ...string) predicate.TimingChild {
 	return predicate.TimingChild(sql.FieldIn(FieldTime, vs...))
 }
 
 // TimeNotIn applies the NotIn predicate on the "time" field.
-func TimeNotIn(vs ...int64) predicate.TimingChild {
+func TimeNotIn(vs ...string) predicate.TimingChild {
 	return predicate.TimingChild(sql.FieldNotIn(FieldTime, vs...))
 }
 
 // TimeGT applies the GT predicate on the "time" field.
-func TimeGT(v int64) predicate.TimingChild {
+func TimeGT(v string) predicate.TimingChild {
 	return predicate.TimingChild(sql.FieldGT(FieldTime, v))
 }
 
 // TimeGTE applies the GTE predicate on the "time" field.
-func TimeGTE(v int64) predicate.TimingChild {
+func TimeGTE(v string) predicate.TimingChild {
 	return predicate.TimingChild(sql.FieldGTE(FieldTime, v))
 }
 
 // TimeLT applies the LT predicate on the "time" field.
-func TimeLT(v int64) predicate.TimingChild {
+func TimeLT(v string) predicate.TimingChild {
 	return predicate.TimingChild(sql.FieldLT(FieldTime, v))
 }
 
 // TimeLTE applies the LTE predicate on the "time" field.
-func TimeLTE(v int64) predicate.TimingChild {
+func TimeLTE(v string) predicate.TimingChild {
 	return predicate.TimingChild(sql.FieldLTE(FieldTime, v))
+}
+
+// TimeContains applies the Contains predicate on the "time" field.
+func TimeContains(v string) predicate.TimingChild {
+	return predicate.TimingChild(sql.FieldContains(FieldTime, v))
+}
+
+// TimeHasPrefix applies the HasPrefix predicate on the "time" field.
+func TimeHasPrefix(v string) predicate.TimingChild {
+	return predicate.TimingChild(sql.FieldHasPrefix(FieldTime, v))
+}
+
+// TimeHasSuffix applies the HasSuffix predicate on the "time" field.
+func TimeHasSuffix(v string) predicate.TimingChild {
+	return predicate.TimingChild(sql.FieldHasSuffix(FieldTime, v))
 }
 
 // TimeIsNil applies the IsNil predicate on the "time" field.
@@ -186,6 +201,16 @@ func TimeIsNil() predicate.TimingChild {
 // TimeNotNil applies the NotNil predicate on the "time" field.
 func TimeNotNil() predicate.TimingChild {
 	return predicate.TimingChild(sql.FieldNotNull(FieldTime))
+}
+
+// TimeEqualFold applies the EqualFold predicate on the "time" field.
+func TimeEqualFold(v string) predicate.TimingChild {
+	return predicate.TimingChild(sql.FieldEqualFold(FieldTime, v))
+}
+
+// TimeContainsFold applies the ContainsFold predicate on the "time" field.
+func TimeContainsFold(v string) predicate.TimingChild {
+	return predicate.TimingChild(sql.FieldContainsFold(FieldTime, v))
 }
 
 // HasTimingBreakdown applies the HasEdge predicate on the "timing_breakdown" edge.

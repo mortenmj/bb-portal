@@ -30501,8 +30501,7 @@ type TimingBreakdownMutation struct {
 	typ                  string
 	id                   *int
 	name                 *string
-	time                 *int64
-	addtime              *int64
+	time                 *string
 	clearedFields        map[string]struct{}
 	exection_info        map[int]struct{}
 	removedexection_info map[int]struct{}
@@ -30663,13 +30662,12 @@ func (m *TimingBreakdownMutation) ResetName() {
 }
 
 // SetTime sets the "time" field.
-func (m *TimingBreakdownMutation) SetTime(i int64) {
-	m.time = &i
-	m.addtime = nil
+func (m *TimingBreakdownMutation) SetTime(s string) {
+	m.time = &s
 }
 
 // Time returns the value of the "time" field in the mutation.
-func (m *TimingBreakdownMutation) Time() (r int64, exists bool) {
+func (m *TimingBreakdownMutation) Time() (r string, exists bool) {
 	v := m.time
 	if v == nil {
 		return
@@ -30680,7 +30678,7 @@ func (m *TimingBreakdownMutation) Time() (r int64, exists bool) {
 // OldTime returns the old "time" field's value of the TimingBreakdown entity.
 // If the TimingBreakdown object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *TimingBreakdownMutation) OldTime(ctx context.Context) (v int64, err error) {
+func (m *TimingBreakdownMutation) OldTime(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldTime is only allowed on UpdateOne operations")
 	}
@@ -30694,28 +30692,9 @@ func (m *TimingBreakdownMutation) OldTime(ctx context.Context) (v int64, err err
 	return oldValue.Time, nil
 }
 
-// AddTime adds i to the "time" field.
-func (m *TimingBreakdownMutation) AddTime(i int64) {
-	if m.addtime != nil {
-		*m.addtime += i
-	} else {
-		m.addtime = &i
-	}
-}
-
-// AddedTime returns the value that was added to the "time" field in this mutation.
-func (m *TimingBreakdownMutation) AddedTime() (r int64, exists bool) {
-	v := m.addtime
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
 // ClearTime clears the value of the "time" field.
 func (m *TimingBreakdownMutation) ClearTime() {
 	m.time = nil
-	m.addtime = nil
 	m.clearedFields[timingbreakdown.FieldTime] = struct{}{}
 }
 
@@ -30728,7 +30707,6 @@ func (m *TimingBreakdownMutation) TimeCleared() bool {
 // ResetTime resets all changes to the "time" field.
 func (m *TimingBreakdownMutation) ResetTime() {
 	m.time = nil
-	m.addtime = nil
 	delete(m.clearedFields, timingbreakdown.FieldTime)
 }
 
@@ -30923,7 +30901,7 @@ func (m *TimingBreakdownMutation) SetField(name string, value ent.Value) error {
 		m.SetName(v)
 		return nil
 	case timingbreakdown.FieldTime:
-		v, ok := value.(int64)
+		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -30936,21 +30914,13 @@ func (m *TimingBreakdownMutation) SetField(name string, value ent.Value) error {
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *TimingBreakdownMutation) AddedFields() []string {
-	var fields []string
-	if m.addtime != nil {
-		fields = append(fields, timingbreakdown.FieldTime)
-	}
-	return fields
+	return nil
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *TimingBreakdownMutation) AddedField(name string) (ent.Value, bool) {
-	switch name {
-	case timingbreakdown.FieldTime:
-		return m.AddedTime()
-	}
 	return nil, false
 }
 
@@ -30959,13 +30929,6 @@ func (m *TimingBreakdownMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *TimingBreakdownMutation) AddField(name string, value ent.Value) error {
 	switch name {
-	case timingbreakdown.FieldTime:
-		v, ok := value.(int64)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.AddTime(v)
-		return nil
 	}
 	return fmt.Errorf("unknown TimingBreakdown numeric field %s", name)
 }
@@ -31135,8 +31098,7 @@ type TimingChildMutation struct {
 	typ                     string
 	id                      *int
 	name                    *string
-	time                    *int64
-	addtime                 *int64
+	time                    *string
 	clearedFields           map[string]struct{}
 	timing_breakdown        map[int]struct{}
 	removedtiming_breakdown map[int]struct{}
@@ -31294,13 +31256,12 @@ func (m *TimingChildMutation) ResetName() {
 }
 
 // SetTime sets the "time" field.
-func (m *TimingChildMutation) SetTime(i int64) {
-	m.time = &i
-	m.addtime = nil
+func (m *TimingChildMutation) SetTime(s string) {
+	m.time = &s
 }
 
 // Time returns the value of the "time" field in the mutation.
-func (m *TimingChildMutation) Time() (r int64, exists bool) {
+func (m *TimingChildMutation) Time() (r string, exists bool) {
 	v := m.time
 	if v == nil {
 		return
@@ -31311,7 +31272,7 @@ func (m *TimingChildMutation) Time() (r int64, exists bool) {
 // OldTime returns the old "time" field's value of the TimingChild entity.
 // If the TimingChild object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *TimingChildMutation) OldTime(ctx context.Context) (v int64, err error) {
+func (m *TimingChildMutation) OldTime(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldTime is only allowed on UpdateOne operations")
 	}
@@ -31325,28 +31286,9 @@ func (m *TimingChildMutation) OldTime(ctx context.Context) (v int64, err error) 
 	return oldValue.Time, nil
 }
 
-// AddTime adds i to the "time" field.
-func (m *TimingChildMutation) AddTime(i int64) {
-	if m.addtime != nil {
-		*m.addtime += i
-	} else {
-		m.addtime = &i
-	}
-}
-
-// AddedTime returns the value that was added to the "time" field in this mutation.
-func (m *TimingChildMutation) AddedTime() (r int64, exists bool) {
-	v := m.addtime
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
 // ClearTime clears the value of the "time" field.
 func (m *TimingChildMutation) ClearTime() {
 	m.time = nil
-	m.addtime = nil
 	m.clearedFields[timingchild.FieldTime] = struct{}{}
 }
 
@@ -31359,7 +31301,6 @@ func (m *TimingChildMutation) TimeCleared() bool {
 // ResetTime resets all changes to the "time" field.
 func (m *TimingChildMutation) ResetTime() {
 	m.time = nil
-	m.addtime = nil
 	delete(m.clearedFields, timingchild.FieldTime)
 }
 
@@ -31500,7 +31441,7 @@ func (m *TimingChildMutation) SetField(name string, value ent.Value) error {
 		m.SetName(v)
 		return nil
 	case timingchild.FieldTime:
-		v, ok := value.(int64)
+		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -31513,21 +31454,13 @@ func (m *TimingChildMutation) SetField(name string, value ent.Value) error {
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *TimingChildMutation) AddedFields() []string {
-	var fields []string
-	if m.addtime != nil {
-		fields = append(fields, timingchild.FieldTime)
-	}
-	return fields
+	return nil
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *TimingChildMutation) AddedField(name string) (ent.Value, bool) {
-	switch name {
-	case timingchild.FieldTime:
-		return m.AddedTime()
-	}
 	return nil, false
 }
 
@@ -31536,13 +31469,6 @@ func (m *TimingChildMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *TimingChildMutation) AddField(name string, value ent.Value) error {
 	switch name {
-	case timingchild.FieldTime:
-		v, ok := value.(int64)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.AddTime(v)
-		return nil
 	}
 	return fmt.Errorf("unknown TimingChild numeric field %s", name)
 }

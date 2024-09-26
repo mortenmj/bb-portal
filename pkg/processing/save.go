@@ -27,7 +27,9 @@ type SaveActor struct {
 	blobArchiver BlobMultiArchiver
 }
 
+// saves an invocation summary to the database
 func (act SaveActor) SaveSummary(ctx context.Context, summary *summary.Summary) (*ent.BazelInvocation, error) {
+
 	eventFile, err := act.saveEventFile(ctx, summary)
 	if err != nil {
 		return nil, fmt.Errorf("could not save EventFile: %w", err)
@@ -40,12 +42,12 @@ func (act SaveActor) SaveSummary(ctx context.Context, summary *summary.Summary) 
 
 	metrics, err := act.createMetrics(ctx, summary)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("could not save Metrics: %w", err)
 	}
 
 	targets, err := act.createTargets(ctx, summary)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("could not save Targets: %w", err)
 	}
 
 	tests, err := act.createTestResults(ctx, summary)
@@ -176,17 +178,16 @@ func (act SaveActor) saveEventFile(ctx context.Context, summary *summary.Summary
 	return eventFile, err
 }
 
+// TODO: is there a more effiient way to do bulk updates instead of sequentially adding everything to the database one object at a time?
 func (act SaveActor) createTargets(ctx context.Context, summary *summary.Summary) ([]*ent.TargetPair, error) {
 	var err error = nil
 	var result []*ent.TargetPair
 
 	for targetLabel, targetPair := range summary.Targets {
-		slog.Debug("processing target pair for %s", targetLabel)
 		var configuration = targetPair.Configuration
 		var completion = targetPair.Completion
 
 		//configuration
-		slog.Debug("processing configuration for %s", targetLabel)
 		var target_configuration *ent.TargetConfigured
 		target_configuration, err = act.db.TargetConfigured.Create().
 			SetTag(configuration.Tag).
@@ -195,15 +196,12 @@ func (act SaveActor) createTargets(ctx context.Context, summary *summary.Summary
 			SetTestSize(targetconfigured.TestSize(configuration.TestSize.String())).
 			Save(ctx)
 		if err != nil {
-			slog.Error("problem saving target configuratiton object: %w", err)
+			slog.Error("problem saving target configuratiton object for %s on invocation %s: %w",
+				targetLabel, summary.BuildUUID, err)
 			err = nil
 		}
 
 		//target completion
-		//output group
-		slog.Debug("processing output group for label %s on invocation %s", targetLabel, summary.InvocationID)
-		//inline files
-		slog.Debug("processing inline files for label %s on invocation %s", targetLabel, summary.InvocationID)
 		var inline_files []*ent.TestFile
 		for _, inlineFile := range completion.OutputGroup.InlineFiles {
 			var inline_file *ent.TestFile
@@ -215,12 +213,13 @@ func (act SaveActor) createTargets(ctx context.Context, summary *summary.Summary
 				SetPrefix(inlineFile.Prefix).
 				Save(ctx)
 			if err != nil {
-				slog.Error("problem saving inline file object: %w", err)
+				slog.Error("problem saving inline file object for label %s on invocation %s: %w", targetLabel, summary.InvocationID, err)
 				err = nil
 			}
 			inline_files = append(inline_files, inline_file)
 		}
 
+		//output group
 		var output_group *ent.OutputGroup
 		output_group, err = act.db.OutputGroup.Create().
 			SetName(completion.OutputGroup.Name).
@@ -229,13 +228,11 @@ func (act SaveActor) createTargets(ctx context.Context, summary *summary.Summary
 			//TODO: implement named set of files logic to recursively add files to this collection
 			Save(ctx)
 		if err != nil {
-			slog.Error("problem saving output group object: %w", err)
+			slog.Error("problem saving output group objectfor label %s on invocation %s: %w", targetLabel, summary.InvocationID, err)
 			err = nil
 		}
 
 		//important output
-		slog.Debug("processing important output for label %s on invocation %s", targetLabel, summary.InvocationID)
-
 		var important_output []*ent.TestFile
 		for _, importantFile := range completion.ImportantOutput {
 
@@ -248,15 +245,13 @@ func (act SaveActor) createTargets(ctx context.Context, summary *summary.Summary
 				SetPrefix(importantFile.Prefix).
 				Save(ctx)
 			if err != nil {
-				slog.Error("problem saving important output object: %w", err)
+				slog.Error("problem saving important output object for label %s on invocation %s: %w", targetLabel, summary.InvocationID, err)
 				err = nil
 			}
 			important_output = append(important_output, important_file)
 		}
 
 		//directory output
-		slog.Debug("processing directory output for label %s on invocation %s", targetLabel, summary.InvocationID)
-
 		var directory_output []*ent.TestFile
 		for _, directoryFile := range completion.DirectoryOutput {
 
@@ -269,14 +264,13 @@ func (act SaveActor) createTargets(ctx context.Context, summary *summary.Summary
 				SetPrefix(directoryFile.Prefix).
 				Save(ctx)
 			if err != nil {
-				slog.Error("problem saving directory output object: %w", err)
+				slog.Error("problem saving directory output object for label %s on invocation %s: %w", targetLabel, summary.InvocationID, err)
 				err = nil
 			}
 			directory_output = append(directory_output, directory_file)
 		}
 
 		//target complete
-		slog.Debug("processing target omplete for label %s on invocation %s", targetLabel, summary.InvocationID)
 		var target_completion *ent.TargetComplete
 		target_completion, err = act.db.TargetComplete.Create().
 			SetSuccess(completion.Success).
@@ -291,12 +285,11 @@ func (act SaveActor) createTargets(ctx context.Context, summary *summary.Summary
 			AddDirectoryOutput(directory_output...).
 			Save(ctx)
 		if err != nil {
-			slog.Error("problem saving target configuratiton object: %w", err)
+			slog.Error("problem saving target configuratiton object for label %s on invocation %s: %w", targetLabel, summary.InvocationID, err)
 			err = nil
 		}
 
 		//process the target pair
-		slog.Debug("processing target pair for label %s on invocation %s", targetLabel, summary.InvocationID)
 		var target_pair *ent.TargetPair
 
 		target_pair, err = act.db.TargetPair.Create().
@@ -309,7 +302,7 @@ func (act SaveActor) createTargets(ctx context.Context, summary *summary.Summary
 			SetTestSize(targetpair.TestSize(targetPair.TestSize.String())).
 			Save(ctx)
 		if err != nil {
-			slog.Error("problem saving target pair object: %w", err)
+			slog.Error("problem saving target pair object for label %s on invocation %s: %w", targetLabel, summary.InvocationID, err)
 			err = nil
 		}
 		if !targetPair.Success {
@@ -318,14 +311,14 @@ func (act SaveActor) createTargets(ctx context.Context, summary *summary.Summary
 				SetAbortReason(ab_reason).
 				Save(ctx)
 			if err != nil {
-				slog.Error("problem updating abort reason object: %w", err)
+				slog.Error("problem updating abort reason object for label %s on invocation %s: %w", targetLabel, summary.InvocationID, err)
 				err = nil
 			}
+			//TODO: do i need this here? or can I just append the target_pair object either way?
 			result = append(result, update)
 		} else {
 			result = append(result, target_pair)
 		}
-
 	}
 
 	if err != nil {
@@ -338,13 +331,11 @@ func (act SaveActor) createTargets(ctx context.Context, summary *summary.Summary
 func (act SaveActor) createTestResults(ctx context.Context, summary *summary.Summary) ([]*ent.TestCollection, error) {
 
 	var err error = nil
-
 	var result []*ent.TestCollection
 
 	for testLabel, testCollection := range summary.Tests {
 
 		//test summary
-		slog.Debug("processing test summary for %s", testLabel)
 		var ts = testCollection.TestSummary
 		var db_test_summary *ent.TestSummary
 		db_test_summary, err = act.db.TestSummary.Create().
@@ -363,12 +354,11 @@ func (act SaveActor) createTestResults(ctx context.Context, summary *summary.Sum
 			Save(ctx)
 
 		if err != nil {
-			slog.Error("problem saving test summary object: %w", err)
+			slog.Error("problem saving test summary object for %s on %s: %w", testLabel, summary.BuildUUID, err)
 			err = nil
 		}
 
 		//test results
-		slog.Debug("processing test results")
 		var test_results []*ent.TestResultBES
 		for _, tr := range testCollection.TestResults {
 
@@ -383,7 +373,7 @@ func (act SaveActor) createTestResults(ctx context.Context, summary *summary.Sum
 					Save(ctx)
 
 				if err != nil {
-					slog.Error("problem saving timing child object: %w", err)
+					slog.Error("problem saving timing child object for label %s on invocation %s: %w", testLabel, summary.InvocationID, err)
 					err = nil
 				}
 
@@ -399,7 +389,7 @@ func (act SaveActor) createTestResults(ctx context.Context, summary *summary.Sum
 				Save(ctx)
 
 			if err != nil {
-				slog.Error("problem saving timing breakdown object: %w", err)
+				slog.Error("problem saving timing breakdown object for label %s on invocation %s: %w", testLabel, summary.InvocationID, err)
 				err = nil
 			}
 
@@ -415,7 +405,7 @@ func (act SaveActor) createTestResults(ctx context.Context, summary *summary.Sum
 					Save(ctx)
 
 				if err != nil {
-					slog.Error("problem saving resource usage object: %w", err)
+					slog.Error("problem saving resource usage object for label %s on invocation %s: %w", testLabel, summary.InvocationID, err)
 					err = nil
 				}
 
@@ -434,7 +424,7 @@ func (act SaveActor) createTestResults(ctx context.Context, summary *summary.Sum
 				Save(ctx)
 
 			if err != nil {
-				slog.Error("problem saving execution info object: %w", err)
+				slog.Error("problem saving execution info object for label %s on invocation %s: %w", testLabel, summary.InvocationID, err)
 				err = nil
 			}
 
@@ -442,18 +432,18 @@ func (act SaveActor) createTestResults(ctx context.Context, summary *summary.Sum
 
 			test_result, err = act.db.TestResultBES.Create().
 				SetTestStatus(testresultbes.TestStatus(tr.Status.String())).
-				SetAttempt(tr.Attempt).
-				SetCachedLocally(tr.CachedLocally).
+				SetStatusDetails(tr.StatusDetails).
 				SetLabel(tr.Label).
 				SetWarning(tr.Warning).
-				SetTestAttemptDurationMillis(tr.TestAttemptDurationMillis).
-				SetTestAttemptStartMillisEpoch(tr.TestAttemptStartMillisEpoch).
-				SetTestStatus(testresultbes.DefaultTestStatus).
+				SetCachedLocally(tr.CachedLocally).
+				SetTestAttemptDuration(tr.TestAttemptDuration).
+				SetTestAttemptStart(tr.TestAttemptStart).
 				SetExecutionInfo(exection_info).
+				//TODO: implement test action output AddTestActionOutput()
 				Save(ctx)
 
 			if err != nil {
-				slog.Error("problem saving test result object: %w", err)
+				slog.Error("problem saving test result object for label %s on invocation %s: %w", testLabel, summary.InvocationID, err)
 				err = nil
 			}
 
@@ -472,7 +462,7 @@ func (act SaveActor) createTestResults(ctx context.Context, summary *summary.Sum
 			SetDurationMs(testCollection.DurationMs).
 			Save(ctx)
 		if err != nil {
-			slog.Error("problem saving test collection object: %w", err)
+			slog.Error("problem saving test collection object for label %s on invocation %s: %w", testLabel, summary.InvocationID, err)
 			err = nil
 		}
 		result = append(result, test_collection)
@@ -491,7 +481,6 @@ func (act SaveActor) createMetrics(ctx context.Context, summary *summary.Summary
 	var metrics *ent.Metrics
 
 	//create the miss details
-	slog.Debug("creating miss details")
 	var miss_details []*ent.MissDetail
 	for _, md := range summary.Metrics.ActionSummary.ActionCacheStatistics.MissDetails {
 
@@ -502,73 +491,14 @@ func (act SaveActor) createMetrics(ctx context.Context, summary *summary.Summary
 			SetReason(missdetail.Reason(md.Reason.String())).
 			Save(ctx)
 
-		// switch md.Reason.String() {
-		// case "UNKNOWN":
-
-		// 	miss_detail, err = act.db.MissDetail.Create().
-		// 		SetCount(md.Count).
-		// 		SetReason(missdetail.DefaultReason).
-		// 		Save(ctx)
-
-		// case "DIFFERENT_ACTION_KEY":
-
-		// 	miss_detail, err = act.db.MissDetail.Create().
-		// 		SetCount(md.Count).
-		// 		SetReason(missdetail.ReasonDIFFERENT_ACTION_KEY).
-		// 		Save(ctx)
-
-		// case "DIFFERENT_DEPS":
-
-		// 	miss_detail, err = act.db.MissDetail.Create().
-		// 		SetCount(md.Count).
-		// 		SetReason(missdetail.ReasonDIFFERENT_DEPS).
-		// 		Save(ctx)
-
-		// case "DIFFERENT_ENVIRONMENT":
-
-		// 	miss_detail, err = act.db.MissDetail.Create().
-		// 		SetCount(md.Count).
-		// 		SetReason(missdetail.ReasonDIFFERENT_ENVIRONMENT).
-		// 		Save(ctx)
-
-		// case "DIFFERENT_FILES":
-
-		// 	miss_detail, err = act.db.MissDetail.Create().
-		// 		SetCount(md.Count).
-		// 		SetReason(missdetail.ReasonDIFFERENT_FILES).
-		// 		Save(ctx)
-
-		// case "CORRUPTED_CACHE_ENTRY":
-
-		// 	miss_detail, err = act.db.MissDetail.Create().
-		// 		SetCount(md.Count).
-		// 		SetReason(missdetail.ReasonCORRUPTED_CACHE_ENTRY).
-		// 		Save(ctx)
-
-		// case "NOT_CACHED":
-
-		// 	miss_detail, err = act.db.MissDetail.Create().
-		// 		SetCount(md.Count).
-		// 		SetReason(missdetail.ReasonNOT_CACHED).
-		// 		Save(ctx)
-
-		// case "UNCONDITIONAL_EXECUTION":
-
-		// 	miss_detail, err = act.db.MissDetail.Create().
-		// 		SetCount(md.Count).
-		// 		SetReason(missdetail.ReasonUNCONDITIONAL_EXECUTION).
-		// 		Save(ctx)
-
-		// }
 		if err != nil {
-			slog.Error("unable to create miss detail %w", err)
+			slog.Error("unable to create miss detail on invocation %s: %w", summary.InvocationID, err)
 			err = nil
 		}
 		miss_details = append(miss_details, miss_detail)
 	}
 
 	//create the action cache statistics
-	slog.Debug("creating action cache statistics")
 	var actionCacheStatistics *ent.ActionCacheStatistics
 	actionCacheStatistics, err = act.db.ActionCacheStatistics.Create().
 		SetSizeInBytes(int64(summary.Metrics.ActionSummary.ActionCacheStatistics.SizeInBytes)).
@@ -579,12 +509,11 @@ func (act SaveActor) createMetrics(ctx context.Context, summary *summary.Summary
 		Save(ctx)
 
 	if err != nil {
-		slog.Error("error creating action cache statistics. %w", err)
+		slog.Error("error creating action cache statistics on invocation %s: %w", summary.InvocationID, err)
 		err = nil
 	}
 
 	//create runner counters
-	slog.Debug("creating runner counts ")
 	var runnerCounts []*ent.RunnerCount
 	for _, rc := range summary.Metrics.ActionSummary.RunnerCount {
 		var runnerCount *ent.RunnerCount
@@ -595,16 +524,13 @@ func (act SaveActor) createMetrics(ctx context.Context, summary *summary.Summary
 			Save(ctx)
 
 		if err != nil {
-			slog.Error("error creating runner count. %w", err)
+			slog.Error("error creating runner count on invocation %s: %w", summary.InvocationID, err)
 			err = nil
 		}
-
 		runnerCounts = append(runnerCounts, runnerCount)
-
 	}
 
 	//create action datas
-	slog.Debug("creating action datas")
 	var actionDatas []*ent.ActionData
 	for _, ad := range summary.Metrics.ActionSummary.ActionData {
 		var actionData *ent.ActionData
@@ -618,7 +544,7 @@ func (act SaveActor) createMetrics(ctx context.Context, summary *summary.Summary
 			Save(ctx)
 
 		if err != nil {
-			slog.Error("error creating action data. %w", err)
+			slog.Error("error creating action data on invocation %s: %w", summary.InvocationID, err)
 			err = nil
 		}
 
@@ -627,7 +553,6 @@ func (act SaveActor) createMetrics(ctx context.Context, summary *summary.Summary
 	}
 
 	//create the action summary
-	slog.Debug("creating acton summary")
 	var actionSummary *ent.ActionSummary
 	actionSummary, err = act.db.ActionSummary.Create().
 		SetActionsCreated(summary.Metrics.ActionSummary.ActionsCreated).
@@ -640,13 +565,12 @@ func (act SaveActor) createMetrics(ctx context.Context, summary *summary.Summary
 		Save(ctx)
 
 	if err != nil {
-		slog.Error("error creating action summary. %w", err)
+		slog.Error("error creating action summary on invocation %s: %w", summary.InvocationID, err)
 		err = nil
 	}
 
 	//TODO:implement EvalutionStats once they exist on the proto
 	//create the build graph metrics
-	slog.Debug("creating memory metrics")
 	var buildGraphMetrics *ent.BuildGraphMetrics
 	buildGraphMetrics, err = act.db.BuildGraphMetrics.Create().
 		SetActionLookupValueCount(summary.Metrics.BuildGraphMetrics.ActionLookupValueCount).
@@ -659,12 +583,11 @@ func (act SaveActor) createMetrics(ctx context.Context, summary *summary.Summary
 		SetPostInvocationSkyframeNodeCount(summary.Metrics.BuildGraphMetrics.PostInvocationSkyframeNodeCount).
 		Save(ctx)
 	if err != nil {
-		slog.Error("error creating buildgraph metrics. %w", err)
+		slog.Error("error creating buildgraph metrics on invocation %s: %w", summary.InvocationID, err)
 		err = nil
 	}
 
 	//create garbage metrics
-	slog.Debug("creating garbage metrics")
 	var garbageMetrics []*ent.GarbageMetrics
 	for _, gm := range summary.Metrics.MemoryMetrics.GarbageMetrics {
 		var garbageMetric *ent.GarbageMetrics
@@ -674,7 +597,7 @@ func (act SaveActor) createMetrics(ctx context.Context, summary *summary.Summary
 			Save(ctx)
 
 		if err != nil {
-			slog.Error("error creating garbage metrics. %w", err)
+			slog.Error("error creating garbage metrics on invocation %s: %w", summary.InvocationID, err)
 			err = nil
 		}
 
@@ -682,7 +605,6 @@ func (act SaveActor) createMetrics(ctx context.Context, summary *summary.Summary
 	}
 
 	//create memory metrics
-	slog.Debug("creating memory metrics")
 	var memoryMetrics *ent.MemoryMetrics
 	memoryMetrics, err = act.db.MemoryMetrics.Create().
 		SetPeakPostGcHeapSize(summary.Metrics.MemoryMetrics.PeakPostGcHeapSize).
@@ -691,12 +613,11 @@ func (act SaveActor) createMetrics(ctx context.Context, summary *summary.Summary
 		AddGarbageMetrics(garbageMetrics...).
 		Save(ctx)
 	if err != nil {
-		slog.Error("error creating memory metrics. %w", err)
+		slog.Error("error creating memory metrics on invocation %s: %w", summary.InvocationID, err)
 		err = nil
 	}
 
 	//create target metrics
-	slog.Debug("creating target metrics")
 	var targetMetrics *ent.TargetMetrics
 	targetMetrics, err = act.db.TargetMetrics.Create().
 		SetTargetsConfigured(summary.Metrics.TargetMetrics.TargetsConfigured).
@@ -704,12 +625,11 @@ func (act SaveActor) createMetrics(ctx context.Context, summary *summary.Summary
 		SetTargetsLoaded(summary.Metrics.TargetMetrics.TargetsLoaded).
 		Save(ctx)
 	if err != nil {
-		slog.Error("error creating target metrics. %w", err)
+		slog.Error("error creating target metrics on invocation %s: %w", summary.InvocationID, err)
 		err = nil
 	}
 
 	//create the package load metrics
-	slog.Debug("creating package load metrics")
 	var packageLoadMetrics []*ent.PackageLoadMetrics
 
 	for _, plm := range summary.Metrics.PackageMetrics.PackageLoadMetrics {
@@ -723,61 +643,57 @@ func (act SaveActor) createMetrics(ctx context.Context, summary *summary.Summary
 			SetPackageOverhead(int64(plm.PackageOverhead)).
 			Save(ctx)
 		if err != nil {
-			slog.Error("error creating package metrics. %w", err)
+			slog.Error("error creating package metrics on invocation %s: %w", summary.InvocationID, err)
 			err = nil
 		}
 		packageLoadMetrics = append(packageLoadMetrics, packageLoadMetric)
 	}
 
 	//create the package metrics
-	slog.Debug("creating package metrics")
 	var packageMetrics *ent.PackageMetrics
 	packageMetrics, err = act.db.PackageMetrics.Create().
 		SetPackagesLoaded(summary.Metrics.PackageMetrics.PackagesLoaded).
 		AddPackageLoadMetrics(packageLoadMetrics...).
 		Save(ctx)
 	if err != nil {
-		slog.Error("error creating package metrics. %w", err)
+		slog.Error("error creating package metrics on invocation %s: %w", summary.InvocationID, err)
 		err = nil
 	}
 
 	//create the cumulative metrics
 	var cumulativeMetrics *ent.CumulativeMetrics
-	slog.Debug("creating cumulative  metrics")
 	cumulativeMetrics, err = act.db.CumulativeMetrics.Create().
 		SetNumAnalyses(summary.Metrics.CumulativeMetrics.NumAnalyses).
 		SetNumBuilds(summary.Metrics.CumulativeMetrics.NumBuilds).
 		Save(ctx)
 	if err != nil {
-		slog.Error("error creating cumulative metrics. %w", err)
+		slog.Error("error creating cumulative metrics on invocation %s: %w", summary.InvocationID, err)
 		err = nil
 	}
 
 	//create the timing metrics
 	var timingMetrics *ent.TimingMetrics
-	slog.Debug("creating timing metrics")
 	timingMetrics, err = act.db.TimingMetrics.Create().
 		SetAnalysisPhaseTimeInMs(summary.Metrics.TimingMetrics.AnalysisPhaseTimeInMs).
 		SetCPUTimeInMs(summary.Metrics.TimingMetrics.CpuTimeInMs).
 		SetExecutionPhaseTimeInMs(summary.Metrics.TimingMetrics.ExecutionPhaseTimeInMs).
 		SetWallTimeInMs(summary.Metrics.TimingMetrics.WallTimeInMs).
-		//TODO:
+		//TODO: when this is added to and populated in the proto
 		//SetActionsExecutionStartInMs()
 		Save(ctx)
 	if err != nil {
-		slog.Error("error creating timing metrics. %w", err)
+		slog.Error("error creating timing metrics on invocation %s: %w", summary.InvocationID, err)
 		err = nil
 	}
 
 	//create source artifacts read
-	slog.Debug("creating artifact metrics")
 	var soureArtifactsRead *ent.FilesMetric
 	soureArtifactsRead, err = act.db.FilesMetric.Create().
 		SetCount(summary.Metrics.ArtifactMetrics.SourceArtifactsRead.Count).
 		SetSizeInBytes(summary.Metrics.ArtifactMetrics.SourceArtifactsRead.SizeInBytes).
 		Save(ctx)
 	if err != nil {
-		slog.Error("error creating source artifacts read metrics. %w", err)
+		slog.Error("error creating source artifacts read metrics on invocation %s: %w", summary.InvocationID, err)
 		err = nil
 	}
 
@@ -788,7 +704,7 @@ func (act SaveActor) createMetrics(ctx context.Context, summary *summary.Summary
 		SetSizeInBytes(summary.Metrics.ArtifactMetrics.OutputArtifactsSeen.SizeInBytes).
 		Save(ctx)
 	if err != nil {
-		slog.Error("error creating output artifacts seen metrics. %w", err)
+		slog.Error("error creating output artifacts seen metrics on invocation %s: %w", summary.InvocationID, err)
 		err = nil
 	}
 
@@ -799,7 +715,7 @@ func (act SaveActor) createMetrics(ctx context.Context, summary *summary.Summary
 		SetSizeInBytes(summary.Metrics.ArtifactMetrics.OutputArtifactsFromActionCache.SizeInBytes).
 		Save(ctx)
 	if err != nil {
-		slog.Error("error creating output artifacts from action cache metrics. %w", err)
+		slog.Error("error creating output artifacts from action cache metrics on invocation %s: %w", summary.InvocationID, err)
 		err = nil
 	}
 
@@ -810,13 +726,12 @@ func (act SaveActor) createMetrics(ctx context.Context, summary *summary.Summary
 		SetSizeInBytes(summary.Metrics.ArtifactMetrics.TopLevelArtifacts.SizeInBytes).
 		Save(ctx)
 	if err != nil {
-		slog.Error("error creating top level artifacts metrics. %w", err)
+		slog.Error("error creating top level artifacts metrics on invocation %s: %w", summary.InvocationID, err)
 		err = nil
 	}
 
 	//create the artifact metrics
 	var artifactMetrics *ent.ArtifactMetrics
-	slog.Debug("creating artifact metrics")
 	artifactMetrics, err = act.db.ArtifactMetrics.Create().
 		AddSourceArtifactsRead(soureArtifactsRead).
 		AddOutputArtifactsSeen(outputArtifactsSeen).
@@ -824,16 +739,14 @@ func (act SaveActor) createMetrics(ctx context.Context, summary *summary.Summary
 		AddTopLevelArtifacts(topLevelArtifacts).
 		Save(ctx)
 	if err != nil {
-		slog.Error("error creating artifact metrics. %w", err)
+		slog.Error("error creating artifact metrics on invocation %s: %w", summary.InvocationID, err)
 		err = nil
 	}
 
+	//create the system network stats
 	var networkMetrics *ent.NetworkMetrics
 	if summary.Metrics.NetworkMetrics.SystemNetworkStats != nil {
 		var systemNetworkStats *ent.SystemNetworkStats
-		slog.Debug("creating network metrics")
-		//create the system network stats
-		//TODO: need null checking for when the bazel command crashes
 		systemNetworkStats, err = act.db.SystemNetworkStats.Create().
 			SetBytesRecv(int64(summary.Metrics.NetworkMetrics.SystemNetworkStats.BytesRecv)).
 			SetBytesSent(int64(summary.Metrics.NetworkMetrics.SystemNetworkStats.BytesSent)).
@@ -845,7 +758,7 @@ func (act SaveActor) createMetrics(ctx context.Context, summary *summary.Summary
 			SetPeakBytesSentPerSec(int64(summary.Metrics.NetworkMetrics.SystemNetworkStats.PeakPacketsSentPerSec)).
 			Save(ctx)
 		if err != nil {
-			slog.Error("error creating system network stats metrics. %w", err)
+			slog.Error("error creating system network stats metrics on invocation %s: %w", summary.InvocationID, err)
 			err = nil
 		}
 		//create the network metrics
@@ -853,15 +766,14 @@ func (act SaveActor) createMetrics(ctx context.Context, summary *summary.Summary
 			AddSystemNetworkStats(systemNetworkStats).
 			Save(ctx)
 		if err != nil {
-			slog.Error("error creating network metrics. %w", err)
+			slog.Error("error creating network metrics on invocation %s: %w", summary.InvocationID, err)
 			err = nil
 		}
 	}
 
 	//create the metrics object
-	slog.Debug("creating metrics object")
 
-	//there has to be a more elegant way to do this...
+	//TODO: there has to be a more elegant way to do this...
 	if networkMetrics != nil {
 		metrics, err = act.db.Metrics.Create().
 			AddActionSummary(actionSummary).
@@ -888,11 +800,10 @@ func (act SaveActor) createMetrics(ctx context.Context, summary *summary.Summary
 	}
 
 	if err != nil {
-		return nil, fmt.Errorf("unable to create metrics %w", err)
+		return nil, fmt.Errorf("unable to create metrics on invocation %s: %w", summary.BuildUUID, err)
 	}
 
 	return metrics, nil
-
 }
 
 func (act SaveActor) findOrCreateBuild(ctx context.Context, summary *summary.Summary) (*ent.Build, error) {

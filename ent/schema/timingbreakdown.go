@@ -19,7 +19,8 @@ func (TimingBreakdown) Fields() []ent.Field {
 		field.String("name").Optional(),
 
 		//times spent ding the activity (duration)
-		field.Int64("time").Optional(),
+		//NOTE: proto has this as an int, but implemented as a string
+		field.String("time").Optional(),
 	}
 }
 

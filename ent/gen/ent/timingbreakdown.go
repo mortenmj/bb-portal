@@ -19,7 +19,7 @@ type TimingBreakdown struct {
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
 	// Time holds the value of the "time" field.
-	Time int64 `json:"time,omitempty"`
+	Time string `json:"time,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the TimingBreakdownQuery when eager-loading is set.
 	Edges        TimingBreakdownEdges `json:"edges"`
@@ -65,9 +65,9 @@ func (*TimingBreakdown) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case timingbreakdown.FieldID, timingbreakdown.FieldTime:
+		case timingbreakdown.FieldID:
 			values[i] = new(sql.NullInt64)
-		case timingbreakdown.FieldName:
+		case timingbreakdown.FieldName, timingbreakdown.FieldTime:
 			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -97,10 +97,10 @@ func (tb *TimingBreakdown) assignValues(columns []string, values []any) error {
 				tb.Name = value.String
 			}
 		case timingbreakdown.FieldTime:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field time", values[i])
 			} else if value.Valid {
-				tb.Time = value.Int64
+				tb.Time = value.String
 			}
 		default:
 			tb.selectValues.Set(columns[i], values[i])
@@ -152,7 +152,7 @@ func (tb *TimingBreakdown) String() string {
 	builder.WriteString(tb.Name)
 	builder.WriteString(", ")
 	builder.WriteString("time=")
-	builder.WriteString(fmt.Sprintf("%v", tb.Time))
+	builder.WriteString(tb.Time)
 	builder.WriteByte(')')
 	return builder.String()
 }

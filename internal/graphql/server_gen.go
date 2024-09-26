@@ -21301,9 +21301,9 @@ func (ec *executionContext) _TimingBreakdown_time(ctx context.Context, field gra
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(int64)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalOInt2int64(ctx, field.Selections, res)
+	return ec.marshalOString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_TimingBreakdown_time(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -21313,7 +21313,7 @@ func (ec *executionContext) fieldContext_TimingBreakdown_time(_ context.Context,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -21539,9 +21539,9 @@ func (ec *executionContext) _TimingChild_time(ctx context.Context, field graphql
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(int64)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalOInt2int64(ctx, field.Selections, res)
+	return ec.marshalOString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_TimingChild_time(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -21551,7 +21551,7 @@ func (ec *executionContext) fieldContext_TimingChild_time(_ context.Context, fie
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -40023,7 +40023,7 @@ func (ec *executionContext) unmarshalInputTimingBreakdownWhereInput(ctx context.
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"not", "and", "or", "id", "idNEQ", "idIn", "idNotIn", "idGT", "idGTE", "idLT", "idLTE", "name", "nameNEQ", "nameIn", "nameNotIn", "nameGT", "nameGTE", "nameLT", "nameLTE", "nameContains", "nameHasPrefix", "nameHasSuffix", "nameIsNil", "nameNotNil", "nameEqualFold", "nameContainsFold", "time", "timeNEQ", "timeIn", "timeNotIn", "timeGT", "timeGTE", "timeLT", "timeLTE", "timeIsNil", "timeNotNil", "hasExectionInfo", "hasExectionInfoWith", "hasChild", "hasChildWith"}
+	fieldsInOrder := [...]string{"not", "and", "or", "id", "idNEQ", "idIn", "idNotIn", "idGT", "idGTE", "idLT", "idLTE", "name", "nameNEQ", "nameIn", "nameNotIn", "nameGT", "nameGTE", "nameLT", "nameLTE", "nameContains", "nameHasPrefix", "nameHasSuffix", "nameIsNil", "nameNotNil", "nameEqualFold", "nameContainsFold", "time", "timeNEQ", "timeIn", "timeNotIn", "timeGT", "timeGTE", "timeLT", "timeLTE", "timeContains", "timeHasPrefix", "timeHasSuffix", "timeIsNil", "timeNotNil", "timeEqualFold", "timeContainsFold", "hasExectionInfo", "hasExectionInfoWith", "hasChild", "hasChildWith"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -40230,60 +40230,81 @@ func (ec *executionContext) unmarshalInputTimingBreakdownWhereInput(ctx context.
 			it.NameContainsFold = data
 		case "time":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("time"))
-			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.Time = data
 		case "timeNEQ":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timeNEQ"))
-			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.TimeNEQ = data
 		case "timeIn":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timeIn"))
-			data, err := ec.unmarshalOInt2ᚕint64ᚄ(ctx, v)
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.TimeIn = data
 		case "timeNotIn":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timeNotIn"))
-			data, err := ec.unmarshalOInt2ᚕint64ᚄ(ctx, v)
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.TimeNotIn = data
 		case "timeGT":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timeGT"))
-			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.TimeGT = data
 		case "timeGTE":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timeGTE"))
-			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.TimeGTE = data
 		case "timeLT":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timeLT"))
-			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.TimeLT = data
 		case "timeLTE":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timeLTE"))
-			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.TimeLTE = data
+		case "timeContains":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timeContains"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TimeContains = data
+		case "timeHasPrefix":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timeHasPrefix"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TimeHasPrefix = data
+		case "timeHasSuffix":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timeHasSuffix"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TimeHasSuffix = data
 		case "timeIsNil":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timeIsNil"))
 			data, err := ec.unmarshalOBoolean2bool(ctx, v)
@@ -40298,6 +40319,20 @@ func (ec *executionContext) unmarshalInputTimingBreakdownWhereInput(ctx context.
 				return it, err
 			}
 			it.TimeNotNil = data
+		case "timeEqualFold":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timeEqualFold"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TimeEqualFold = data
+		case "timeContainsFold":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timeContainsFold"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TimeContainsFold = data
 		case "hasExectionInfo":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasExectionInfo"))
 			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
@@ -40339,7 +40374,7 @@ func (ec *executionContext) unmarshalInputTimingChildWhereInput(ctx context.Cont
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"not", "and", "or", "id", "idNEQ", "idIn", "idNotIn", "idGT", "idGTE", "idLT", "idLTE", "name", "nameNEQ", "nameIn", "nameNotIn", "nameGT", "nameGTE", "nameLT", "nameLTE", "nameContains", "nameHasPrefix", "nameHasSuffix", "nameIsNil", "nameNotNil", "nameEqualFold", "nameContainsFold", "time", "timeNEQ", "timeIn", "timeNotIn", "timeGT", "timeGTE", "timeLT", "timeLTE", "timeIsNil", "timeNotNil", "hasTimingBreakdown", "hasTimingBreakdownWith"}
+	fieldsInOrder := [...]string{"not", "and", "or", "id", "idNEQ", "idIn", "idNotIn", "idGT", "idGTE", "idLT", "idLTE", "name", "nameNEQ", "nameIn", "nameNotIn", "nameGT", "nameGTE", "nameLT", "nameLTE", "nameContains", "nameHasPrefix", "nameHasSuffix", "nameIsNil", "nameNotNil", "nameEqualFold", "nameContainsFold", "time", "timeNEQ", "timeIn", "timeNotIn", "timeGT", "timeGTE", "timeLT", "timeLTE", "timeContains", "timeHasPrefix", "timeHasSuffix", "timeIsNil", "timeNotNil", "timeEqualFold", "timeContainsFold", "hasTimingBreakdown", "hasTimingBreakdownWith"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -40546,60 +40581,81 @@ func (ec *executionContext) unmarshalInputTimingChildWhereInput(ctx context.Cont
 			it.NameContainsFold = data
 		case "time":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("time"))
-			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.Time = data
 		case "timeNEQ":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timeNEQ"))
-			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.TimeNEQ = data
 		case "timeIn":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timeIn"))
-			data, err := ec.unmarshalOInt2ᚕint64ᚄ(ctx, v)
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.TimeIn = data
 		case "timeNotIn":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timeNotIn"))
-			data, err := ec.unmarshalOInt2ᚕint64ᚄ(ctx, v)
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.TimeNotIn = data
 		case "timeGT":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timeGT"))
-			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.TimeGT = data
 		case "timeGTE":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timeGTE"))
-			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.TimeGTE = data
 		case "timeLT":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timeLT"))
-			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.TimeLT = data
 		case "timeLTE":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timeLTE"))
-			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.TimeLTE = data
+		case "timeContains":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timeContains"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TimeContains = data
+		case "timeHasPrefix":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timeHasPrefix"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TimeHasPrefix = data
+		case "timeHasSuffix":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timeHasSuffix"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TimeHasSuffix = data
 		case "timeIsNil":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timeIsNil"))
 			data, err := ec.unmarshalOBoolean2bool(ctx, v)
@@ -40614,6 +40670,20 @@ func (ec *executionContext) unmarshalInputTimingChildWhereInput(ctx context.Cont
 				return it, err
 			}
 			it.TimeNotNil = data
+		case "timeEqualFold":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timeEqualFold"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TimeEqualFold = data
+		case "timeContainsFold":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timeContainsFold"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TimeContainsFold = data
 		case "hasTimingBreakdown":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasTimingBreakdown"))
 			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)

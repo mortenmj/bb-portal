@@ -311,22 +311,22 @@ func (s Summarizer) handleTestResult(testResult *bes.TestResult, label string) {
 
 	//create a test result
 	var tr TestResult = TestResult{
-		Label:                       label,
-		Status:                      TestStatus(testResult.Status),
-		StatusDetails:               testResult.StatusDetails,
-		CachedLocally:               testResult.CachedLocally,
-		TestAttemptStartMillisEpoch: testResult.TestAttemptStart.Seconds * 1000,
-		TestAttemptDurationMillis:   testResult.TestAttemptDuration.Seconds * 1000,
-		Warning:                     testResult.Warning,
-		ExecutionInfo:               execution_info,
-		TestActionOutput:            make([]TestFile, 0),
+		Status:              TestStatus(testResult.Status),
+		StatusDetails:       testResult.StatusDetails,
+		Label:               label,
+		Warning:             testResult.Warning,
+		CachedLocally:       testResult.CachedLocally,
+		TestAttemptStart:    testResult.TestAttemptStart.AsTime().String(),
+		TestAttemptDuration: testResult.TestAttemptDuration.AsDuration().Milliseconds(),
+		ExecutionInfo:       execution_info,
+		TestActionOutput:    make([]TestFile, 0),
 	}
 
 	//append test action outputs
 	for _, ao := range testResult.TestActionOutput {
 		actionOutput := TestFile{
 			Digest: ao.Digest,
-			//File TODO
+			File:   ao.GetUri(),
 			Length: ao.Length,
 			Name:   ao.Name,
 			Prefix: ao.PathPrefix,
