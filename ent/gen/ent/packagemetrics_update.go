@@ -56,21 +56,6 @@ func (pmu *PackageMetricsUpdate) ClearPackagesLoaded() *PackageMetricsUpdate {
 	return pmu
 }
 
-// AddPackageLoadMetricIDs adds the "package_load_metrics" edge to the PackageLoadMetrics entity by IDs.
-func (pmu *PackageMetricsUpdate) AddPackageLoadMetricIDs(ids ...int) *PackageMetricsUpdate {
-	pmu.mutation.AddPackageLoadMetricIDs(ids...)
-	return pmu
-}
-
-// AddPackageLoadMetrics adds the "package_load_metrics" edges to the PackageLoadMetrics entity.
-func (pmu *PackageMetricsUpdate) AddPackageLoadMetrics(p ...*PackageLoadMetrics) *PackageMetricsUpdate {
-	ids := make([]int, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
-	}
-	return pmu.AddPackageLoadMetricIDs(ids...)
-}
-
 // AddMetricIDs adds the "metrics" edge to the Metrics entity by IDs.
 func (pmu *PackageMetricsUpdate) AddMetricIDs(ids ...int) *PackageMetricsUpdate {
 	pmu.mutation.AddMetricIDs(ids...)
@@ -86,30 +71,24 @@ func (pmu *PackageMetricsUpdate) AddMetrics(m ...*Metrics) *PackageMetricsUpdate
 	return pmu.AddMetricIDs(ids...)
 }
 
-// Mutation returns the PackageMetricsMutation object of the builder.
-func (pmu *PackageMetricsUpdate) Mutation() *PackageMetricsMutation {
-	return pmu.mutation
-}
-
-// ClearPackageLoadMetrics clears all "package_load_metrics" edges to the PackageLoadMetrics entity.
-func (pmu *PackageMetricsUpdate) ClearPackageLoadMetrics() *PackageMetricsUpdate {
-	pmu.mutation.ClearPackageLoadMetrics()
+// AddPackageLoadMetricIDs adds the "package_load_metrics" edge to the PackageLoadMetrics entity by IDs.
+func (pmu *PackageMetricsUpdate) AddPackageLoadMetricIDs(ids ...int) *PackageMetricsUpdate {
+	pmu.mutation.AddPackageLoadMetricIDs(ids...)
 	return pmu
 }
 
-// RemovePackageLoadMetricIDs removes the "package_load_metrics" edge to PackageLoadMetrics entities by IDs.
-func (pmu *PackageMetricsUpdate) RemovePackageLoadMetricIDs(ids ...int) *PackageMetricsUpdate {
-	pmu.mutation.RemovePackageLoadMetricIDs(ids...)
-	return pmu
-}
-
-// RemovePackageLoadMetrics removes "package_load_metrics" edges to PackageLoadMetrics entities.
-func (pmu *PackageMetricsUpdate) RemovePackageLoadMetrics(p ...*PackageLoadMetrics) *PackageMetricsUpdate {
+// AddPackageLoadMetrics adds the "package_load_metrics" edges to the PackageLoadMetrics entity.
+func (pmu *PackageMetricsUpdate) AddPackageLoadMetrics(p ...*PackageLoadMetrics) *PackageMetricsUpdate {
 	ids := make([]int, len(p))
 	for i := range p {
 		ids[i] = p[i].ID
 	}
-	return pmu.RemovePackageLoadMetricIDs(ids...)
+	return pmu.AddPackageLoadMetricIDs(ids...)
+}
+
+// Mutation returns the PackageMetricsMutation object of the builder.
+func (pmu *PackageMetricsUpdate) Mutation() *PackageMetricsMutation {
+	return pmu.mutation
 }
 
 // ClearMetrics clears all "metrics" edges to the Metrics entity.
@@ -131,6 +110,27 @@ func (pmu *PackageMetricsUpdate) RemoveMetrics(m ...*Metrics) *PackageMetricsUpd
 		ids[i] = m[i].ID
 	}
 	return pmu.RemoveMetricIDs(ids...)
+}
+
+// ClearPackageLoadMetrics clears all "package_load_metrics" edges to the PackageLoadMetrics entity.
+func (pmu *PackageMetricsUpdate) ClearPackageLoadMetrics() *PackageMetricsUpdate {
+	pmu.mutation.ClearPackageLoadMetrics()
+	return pmu
+}
+
+// RemovePackageLoadMetricIDs removes the "package_load_metrics" edge to PackageLoadMetrics entities by IDs.
+func (pmu *PackageMetricsUpdate) RemovePackageLoadMetricIDs(ids ...int) *PackageMetricsUpdate {
+	pmu.mutation.RemovePackageLoadMetricIDs(ids...)
+	return pmu
+}
+
+// RemovePackageLoadMetrics removes "package_load_metrics" edges to PackageLoadMetrics entities.
+func (pmu *PackageMetricsUpdate) RemovePackageLoadMetrics(p ...*PackageLoadMetrics) *PackageMetricsUpdate {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return pmu.RemovePackageLoadMetricIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -178,51 +178,6 @@ func (pmu *PackageMetricsUpdate) sqlSave(ctx context.Context) (n int, err error)
 	if pmu.mutation.PackagesLoadedCleared() {
 		_spec.ClearField(packagemetrics.FieldPackagesLoaded, field.TypeInt64)
 	}
-	if pmu.mutation.PackageLoadMetricsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   packagemetrics.PackageLoadMetricsTable,
-			Columns: packagemetrics.PackageLoadMetricsPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(packageloadmetrics.FieldID, field.TypeInt),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := pmu.mutation.RemovedPackageLoadMetricsIDs(); len(nodes) > 0 && !pmu.mutation.PackageLoadMetricsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   packagemetrics.PackageLoadMetricsTable,
-			Columns: packagemetrics.PackageLoadMetricsPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(packageloadmetrics.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := pmu.mutation.PackageLoadMetricsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   packagemetrics.PackageLoadMetricsTable,
-			Columns: packagemetrics.PackageLoadMetricsPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(packageloadmetrics.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
 	if pmu.mutation.MetricsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
@@ -261,6 +216,51 @@ func (pmu *PackageMetricsUpdate) sqlSave(ctx context.Context) (n int, err error)
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(metrics.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if pmu.mutation.PackageLoadMetricsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   packagemetrics.PackageLoadMetricsTable,
+			Columns: packagemetrics.PackageLoadMetricsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(packageloadmetrics.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := pmu.mutation.RemovedPackageLoadMetricsIDs(); len(nodes) > 0 && !pmu.mutation.PackageLoadMetricsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   packagemetrics.PackageLoadMetricsTable,
+			Columns: packagemetrics.PackageLoadMetricsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(packageloadmetrics.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := pmu.mutation.PackageLoadMetricsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   packagemetrics.PackageLoadMetricsTable,
+			Columns: packagemetrics.PackageLoadMetricsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(packageloadmetrics.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -315,21 +315,6 @@ func (pmuo *PackageMetricsUpdateOne) ClearPackagesLoaded() *PackageMetricsUpdate
 	return pmuo
 }
 
-// AddPackageLoadMetricIDs adds the "package_load_metrics" edge to the PackageLoadMetrics entity by IDs.
-func (pmuo *PackageMetricsUpdateOne) AddPackageLoadMetricIDs(ids ...int) *PackageMetricsUpdateOne {
-	pmuo.mutation.AddPackageLoadMetricIDs(ids...)
-	return pmuo
-}
-
-// AddPackageLoadMetrics adds the "package_load_metrics" edges to the PackageLoadMetrics entity.
-func (pmuo *PackageMetricsUpdateOne) AddPackageLoadMetrics(p ...*PackageLoadMetrics) *PackageMetricsUpdateOne {
-	ids := make([]int, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
-	}
-	return pmuo.AddPackageLoadMetricIDs(ids...)
-}
-
 // AddMetricIDs adds the "metrics" edge to the Metrics entity by IDs.
 func (pmuo *PackageMetricsUpdateOne) AddMetricIDs(ids ...int) *PackageMetricsUpdateOne {
 	pmuo.mutation.AddMetricIDs(ids...)
@@ -345,30 +330,24 @@ func (pmuo *PackageMetricsUpdateOne) AddMetrics(m ...*Metrics) *PackageMetricsUp
 	return pmuo.AddMetricIDs(ids...)
 }
 
-// Mutation returns the PackageMetricsMutation object of the builder.
-func (pmuo *PackageMetricsUpdateOne) Mutation() *PackageMetricsMutation {
-	return pmuo.mutation
-}
-
-// ClearPackageLoadMetrics clears all "package_load_metrics" edges to the PackageLoadMetrics entity.
-func (pmuo *PackageMetricsUpdateOne) ClearPackageLoadMetrics() *PackageMetricsUpdateOne {
-	pmuo.mutation.ClearPackageLoadMetrics()
+// AddPackageLoadMetricIDs adds the "package_load_metrics" edge to the PackageLoadMetrics entity by IDs.
+func (pmuo *PackageMetricsUpdateOne) AddPackageLoadMetricIDs(ids ...int) *PackageMetricsUpdateOne {
+	pmuo.mutation.AddPackageLoadMetricIDs(ids...)
 	return pmuo
 }
 
-// RemovePackageLoadMetricIDs removes the "package_load_metrics" edge to PackageLoadMetrics entities by IDs.
-func (pmuo *PackageMetricsUpdateOne) RemovePackageLoadMetricIDs(ids ...int) *PackageMetricsUpdateOne {
-	pmuo.mutation.RemovePackageLoadMetricIDs(ids...)
-	return pmuo
-}
-
-// RemovePackageLoadMetrics removes "package_load_metrics" edges to PackageLoadMetrics entities.
-func (pmuo *PackageMetricsUpdateOne) RemovePackageLoadMetrics(p ...*PackageLoadMetrics) *PackageMetricsUpdateOne {
+// AddPackageLoadMetrics adds the "package_load_metrics" edges to the PackageLoadMetrics entity.
+func (pmuo *PackageMetricsUpdateOne) AddPackageLoadMetrics(p ...*PackageLoadMetrics) *PackageMetricsUpdateOne {
 	ids := make([]int, len(p))
 	for i := range p {
 		ids[i] = p[i].ID
 	}
-	return pmuo.RemovePackageLoadMetricIDs(ids...)
+	return pmuo.AddPackageLoadMetricIDs(ids...)
+}
+
+// Mutation returns the PackageMetricsMutation object of the builder.
+func (pmuo *PackageMetricsUpdateOne) Mutation() *PackageMetricsMutation {
+	return pmuo.mutation
 }
 
 // ClearMetrics clears all "metrics" edges to the Metrics entity.
@@ -390,6 +369,27 @@ func (pmuo *PackageMetricsUpdateOne) RemoveMetrics(m ...*Metrics) *PackageMetric
 		ids[i] = m[i].ID
 	}
 	return pmuo.RemoveMetricIDs(ids...)
+}
+
+// ClearPackageLoadMetrics clears all "package_load_metrics" edges to the PackageLoadMetrics entity.
+func (pmuo *PackageMetricsUpdateOne) ClearPackageLoadMetrics() *PackageMetricsUpdateOne {
+	pmuo.mutation.ClearPackageLoadMetrics()
+	return pmuo
+}
+
+// RemovePackageLoadMetricIDs removes the "package_load_metrics" edge to PackageLoadMetrics entities by IDs.
+func (pmuo *PackageMetricsUpdateOne) RemovePackageLoadMetricIDs(ids ...int) *PackageMetricsUpdateOne {
+	pmuo.mutation.RemovePackageLoadMetricIDs(ids...)
+	return pmuo
+}
+
+// RemovePackageLoadMetrics removes "package_load_metrics" edges to PackageLoadMetrics entities.
+func (pmuo *PackageMetricsUpdateOne) RemovePackageLoadMetrics(p ...*PackageLoadMetrics) *PackageMetricsUpdateOne {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return pmuo.RemovePackageLoadMetricIDs(ids...)
 }
 
 // Where appends a list predicates to the PackageMetricsUpdate builder.
@@ -467,51 +467,6 @@ func (pmuo *PackageMetricsUpdateOne) sqlSave(ctx context.Context) (_node *Packag
 	if pmuo.mutation.PackagesLoadedCleared() {
 		_spec.ClearField(packagemetrics.FieldPackagesLoaded, field.TypeInt64)
 	}
-	if pmuo.mutation.PackageLoadMetricsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   packagemetrics.PackageLoadMetricsTable,
-			Columns: packagemetrics.PackageLoadMetricsPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(packageloadmetrics.FieldID, field.TypeInt),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := pmuo.mutation.RemovedPackageLoadMetricsIDs(); len(nodes) > 0 && !pmuo.mutation.PackageLoadMetricsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   packagemetrics.PackageLoadMetricsTable,
-			Columns: packagemetrics.PackageLoadMetricsPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(packageloadmetrics.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := pmuo.mutation.PackageLoadMetricsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   packagemetrics.PackageLoadMetricsTable,
-			Columns: packagemetrics.PackageLoadMetricsPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(packageloadmetrics.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
 	if pmuo.mutation.MetricsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
@@ -550,6 +505,51 @@ func (pmuo *PackageMetricsUpdateOne) sqlSave(ctx context.Context) (_node *Packag
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(metrics.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if pmuo.mutation.PackageLoadMetricsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   packagemetrics.PackageLoadMetricsTable,
+			Columns: packagemetrics.PackageLoadMetricsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(packageloadmetrics.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := pmuo.mutation.RemovedPackageLoadMetricsIDs(); len(nodes) > 0 && !pmuo.mutation.PackageLoadMetricsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   packagemetrics.PackageLoadMetricsTable,
+			Columns: packagemetrics.PackageLoadMetricsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(packageloadmetrics.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := pmuo.mutation.PackageLoadMetricsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   packagemetrics.PackageLoadMetricsTable,
+			Columns: packagemetrics.PackageLoadMetricsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(packageloadmetrics.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

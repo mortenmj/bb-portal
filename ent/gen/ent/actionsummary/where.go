@@ -273,6 +273,29 @@ func RemoteCacheHitsNotNil() predicate.ActionSummary {
 	return predicate.ActionSummary(sql.FieldNotNull(FieldRemoteCacheHits))
 }
 
+// HasMetrics applies the HasEdge predicate on the "metrics" edge.
+func HasMetrics() predicate.ActionSummary {
+	return predicate.ActionSummary(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, MetricsTable, MetricsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasMetricsWith applies the HasEdge predicate on the "metrics" edge with a given conditions (other predicates).
+func HasMetricsWith(preds ...predicate.Metrics) predicate.ActionSummary {
+	return predicate.ActionSummary(func(s *sql.Selector) {
+		step := newMetricsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // HasActionData applies the HasEdge predicate on the "action_data" edge.
 func HasActionData() predicate.ActionSummary {
 	return predicate.ActionSummary(func(s *sql.Selector) {
@@ -334,29 +357,6 @@ func HasActionCacheStatistics() predicate.ActionSummary {
 func HasActionCacheStatisticsWith(preds ...predicate.ActionCacheStatistics) predicate.ActionSummary {
 	return predicate.ActionSummary(func(s *sql.Selector) {
 		step := newActionCacheStatisticsStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
-// HasMetrics applies the HasEdge predicate on the "metrics" edge.
-func HasMetrics() predicate.ActionSummary {
-	return predicate.ActionSummary(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, MetricsTable, MetricsColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasMetricsWith applies the HasEdge predicate on the "metrics" edge with a given conditions (other predicates).
-func HasMetricsWith(preds ...predicate.Metrics) predicate.ActionSummary {
-	return predicate.ActionSummary(func(s *sql.Selector) {
-		step := newMetricsStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

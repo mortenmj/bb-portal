@@ -35,15 +35,15 @@ func (tbc *TimingBreakdownCreate) SetNillableName(s *string) *TimingBreakdownCre
 }
 
 // SetTime sets the "time" field.
-func (tbc *TimingBreakdownCreate) SetTime(s string) *TimingBreakdownCreate {
-	tbc.mutation.SetTime(s)
+func (tbc *TimingBreakdownCreate) SetTime(i int64) *TimingBreakdownCreate {
+	tbc.mutation.SetTime(i)
 	return tbc
 }
 
 // SetNillableTime sets the "time" field if the given value is not nil.
-func (tbc *TimingBreakdownCreate) SetNillableTime(s *string) *TimingBreakdownCreate {
-	if s != nil {
-		tbc.SetTime(*s)
+func (tbc *TimingBreakdownCreate) SetNillableTime(i *int64) *TimingBreakdownCreate {
+	if i != nil {
+		tbc.SetTime(*i)
 	}
 	return tbc
 }
@@ -143,7 +143,7 @@ func (tbc *TimingBreakdownCreate) createSpec() (*TimingBreakdown, *sqlgraph.Crea
 		_node.Name = value
 	}
 	if value, ok := tbc.mutation.Time(); ok {
-		_spec.SetField(timingbreakdown.FieldTime, field.TypeString, value)
+		_spec.SetField(timingbreakdown.FieldTime, field.TypeInt64, value)
 		_node.Time = value
 	}
 	if nodes := tbc.mutation.ExectionInfoIDs(); len(nodes) > 0 {

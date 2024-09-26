@@ -637,22 +637,6 @@ func (c *ActionCacheStatisticsClient) GetX(ctx context.Context, id int) *ActionC
 	return obj
 }
 
-// QueryMissDetails queries the miss_details edge of a ActionCacheStatistics.
-func (c *ActionCacheStatisticsClient) QueryMissDetails(acs *ActionCacheStatistics) *MissDetailQuery {
-	query := (&MissDetailClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := acs.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(actioncachestatistics.Table, actioncachestatistics.FieldID, id),
-			sqlgraph.To(missdetail.Table, missdetail.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, actioncachestatistics.MissDetailsTable, actioncachestatistics.MissDetailsPrimaryKey...),
-		)
-		fromV = sqlgraph.Neighbors(acs.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
 // QueryActionSummary queries the action_summary edge of a ActionCacheStatistics.
 func (c *ActionCacheStatisticsClient) QueryActionSummary(acs *ActionCacheStatistics) *ActionSummaryQuery {
 	query := (&ActionSummaryClient{config: c.config}).Query()
@@ -662,6 +646,22 @@ func (c *ActionCacheStatisticsClient) QueryActionSummary(acs *ActionCacheStatist
 			sqlgraph.From(actioncachestatistics.Table, actioncachestatistics.FieldID, id),
 			sqlgraph.To(actionsummary.Table, actionsummary.FieldID),
 			sqlgraph.Edge(sqlgraph.M2M, true, actioncachestatistics.ActionSummaryTable, actioncachestatistics.ActionSummaryPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(acs.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryMissDetails queries the miss_details edge of a ActionCacheStatistics.
+func (c *ActionCacheStatisticsClient) QueryMissDetails(acs *ActionCacheStatistics) *MissDetailQuery {
+	query := (&MissDetailClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := acs.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(actioncachestatistics.Table, actioncachestatistics.FieldID, id),
+			sqlgraph.To(missdetail.Table, missdetail.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, actioncachestatistics.MissDetailsTable, actioncachestatistics.MissDetailsPrimaryKey...),
 		)
 		fromV = sqlgraph.Neighbors(acs.driver.Dialect(), step)
 		return fromV, nil
@@ -951,6 +951,22 @@ func (c *ActionSummaryClient) GetX(ctx context.Context, id int) *ActionSummary {
 	return obj
 }
 
+// QueryMetrics queries the metrics edge of a ActionSummary.
+func (c *ActionSummaryClient) QueryMetrics(as *ActionSummary) *MetricsQuery {
+	query := (&MetricsClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := as.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(actionsummary.Table, actionsummary.FieldID, id),
+			sqlgraph.To(metrics.Table, metrics.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, actionsummary.MetricsTable, actionsummary.MetricsColumn),
+		)
+		fromV = sqlgraph.Neighbors(as.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // QueryActionData queries the action_data edge of a ActionSummary.
 func (c *ActionSummaryClient) QueryActionData(as *ActionSummary) *ActionDataQuery {
 	query := (&ActionDataClient{config: c.config}).Query()
@@ -992,22 +1008,6 @@ func (c *ActionSummaryClient) QueryActionCacheStatistics(as *ActionSummary) *Act
 			sqlgraph.From(actionsummary.Table, actionsummary.FieldID, id),
 			sqlgraph.To(actioncachestatistics.Table, actioncachestatistics.FieldID),
 			sqlgraph.Edge(sqlgraph.M2M, false, actionsummary.ActionCacheStatisticsTable, actionsummary.ActionCacheStatisticsPrimaryKey...),
-		)
-		fromV = sqlgraph.Neighbors(as.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryMetrics queries the metrics edge of a ActionSummary.
-func (c *ActionSummaryClient) QueryMetrics(as *ActionSummary) *MetricsQuery {
-	query := (&MetricsClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := as.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(actionsummary.Table, actionsummary.FieldID, id),
-			sqlgraph.To(metrics.Table, metrics.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, actionsummary.MetricsTable, actionsummary.MetricsColumn),
 		)
 		fromV = sqlgraph.Neighbors(as.driver.Dialect(), step)
 		return fromV, nil
@@ -1393,22 +1393,6 @@ func (c *BazelInvocationClient) QueryBuild(bi *BazelInvocation) *BuildQuery {
 	return query
 }
 
-// QueryMetrics queries the metrics edge of a BazelInvocation.
-func (c *BazelInvocationClient) QueryMetrics(bi *BazelInvocation) *MetricsQuery {
-	query := (&MetricsClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := bi.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(bazelinvocation.Table, bazelinvocation.FieldID, id),
-			sqlgraph.To(metrics.Table, metrics.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, false, bazelinvocation.MetricsTable, bazelinvocation.MetricsColumn),
-		)
-		fromV = sqlgraph.Neighbors(bi.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
 // QueryProblems queries the problems edge of a BazelInvocation.
 func (c *BazelInvocationClient) QueryProblems(bi *BazelInvocation) *BazelInvocationProblemQuery {
 	query := (&BazelInvocationProblemClient{config: c.config}).Query()
@@ -1418,6 +1402,22 @@ func (c *BazelInvocationClient) QueryProblems(bi *BazelInvocation) *BazelInvocat
 			sqlgraph.From(bazelinvocation.Table, bazelinvocation.FieldID, id),
 			sqlgraph.To(bazelinvocationproblem.Table, bazelinvocationproblem.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, bazelinvocation.ProblemsTable, bazelinvocation.ProblemsColumn),
+		)
+		fromV = sqlgraph.Neighbors(bi.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryMetrics queries the metrics edge of a BazelInvocation.
+func (c *BazelInvocationClient) QueryMetrics(bi *BazelInvocation) *MetricsQuery {
+	query := (&MetricsClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := bi.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(bazelinvocation.Table, bazelinvocation.FieldID, id),
+			sqlgraph.To(metrics.Table, metrics.FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, false, bazelinvocation.MetricsTable, bazelinvocation.MetricsColumn),
 		)
 		fromV = sqlgraph.Neighbors(bi.driver.Dialect(), step)
 		return fromV, nil
@@ -3341,22 +3341,6 @@ func (c *MemoryMetricsClient) GetX(ctx context.Context, id int) *MemoryMetrics {
 	return obj
 }
 
-// QueryGarbageMetrics queries the garbage_metrics edge of a MemoryMetrics.
-func (c *MemoryMetricsClient) QueryGarbageMetrics(mm *MemoryMetrics) *GarbageMetricsQuery {
-	query := (&GarbageMetricsClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := mm.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(memorymetrics.Table, memorymetrics.FieldID, id),
-			sqlgraph.To(garbagemetrics.Table, garbagemetrics.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, memorymetrics.GarbageMetricsTable, memorymetrics.GarbageMetricsPrimaryKey...),
-		)
-		fromV = sqlgraph.Neighbors(mm.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
 // QueryMetrics queries the metrics edge of a MemoryMetrics.
 func (c *MemoryMetricsClient) QueryMetrics(mm *MemoryMetrics) *MetricsQuery {
 	query := (&MetricsClient{config: c.config}).Query()
@@ -3366,6 +3350,22 @@ func (c *MemoryMetricsClient) QueryMetrics(mm *MemoryMetrics) *MetricsQuery {
 			sqlgraph.From(memorymetrics.Table, memorymetrics.FieldID, id),
 			sqlgraph.To(metrics.Table, metrics.FieldID),
 			sqlgraph.Edge(sqlgraph.M2M, true, memorymetrics.MetricsTable, memorymetrics.MetricsPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(mm.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryGarbageMetrics queries the garbage_metrics edge of a MemoryMetrics.
+func (c *MemoryMetricsClient) QueryGarbageMetrics(mm *MemoryMetrics) *GarbageMetricsQuery {
+	query := (&GarbageMetricsClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := mm.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(memorymetrics.Table, memorymetrics.FieldID, id),
+			sqlgraph.To(garbagemetrics.Table, garbagemetrics.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, memorymetrics.GarbageMetricsTable, memorymetrics.GarbageMetricsPrimaryKey...),
 		)
 		fromV = sqlgraph.Neighbors(mm.driver.Dialect(), step)
 		return fromV, nil
@@ -3675,38 +3675,6 @@ func (c *MetricsClient) QueryBuildGraphMetrics(m *Metrics) *BuildGraphMetricsQue
 			sqlgraph.From(metrics.Table, metrics.FieldID, id),
 			sqlgraph.To(buildgraphmetrics.Table, buildgraphmetrics.FieldID),
 			sqlgraph.Edge(sqlgraph.M2M, false, metrics.BuildGraphMetricsTable, metrics.BuildGraphMetricsPrimaryKey...),
-		)
-		fromV = sqlgraph.Neighbors(m.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryTestResults queries the test_results edge of a Metrics.
-func (c *MetricsClient) QueryTestResults(m *Metrics) *TestResultBESQuery {
-	query := (&TestResultBESClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := m.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(metrics.Table, metrics.FieldID, id),
-			sqlgraph.To(testresultbes.Table, testresultbes.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, metrics.TestResultsTable, metrics.TestResultsColumn),
-		)
-		fromV = sqlgraph.Neighbors(m.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryTestSummary queries the test_summary edge of a Metrics.
-func (c *MetricsClient) QueryTestSummary(m *Metrics) *TestSummaryQuery {
-	query := (&TestSummaryClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := m.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(metrics.Table, metrics.FieldID, id),
-			sqlgraph.To(testsummary.Table, testsummary.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, metrics.TestSummaryTable, metrics.TestSummaryColumn),
 		)
 		fromV = sqlgraph.Neighbors(m.driver.Dialect(), step)
 		return fromV, nil
@@ -4672,22 +4640,6 @@ func (c *PackageMetricsClient) GetX(ctx context.Context, id int) *PackageMetrics
 	return obj
 }
 
-// QueryPackageLoadMetrics queries the package_load_metrics edge of a PackageMetrics.
-func (c *PackageMetricsClient) QueryPackageLoadMetrics(pm *PackageMetrics) *PackageLoadMetricsQuery {
-	query := (&PackageLoadMetricsClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := pm.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(packagemetrics.Table, packagemetrics.FieldID, id),
-			sqlgraph.To(packageloadmetrics.Table, packageloadmetrics.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, packagemetrics.PackageLoadMetricsTable, packagemetrics.PackageLoadMetricsPrimaryKey...),
-		)
-		fromV = sqlgraph.Neighbors(pm.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
 // QueryMetrics queries the metrics edge of a PackageMetrics.
 func (c *PackageMetricsClient) QueryMetrics(pm *PackageMetrics) *MetricsQuery {
 	query := (&MetricsClient{config: c.config}).Query()
@@ -4697,6 +4649,22 @@ func (c *PackageMetricsClient) QueryMetrics(pm *PackageMetrics) *MetricsQuery {
 			sqlgraph.From(packagemetrics.Table, packagemetrics.FieldID, id),
 			sqlgraph.To(metrics.Table, metrics.FieldID),
 			sqlgraph.Edge(sqlgraph.M2M, true, packagemetrics.MetricsTable, packagemetrics.MetricsPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(pm.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryPackageLoadMetrics queries the package_load_metrics edge of a PackageMetrics.
+func (c *PackageMetricsClient) QueryPackageLoadMetrics(pm *PackageMetrics) *PackageLoadMetricsQuery {
+	query := (&PackageLoadMetricsClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := pm.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(packagemetrics.Table, packagemetrics.FieldID, id),
+			sqlgraph.To(packageloadmetrics.Table, packageloadmetrics.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, packagemetrics.PackageLoadMetricsTable, packagemetrics.PackageLoadMetricsPrimaryKey...),
 		)
 		fromV = sqlgraph.Neighbors(pm.driver.Dialect(), step)
 		return fromV, nil

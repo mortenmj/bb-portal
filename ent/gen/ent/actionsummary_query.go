@@ -26,10 +26,10 @@ type ActionSummaryQuery struct {
 	order                          []actionsummary.OrderOption
 	inters                         []Interceptor
 	predicates                     []predicate.ActionSummary
+	withMetrics                    *MetricsQuery
 	withActionData                 *ActionDataQuery
 	withRunnerCount                *RunnerCountQuery
 	withActionCacheStatistics      *ActionCacheStatisticsQuery
-	withMetrics                    *MetricsQuery
 	withFKs                        bool
 	modifiers                      []func(*sql.Selector)
 	loadTotal                      []func(context.Context, []*ActionSummary) error
@@ -70,6 +70,28 @@ func (asq *ActionSummaryQuery) Unique(unique bool) *ActionSummaryQuery {
 func (asq *ActionSummaryQuery) Order(o ...actionsummary.OrderOption) *ActionSummaryQuery {
 	asq.order = append(asq.order, o...)
 	return asq
+}
+
+// QueryMetrics chains the current query on the "metrics" edge.
+func (asq *ActionSummaryQuery) QueryMetrics() *MetricsQuery {
+	query := (&MetricsClient{config: asq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := asq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := asq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(actionsummary.Table, actionsummary.FieldID, selector),
+			sqlgraph.To(metrics.Table, metrics.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, actionsummary.MetricsTable, actionsummary.MetricsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(asq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
 }
 
 // QueryActionData chains the current query on the "action_data" edge.
@@ -131,28 +153,6 @@ func (asq *ActionSummaryQuery) QueryActionCacheStatistics() *ActionCacheStatisti
 			sqlgraph.From(actionsummary.Table, actionsummary.FieldID, selector),
 			sqlgraph.To(actioncachestatistics.Table, actioncachestatistics.FieldID),
 			sqlgraph.Edge(sqlgraph.M2M, false, actionsummary.ActionCacheStatisticsTable, actionsummary.ActionCacheStatisticsPrimaryKey...),
-		)
-		fromU = sqlgraph.SetNeighbors(asq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
-// QueryMetrics chains the current query on the "metrics" edge.
-func (asq *ActionSummaryQuery) QueryMetrics() *MetricsQuery {
-	query := (&MetricsClient{config: asq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := asq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := asq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(actionsummary.Table, actionsummary.FieldID, selector),
-			sqlgraph.To(metrics.Table, metrics.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, actionsummary.MetricsTable, actionsummary.MetricsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(asq.driver.Dialect(), step)
 		return fromU, nil
@@ -352,14 +352,25 @@ func (asq *ActionSummaryQuery) Clone() *ActionSummaryQuery {
 		order:                     append([]actionsummary.OrderOption{}, asq.order...),
 		inters:                    append([]Interceptor{}, asq.inters...),
 		predicates:                append([]predicate.ActionSummary{}, asq.predicates...),
+		withMetrics:               asq.withMetrics.Clone(),
 		withActionData:            asq.withActionData.Clone(),
 		withRunnerCount:           asq.withRunnerCount.Clone(),
 		withActionCacheStatistics: asq.withActionCacheStatistics.Clone(),
-		withMetrics:               asq.withMetrics.Clone(),
 		// clone intermediate query.
 		sql:  asq.sql.Clone(),
 		path: asq.path,
 	}
+}
+
+// WithMetrics tells the query-builder to eager-load the nodes that are connected to
+// the "metrics" edge. The optional arguments are used to configure the query builder of the edge.
+func (asq *ActionSummaryQuery) WithMetrics(opts ...func(*MetricsQuery)) *ActionSummaryQuery {
+	query := (&MetricsClient{config: asq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	asq.withMetrics = query
+	return asq
 }
 
 // WithActionData tells the query-builder to eager-load the nodes that are connected to
@@ -392,17 +403,6 @@ func (asq *ActionSummaryQuery) WithActionCacheStatistics(opts ...func(*ActionCac
 		opt(query)
 	}
 	asq.withActionCacheStatistics = query
-	return asq
-}
-
-// WithMetrics tells the query-builder to eager-load the nodes that are connected to
-// the "metrics" edge. The optional arguments are used to configure the query builder of the edge.
-func (asq *ActionSummaryQuery) WithMetrics(opts ...func(*MetricsQuery)) *ActionSummaryQuery {
-	query := (&MetricsClient{config: asq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	asq.withMetrics = query
 	return asq
 }
 
@@ -486,10 +486,10 @@ func (asq *ActionSummaryQuery) sqlAll(ctx context.Context, hooks ...queryHook) (
 		withFKs     = asq.withFKs
 		_spec       = asq.querySpec()
 		loadedTypes = [4]bool{
+			asq.withMetrics != nil,
 			asq.withActionData != nil,
 			asq.withRunnerCount != nil,
 			asq.withActionCacheStatistics != nil,
-			asq.withMetrics != nil,
 		}
 	)
 	if asq.withMetrics != nil {
@@ -519,6 +519,12 @@ func (asq *ActionSummaryQuery) sqlAll(ctx context.Context, hooks ...queryHook) (
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+	if query := asq.withMetrics; query != nil {
+		if err := asq.loadMetrics(ctx, query, nodes, nil,
+			func(n *ActionSummary, e *Metrics) { n.Edges.Metrics = e }); err != nil {
+			return nil, err
+		}
+	}
 	if query := asq.withActionData; query != nil {
 		if err := asq.loadActionData(ctx, query, nodes,
 			func(n *ActionSummary) { n.Edges.ActionData = []*ActionData{} },
@@ -539,12 +545,6 @@ func (asq *ActionSummaryQuery) sqlAll(ctx context.Context, hooks ...queryHook) (
 			func(n *ActionSummary, e *ActionCacheStatistics) {
 				n.Edges.ActionCacheStatistics = append(n.Edges.ActionCacheStatistics, e)
 			}); err != nil {
-			return nil, err
-		}
-	}
-	if query := asq.withMetrics; query != nil {
-		if err := asq.loadMetrics(ctx, query, nodes, nil,
-			func(n *ActionSummary, e *Metrics) { n.Edges.Metrics = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -577,6 +577,38 @@ func (asq *ActionSummaryQuery) sqlAll(ctx context.Context, hooks ...queryHook) (
 	return nodes, nil
 }
 
+func (asq *ActionSummaryQuery) loadMetrics(ctx context.Context, query *MetricsQuery, nodes []*ActionSummary, init func(*ActionSummary), assign func(*ActionSummary, *Metrics)) error {
+	ids := make([]int, 0, len(nodes))
+	nodeids := make(map[int][]*ActionSummary)
+	for i := range nodes {
+		if nodes[i].metrics_action_summary == nil {
+			continue
+		}
+		fk := *nodes[i].metrics_action_summary
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(metrics.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "metrics_action_summary" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
 func (asq *ActionSummaryQuery) loadActionData(ctx context.Context, query *ActionDataQuery, nodes []*ActionSummary, init func(*ActionSummary), assign func(*ActionSummary, *ActionData)) error {
 	edgeIDs := make([]driver.Value, len(nodes))
 	byID := make(map[int]*ActionSummary)
@@ -756,38 +788,6 @@ func (asq *ActionSummaryQuery) loadActionCacheStatistics(ctx context.Context, qu
 		}
 		for kn := range nodes {
 			assign(kn, n)
-		}
-	}
-	return nil
-}
-func (asq *ActionSummaryQuery) loadMetrics(ctx context.Context, query *MetricsQuery, nodes []*ActionSummary, init func(*ActionSummary), assign func(*ActionSummary, *Metrics)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*ActionSummary)
-	for i := range nodes {
-		if nodes[i].metrics_action_summary == nil {
-			continue
-		}
-		fk := *nodes[i].metrics_action_summary
-		if _, ok := nodeids[fk]; !ok {
-			ids = append(ids, fk)
-		}
-		nodeids[fk] = append(nodeids[fk], nodes[i])
-	}
-	if len(ids) == 0 {
-		return nil
-	}
-	query.Where(metrics.IDIn(ids...))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		nodes, ok := nodeids[n.ID]
-		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "metrics_action_summary" returned %v`, n.ID)
-		}
-		for i := range nodes {
-			assign(nodes[i], n)
 		}
 	}
 	return nil

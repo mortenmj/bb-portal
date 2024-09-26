@@ -68,6 +68,11 @@ func ActionCount(v int32) predicate.BuildGraphMetrics {
 	return predicate.BuildGraphMetrics(sql.FieldEQ(FieldActionCount, v))
 }
 
+// ActionCountNotIncludingAspects applies equality check predicate on the "action_count_not_including_aspects" field. It's identical to ActionCountNotIncludingAspectsEQ.
+func ActionCountNotIncludingAspects(v int32) predicate.BuildGraphMetrics {
+	return predicate.BuildGraphMetrics(sql.FieldEQ(FieldActionCountNotIncludingAspects, v))
+}
+
 // InputFileConfiguredTargetCount applies equality check predicate on the "input_file_configured_target_count" field. It's identical to InputFileConfiguredTargetCountEQ.
 func InputFileConfiguredTargetCount(v int32) predicate.BuildGraphMetrics {
 	return predicate.BuildGraphMetrics(sql.FieldEQ(FieldInputFileConfiguredTargetCount, v))
@@ -241,6 +246,56 @@ func ActionCountIsNil() predicate.BuildGraphMetrics {
 // ActionCountNotNil applies the NotNil predicate on the "action_count" field.
 func ActionCountNotNil() predicate.BuildGraphMetrics {
 	return predicate.BuildGraphMetrics(sql.FieldNotNull(FieldActionCount))
+}
+
+// ActionCountNotIncludingAspectsEQ applies the EQ predicate on the "action_count_not_including_aspects" field.
+func ActionCountNotIncludingAspectsEQ(v int32) predicate.BuildGraphMetrics {
+	return predicate.BuildGraphMetrics(sql.FieldEQ(FieldActionCountNotIncludingAspects, v))
+}
+
+// ActionCountNotIncludingAspectsNEQ applies the NEQ predicate on the "action_count_not_including_aspects" field.
+func ActionCountNotIncludingAspectsNEQ(v int32) predicate.BuildGraphMetrics {
+	return predicate.BuildGraphMetrics(sql.FieldNEQ(FieldActionCountNotIncludingAspects, v))
+}
+
+// ActionCountNotIncludingAspectsIn applies the In predicate on the "action_count_not_including_aspects" field.
+func ActionCountNotIncludingAspectsIn(vs ...int32) predicate.BuildGraphMetrics {
+	return predicate.BuildGraphMetrics(sql.FieldIn(FieldActionCountNotIncludingAspects, vs...))
+}
+
+// ActionCountNotIncludingAspectsNotIn applies the NotIn predicate on the "action_count_not_including_aspects" field.
+func ActionCountNotIncludingAspectsNotIn(vs ...int32) predicate.BuildGraphMetrics {
+	return predicate.BuildGraphMetrics(sql.FieldNotIn(FieldActionCountNotIncludingAspects, vs...))
+}
+
+// ActionCountNotIncludingAspectsGT applies the GT predicate on the "action_count_not_including_aspects" field.
+func ActionCountNotIncludingAspectsGT(v int32) predicate.BuildGraphMetrics {
+	return predicate.BuildGraphMetrics(sql.FieldGT(FieldActionCountNotIncludingAspects, v))
+}
+
+// ActionCountNotIncludingAspectsGTE applies the GTE predicate on the "action_count_not_including_aspects" field.
+func ActionCountNotIncludingAspectsGTE(v int32) predicate.BuildGraphMetrics {
+	return predicate.BuildGraphMetrics(sql.FieldGTE(FieldActionCountNotIncludingAspects, v))
+}
+
+// ActionCountNotIncludingAspectsLT applies the LT predicate on the "action_count_not_including_aspects" field.
+func ActionCountNotIncludingAspectsLT(v int32) predicate.BuildGraphMetrics {
+	return predicate.BuildGraphMetrics(sql.FieldLT(FieldActionCountNotIncludingAspects, v))
+}
+
+// ActionCountNotIncludingAspectsLTE applies the LTE predicate on the "action_count_not_including_aspects" field.
+func ActionCountNotIncludingAspectsLTE(v int32) predicate.BuildGraphMetrics {
+	return predicate.BuildGraphMetrics(sql.FieldLTE(FieldActionCountNotIncludingAspects, v))
+}
+
+// ActionCountNotIncludingAspectsIsNil applies the IsNil predicate on the "action_count_not_including_aspects" field.
+func ActionCountNotIncludingAspectsIsNil() predicate.BuildGraphMetrics {
+	return predicate.BuildGraphMetrics(sql.FieldIsNull(FieldActionCountNotIncludingAspects))
+}
+
+// ActionCountNotIncludingAspectsNotNil applies the NotNil predicate on the "action_count_not_including_aspects" field.
+func ActionCountNotIncludingAspectsNotNil() predicate.BuildGraphMetrics {
+	return predicate.BuildGraphMetrics(sql.FieldNotNull(FieldActionCountNotIncludingAspects))
 }
 
 // InputFileConfiguredTargetCountEQ applies the EQ predicate on the "input_file_configured_target_count" field.

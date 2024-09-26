@@ -68,29 +68,19 @@ func TestAttemptStartMillisEpoch(v int64) predicate.TestResultBES {
 	return predicate.TestResultBES(sql.FieldEQ(FieldTestAttemptStartMillisEpoch, v))
 }
 
+// TestAttemptStart applies equality check predicate on the "test_attempt_start" field. It's identical to TestAttemptStartEQ.
+func TestAttemptStart(v string) predicate.TestResultBES {
+	return predicate.TestResultBES(sql.FieldEQ(FieldTestAttemptStart, v))
+}
+
 // TestAttemptDurationMillis applies equality check predicate on the "test_attempt_duration_millis" field. It's identical to TestAttemptDurationMillisEQ.
 func TestAttemptDurationMillis(v int64) predicate.TestResultBES {
 	return predicate.TestResultBES(sql.FieldEQ(FieldTestAttemptDurationMillis, v))
 }
 
-// TargetsConfiguredNotIncludingAspects applies equality check predicate on the "targets_configured_not_including_aspects" field. It's identical to TargetsConfiguredNotIncludingAspectsEQ.
-func TargetsConfiguredNotIncludingAspects(v int64) predicate.TestResultBES {
-	return predicate.TestResultBES(sql.FieldEQ(FieldTargetsConfiguredNotIncludingAspects, v))
-}
-
-// Run applies equality check predicate on the "run" field. It's identical to RunEQ.
-func Run(v int) predicate.TestResultBES {
-	return predicate.TestResultBES(sql.FieldEQ(FieldRun, v))
-}
-
-// Shard applies equality check predicate on the "shard" field. It's identical to ShardEQ.
-func Shard(v int) predicate.TestResultBES {
-	return predicate.TestResultBES(sql.FieldEQ(FieldShard, v))
-}
-
-// Attempt applies equality check predicate on the "attempt" field. It's identical to AttemptEQ.
-func Attempt(v int) predicate.TestResultBES {
-	return predicate.TestResultBES(sql.FieldEQ(FieldAttempt, v))
+// TestAttemptDuration applies equality check predicate on the "test_attempt_duration" field. It's identical to TestAttemptDurationEQ.
+func TestAttemptDuration(v int64) predicate.TestResultBES {
+	return predicate.TestResultBES(sql.FieldEQ(FieldTestAttemptDuration, v))
 }
 
 // TestStatusEQ applies the EQ predicate on the "test_status" field.
@@ -353,6 +343,81 @@ func TestAttemptStartMillisEpochNotNil() predicate.TestResultBES {
 	return predicate.TestResultBES(sql.FieldNotNull(FieldTestAttemptStartMillisEpoch))
 }
 
+// TestAttemptStartEQ applies the EQ predicate on the "test_attempt_start" field.
+func TestAttemptStartEQ(v string) predicate.TestResultBES {
+	return predicate.TestResultBES(sql.FieldEQ(FieldTestAttemptStart, v))
+}
+
+// TestAttemptStartNEQ applies the NEQ predicate on the "test_attempt_start" field.
+func TestAttemptStartNEQ(v string) predicate.TestResultBES {
+	return predicate.TestResultBES(sql.FieldNEQ(FieldTestAttemptStart, v))
+}
+
+// TestAttemptStartIn applies the In predicate on the "test_attempt_start" field.
+func TestAttemptStartIn(vs ...string) predicate.TestResultBES {
+	return predicate.TestResultBES(sql.FieldIn(FieldTestAttemptStart, vs...))
+}
+
+// TestAttemptStartNotIn applies the NotIn predicate on the "test_attempt_start" field.
+func TestAttemptStartNotIn(vs ...string) predicate.TestResultBES {
+	return predicate.TestResultBES(sql.FieldNotIn(FieldTestAttemptStart, vs...))
+}
+
+// TestAttemptStartGT applies the GT predicate on the "test_attempt_start" field.
+func TestAttemptStartGT(v string) predicate.TestResultBES {
+	return predicate.TestResultBES(sql.FieldGT(FieldTestAttemptStart, v))
+}
+
+// TestAttemptStartGTE applies the GTE predicate on the "test_attempt_start" field.
+func TestAttemptStartGTE(v string) predicate.TestResultBES {
+	return predicate.TestResultBES(sql.FieldGTE(FieldTestAttemptStart, v))
+}
+
+// TestAttemptStartLT applies the LT predicate on the "test_attempt_start" field.
+func TestAttemptStartLT(v string) predicate.TestResultBES {
+	return predicate.TestResultBES(sql.FieldLT(FieldTestAttemptStart, v))
+}
+
+// TestAttemptStartLTE applies the LTE predicate on the "test_attempt_start" field.
+func TestAttemptStartLTE(v string) predicate.TestResultBES {
+	return predicate.TestResultBES(sql.FieldLTE(FieldTestAttemptStart, v))
+}
+
+// TestAttemptStartContains applies the Contains predicate on the "test_attempt_start" field.
+func TestAttemptStartContains(v string) predicate.TestResultBES {
+	return predicate.TestResultBES(sql.FieldContains(FieldTestAttemptStart, v))
+}
+
+// TestAttemptStartHasPrefix applies the HasPrefix predicate on the "test_attempt_start" field.
+func TestAttemptStartHasPrefix(v string) predicate.TestResultBES {
+	return predicate.TestResultBES(sql.FieldHasPrefix(FieldTestAttemptStart, v))
+}
+
+// TestAttemptStartHasSuffix applies the HasSuffix predicate on the "test_attempt_start" field.
+func TestAttemptStartHasSuffix(v string) predicate.TestResultBES {
+	return predicate.TestResultBES(sql.FieldHasSuffix(FieldTestAttemptStart, v))
+}
+
+// TestAttemptStartIsNil applies the IsNil predicate on the "test_attempt_start" field.
+func TestAttemptStartIsNil() predicate.TestResultBES {
+	return predicate.TestResultBES(sql.FieldIsNull(FieldTestAttemptStart))
+}
+
+// TestAttemptStartNotNil applies the NotNil predicate on the "test_attempt_start" field.
+func TestAttemptStartNotNil() predicate.TestResultBES {
+	return predicate.TestResultBES(sql.FieldNotNull(FieldTestAttemptStart))
+}
+
+// TestAttemptStartEqualFold applies the EqualFold predicate on the "test_attempt_start" field.
+func TestAttemptStartEqualFold(v string) predicate.TestResultBES {
+	return predicate.TestResultBES(sql.FieldEqualFold(FieldTestAttemptStart, v))
+}
+
+// TestAttemptStartContainsFold applies the ContainsFold predicate on the "test_attempt_start" field.
+func TestAttemptStartContainsFold(v string) predicate.TestResultBES {
+	return predicate.TestResultBES(sql.FieldContainsFold(FieldTestAttemptStart, v))
+}
+
 // TestAttemptDurationMillisEQ applies the EQ predicate on the "test_attempt_duration_millis" field.
 func TestAttemptDurationMillisEQ(v int64) predicate.TestResultBES {
 	return predicate.TestResultBES(sql.FieldEQ(FieldTestAttemptDurationMillis, v))
@@ -403,204 +468,54 @@ func TestAttemptDurationMillisNotNil() predicate.TestResultBES {
 	return predicate.TestResultBES(sql.FieldNotNull(FieldTestAttemptDurationMillis))
 }
 
-// TargetsConfiguredNotIncludingAspectsEQ applies the EQ predicate on the "targets_configured_not_including_aspects" field.
-func TargetsConfiguredNotIncludingAspectsEQ(v int64) predicate.TestResultBES {
-	return predicate.TestResultBES(sql.FieldEQ(FieldTargetsConfiguredNotIncludingAspects, v))
+// TestAttemptDurationEQ applies the EQ predicate on the "test_attempt_duration" field.
+func TestAttemptDurationEQ(v int64) predicate.TestResultBES {
+	return predicate.TestResultBES(sql.FieldEQ(FieldTestAttemptDuration, v))
 }
 
-// TargetsConfiguredNotIncludingAspectsNEQ applies the NEQ predicate on the "targets_configured_not_including_aspects" field.
-func TargetsConfiguredNotIncludingAspectsNEQ(v int64) predicate.TestResultBES {
-	return predicate.TestResultBES(sql.FieldNEQ(FieldTargetsConfiguredNotIncludingAspects, v))
+// TestAttemptDurationNEQ applies the NEQ predicate on the "test_attempt_duration" field.
+func TestAttemptDurationNEQ(v int64) predicate.TestResultBES {
+	return predicate.TestResultBES(sql.FieldNEQ(FieldTestAttemptDuration, v))
 }
 
-// TargetsConfiguredNotIncludingAspectsIn applies the In predicate on the "targets_configured_not_including_aspects" field.
-func TargetsConfiguredNotIncludingAspectsIn(vs ...int64) predicate.TestResultBES {
-	return predicate.TestResultBES(sql.FieldIn(FieldTargetsConfiguredNotIncludingAspects, vs...))
+// TestAttemptDurationIn applies the In predicate on the "test_attempt_duration" field.
+func TestAttemptDurationIn(vs ...int64) predicate.TestResultBES {
+	return predicate.TestResultBES(sql.FieldIn(FieldTestAttemptDuration, vs...))
 }
 
-// TargetsConfiguredNotIncludingAspectsNotIn applies the NotIn predicate on the "targets_configured_not_including_aspects" field.
-func TargetsConfiguredNotIncludingAspectsNotIn(vs ...int64) predicate.TestResultBES {
-	return predicate.TestResultBES(sql.FieldNotIn(FieldTargetsConfiguredNotIncludingAspects, vs...))
+// TestAttemptDurationNotIn applies the NotIn predicate on the "test_attempt_duration" field.
+func TestAttemptDurationNotIn(vs ...int64) predicate.TestResultBES {
+	return predicate.TestResultBES(sql.FieldNotIn(FieldTestAttemptDuration, vs...))
 }
 
-// TargetsConfiguredNotIncludingAspectsGT applies the GT predicate on the "targets_configured_not_including_aspects" field.
-func TargetsConfiguredNotIncludingAspectsGT(v int64) predicate.TestResultBES {
-	return predicate.TestResultBES(sql.FieldGT(FieldTargetsConfiguredNotIncludingAspects, v))
+// TestAttemptDurationGT applies the GT predicate on the "test_attempt_duration" field.
+func TestAttemptDurationGT(v int64) predicate.TestResultBES {
+	return predicate.TestResultBES(sql.FieldGT(FieldTestAttemptDuration, v))
 }
 
-// TargetsConfiguredNotIncludingAspectsGTE applies the GTE predicate on the "targets_configured_not_including_aspects" field.
-func TargetsConfiguredNotIncludingAspectsGTE(v int64) predicate.TestResultBES {
-	return predicate.TestResultBES(sql.FieldGTE(FieldTargetsConfiguredNotIncludingAspects, v))
+// TestAttemptDurationGTE applies the GTE predicate on the "test_attempt_duration" field.
+func TestAttemptDurationGTE(v int64) predicate.TestResultBES {
+	return predicate.TestResultBES(sql.FieldGTE(FieldTestAttemptDuration, v))
 }
 
-// TargetsConfiguredNotIncludingAspectsLT applies the LT predicate on the "targets_configured_not_including_aspects" field.
-func TargetsConfiguredNotIncludingAspectsLT(v int64) predicate.TestResultBES {
-	return predicate.TestResultBES(sql.FieldLT(FieldTargetsConfiguredNotIncludingAspects, v))
+// TestAttemptDurationLT applies the LT predicate on the "test_attempt_duration" field.
+func TestAttemptDurationLT(v int64) predicate.TestResultBES {
+	return predicate.TestResultBES(sql.FieldLT(FieldTestAttemptDuration, v))
 }
 
-// TargetsConfiguredNotIncludingAspectsLTE applies the LTE predicate on the "targets_configured_not_including_aspects" field.
-func TargetsConfiguredNotIncludingAspectsLTE(v int64) predicate.TestResultBES {
-	return predicate.TestResultBES(sql.FieldLTE(FieldTargetsConfiguredNotIncludingAspects, v))
+// TestAttemptDurationLTE applies the LTE predicate on the "test_attempt_duration" field.
+func TestAttemptDurationLTE(v int64) predicate.TestResultBES {
+	return predicate.TestResultBES(sql.FieldLTE(FieldTestAttemptDuration, v))
 }
 
-// TargetsConfiguredNotIncludingAspectsIsNil applies the IsNil predicate on the "targets_configured_not_including_aspects" field.
-func TargetsConfiguredNotIncludingAspectsIsNil() predicate.TestResultBES {
-	return predicate.TestResultBES(sql.FieldIsNull(FieldTargetsConfiguredNotIncludingAspects))
+// TestAttemptDurationIsNil applies the IsNil predicate on the "test_attempt_duration" field.
+func TestAttemptDurationIsNil() predicate.TestResultBES {
+	return predicate.TestResultBES(sql.FieldIsNull(FieldTestAttemptDuration))
 }
 
-// TargetsConfiguredNotIncludingAspectsNotNil applies the NotNil predicate on the "targets_configured_not_including_aspects" field.
-func TargetsConfiguredNotIncludingAspectsNotNil() predicate.TestResultBES {
-	return predicate.TestResultBES(sql.FieldNotNull(FieldTargetsConfiguredNotIncludingAspects))
-}
-
-// RunEQ applies the EQ predicate on the "run" field.
-func RunEQ(v int) predicate.TestResultBES {
-	return predicate.TestResultBES(sql.FieldEQ(FieldRun, v))
-}
-
-// RunNEQ applies the NEQ predicate on the "run" field.
-func RunNEQ(v int) predicate.TestResultBES {
-	return predicate.TestResultBES(sql.FieldNEQ(FieldRun, v))
-}
-
-// RunIn applies the In predicate on the "run" field.
-func RunIn(vs ...int) predicate.TestResultBES {
-	return predicate.TestResultBES(sql.FieldIn(FieldRun, vs...))
-}
-
-// RunNotIn applies the NotIn predicate on the "run" field.
-func RunNotIn(vs ...int) predicate.TestResultBES {
-	return predicate.TestResultBES(sql.FieldNotIn(FieldRun, vs...))
-}
-
-// RunGT applies the GT predicate on the "run" field.
-func RunGT(v int) predicate.TestResultBES {
-	return predicate.TestResultBES(sql.FieldGT(FieldRun, v))
-}
-
-// RunGTE applies the GTE predicate on the "run" field.
-func RunGTE(v int) predicate.TestResultBES {
-	return predicate.TestResultBES(sql.FieldGTE(FieldRun, v))
-}
-
-// RunLT applies the LT predicate on the "run" field.
-func RunLT(v int) predicate.TestResultBES {
-	return predicate.TestResultBES(sql.FieldLT(FieldRun, v))
-}
-
-// RunLTE applies the LTE predicate on the "run" field.
-func RunLTE(v int) predicate.TestResultBES {
-	return predicate.TestResultBES(sql.FieldLTE(FieldRun, v))
-}
-
-// RunIsNil applies the IsNil predicate on the "run" field.
-func RunIsNil() predicate.TestResultBES {
-	return predicate.TestResultBES(sql.FieldIsNull(FieldRun))
-}
-
-// RunNotNil applies the NotNil predicate on the "run" field.
-func RunNotNil() predicate.TestResultBES {
-	return predicate.TestResultBES(sql.FieldNotNull(FieldRun))
-}
-
-// ShardEQ applies the EQ predicate on the "shard" field.
-func ShardEQ(v int) predicate.TestResultBES {
-	return predicate.TestResultBES(sql.FieldEQ(FieldShard, v))
-}
-
-// ShardNEQ applies the NEQ predicate on the "shard" field.
-func ShardNEQ(v int) predicate.TestResultBES {
-	return predicate.TestResultBES(sql.FieldNEQ(FieldShard, v))
-}
-
-// ShardIn applies the In predicate on the "shard" field.
-func ShardIn(vs ...int) predicate.TestResultBES {
-	return predicate.TestResultBES(sql.FieldIn(FieldShard, vs...))
-}
-
-// ShardNotIn applies the NotIn predicate on the "shard" field.
-func ShardNotIn(vs ...int) predicate.TestResultBES {
-	return predicate.TestResultBES(sql.FieldNotIn(FieldShard, vs...))
-}
-
-// ShardGT applies the GT predicate on the "shard" field.
-func ShardGT(v int) predicate.TestResultBES {
-	return predicate.TestResultBES(sql.FieldGT(FieldShard, v))
-}
-
-// ShardGTE applies the GTE predicate on the "shard" field.
-func ShardGTE(v int) predicate.TestResultBES {
-	return predicate.TestResultBES(sql.FieldGTE(FieldShard, v))
-}
-
-// ShardLT applies the LT predicate on the "shard" field.
-func ShardLT(v int) predicate.TestResultBES {
-	return predicate.TestResultBES(sql.FieldLT(FieldShard, v))
-}
-
-// ShardLTE applies the LTE predicate on the "shard" field.
-func ShardLTE(v int) predicate.TestResultBES {
-	return predicate.TestResultBES(sql.FieldLTE(FieldShard, v))
-}
-
-// ShardIsNil applies the IsNil predicate on the "shard" field.
-func ShardIsNil() predicate.TestResultBES {
-	return predicate.TestResultBES(sql.FieldIsNull(FieldShard))
-}
-
-// ShardNotNil applies the NotNil predicate on the "shard" field.
-func ShardNotNil() predicate.TestResultBES {
-	return predicate.TestResultBES(sql.FieldNotNull(FieldShard))
-}
-
-// AttemptEQ applies the EQ predicate on the "attempt" field.
-func AttemptEQ(v int) predicate.TestResultBES {
-	return predicate.TestResultBES(sql.FieldEQ(FieldAttempt, v))
-}
-
-// AttemptNEQ applies the NEQ predicate on the "attempt" field.
-func AttemptNEQ(v int) predicate.TestResultBES {
-	return predicate.TestResultBES(sql.FieldNEQ(FieldAttempt, v))
-}
-
-// AttemptIn applies the In predicate on the "attempt" field.
-func AttemptIn(vs ...int) predicate.TestResultBES {
-	return predicate.TestResultBES(sql.FieldIn(FieldAttempt, vs...))
-}
-
-// AttemptNotIn applies the NotIn predicate on the "attempt" field.
-func AttemptNotIn(vs ...int) predicate.TestResultBES {
-	return predicate.TestResultBES(sql.FieldNotIn(FieldAttempt, vs...))
-}
-
-// AttemptGT applies the GT predicate on the "attempt" field.
-func AttemptGT(v int) predicate.TestResultBES {
-	return predicate.TestResultBES(sql.FieldGT(FieldAttempt, v))
-}
-
-// AttemptGTE applies the GTE predicate on the "attempt" field.
-func AttemptGTE(v int) predicate.TestResultBES {
-	return predicate.TestResultBES(sql.FieldGTE(FieldAttempt, v))
-}
-
-// AttemptLT applies the LT predicate on the "attempt" field.
-func AttemptLT(v int) predicate.TestResultBES {
-	return predicate.TestResultBES(sql.FieldLT(FieldAttempt, v))
-}
-
-// AttemptLTE applies the LTE predicate on the "attempt" field.
-func AttemptLTE(v int) predicate.TestResultBES {
-	return predicate.TestResultBES(sql.FieldLTE(FieldAttempt, v))
-}
-
-// AttemptIsNil applies the IsNil predicate on the "attempt" field.
-func AttemptIsNil() predicate.TestResultBES {
-	return predicate.TestResultBES(sql.FieldIsNull(FieldAttempt))
-}
-
-// AttemptNotNil applies the NotNil predicate on the "attempt" field.
-func AttemptNotNil() predicate.TestResultBES {
-	return predicate.TestResultBES(sql.FieldNotNull(FieldAttempt))
+// TestAttemptDurationNotNil applies the NotNil predicate on the "test_attempt_duration" field.
+func TestAttemptDurationNotNil() predicate.TestResultBES {
+	return predicate.TestResultBES(sql.FieldNotNull(FieldTestAttemptDuration))
 }
 
 // HasTestCollection applies the HasEdge predicate on the "test_collection" edge.

@@ -21,6 +21,20 @@ type ExectionInfoCreate struct {
 	hooks    []Hook
 }
 
+// SetTimeoutSeconds sets the "timeout_seconds" field.
+func (eic *ExectionInfoCreate) SetTimeoutSeconds(i int32) *ExectionInfoCreate {
+	eic.mutation.SetTimeoutSeconds(i)
+	return eic
+}
+
+// SetNillableTimeoutSeconds sets the "timeout_seconds" field if the given value is not nil.
+func (eic *ExectionInfoCreate) SetNillableTimeoutSeconds(i *int32) *ExectionInfoCreate {
+	if i != nil {
+		eic.SetTimeoutSeconds(*i)
+	}
+	return eic
+}
+
 // SetStrategy sets the "strategy" field.
 func (eic *ExectionInfoCreate) SetStrategy(s string) *ExectionInfoCreate {
 	eic.mutation.SetStrategy(s)
@@ -186,6 +200,10 @@ func (eic *ExectionInfoCreate) createSpec() (*ExectionInfo, *sqlgraph.CreateSpec
 		_node = &ExectionInfo{config: eic.config}
 		_spec = sqlgraph.NewCreateSpec(exectioninfo.Table, sqlgraph.NewFieldSpec(exectioninfo.FieldID, field.TypeInt))
 	)
+	if value, ok := eic.mutation.TimeoutSeconds(); ok {
+		_spec.SetField(exectioninfo.FieldTimeoutSeconds, field.TypeInt32, value)
+		_node.TimeoutSeconds = value
+	}
 	if value, ok := eic.mutation.Strategy(); ok {
 		_spec.SetField(exectioninfo.FieldStrategy, field.TypeString, value)
 		_node.Strategy = value

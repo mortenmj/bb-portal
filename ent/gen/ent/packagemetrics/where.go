@@ -108,29 +108,6 @@ func PackagesLoadedNotNil() predicate.PackageMetrics {
 	return predicate.PackageMetrics(sql.FieldNotNull(FieldPackagesLoaded))
 }
 
-// HasPackageLoadMetrics applies the HasEdge predicate on the "package_load_metrics" edge.
-func HasPackageLoadMetrics() predicate.PackageMetrics {
-	return predicate.PackageMetrics(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, PackageLoadMetricsTable, PackageLoadMetricsPrimaryKey...),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasPackageLoadMetricsWith applies the HasEdge predicate on the "package_load_metrics" edge with a given conditions (other predicates).
-func HasPackageLoadMetricsWith(preds ...predicate.PackageLoadMetrics) predicate.PackageMetrics {
-	return predicate.PackageMetrics(func(s *sql.Selector) {
-		step := newPackageLoadMetricsStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
 // HasMetrics applies the HasEdge predicate on the "metrics" edge.
 func HasMetrics() predicate.PackageMetrics {
 	return predicate.PackageMetrics(func(s *sql.Selector) {
@@ -146,6 +123,29 @@ func HasMetrics() predicate.PackageMetrics {
 func HasMetricsWith(preds ...predicate.Metrics) predicate.PackageMetrics {
 	return predicate.PackageMetrics(func(s *sql.Selector) {
 		step := newMetricsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasPackageLoadMetrics applies the HasEdge predicate on the "package_load_metrics" edge.
+func HasPackageLoadMetrics() predicate.PackageMetrics {
+	return predicate.PackageMetrics(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, PackageLoadMetricsTable, PackageLoadMetricsPrimaryKey...),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasPackageLoadMetricsWith applies the HasEdge predicate on the "package_load_metrics" edge with a given conditions (other predicates).
+func HasPackageLoadMetricsWith(preds ...predicate.PackageLoadMetrics) predicate.PackageMetrics {
+	return predicate.PackageMetrics(func(s *sql.Selector) {
+		step := newPackageLoadMetricsStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

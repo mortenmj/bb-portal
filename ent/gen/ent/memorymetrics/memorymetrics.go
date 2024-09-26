@@ -18,22 +18,22 @@ const (
 	FieldUsedHeapSizePostBuild = "used_heap_size_post_build"
 	// FieldPeakPostGcTenuredSpaceHeapSize holds the string denoting the peak_post_gc_tenured_space_heap_size field in the database.
 	FieldPeakPostGcTenuredSpaceHeapSize = "peak_post_gc_tenured_space_heap_size"
-	// EdgeGarbageMetrics holds the string denoting the garbage_metrics edge name in mutations.
-	EdgeGarbageMetrics = "garbage_metrics"
 	// EdgeMetrics holds the string denoting the metrics edge name in mutations.
 	EdgeMetrics = "metrics"
+	// EdgeGarbageMetrics holds the string denoting the garbage_metrics edge name in mutations.
+	EdgeGarbageMetrics = "garbage_metrics"
 	// Table holds the table name of the memorymetrics in the database.
 	Table = "memory_metrics"
-	// GarbageMetricsTable is the table that holds the garbage_metrics relation/edge. The primary key declared below.
-	GarbageMetricsTable = "memory_metrics_garbage_metrics"
-	// GarbageMetricsInverseTable is the table name for the GarbageMetrics entity.
-	// It exists in this package in order to avoid circular dependency with the "garbagemetrics" package.
-	GarbageMetricsInverseTable = "garbage_metrics"
 	// MetricsTable is the table that holds the metrics relation/edge. The primary key declared below.
 	MetricsTable = "metrics_memory_metrics"
 	// MetricsInverseTable is the table name for the Metrics entity.
 	// It exists in this package in order to avoid circular dependency with the "metrics" package.
 	MetricsInverseTable = "metrics"
+	// GarbageMetricsTable is the table that holds the garbage_metrics relation/edge. The primary key declared below.
+	GarbageMetricsTable = "memory_metrics_garbage_metrics"
+	// GarbageMetricsInverseTable is the table name for the GarbageMetrics entity.
+	// It exists in this package in order to avoid circular dependency with the "garbagemetrics" package.
+	GarbageMetricsInverseTable = "garbage_metrics"
 )
 
 // Columns holds all SQL columns for memorymetrics fields.
@@ -45,12 +45,12 @@ var Columns = []string{
 }
 
 var (
-	// GarbageMetricsPrimaryKey and GarbageMetricsColumn2 are the table columns denoting the
-	// primary key for the garbage_metrics relation (M2M).
-	GarbageMetricsPrimaryKey = []string{"memory_metrics_id", "garbage_metrics_id"}
 	// MetricsPrimaryKey and MetricsColumn2 are the table columns denoting the
 	// primary key for the metrics relation (M2M).
 	MetricsPrimaryKey = []string{"metrics_id", "memory_metrics_id"}
+	// GarbageMetricsPrimaryKey and GarbageMetricsColumn2 are the table columns denoting the
+	// primary key for the garbage_metrics relation (M2M).
+	GarbageMetricsPrimaryKey = []string{"memory_metrics_id", "garbage_metrics_id"}
 )
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -86,20 +86,6 @@ func ByPeakPostGcTenuredSpaceHeapSize(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldPeakPostGcTenuredSpaceHeapSize, opts...).ToFunc()
 }
 
-// ByGarbageMetricsCount orders the results by garbage_metrics count.
-func ByGarbageMetricsCount(opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newGarbageMetricsStep(), opts...)
-	}
-}
-
-// ByGarbageMetrics orders the results by garbage_metrics terms.
-func ByGarbageMetrics(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newGarbageMetricsStep(), append([]sql.OrderTerm{term}, terms...)...)
-	}
-}
-
 // ByMetricsCount orders the results by metrics count.
 func ByMetricsCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -113,17 +99,31 @@ func ByMetrics(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newMetricsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
-func newGarbageMetricsStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(GarbageMetricsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2M, false, GarbageMetricsTable, GarbageMetricsPrimaryKey...),
-	)
+
+// ByGarbageMetricsCount orders the results by garbage_metrics count.
+func ByGarbageMetricsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newGarbageMetricsStep(), opts...)
+	}
+}
+
+// ByGarbageMetrics orders the results by garbage_metrics terms.
+func ByGarbageMetrics(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newGarbageMetricsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
 }
 func newMetricsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(MetricsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2M, true, MetricsTable, MetricsPrimaryKey...),
+	)
+}
+func newGarbageMetricsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(GarbageMetricsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2M, false, GarbageMetricsTable, GarbageMetricsPrimaryKey...),
 	)
 }

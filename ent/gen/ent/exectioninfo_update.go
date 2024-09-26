@@ -30,6 +30,33 @@ func (eiu *ExectionInfoUpdate) Where(ps ...predicate.ExectionInfo) *ExectionInfo
 	return eiu
 }
 
+// SetTimeoutSeconds sets the "timeout_seconds" field.
+func (eiu *ExectionInfoUpdate) SetTimeoutSeconds(i int32) *ExectionInfoUpdate {
+	eiu.mutation.ResetTimeoutSeconds()
+	eiu.mutation.SetTimeoutSeconds(i)
+	return eiu
+}
+
+// SetNillableTimeoutSeconds sets the "timeout_seconds" field if the given value is not nil.
+func (eiu *ExectionInfoUpdate) SetNillableTimeoutSeconds(i *int32) *ExectionInfoUpdate {
+	if i != nil {
+		eiu.SetTimeoutSeconds(*i)
+	}
+	return eiu
+}
+
+// AddTimeoutSeconds adds i to the "timeout_seconds" field.
+func (eiu *ExectionInfoUpdate) AddTimeoutSeconds(i int32) *ExectionInfoUpdate {
+	eiu.mutation.AddTimeoutSeconds(i)
+	return eiu
+}
+
+// ClearTimeoutSeconds clears the value of the "timeout_seconds" field.
+func (eiu *ExectionInfoUpdate) ClearTimeoutSeconds() *ExectionInfoUpdate {
+	eiu.mutation.ClearTimeoutSeconds()
+	return eiu
+}
+
 // SetStrategy sets the "strategy" field.
 func (eiu *ExectionInfoUpdate) SetStrategy(s string) *ExectionInfoUpdate {
 	eiu.mutation.SetStrategy(s)
@@ -255,6 +282,15 @@ func (eiu *ExectionInfoUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			}
 		}
 	}
+	if value, ok := eiu.mutation.TimeoutSeconds(); ok {
+		_spec.SetField(exectioninfo.FieldTimeoutSeconds, field.TypeInt32, value)
+	}
+	if value, ok := eiu.mutation.AddedTimeoutSeconds(); ok {
+		_spec.AddField(exectioninfo.FieldTimeoutSeconds, field.TypeInt32, value)
+	}
+	if eiu.mutation.TimeoutSecondsCleared() {
+		_spec.ClearField(exectioninfo.FieldTimeoutSeconds, field.TypeInt32)
+	}
 	if value, ok := eiu.mutation.Strategy(); ok {
 		_spec.SetField(exectioninfo.FieldStrategy, field.TypeString, value)
 	}
@@ -419,6 +455,33 @@ type ExectionInfoUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *ExectionInfoMutation
+}
+
+// SetTimeoutSeconds sets the "timeout_seconds" field.
+func (eiuo *ExectionInfoUpdateOne) SetTimeoutSeconds(i int32) *ExectionInfoUpdateOne {
+	eiuo.mutation.ResetTimeoutSeconds()
+	eiuo.mutation.SetTimeoutSeconds(i)
+	return eiuo
+}
+
+// SetNillableTimeoutSeconds sets the "timeout_seconds" field if the given value is not nil.
+func (eiuo *ExectionInfoUpdateOne) SetNillableTimeoutSeconds(i *int32) *ExectionInfoUpdateOne {
+	if i != nil {
+		eiuo.SetTimeoutSeconds(*i)
+	}
+	return eiuo
+}
+
+// AddTimeoutSeconds adds i to the "timeout_seconds" field.
+func (eiuo *ExectionInfoUpdateOne) AddTimeoutSeconds(i int32) *ExectionInfoUpdateOne {
+	eiuo.mutation.AddTimeoutSeconds(i)
+	return eiuo
+}
+
+// ClearTimeoutSeconds clears the value of the "timeout_seconds" field.
+func (eiuo *ExectionInfoUpdateOne) ClearTimeoutSeconds() *ExectionInfoUpdateOne {
+	eiuo.mutation.ClearTimeoutSeconds()
+	return eiuo
 }
 
 // SetStrategy sets the "strategy" field.
@@ -675,6 +738,15 @@ func (eiuo *ExectionInfoUpdateOne) sqlSave(ctx context.Context) (_node *Exection
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := eiuo.mutation.TimeoutSeconds(); ok {
+		_spec.SetField(exectioninfo.FieldTimeoutSeconds, field.TypeInt32, value)
+	}
+	if value, ok := eiuo.mutation.AddedTimeoutSeconds(); ok {
+		_spec.AddField(exectioninfo.FieldTimeoutSeconds, field.TypeInt32, value)
+	}
+	if eiuo.mutation.TimeoutSecondsCleared() {
+		_spec.ClearField(exectioninfo.FieldTimeoutSeconds, field.TypeInt32)
 	}
 	if value, ok := eiuo.mutation.Strategy(); ok {
 		_spec.SetField(exectioninfo.FieldStrategy, field.TypeString, value)

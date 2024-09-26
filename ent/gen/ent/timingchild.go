@@ -19,7 +19,7 @@ type TimingChild struct {
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
 	// Time holds the value of the "time" field.
-	Time string `json:"time,omitempty"`
+	Time int64 `json:"time,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the TimingChildQuery when eager-loading is set.
 	Edges        TimingChildEdges `json:"edges"`
@@ -53,9 +53,9 @@ func (*TimingChild) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case timingchild.FieldID:
+		case timingchild.FieldID, timingchild.FieldTime:
 			values[i] = new(sql.NullInt64)
-		case timingchild.FieldName, timingchild.FieldTime:
+		case timingchild.FieldName:
 			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -85,10 +85,10 @@ func (tc *TimingChild) assignValues(columns []string, values []any) error {
 				tc.Name = value.String
 			}
 		case timingchild.FieldTime:
-			if value, ok := values[i].(*sql.NullString); !ok {
+			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field time", values[i])
 			} else if value.Valid {
-				tc.Time = value.String
+				tc.Time = value.Int64
 			}
 		default:
 			tc.selectValues.Set(columns[i], values[i])
@@ -135,7 +135,7 @@ func (tc *TimingChild) String() string {
 	builder.WriteString(tc.Name)
 	builder.WriteString(", ")
 	builder.WriteString("time=")
-	builder.WriteString(tc.Time)
+	builder.WriteString(fmt.Sprintf("%v", tc.Time))
 	builder.WriteByte(')')
 	return builder.String()
 }

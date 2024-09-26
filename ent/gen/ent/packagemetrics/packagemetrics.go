@@ -14,22 +14,22 @@ const (
 	FieldID = "id"
 	// FieldPackagesLoaded holds the string denoting the packages_loaded field in the database.
 	FieldPackagesLoaded = "packages_loaded"
-	// EdgePackageLoadMetrics holds the string denoting the package_load_metrics edge name in mutations.
-	EdgePackageLoadMetrics = "package_load_metrics"
 	// EdgeMetrics holds the string denoting the metrics edge name in mutations.
 	EdgeMetrics = "metrics"
+	// EdgePackageLoadMetrics holds the string denoting the package_load_metrics edge name in mutations.
+	EdgePackageLoadMetrics = "package_load_metrics"
 	// Table holds the table name of the packagemetrics in the database.
 	Table = "package_metrics"
-	// PackageLoadMetricsTable is the table that holds the package_load_metrics relation/edge. The primary key declared below.
-	PackageLoadMetricsTable = "package_metrics_package_load_metrics"
-	// PackageLoadMetricsInverseTable is the table name for the PackageLoadMetrics entity.
-	// It exists in this package in order to avoid circular dependency with the "packageloadmetrics" package.
-	PackageLoadMetricsInverseTable = "package_load_metrics"
 	// MetricsTable is the table that holds the metrics relation/edge. The primary key declared below.
 	MetricsTable = "metrics_package_metrics"
 	// MetricsInverseTable is the table name for the Metrics entity.
 	// It exists in this package in order to avoid circular dependency with the "metrics" package.
 	MetricsInverseTable = "metrics"
+	// PackageLoadMetricsTable is the table that holds the package_load_metrics relation/edge. The primary key declared below.
+	PackageLoadMetricsTable = "package_metrics_package_load_metrics"
+	// PackageLoadMetricsInverseTable is the table name for the PackageLoadMetrics entity.
+	// It exists in this package in order to avoid circular dependency with the "packageloadmetrics" package.
+	PackageLoadMetricsInverseTable = "package_load_metrics"
 )
 
 // Columns holds all SQL columns for packagemetrics fields.
@@ -39,12 +39,12 @@ var Columns = []string{
 }
 
 var (
-	// PackageLoadMetricsPrimaryKey and PackageLoadMetricsColumn2 are the table columns denoting the
-	// primary key for the package_load_metrics relation (M2M).
-	PackageLoadMetricsPrimaryKey = []string{"package_metrics_id", "package_load_metrics_id"}
 	// MetricsPrimaryKey and MetricsColumn2 are the table columns denoting the
 	// primary key for the metrics relation (M2M).
 	MetricsPrimaryKey = []string{"metrics_id", "package_metrics_id"}
+	// PackageLoadMetricsPrimaryKey and PackageLoadMetricsColumn2 are the table columns denoting the
+	// primary key for the package_load_metrics relation (M2M).
+	PackageLoadMetricsPrimaryKey = []string{"package_metrics_id", "package_load_metrics_id"}
 )
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -70,20 +70,6 @@ func ByPackagesLoaded(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldPackagesLoaded, opts...).ToFunc()
 }
 
-// ByPackageLoadMetricsCount orders the results by package_load_metrics count.
-func ByPackageLoadMetricsCount(opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newPackageLoadMetricsStep(), opts...)
-	}
-}
-
-// ByPackageLoadMetrics orders the results by package_load_metrics terms.
-func ByPackageLoadMetrics(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newPackageLoadMetricsStep(), append([]sql.OrderTerm{term}, terms...)...)
-	}
-}
-
 // ByMetricsCount orders the results by metrics count.
 func ByMetricsCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -97,17 +83,31 @@ func ByMetrics(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newMetricsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
-func newPackageLoadMetricsStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(PackageLoadMetricsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2M, false, PackageLoadMetricsTable, PackageLoadMetricsPrimaryKey...),
-	)
+
+// ByPackageLoadMetricsCount orders the results by package_load_metrics count.
+func ByPackageLoadMetricsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newPackageLoadMetricsStep(), opts...)
+	}
+}
+
+// ByPackageLoadMetrics orders the results by package_load_metrics terms.
+func ByPackageLoadMetrics(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newPackageLoadMetricsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
 }
 func newMetricsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(MetricsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2M, true, MetricsTable, MetricsPrimaryKey...),
+	)
+}
+func newPackageLoadMetricsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(PackageLoadMetricsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2M, false, PackageLoadMetricsTable, PackageLoadMetricsPrimaryKey...),
 	)
 }

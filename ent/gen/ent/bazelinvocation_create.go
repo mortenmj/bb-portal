@@ -242,6 +242,21 @@ func (bic *BazelInvocationCreate) SetBuild(b *Build) *BazelInvocationCreate {
 	return bic.SetBuildID(b.ID)
 }
 
+// AddProblemIDs adds the "problems" edge to the BazelInvocationProblem entity by IDs.
+func (bic *BazelInvocationCreate) AddProblemIDs(ids ...int) *BazelInvocationCreate {
+	bic.mutation.AddProblemIDs(ids...)
+	return bic
+}
+
+// AddProblems adds the "problems" edges to the BazelInvocationProblem entity.
+func (bic *BazelInvocationCreate) AddProblems(b ...*BazelInvocationProblem) *BazelInvocationCreate {
+	ids := make([]int, len(b))
+	for i := range b {
+		ids[i] = b[i].ID
+	}
+	return bic.AddProblemIDs(ids...)
+}
+
 // SetMetricsID sets the "metrics" edge to the Metrics entity by ID.
 func (bic *BazelInvocationCreate) SetMetricsID(id int) *BazelInvocationCreate {
 	bic.mutation.SetMetricsID(id)
@@ -259,21 +274,6 @@ func (bic *BazelInvocationCreate) SetNillableMetricsID(id *int) *BazelInvocation
 // SetMetrics sets the "metrics" edge to the Metrics entity.
 func (bic *BazelInvocationCreate) SetMetrics(m *Metrics) *BazelInvocationCreate {
 	return bic.SetMetricsID(m.ID)
-}
-
-// AddProblemIDs adds the "problems" edge to the BazelInvocationProblem entity by IDs.
-func (bic *BazelInvocationCreate) AddProblemIDs(ids ...int) *BazelInvocationCreate {
-	bic.mutation.AddProblemIDs(ids...)
-	return bic
-}
-
-// AddProblems adds the "problems" edges to the BazelInvocationProblem entity.
-func (bic *BazelInvocationCreate) AddProblems(b ...*BazelInvocationProblem) *BazelInvocationCreate {
-	ids := make([]int, len(b))
-	for i := range b {
-		ids[i] = b[i].ID
-	}
-	return bic.AddProblemIDs(ids...)
 }
 
 // AddTestCollectionIDs adds the "test_collection" edge to the TestCollection entity by IDs.
@@ -482,22 +482,6 @@ func (bic *BazelInvocationCreate) createSpec() (*BazelInvocation, *sqlgraph.Crea
 		_node.build_invocations = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := bic.mutation.MetricsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
-			Inverse: false,
-			Table:   bazelinvocation.MetricsTable,
-			Columns: []string{bazelinvocation.MetricsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(metrics.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges = append(_spec.Edges, edge)
-	}
 	if nodes := bic.mutation.ProblemsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
@@ -507,6 +491,22 @@ func (bic *BazelInvocationCreate) createSpec() (*BazelInvocation, *sqlgraph.Crea
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(bazelinvocationproblem.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := bic.mutation.MetricsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   bazelinvocation.MetricsTable,
+			Columns: []string{bazelinvocation.MetricsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(metrics.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

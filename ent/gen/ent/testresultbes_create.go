@@ -97,6 +97,20 @@ func (trbc *TestResultBESCreate) SetNillableTestAttemptStartMillisEpoch(i *int64
 	return trbc
 }
 
+// SetTestAttemptStart sets the "test_attempt_start" field.
+func (trbc *TestResultBESCreate) SetTestAttemptStart(s string) *TestResultBESCreate {
+	trbc.mutation.SetTestAttemptStart(s)
+	return trbc
+}
+
+// SetNillableTestAttemptStart sets the "test_attempt_start" field if the given value is not nil.
+func (trbc *TestResultBESCreate) SetNillableTestAttemptStart(s *string) *TestResultBESCreate {
+	if s != nil {
+		trbc.SetTestAttemptStart(*s)
+	}
+	return trbc
+}
+
 // SetTestAttemptDurationMillis sets the "test_attempt_duration_millis" field.
 func (trbc *TestResultBESCreate) SetTestAttemptDurationMillis(i int64) *TestResultBESCreate {
 	trbc.mutation.SetTestAttemptDurationMillis(i)
@@ -111,58 +125,16 @@ func (trbc *TestResultBESCreate) SetNillableTestAttemptDurationMillis(i *int64) 
 	return trbc
 }
 
-// SetTargetsConfiguredNotIncludingAspects sets the "targets_configured_not_including_aspects" field.
-func (trbc *TestResultBESCreate) SetTargetsConfiguredNotIncludingAspects(i int64) *TestResultBESCreate {
-	trbc.mutation.SetTargetsConfiguredNotIncludingAspects(i)
+// SetTestAttemptDuration sets the "test_attempt_duration" field.
+func (trbc *TestResultBESCreate) SetTestAttemptDuration(i int64) *TestResultBESCreate {
+	trbc.mutation.SetTestAttemptDuration(i)
 	return trbc
 }
 
-// SetNillableTargetsConfiguredNotIncludingAspects sets the "targets_configured_not_including_aspects" field if the given value is not nil.
-func (trbc *TestResultBESCreate) SetNillableTargetsConfiguredNotIncludingAspects(i *int64) *TestResultBESCreate {
+// SetNillableTestAttemptDuration sets the "test_attempt_duration" field if the given value is not nil.
+func (trbc *TestResultBESCreate) SetNillableTestAttemptDuration(i *int64) *TestResultBESCreate {
 	if i != nil {
-		trbc.SetTargetsConfiguredNotIncludingAspects(*i)
-	}
-	return trbc
-}
-
-// SetRun sets the "run" field.
-func (trbc *TestResultBESCreate) SetRun(i int) *TestResultBESCreate {
-	trbc.mutation.SetRun(i)
-	return trbc
-}
-
-// SetNillableRun sets the "run" field if the given value is not nil.
-func (trbc *TestResultBESCreate) SetNillableRun(i *int) *TestResultBESCreate {
-	if i != nil {
-		trbc.SetRun(*i)
-	}
-	return trbc
-}
-
-// SetShard sets the "shard" field.
-func (trbc *TestResultBESCreate) SetShard(i int) *TestResultBESCreate {
-	trbc.mutation.SetShard(i)
-	return trbc
-}
-
-// SetNillableShard sets the "shard" field if the given value is not nil.
-func (trbc *TestResultBESCreate) SetNillableShard(i *int) *TestResultBESCreate {
-	if i != nil {
-		trbc.SetShard(*i)
-	}
-	return trbc
-}
-
-// SetAttempt sets the "attempt" field.
-func (trbc *TestResultBESCreate) SetAttempt(i int) *TestResultBESCreate {
-	trbc.mutation.SetAttempt(i)
-	return trbc
-}
-
-// SetNillableAttempt sets the "attempt" field if the given value is not nil.
-func (trbc *TestResultBESCreate) SetNillableAttempt(i *int) *TestResultBESCreate {
-	if i != nil {
-		trbc.SetAttempt(*i)
+		trbc.SetTestAttemptDuration(*i)
 	}
 	return trbc
 }
@@ -318,25 +290,17 @@ func (trbc *TestResultBESCreate) createSpec() (*TestResultBES, *sqlgraph.CreateS
 		_spec.SetField(testresultbes.FieldTestAttemptStartMillisEpoch, field.TypeInt64, value)
 		_node.TestAttemptStartMillisEpoch = value
 	}
+	if value, ok := trbc.mutation.TestAttemptStart(); ok {
+		_spec.SetField(testresultbes.FieldTestAttemptStart, field.TypeString, value)
+		_node.TestAttemptStart = value
+	}
 	if value, ok := trbc.mutation.TestAttemptDurationMillis(); ok {
 		_spec.SetField(testresultbes.FieldTestAttemptDurationMillis, field.TypeInt64, value)
 		_node.TestAttemptDurationMillis = value
 	}
-	if value, ok := trbc.mutation.TargetsConfiguredNotIncludingAspects(); ok {
-		_spec.SetField(testresultbes.FieldTargetsConfiguredNotIncludingAspects, field.TypeInt64, value)
-		_node.TargetsConfiguredNotIncludingAspects = value
-	}
-	if value, ok := trbc.mutation.Run(); ok {
-		_spec.SetField(testresultbes.FieldRun, field.TypeInt, value)
-		_node.Run = value
-	}
-	if value, ok := trbc.mutation.Shard(); ok {
-		_spec.SetField(testresultbes.FieldShard, field.TypeInt, value)
-		_node.Shard = value
-	}
-	if value, ok := trbc.mutation.Attempt(); ok {
-		_spec.SetField(testresultbes.FieldAttempt, field.TypeInt, value)
-		_node.Attempt = value
+	if value, ok := trbc.mutation.TestAttemptDuration(); ok {
+		_spec.SetField(testresultbes.FieldTestAttemptDuration, field.TypeInt64, value)
+		_node.TestAttemptDuration = value
 	}
 	if nodes := trbc.mutation.TestCollectionIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

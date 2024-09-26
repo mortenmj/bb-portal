@@ -30,36 +30,36 @@ type MemoryMetrics struct {
 
 // MemoryMetricsEdges holds the relations/edges for other nodes in the graph.
 type MemoryMetricsEdges struct {
-	// GarbageMetrics holds the value of the garbage_metrics edge.
-	GarbageMetrics []*GarbageMetrics `json:"garbage_metrics,omitempty"`
 	// Metrics holds the value of the metrics edge.
 	Metrics []*Metrics `json:"metrics,omitempty"`
+	// GarbageMetrics holds the value of the garbage_metrics edge.
+	GarbageMetrics []*GarbageMetrics `json:"garbage_metrics,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [2]bool
 	// totalCount holds the count of the edges above.
 	totalCount [2]map[string]int
 
-	namedGarbageMetrics map[string][]*GarbageMetrics
 	namedMetrics        map[string][]*Metrics
-}
-
-// GarbageMetricsOrErr returns the GarbageMetrics value or an error if the edge
-// was not loaded in eager-loading.
-func (e MemoryMetricsEdges) GarbageMetricsOrErr() ([]*GarbageMetrics, error) {
-	if e.loadedTypes[0] {
-		return e.GarbageMetrics, nil
-	}
-	return nil, &NotLoadedError{edge: "garbage_metrics"}
+	namedGarbageMetrics map[string][]*GarbageMetrics
 }
 
 // MetricsOrErr returns the Metrics value or an error if the edge
 // was not loaded in eager-loading.
 func (e MemoryMetricsEdges) MetricsOrErr() ([]*Metrics, error) {
-	if e.loadedTypes[1] {
+	if e.loadedTypes[0] {
 		return e.Metrics, nil
 	}
 	return nil, &NotLoadedError{edge: "metrics"}
+}
+
+// GarbageMetricsOrErr returns the GarbageMetrics value or an error if the edge
+// was not loaded in eager-loading.
+func (e MemoryMetricsEdges) GarbageMetricsOrErr() ([]*GarbageMetrics, error) {
+	if e.loadedTypes[1] {
+		return e.GarbageMetrics, nil
+	}
+	return nil, &NotLoadedError{edge: "garbage_metrics"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -121,14 +121,14 @@ func (mm *MemoryMetrics) Value(name string) (ent.Value, error) {
 	return mm.selectValues.Get(name)
 }
 
-// QueryGarbageMetrics queries the "garbage_metrics" edge of the MemoryMetrics entity.
-func (mm *MemoryMetrics) QueryGarbageMetrics() *GarbageMetricsQuery {
-	return NewMemoryMetricsClient(mm.config).QueryGarbageMetrics(mm)
-}
-
 // QueryMetrics queries the "metrics" edge of the MemoryMetrics entity.
 func (mm *MemoryMetrics) QueryMetrics() *MetricsQuery {
 	return NewMemoryMetricsClient(mm.config).QueryMetrics(mm)
+}
+
+// QueryGarbageMetrics queries the "garbage_metrics" edge of the MemoryMetrics entity.
+func (mm *MemoryMetrics) QueryGarbageMetrics() *GarbageMetricsQuery {
+	return NewMemoryMetricsClient(mm.config).QueryGarbageMetrics(mm)
 }
 
 // Update returns a builder for updating this MemoryMetrics.
@@ -166,30 +166,6 @@ func (mm *MemoryMetrics) String() string {
 	return builder.String()
 }
 
-// NamedGarbageMetrics returns the GarbageMetrics named value or an error if the edge was not
-// loaded in eager-loading with this name.
-func (mm *MemoryMetrics) NamedGarbageMetrics(name string) ([]*GarbageMetrics, error) {
-	if mm.Edges.namedGarbageMetrics == nil {
-		return nil, &NotLoadedError{edge: name}
-	}
-	nodes, ok := mm.Edges.namedGarbageMetrics[name]
-	if !ok {
-		return nil, &NotLoadedError{edge: name}
-	}
-	return nodes, nil
-}
-
-func (mm *MemoryMetrics) appendNamedGarbageMetrics(name string, edges ...*GarbageMetrics) {
-	if mm.Edges.namedGarbageMetrics == nil {
-		mm.Edges.namedGarbageMetrics = make(map[string][]*GarbageMetrics)
-	}
-	if len(edges) == 0 {
-		mm.Edges.namedGarbageMetrics[name] = []*GarbageMetrics{}
-	} else {
-		mm.Edges.namedGarbageMetrics[name] = append(mm.Edges.namedGarbageMetrics[name], edges...)
-	}
-}
-
 // NamedMetrics returns the Metrics named value or an error if the edge was not
 // loaded in eager-loading with this name.
 func (mm *MemoryMetrics) NamedMetrics(name string) ([]*Metrics, error) {
@@ -211,6 +187,30 @@ func (mm *MemoryMetrics) appendNamedMetrics(name string, edges ...*Metrics) {
 		mm.Edges.namedMetrics[name] = []*Metrics{}
 	} else {
 		mm.Edges.namedMetrics[name] = append(mm.Edges.namedMetrics[name], edges...)
+	}
+}
+
+// NamedGarbageMetrics returns the GarbageMetrics named value or an error if the edge was not
+// loaded in eager-loading with this name.
+func (mm *MemoryMetrics) NamedGarbageMetrics(name string) ([]*GarbageMetrics, error) {
+	if mm.Edges.namedGarbageMetrics == nil {
+		return nil, &NotLoadedError{edge: name}
+	}
+	nodes, ok := mm.Edges.namedGarbageMetrics[name]
+	if !ok {
+		return nil, &NotLoadedError{edge: name}
+	}
+	return nodes, nil
+}
+
+func (mm *MemoryMetrics) appendNamedGarbageMetrics(name string, edges ...*GarbageMetrics) {
+	if mm.Edges.namedGarbageMetrics == nil {
+		mm.Edges.namedGarbageMetrics = make(map[string][]*GarbageMetrics)
+	}
+	if len(edges) == 0 {
+		mm.Edges.namedGarbageMetrics[name] = []*GarbageMetrics{}
+	} else {
+		mm.Edges.namedGarbageMetrics[name] = append(mm.Edges.namedGarbageMetrics[name], edges...)
 	}
 }
 

@@ -22,10 +22,6 @@ func init() {
 	eventfile.DefaultStatus = eventfileDescStatus.Default.(string)
 	missdetailFields := schema.MissDetail{}.Fields()
 	_ = missdetailFields
-	targetcompleteFields := schema.TargetComplete{}.Fields()
-	_ = targetcompleteFields
-	targetconfiguredFields := schema.TargetConfigured{}.Fields()
-	_ = targetconfiguredFields
 	targetpairFields := schema.TargetPair{}.Fields()
 	_ = targetpairFields
 	// targetpairDescSuccess is the schema descriptor for success field.

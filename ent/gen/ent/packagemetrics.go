@@ -26,36 +26,36 @@ type PackageMetrics struct {
 
 // PackageMetricsEdges holds the relations/edges for other nodes in the graph.
 type PackageMetricsEdges struct {
-	// PackageLoadMetrics holds the value of the package_load_metrics edge.
-	PackageLoadMetrics []*PackageLoadMetrics `json:"package_load_metrics,omitempty"`
 	// Metrics holds the value of the metrics edge.
 	Metrics []*Metrics `json:"metrics,omitempty"`
+	// PackageLoadMetrics holds the value of the package_load_metrics edge.
+	PackageLoadMetrics []*PackageLoadMetrics `json:"package_load_metrics,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [2]bool
 	// totalCount holds the count of the edges above.
 	totalCount [2]map[string]int
 
-	namedPackageLoadMetrics map[string][]*PackageLoadMetrics
 	namedMetrics            map[string][]*Metrics
-}
-
-// PackageLoadMetricsOrErr returns the PackageLoadMetrics value or an error if the edge
-// was not loaded in eager-loading.
-func (e PackageMetricsEdges) PackageLoadMetricsOrErr() ([]*PackageLoadMetrics, error) {
-	if e.loadedTypes[0] {
-		return e.PackageLoadMetrics, nil
-	}
-	return nil, &NotLoadedError{edge: "package_load_metrics"}
+	namedPackageLoadMetrics map[string][]*PackageLoadMetrics
 }
 
 // MetricsOrErr returns the Metrics value or an error if the edge
 // was not loaded in eager-loading.
 func (e PackageMetricsEdges) MetricsOrErr() ([]*Metrics, error) {
-	if e.loadedTypes[1] {
+	if e.loadedTypes[0] {
 		return e.Metrics, nil
 	}
 	return nil, &NotLoadedError{edge: "metrics"}
+}
+
+// PackageLoadMetricsOrErr returns the PackageLoadMetrics value or an error if the edge
+// was not loaded in eager-loading.
+func (e PackageMetricsEdges) PackageLoadMetricsOrErr() ([]*PackageLoadMetrics, error) {
+	if e.loadedTypes[1] {
+		return e.PackageLoadMetrics, nil
+	}
+	return nil, &NotLoadedError{edge: "package_load_metrics"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -105,14 +105,14 @@ func (pm *PackageMetrics) Value(name string) (ent.Value, error) {
 	return pm.selectValues.Get(name)
 }
 
-// QueryPackageLoadMetrics queries the "package_load_metrics" edge of the PackageMetrics entity.
-func (pm *PackageMetrics) QueryPackageLoadMetrics() *PackageLoadMetricsQuery {
-	return NewPackageMetricsClient(pm.config).QueryPackageLoadMetrics(pm)
-}
-
 // QueryMetrics queries the "metrics" edge of the PackageMetrics entity.
 func (pm *PackageMetrics) QueryMetrics() *MetricsQuery {
 	return NewPackageMetricsClient(pm.config).QueryMetrics(pm)
+}
+
+// QueryPackageLoadMetrics queries the "package_load_metrics" edge of the PackageMetrics entity.
+func (pm *PackageMetrics) QueryPackageLoadMetrics() *PackageLoadMetricsQuery {
+	return NewPackageMetricsClient(pm.config).QueryPackageLoadMetrics(pm)
 }
 
 // Update returns a builder for updating this PackageMetrics.
@@ -144,30 +144,6 @@ func (pm *PackageMetrics) String() string {
 	return builder.String()
 }
 
-// NamedPackageLoadMetrics returns the PackageLoadMetrics named value or an error if the edge was not
-// loaded in eager-loading with this name.
-func (pm *PackageMetrics) NamedPackageLoadMetrics(name string) ([]*PackageLoadMetrics, error) {
-	if pm.Edges.namedPackageLoadMetrics == nil {
-		return nil, &NotLoadedError{edge: name}
-	}
-	nodes, ok := pm.Edges.namedPackageLoadMetrics[name]
-	if !ok {
-		return nil, &NotLoadedError{edge: name}
-	}
-	return nodes, nil
-}
-
-func (pm *PackageMetrics) appendNamedPackageLoadMetrics(name string, edges ...*PackageLoadMetrics) {
-	if pm.Edges.namedPackageLoadMetrics == nil {
-		pm.Edges.namedPackageLoadMetrics = make(map[string][]*PackageLoadMetrics)
-	}
-	if len(edges) == 0 {
-		pm.Edges.namedPackageLoadMetrics[name] = []*PackageLoadMetrics{}
-	} else {
-		pm.Edges.namedPackageLoadMetrics[name] = append(pm.Edges.namedPackageLoadMetrics[name], edges...)
-	}
-}
-
 // NamedMetrics returns the Metrics named value or an error if the edge was not
 // loaded in eager-loading with this name.
 func (pm *PackageMetrics) NamedMetrics(name string) ([]*Metrics, error) {
@@ -189,6 +165,30 @@ func (pm *PackageMetrics) appendNamedMetrics(name string, edges ...*Metrics) {
 		pm.Edges.namedMetrics[name] = []*Metrics{}
 	} else {
 		pm.Edges.namedMetrics[name] = append(pm.Edges.namedMetrics[name], edges...)
+	}
+}
+
+// NamedPackageLoadMetrics returns the PackageLoadMetrics named value or an error if the edge was not
+// loaded in eager-loading with this name.
+func (pm *PackageMetrics) NamedPackageLoadMetrics(name string) ([]*PackageLoadMetrics, error) {
+	if pm.Edges.namedPackageLoadMetrics == nil {
+		return nil, &NotLoadedError{edge: name}
+	}
+	nodes, ok := pm.Edges.namedPackageLoadMetrics[name]
+	if !ok {
+		return nil, &NotLoadedError{edge: name}
+	}
+	return nodes, nil
+}
+
+func (pm *PackageMetrics) appendNamedPackageLoadMetrics(name string, edges ...*PackageLoadMetrics) {
+	if pm.Edges.namedPackageLoadMetrics == nil {
+		pm.Edges.namedPackageLoadMetrics = make(map[string][]*PackageLoadMetrics)
+	}
+	if len(edges) == 0 {
+		pm.Edges.namedPackageLoadMetrics[name] = []*PackageLoadMetrics{}
+	} else {
+		pm.Edges.namedPackageLoadMetrics[name] = append(pm.Edges.namedPackageLoadMetrics[name], edges...)
 	}
 }
 

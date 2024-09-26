@@ -156,6 +156,26 @@ func (trbu *TestResultBESUpdate) ClearTestAttemptStartMillisEpoch() *TestResultB
 	return trbu
 }
 
+// SetTestAttemptStart sets the "test_attempt_start" field.
+func (trbu *TestResultBESUpdate) SetTestAttemptStart(s string) *TestResultBESUpdate {
+	trbu.mutation.SetTestAttemptStart(s)
+	return trbu
+}
+
+// SetNillableTestAttemptStart sets the "test_attempt_start" field if the given value is not nil.
+func (trbu *TestResultBESUpdate) SetNillableTestAttemptStart(s *string) *TestResultBESUpdate {
+	if s != nil {
+		trbu.SetTestAttemptStart(*s)
+	}
+	return trbu
+}
+
+// ClearTestAttemptStart clears the value of the "test_attempt_start" field.
+func (trbu *TestResultBESUpdate) ClearTestAttemptStart() *TestResultBESUpdate {
+	trbu.mutation.ClearTestAttemptStart()
+	return trbu
+}
+
 // SetTestAttemptDurationMillis sets the "test_attempt_duration_millis" field.
 func (trbu *TestResultBESUpdate) SetTestAttemptDurationMillis(i int64) *TestResultBESUpdate {
 	trbu.mutation.ResetTestAttemptDurationMillis()
@@ -183,111 +203,30 @@ func (trbu *TestResultBESUpdate) ClearTestAttemptDurationMillis() *TestResultBES
 	return trbu
 }
 
-// SetTargetsConfiguredNotIncludingAspects sets the "targets_configured_not_including_aspects" field.
-func (trbu *TestResultBESUpdate) SetTargetsConfiguredNotIncludingAspects(i int64) *TestResultBESUpdate {
-	trbu.mutation.ResetTargetsConfiguredNotIncludingAspects()
-	trbu.mutation.SetTargetsConfiguredNotIncludingAspects(i)
+// SetTestAttemptDuration sets the "test_attempt_duration" field.
+func (trbu *TestResultBESUpdate) SetTestAttemptDuration(i int64) *TestResultBESUpdate {
+	trbu.mutation.ResetTestAttemptDuration()
+	trbu.mutation.SetTestAttemptDuration(i)
 	return trbu
 }
 
-// SetNillableTargetsConfiguredNotIncludingAspects sets the "targets_configured_not_including_aspects" field if the given value is not nil.
-func (trbu *TestResultBESUpdate) SetNillableTargetsConfiguredNotIncludingAspects(i *int64) *TestResultBESUpdate {
+// SetNillableTestAttemptDuration sets the "test_attempt_duration" field if the given value is not nil.
+func (trbu *TestResultBESUpdate) SetNillableTestAttemptDuration(i *int64) *TestResultBESUpdate {
 	if i != nil {
-		trbu.SetTargetsConfiguredNotIncludingAspects(*i)
+		trbu.SetTestAttemptDuration(*i)
 	}
 	return trbu
 }
 
-// AddTargetsConfiguredNotIncludingAspects adds i to the "targets_configured_not_including_aspects" field.
-func (trbu *TestResultBESUpdate) AddTargetsConfiguredNotIncludingAspects(i int64) *TestResultBESUpdate {
-	trbu.mutation.AddTargetsConfiguredNotIncludingAspects(i)
+// AddTestAttemptDuration adds i to the "test_attempt_duration" field.
+func (trbu *TestResultBESUpdate) AddTestAttemptDuration(i int64) *TestResultBESUpdate {
+	trbu.mutation.AddTestAttemptDuration(i)
 	return trbu
 }
 
-// ClearTargetsConfiguredNotIncludingAspects clears the value of the "targets_configured_not_including_aspects" field.
-func (trbu *TestResultBESUpdate) ClearTargetsConfiguredNotIncludingAspects() *TestResultBESUpdate {
-	trbu.mutation.ClearTargetsConfiguredNotIncludingAspects()
-	return trbu
-}
-
-// SetRun sets the "run" field.
-func (trbu *TestResultBESUpdate) SetRun(i int) *TestResultBESUpdate {
-	trbu.mutation.ResetRun()
-	trbu.mutation.SetRun(i)
-	return trbu
-}
-
-// SetNillableRun sets the "run" field if the given value is not nil.
-func (trbu *TestResultBESUpdate) SetNillableRun(i *int) *TestResultBESUpdate {
-	if i != nil {
-		trbu.SetRun(*i)
-	}
-	return trbu
-}
-
-// AddRun adds i to the "run" field.
-func (trbu *TestResultBESUpdate) AddRun(i int) *TestResultBESUpdate {
-	trbu.mutation.AddRun(i)
-	return trbu
-}
-
-// ClearRun clears the value of the "run" field.
-func (trbu *TestResultBESUpdate) ClearRun() *TestResultBESUpdate {
-	trbu.mutation.ClearRun()
-	return trbu
-}
-
-// SetShard sets the "shard" field.
-func (trbu *TestResultBESUpdate) SetShard(i int) *TestResultBESUpdate {
-	trbu.mutation.ResetShard()
-	trbu.mutation.SetShard(i)
-	return trbu
-}
-
-// SetNillableShard sets the "shard" field if the given value is not nil.
-func (trbu *TestResultBESUpdate) SetNillableShard(i *int) *TestResultBESUpdate {
-	if i != nil {
-		trbu.SetShard(*i)
-	}
-	return trbu
-}
-
-// AddShard adds i to the "shard" field.
-func (trbu *TestResultBESUpdate) AddShard(i int) *TestResultBESUpdate {
-	trbu.mutation.AddShard(i)
-	return trbu
-}
-
-// ClearShard clears the value of the "shard" field.
-func (trbu *TestResultBESUpdate) ClearShard() *TestResultBESUpdate {
-	trbu.mutation.ClearShard()
-	return trbu
-}
-
-// SetAttempt sets the "attempt" field.
-func (trbu *TestResultBESUpdate) SetAttempt(i int) *TestResultBESUpdate {
-	trbu.mutation.ResetAttempt()
-	trbu.mutation.SetAttempt(i)
-	return trbu
-}
-
-// SetNillableAttempt sets the "attempt" field if the given value is not nil.
-func (trbu *TestResultBESUpdate) SetNillableAttempt(i *int) *TestResultBESUpdate {
-	if i != nil {
-		trbu.SetAttempt(*i)
-	}
-	return trbu
-}
-
-// AddAttempt adds i to the "attempt" field.
-func (trbu *TestResultBESUpdate) AddAttempt(i int) *TestResultBESUpdate {
-	trbu.mutation.AddAttempt(i)
-	return trbu
-}
-
-// ClearAttempt clears the value of the "attempt" field.
-func (trbu *TestResultBESUpdate) ClearAttempt() *TestResultBESUpdate {
-	trbu.mutation.ClearAttempt()
+// ClearTestAttemptDuration clears the value of the "test_attempt_duration" field.
+func (trbu *TestResultBESUpdate) ClearTestAttemptDuration() *TestResultBESUpdate {
+	trbu.mutation.ClearTestAttemptDuration()
 	return trbu
 }
 
@@ -475,6 +414,12 @@ func (trbu *TestResultBESUpdate) sqlSave(ctx context.Context) (n int, err error)
 	if trbu.mutation.TestAttemptStartMillisEpochCleared() {
 		_spec.ClearField(testresultbes.FieldTestAttemptStartMillisEpoch, field.TypeInt64)
 	}
+	if value, ok := trbu.mutation.TestAttemptStart(); ok {
+		_spec.SetField(testresultbes.FieldTestAttemptStart, field.TypeString, value)
+	}
+	if trbu.mutation.TestAttemptStartCleared() {
+		_spec.ClearField(testresultbes.FieldTestAttemptStart, field.TypeString)
+	}
 	if value, ok := trbu.mutation.TestAttemptDurationMillis(); ok {
 		_spec.SetField(testresultbes.FieldTestAttemptDurationMillis, field.TypeInt64, value)
 	}
@@ -484,41 +429,14 @@ func (trbu *TestResultBESUpdate) sqlSave(ctx context.Context) (n int, err error)
 	if trbu.mutation.TestAttemptDurationMillisCleared() {
 		_spec.ClearField(testresultbes.FieldTestAttemptDurationMillis, field.TypeInt64)
 	}
-	if value, ok := trbu.mutation.TargetsConfiguredNotIncludingAspects(); ok {
-		_spec.SetField(testresultbes.FieldTargetsConfiguredNotIncludingAspects, field.TypeInt64, value)
+	if value, ok := trbu.mutation.TestAttemptDuration(); ok {
+		_spec.SetField(testresultbes.FieldTestAttemptDuration, field.TypeInt64, value)
 	}
-	if value, ok := trbu.mutation.AddedTargetsConfiguredNotIncludingAspects(); ok {
-		_spec.AddField(testresultbes.FieldTargetsConfiguredNotIncludingAspects, field.TypeInt64, value)
+	if value, ok := trbu.mutation.AddedTestAttemptDuration(); ok {
+		_spec.AddField(testresultbes.FieldTestAttemptDuration, field.TypeInt64, value)
 	}
-	if trbu.mutation.TargetsConfiguredNotIncludingAspectsCleared() {
-		_spec.ClearField(testresultbes.FieldTargetsConfiguredNotIncludingAspects, field.TypeInt64)
-	}
-	if value, ok := trbu.mutation.Run(); ok {
-		_spec.SetField(testresultbes.FieldRun, field.TypeInt, value)
-	}
-	if value, ok := trbu.mutation.AddedRun(); ok {
-		_spec.AddField(testresultbes.FieldRun, field.TypeInt, value)
-	}
-	if trbu.mutation.RunCleared() {
-		_spec.ClearField(testresultbes.FieldRun, field.TypeInt)
-	}
-	if value, ok := trbu.mutation.Shard(); ok {
-		_spec.SetField(testresultbes.FieldShard, field.TypeInt, value)
-	}
-	if value, ok := trbu.mutation.AddedShard(); ok {
-		_spec.AddField(testresultbes.FieldShard, field.TypeInt, value)
-	}
-	if trbu.mutation.ShardCleared() {
-		_spec.ClearField(testresultbes.FieldShard, field.TypeInt)
-	}
-	if value, ok := trbu.mutation.Attempt(); ok {
-		_spec.SetField(testresultbes.FieldAttempt, field.TypeInt, value)
-	}
-	if value, ok := trbu.mutation.AddedAttempt(); ok {
-		_spec.AddField(testresultbes.FieldAttempt, field.TypeInt, value)
-	}
-	if trbu.mutation.AttemptCleared() {
-		_spec.ClearField(testresultbes.FieldAttempt, field.TypeInt)
+	if trbu.mutation.TestAttemptDurationCleared() {
+		_spec.ClearField(testresultbes.FieldTestAttemptDuration, field.TypeInt64)
 	}
 	if trbu.mutation.TestCollectionCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -768,6 +686,26 @@ func (trbuo *TestResultBESUpdateOne) ClearTestAttemptStartMillisEpoch() *TestRes
 	return trbuo
 }
 
+// SetTestAttemptStart sets the "test_attempt_start" field.
+func (trbuo *TestResultBESUpdateOne) SetTestAttemptStart(s string) *TestResultBESUpdateOne {
+	trbuo.mutation.SetTestAttemptStart(s)
+	return trbuo
+}
+
+// SetNillableTestAttemptStart sets the "test_attempt_start" field if the given value is not nil.
+func (trbuo *TestResultBESUpdateOne) SetNillableTestAttemptStart(s *string) *TestResultBESUpdateOne {
+	if s != nil {
+		trbuo.SetTestAttemptStart(*s)
+	}
+	return trbuo
+}
+
+// ClearTestAttemptStart clears the value of the "test_attempt_start" field.
+func (trbuo *TestResultBESUpdateOne) ClearTestAttemptStart() *TestResultBESUpdateOne {
+	trbuo.mutation.ClearTestAttemptStart()
+	return trbuo
+}
+
 // SetTestAttemptDurationMillis sets the "test_attempt_duration_millis" field.
 func (trbuo *TestResultBESUpdateOne) SetTestAttemptDurationMillis(i int64) *TestResultBESUpdateOne {
 	trbuo.mutation.ResetTestAttemptDurationMillis()
@@ -795,111 +733,30 @@ func (trbuo *TestResultBESUpdateOne) ClearTestAttemptDurationMillis() *TestResul
 	return trbuo
 }
 
-// SetTargetsConfiguredNotIncludingAspects sets the "targets_configured_not_including_aspects" field.
-func (trbuo *TestResultBESUpdateOne) SetTargetsConfiguredNotIncludingAspects(i int64) *TestResultBESUpdateOne {
-	trbuo.mutation.ResetTargetsConfiguredNotIncludingAspects()
-	trbuo.mutation.SetTargetsConfiguredNotIncludingAspects(i)
+// SetTestAttemptDuration sets the "test_attempt_duration" field.
+func (trbuo *TestResultBESUpdateOne) SetTestAttemptDuration(i int64) *TestResultBESUpdateOne {
+	trbuo.mutation.ResetTestAttemptDuration()
+	trbuo.mutation.SetTestAttemptDuration(i)
 	return trbuo
 }
 
-// SetNillableTargetsConfiguredNotIncludingAspects sets the "targets_configured_not_including_aspects" field if the given value is not nil.
-func (trbuo *TestResultBESUpdateOne) SetNillableTargetsConfiguredNotIncludingAspects(i *int64) *TestResultBESUpdateOne {
+// SetNillableTestAttemptDuration sets the "test_attempt_duration" field if the given value is not nil.
+func (trbuo *TestResultBESUpdateOne) SetNillableTestAttemptDuration(i *int64) *TestResultBESUpdateOne {
 	if i != nil {
-		trbuo.SetTargetsConfiguredNotIncludingAspects(*i)
+		trbuo.SetTestAttemptDuration(*i)
 	}
 	return trbuo
 }
 
-// AddTargetsConfiguredNotIncludingAspects adds i to the "targets_configured_not_including_aspects" field.
-func (trbuo *TestResultBESUpdateOne) AddTargetsConfiguredNotIncludingAspects(i int64) *TestResultBESUpdateOne {
-	trbuo.mutation.AddTargetsConfiguredNotIncludingAspects(i)
+// AddTestAttemptDuration adds i to the "test_attempt_duration" field.
+func (trbuo *TestResultBESUpdateOne) AddTestAttemptDuration(i int64) *TestResultBESUpdateOne {
+	trbuo.mutation.AddTestAttemptDuration(i)
 	return trbuo
 }
 
-// ClearTargetsConfiguredNotIncludingAspects clears the value of the "targets_configured_not_including_aspects" field.
-func (trbuo *TestResultBESUpdateOne) ClearTargetsConfiguredNotIncludingAspects() *TestResultBESUpdateOne {
-	trbuo.mutation.ClearTargetsConfiguredNotIncludingAspects()
-	return trbuo
-}
-
-// SetRun sets the "run" field.
-func (trbuo *TestResultBESUpdateOne) SetRun(i int) *TestResultBESUpdateOne {
-	trbuo.mutation.ResetRun()
-	trbuo.mutation.SetRun(i)
-	return trbuo
-}
-
-// SetNillableRun sets the "run" field if the given value is not nil.
-func (trbuo *TestResultBESUpdateOne) SetNillableRun(i *int) *TestResultBESUpdateOne {
-	if i != nil {
-		trbuo.SetRun(*i)
-	}
-	return trbuo
-}
-
-// AddRun adds i to the "run" field.
-func (trbuo *TestResultBESUpdateOne) AddRun(i int) *TestResultBESUpdateOne {
-	trbuo.mutation.AddRun(i)
-	return trbuo
-}
-
-// ClearRun clears the value of the "run" field.
-func (trbuo *TestResultBESUpdateOne) ClearRun() *TestResultBESUpdateOne {
-	trbuo.mutation.ClearRun()
-	return trbuo
-}
-
-// SetShard sets the "shard" field.
-func (trbuo *TestResultBESUpdateOne) SetShard(i int) *TestResultBESUpdateOne {
-	trbuo.mutation.ResetShard()
-	trbuo.mutation.SetShard(i)
-	return trbuo
-}
-
-// SetNillableShard sets the "shard" field if the given value is not nil.
-func (trbuo *TestResultBESUpdateOne) SetNillableShard(i *int) *TestResultBESUpdateOne {
-	if i != nil {
-		trbuo.SetShard(*i)
-	}
-	return trbuo
-}
-
-// AddShard adds i to the "shard" field.
-func (trbuo *TestResultBESUpdateOne) AddShard(i int) *TestResultBESUpdateOne {
-	trbuo.mutation.AddShard(i)
-	return trbuo
-}
-
-// ClearShard clears the value of the "shard" field.
-func (trbuo *TestResultBESUpdateOne) ClearShard() *TestResultBESUpdateOne {
-	trbuo.mutation.ClearShard()
-	return trbuo
-}
-
-// SetAttempt sets the "attempt" field.
-func (trbuo *TestResultBESUpdateOne) SetAttempt(i int) *TestResultBESUpdateOne {
-	trbuo.mutation.ResetAttempt()
-	trbuo.mutation.SetAttempt(i)
-	return trbuo
-}
-
-// SetNillableAttempt sets the "attempt" field if the given value is not nil.
-func (trbuo *TestResultBESUpdateOne) SetNillableAttempt(i *int) *TestResultBESUpdateOne {
-	if i != nil {
-		trbuo.SetAttempt(*i)
-	}
-	return trbuo
-}
-
-// AddAttempt adds i to the "attempt" field.
-func (trbuo *TestResultBESUpdateOne) AddAttempt(i int) *TestResultBESUpdateOne {
-	trbuo.mutation.AddAttempt(i)
-	return trbuo
-}
-
-// ClearAttempt clears the value of the "attempt" field.
-func (trbuo *TestResultBESUpdateOne) ClearAttempt() *TestResultBESUpdateOne {
-	trbuo.mutation.ClearAttempt()
+// ClearTestAttemptDuration clears the value of the "test_attempt_duration" field.
+func (trbuo *TestResultBESUpdateOne) ClearTestAttemptDuration() *TestResultBESUpdateOne {
+	trbuo.mutation.ClearTestAttemptDuration()
 	return trbuo
 }
 
@@ -1117,6 +974,12 @@ func (trbuo *TestResultBESUpdateOne) sqlSave(ctx context.Context) (_node *TestRe
 	if trbuo.mutation.TestAttemptStartMillisEpochCleared() {
 		_spec.ClearField(testresultbes.FieldTestAttemptStartMillisEpoch, field.TypeInt64)
 	}
+	if value, ok := trbuo.mutation.TestAttemptStart(); ok {
+		_spec.SetField(testresultbes.FieldTestAttemptStart, field.TypeString, value)
+	}
+	if trbuo.mutation.TestAttemptStartCleared() {
+		_spec.ClearField(testresultbes.FieldTestAttemptStart, field.TypeString)
+	}
 	if value, ok := trbuo.mutation.TestAttemptDurationMillis(); ok {
 		_spec.SetField(testresultbes.FieldTestAttemptDurationMillis, field.TypeInt64, value)
 	}
@@ -1126,41 +989,14 @@ func (trbuo *TestResultBESUpdateOne) sqlSave(ctx context.Context) (_node *TestRe
 	if trbuo.mutation.TestAttemptDurationMillisCleared() {
 		_spec.ClearField(testresultbes.FieldTestAttemptDurationMillis, field.TypeInt64)
 	}
-	if value, ok := trbuo.mutation.TargetsConfiguredNotIncludingAspects(); ok {
-		_spec.SetField(testresultbes.FieldTargetsConfiguredNotIncludingAspects, field.TypeInt64, value)
+	if value, ok := trbuo.mutation.TestAttemptDuration(); ok {
+		_spec.SetField(testresultbes.FieldTestAttemptDuration, field.TypeInt64, value)
 	}
-	if value, ok := trbuo.mutation.AddedTargetsConfiguredNotIncludingAspects(); ok {
-		_spec.AddField(testresultbes.FieldTargetsConfiguredNotIncludingAspects, field.TypeInt64, value)
+	if value, ok := trbuo.mutation.AddedTestAttemptDuration(); ok {
+		_spec.AddField(testresultbes.FieldTestAttemptDuration, field.TypeInt64, value)
 	}
-	if trbuo.mutation.TargetsConfiguredNotIncludingAspectsCleared() {
-		_spec.ClearField(testresultbes.FieldTargetsConfiguredNotIncludingAspects, field.TypeInt64)
-	}
-	if value, ok := trbuo.mutation.Run(); ok {
-		_spec.SetField(testresultbes.FieldRun, field.TypeInt, value)
-	}
-	if value, ok := trbuo.mutation.AddedRun(); ok {
-		_spec.AddField(testresultbes.FieldRun, field.TypeInt, value)
-	}
-	if trbuo.mutation.RunCleared() {
-		_spec.ClearField(testresultbes.FieldRun, field.TypeInt)
-	}
-	if value, ok := trbuo.mutation.Shard(); ok {
-		_spec.SetField(testresultbes.FieldShard, field.TypeInt, value)
-	}
-	if value, ok := trbuo.mutation.AddedShard(); ok {
-		_spec.AddField(testresultbes.FieldShard, field.TypeInt, value)
-	}
-	if trbuo.mutation.ShardCleared() {
-		_spec.ClearField(testresultbes.FieldShard, field.TypeInt)
-	}
-	if value, ok := trbuo.mutation.Attempt(); ok {
-		_spec.SetField(testresultbes.FieldAttempt, field.TypeInt, value)
-	}
-	if value, ok := trbuo.mutation.AddedAttempt(); ok {
-		_spec.AddField(testresultbes.FieldAttempt, field.TypeInt, value)
-	}
-	if trbuo.mutation.AttemptCleared() {
-		_spec.ClearField(testresultbes.FieldAttempt, field.TypeInt)
+	if trbuo.mutation.TestAttemptDurationCleared() {
+		_spec.ClearField(testresultbes.FieldTestAttemptDuration, field.TypeInt64)
 	}
 	if trbuo.mutation.TestCollectionCleared() {
 		edge := &sqlgraph.EdgeSpec{

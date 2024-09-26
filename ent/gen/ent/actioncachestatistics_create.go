@@ -90,21 +90,6 @@ func (acsc *ActionCacheStatisticsCreate) SetNillableMisses(i *int32) *ActionCach
 	return acsc
 }
 
-// AddMissDetailIDs adds the "miss_details" edge to the MissDetail entity by IDs.
-func (acsc *ActionCacheStatisticsCreate) AddMissDetailIDs(ids ...int) *ActionCacheStatisticsCreate {
-	acsc.mutation.AddMissDetailIDs(ids...)
-	return acsc
-}
-
-// AddMissDetails adds the "miss_details" edges to the MissDetail entity.
-func (acsc *ActionCacheStatisticsCreate) AddMissDetails(m ...*MissDetail) *ActionCacheStatisticsCreate {
-	ids := make([]int, len(m))
-	for i := range m {
-		ids[i] = m[i].ID
-	}
-	return acsc.AddMissDetailIDs(ids...)
-}
-
 // AddActionSummaryIDs adds the "action_summary" edge to the ActionSummary entity by IDs.
 func (acsc *ActionCacheStatisticsCreate) AddActionSummaryIDs(ids ...int) *ActionCacheStatisticsCreate {
 	acsc.mutation.AddActionSummaryIDs(ids...)
@@ -118,6 +103,21 @@ func (acsc *ActionCacheStatisticsCreate) AddActionSummary(a ...*ActionSummary) *
 		ids[i] = a[i].ID
 	}
 	return acsc.AddActionSummaryIDs(ids...)
+}
+
+// AddMissDetailIDs adds the "miss_details" edge to the MissDetail entity by IDs.
+func (acsc *ActionCacheStatisticsCreate) AddMissDetailIDs(ids ...int) *ActionCacheStatisticsCreate {
+	acsc.mutation.AddMissDetailIDs(ids...)
+	return acsc
+}
+
+// AddMissDetails adds the "miss_details" edges to the MissDetail entity.
+func (acsc *ActionCacheStatisticsCreate) AddMissDetails(m ...*MissDetail) *ActionCacheStatisticsCreate {
+	ids := make([]int, len(m))
+	for i := range m {
+		ids[i] = m[i].ID
+	}
+	return acsc.AddMissDetailIDs(ids...)
 }
 
 // Mutation returns the ActionCacheStatisticsMutation object of the builder.
@@ -200,22 +200,6 @@ func (acsc *ActionCacheStatisticsCreate) createSpec() (*ActionCacheStatistics, *
 		_spec.SetField(actioncachestatistics.FieldMisses, field.TypeInt32, value)
 		_node.Misses = value
 	}
-	if nodes := acsc.mutation.MissDetailsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   actioncachestatistics.MissDetailsTable,
-			Columns: actioncachestatistics.MissDetailsPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(missdetail.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges = append(_spec.Edges, edge)
-	}
 	if nodes := acsc.mutation.ActionSummaryIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
@@ -225,6 +209,22 @@ func (acsc *ActionCacheStatisticsCreate) createSpec() (*ActionCacheStatistics, *
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(actionsummary.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := acsc.mutation.MissDetailsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   actioncachestatistics.MissDetailsTable,
+			Columns: actioncachestatistics.MissDetailsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(missdetail.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

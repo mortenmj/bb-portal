@@ -14,7 +14,11 @@ type FilesMetric struct {
 // Fields of the FilesMetric.
 func (FilesMetric) Fields() []ent.Field {
 	return []ent.Field{
+
+		// The total size in bytes
 		field.Int64("size_in_bytes").Optional(),
+
+		//The total Coount
 		field.Int32("count").Optional(),
 	}
 }
@@ -23,9 +27,25 @@ func (FilesMetric) Fields() []ent.Field {
 func (FilesMetric) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.From("artifact_metrics", ArtifactMetrics.Type).
+
+			// Measures all source files newly read this build. Does not include
+			// unchanged sources on incremental builds.
 			Ref("source_artifacts_read").
+
+			// Measures all output artifacts from executed actions. This includes
+			// actions that were cached locally (via the action cache) or remotely (via
+			// a remote cache or executor), but does *not* include outputs of actions
+			// that were cached internally in Skyframe.
 			Ref("output_artifacts_seen").
+
+			// Measures all output artifacts from actions that were cached locally
+			// via the action cache. These artifacts were already present on disk at the
+			// start of the build. Does not include Skyframe-cached actions' outputs.
 			Ref("output_artifacts_from_action_cache").
+
+			// Measures all artifacts that belong to a top-level output group. Does not
+			// deduplicate, so if there are two top-level targets in this build that
+			// share an artifact, it will be counted twice.
 			Ref("top_level_artifacts"),
 	}
 }

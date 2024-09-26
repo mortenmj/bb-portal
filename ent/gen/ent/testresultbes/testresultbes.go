@@ -28,16 +28,12 @@ const (
 	FieldCachedLocally = "cached_locally"
 	// FieldTestAttemptStartMillisEpoch holds the string denoting the test_attempt_start_millis_epoch field in the database.
 	FieldTestAttemptStartMillisEpoch = "test_attempt_start_millis_epoch"
+	// FieldTestAttemptStart holds the string denoting the test_attempt_start field in the database.
+	FieldTestAttemptStart = "test_attempt_start"
 	// FieldTestAttemptDurationMillis holds the string denoting the test_attempt_duration_millis field in the database.
 	FieldTestAttemptDurationMillis = "test_attempt_duration_millis"
-	// FieldTargetsConfiguredNotIncludingAspects holds the string denoting the targets_configured_not_including_aspects field in the database.
-	FieldTargetsConfiguredNotIncludingAspects = "targets_configured_not_including_aspects"
-	// FieldRun holds the string denoting the run field in the database.
-	FieldRun = "run"
-	// FieldShard holds the string denoting the shard field in the database.
-	FieldShard = "shard"
-	// FieldAttempt holds the string denoting the attempt field in the database.
-	FieldAttempt = "attempt"
+	// FieldTestAttemptDuration holds the string denoting the test_attempt_duration field in the database.
+	FieldTestAttemptDuration = "test_attempt_duration"
 	// EdgeTestCollection holds the string denoting the test_collection edge name in mutations.
 	EdgeTestCollection = "test_collection"
 	// EdgeTestActionOutput holds the string denoting the test_action_output edge name in mutations.
@@ -76,17 +72,14 @@ var Columns = []string{
 	FieldWarning,
 	FieldCachedLocally,
 	FieldTestAttemptStartMillisEpoch,
+	FieldTestAttemptStart,
 	FieldTestAttemptDurationMillis,
-	FieldTargetsConfiguredNotIncludingAspects,
-	FieldRun,
-	FieldShard,
-	FieldAttempt,
+	FieldTestAttemptDuration,
 }
 
 // ForeignKeys holds the SQL foreign-keys that are owned by the "test_result_be_ss"
 // table and are not defined as standalone fields in the schema.
 var ForeignKeys = []string{
-	"metrics_test_results",
 	"test_collection_test_results",
 	"test_result_bes_execution_info",
 }
@@ -178,29 +171,19 @@ func ByTestAttemptStartMillisEpoch(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldTestAttemptStartMillisEpoch, opts...).ToFunc()
 }
 
+// ByTestAttemptStart orders the results by the test_attempt_start field.
+func ByTestAttemptStart(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTestAttemptStart, opts...).ToFunc()
+}
+
 // ByTestAttemptDurationMillis orders the results by the test_attempt_duration_millis field.
 func ByTestAttemptDurationMillis(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldTestAttemptDurationMillis, opts...).ToFunc()
 }
 
-// ByTargetsConfiguredNotIncludingAspects orders the results by the targets_configured_not_including_aspects field.
-func ByTargetsConfiguredNotIncludingAspects(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldTargetsConfiguredNotIncludingAspects, opts...).ToFunc()
-}
-
-// ByRun orders the results by the run field.
-func ByRun(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldRun, opts...).ToFunc()
-}
-
-// ByShard orders the results by the shard field.
-func ByShard(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldShard, opts...).ToFunc()
-}
-
-// ByAttempt orders the results by the attempt field.
-func ByAttempt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldAttempt, opts...).ToFunc()
+// ByTestAttemptDuration orders the results by the test_attempt_duration field.
+func ByTestAttemptDuration(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTestAttemptDuration, opts...).ToFunc()
 }
 
 // ByTestCollectionField orders the results by test_collection field.

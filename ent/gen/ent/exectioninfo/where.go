@@ -53,6 +53,11 @@ func IDLTE(id int) predicate.ExectionInfo {
 	return predicate.ExectionInfo(sql.FieldLTE(FieldID, id))
 }
 
+// TimeoutSeconds applies equality check predicate on the "timeout_seconds" field. It's identical to TimeoutSecondsEQ.
+func TimeoutSeconds(v int32) predicate.ExectionInfo {
+	return predicate.ExectionInfo(sql.FieldEQ(FieldTimeoutSeconds, v))
+}
+
 // Strategy applies equality check predicate on the "strategy" field. It's identical to StrategyEQ.
 func Strategy(v string) predicate.ExectionInfo {
 	return predicate.ExectionInfo(sql.FieldEQ(FieldStrategy, v))
@@ -71,6 +76,56 @@ func ExitCode(v int32) predicate.ExectionInfo {
 // Hostname applies equality check predicate on the "hostname" field. It's identical to HostnameEQ.
 func Hostname(v string) predicate.ExectionInfo {
 	return predicate.ExectionInfo(sql.FieldEQ(FieldHostname, v))
+}
+
+// TimeoutSecondsEQ applies the EQ predicate on the "timeout_seconds" field.
+func TimeoutSecondsEQ(v int32) predicate.ExectionInfo {
+	return predicate.ExectionInfo(sql.FieldEQ(FieldTimeoutSeconds, v))
+}
+
+// TimeoutSecondsNEQ applies the NEQ predicate on the "timeout_seconds" field.
+func TimeoutSecondsNEQ(v int32) predicate.ExectionInfo {
+	return predicate.ExectionInfo(sql.FieldNEQ(FieldTimeoutSeconds, v))
+}
+
+// TimeoutSecondsIn applies the In predicate on the "timeout_seconds" field.
+func TimeoutSecondsIn(vs ...int32) predicate.ExectionInfo {
+	return predicate.ExectionInfo(sql.FieldIn(FieldTimeoutSeconds, vs...))
+}
+
+// TimeoutSecondsNotIn applies the NotIn predicate on the "timeout_seconds" field.
+func TimeoutSecondsNotIn(vs ...int32) predicate.ExectionInfo {
+	return predicate.ExectionInfo(sql.FieldNotIn(FieldTimeoutSeconds, vs...))
+}
+
+// TimeoutSecondsGT applies the GT predicate on the "timeout_seconds" field.
+func TimeoutSecondsGT(v int32) predicate.ExectionInfo {
+	return predicate.ExectionInfo(sql.FieldGT(FieldTimeoutSeconds, v))
+}
+
+// TimeoutSecondsGTE applies the GTE predicate on the "timeout_seconds" field.
+func TimeoutSecondsGTE(v int32) predicate.ExectionInfo {
+	return predicate.ExectionInfo(sql.FieldGTE(FieldTimeoutSeconds, v))
+}
+
+// TimeoutSecondsLT applies the LT predicate on the "timeout_seconds" field.
+func TimeoutSecondsLT(v int32) predicate.ExectionInfo {
+	return predicate.ExectionInfo(sql.FieldLT(FieldTimeoutSeconds, v))
+}
+
+// TimeoutSecondsLTE applies the LTE predicate on the "timeout_seconds" field.
+func TimeoutSecondsLTE(v int32) predicate.ExectionInfo {
+	return predicate.ExectionInfo(sql.FieldLTE(FieldTimeoutSeconds, v))
+}
+
+// TimeoutSecondsIsNil applies the IsNil predicate on the "timeout_seconds" field.
+func TimeoutSecondsIsNil() predicate.ExectionInfo {
+	return predicate.ExectionInfo(sql.FieldIsNull(FieldTimeoutSeconds))
+}
+
+// TimeoutSecondsNotNil applies the NotNil predicate on the "timeout_seconds" field.
+func TimeoutSecondsNotNil() predicate.ExectionInfo {
+	return predicate.ExectionInfo(sql.FieldNotNull(FieldTimeoutSeconds))
 }
 
 // StrategyEQ applies the EQ predicate on the "strategy" field.

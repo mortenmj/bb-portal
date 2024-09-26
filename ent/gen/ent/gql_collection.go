@@ -64,19 +64,6 @@ func (acs *ActionCacheStatisticsQuery) collectField(ctx context.Context, oneNode
 	for _, field := range graphql.CollectFields(opCtx, collected.Selections, satisfies) {
 		switch field.Name {
 
-		case "missDetails":
-			var (
-				alias = field.Alias
-				path  = append(path, alias)
-				query = (&MissDetailClient{config: acs.config}).Query()
-			)
-			if err := query.collectField(ctx, false, opCtx, field, path, mayAddCondition(satisfies, missdetailImplementors)...); err != nil {
-				return err
-			}
-			acs.WithNamedMissDetails(alias, func(wq *MissDetailQuery) {
-				*wq = *query
-			})
-
 		case "actionSummary":
 			var (
 				alias = field.Alias
@@ -87,6 +74,19 @@ func (acs *ActionCacheStatisticsQuery) collectField(ctx context.Context, oneNode
 				return err
 			}
 			acs.WithNamedActionSummary(alias, func(wq *ActionSummaryQuery) {
+				*wq = *query
+			})
+
+		case "missDetails":
+			var (
+				alias = field.Alias
+				path  = append(path, alias)
+				query = (&MissDetailClient{config: acs.config}).Query()
+			)
+			if err := query.collectField(ctx, false, opCtx, field, path, mayAddCondition(satisfies, missdetailImplementors)...); err != nil {
+				return err
+			}
+			acs.WithNamedMissDetails(alias, func(wq *MissDetailQuery) {
 				*wq = *query
 			})
 		case "sizeInBytes":
@@ -287,6 +287,17 @@ func (as *ActionSummaryQuery) collectField(ctx context.Context, oneNode bool, op
 	for _, field := range graphql.CollectFields(opCtx, collected.Selections, satisfies) {
 		switch field.Name {
 
+		case "metrics":
+			var (
+				alias = field.Alias
+				path  = append(path, alias)
+				query = (&MetricsClient{config: as.config}).Query()
+			)
+			if err := query.collectField(ctx, oneNode, opCtx, field, path, mayAddCondition(satisfies, metricsImplementors)...); err != nil {
+				return err
+			}
+			as.withMetrics = query
+
 		case "actionData":
 			var (
 				alias = field.Alias
@@ -325,17 +336,6 @@ func (as *ActionSummaryQuery) collectField(ctx context.Context, oneNode bool, op
 			as.WithNamedActionCacheStatistics(alias, func(wq *ActionCacheStatisticsQuery) {
 				*wq = *query
 			})
-
-		case "metrics":
-			var (
-				alias = field.Alias
-				path  = append(path, alias)
-				query = (&MetricsClient{config: as.config}).Query()
-			)
-			if err := query.collectField(ctx, oneNode, opCtx, field, path, mayAddCondition(satisfies, metricsImplementors)...); err != nil {
-				return err
-			}
-			as.withMetrics = query
 		case "actionsCreated":
 			if _, ok := fieldSeen[actionsummary.FieldActionsCreated]; !ok {
 				selectedFields = append(selectedFields, actionsummary.FieldActionsCreated)
@@ -1072,6 +1072,11 @@ func (bgm *BuildGraphMetricsQuery) collectField(ctx context.Context, oneNode boo
 				selectedFields = append(selectedFields, buildgraphmetrics.FieldActionCount)
 				fieldSeen[buildgraphmetrics.FieldActionCount] = struct{}{}
 			}
+		case "actionCountNotIncludingAspects":
+			if _, ok := fieldSeen[buildgraphmetrics.FieldActionCountNotIncludingAspects]; !ok {
+				selectedFields = append(selectedFields, buildgraphmetrics.FieldActionCountNotIncludingAspects)
+				fieldSeen[buildgraphmetrics.FieldActionCountNotIncludingAspects] = struct{}{}
+			}
 		case "inputFileConfiguredTargetCount":
 			if _, ok := fieldSeen[buildgraphmetrics.FieldInputFileConfiguredTargetCount]; !ok {
 				selectedFields = append(selectedFields, buildgraphmetrics.FieldInputFileConfiguredTargetCount)
@@ -1545,6 +1550,11 @@ func (ei *ExectionInfoQuery) collectField(ctx context.Context, oneNode bool, opC
 			ei.WithNamedResourceUsage(alias, func(wq *ResourceUsageQuery) {
 				*wq = *query
 			})
+		case "timeoutSeconds":
+			if _, ok := fieldSeen[exectioninfo.FieldTimeoutSeconds]; !ok {
+				selectedFields = append(selectedFields, exectioninfo.FieldTimeoutSeconds)
+				fieldSeen[exectioninfo.FieldTimeoutSeconds] = struct{}{}
+			}
 		case "strategy":
 			if _, ok := fieldSeen[exectioninfo.FieldStrategy]; !ok {
 				selectedFields = append(selectedFields, exectioninfo.FieldStrategy)
@@ -1798,19 +1808,6 @@ func (mm *MemoryMetricsQuery) collectField(ctx context.Context, oneNode bool, op
 	for _, field := range graphql.CollectFields(opCtx, collected.Selections, satisfies) {
 		switch field.Name {
 
-		case "garbageMetrics":
-			var (
-				alias = field.Alias
-				path  = append(path, alias)
-				query = (&GarbageMetricsClient{config: mm.config}).Query()
-			)
-			if err := query.collectField(ctx, false, opCtx, field, path, mayAddCondition(satisfies, garbagemetricsImplementors)...); err != nil {
-				return err
-			}
-			mm.WithNamedGarbageMetrics(alias, func(wq *GarbageMetricsQuery) {
-				*wq = *query
-			})
-
 		case "metrics":
 			var (
 				alias = field.Alias
@@ -1821,6 +1818,19 @@ func (mm *MemoryMetricsQuery) collectField(ctx context.Context, oneNode bool, op
 				return err
 			}
 			mm.WithNamedMetrics(alias, func(wq *MetricsQuery) {
+				*wq = *query
+			})
+
+		case "garbageMetrics":
+			var (
+				alias = field.Alias
+				path  = append(path, alias)
+				query = (&GarbageMetricsClient{config: mm.config}).Query()
+			)
+			if err := query.collectField(ctx, false, opCtx, field, path, mayAddCondition(satisfies, garbagemetricsImplementors)...); err != nil {
+				return err
+			}
+			mm.WithNamedGarbageMetrics(alias, func(wq *GarbageMetricsQuery) {
 				*wq = *query
 			})
 		case "peakPostGcHeapSize":
@@ -2034,32 +2044,6 @@ func (m *MetricsQuery) collectField(ctx context.Context, oneNode bool, opCtx *gr
 				return err
 			}
 			m.WithNamedBuildGraphMetrics(alias, func(wq *BuildGraphMetricsQuery) {
-				*wq = *query
-			})
-
-		case "testResults":
-			var (
-				alias = field.Alias
-				path  = append(path, alias)
-				query = (&TestResultBESClient{config: m.config}).Query()
-			)
-			if err := query.collectField(ctx, false, opCtx, field, path, mayAddCondition(satisfies, testresultbesImplementors)...); err != nil {
-				return err
-			}
-			m.WithNamedTestResults(alias, func(wq *TestResultBESQuery) {
-				*wq = *query
-			})
-
-		case "testSummary":
-			var (
-				alias = field.Alias
-				path  = append(path, alias)
-				query = (&TestSummaryClient{config: m.config}).Query()
-			)
-			if err := query.collectField(ctx, false, opCtx, field, path, mayAddCondition(satisfies, testsummaryImplementors)...); err != nil {
-				return err
-			}
-			m.WithNamedTestSummary(alias, func(wq *TestSummaryQuery) {
 				*wq = *query
 			})
 		}
@@ -2580,19 +2564,6 @@ func (pm *PackageMetricsQuery) collectField(ctx context.Context, oneNode bool, o
 	for _, field := range graphql.CollectFields(opCtx, collected.Selections, satisfies) {
 		switch field.Name {
 
-		case "packageLoadMetrics":
-			var (
-				alias = field.Alias
-				path  = append(path, alias)
-				query = (&PackageLoadMetricsClient{config: pm.config}).Query()
-			)
-			if err := query.collectField(ctx, false, opCtx, field, path, mayAddCondition(satisfies, packageloadmetricsImplementors)...); err != nil {
-				return err
-			}
-			pm.WithNamedPackageLoadMetrics(alias, func(wq *PackageLoadMetricsQuery) {
-				*wq = *query
-			})
-
 		case "metrics":
 			var (
 				alias = field.Alias
@@ -2603,6 +2574,19 @@ func (pm *PackageMetricsQuery) collectField(ctx context.Context, oneNode bool, o
 				return err
 			}
 			pm.WithNamedMetrics(alias, func(wq *MetricsQuery) {
+				*wq = *query
+			})
+
+		case "packageLoadMetrics":
+			var (
+				alias = field.Alias
+				path  = append(path, alias)
+				query = (&PackageLoadMetricsClient{config: pm.config}).Query()
+			)
+			if err := query.collectField(ctx, false, opCtx, field, path, mayAddCondition(satisfies, packageloadmetricsImplementors)...); err != nil {
+				return err
+			}
+			pm.WithNamedPackageLoadMetrics(alias, func(wq *PackageLoadMetricsQuery) {
 				*wq = *query
 			})
 		case "packagesLoaded":
@@ -3813,30 +3797,20 @@ func (trb *TestResultBESQuery) collectField(ctx context.Context, oneNode bool, o
 				selectedFields = append(selectedFields, testresultbes.FieldTestAttemptStartMillisEpoch)
 				fieldSeen[testresultbes.FieldTestAttemptStartMillisEpoch] = struct{}{}
 			}
+		case "testAttemptStart":
+			if _, ok := fieldSeen[testresultbes.FieldTestAttemptStart]; !ok {
+				selectedFields = append(selectedFields, testresultbes.FieldTestAttemptStart)
+				fieldSeen[testresultbes.FieldTestAttemptStart] = struct{}{}
+			}
 		case "testAttemptDurationMillis":
 			if _, ok := fieldSeen[testresultbes.FieldTestAttemptDurationMillis]; !ok {
 				selectedFields = append(selectedFields, testresultbes.FieldTestAttemptDurationMillis)
 				fieldSeen[testresultbes.FieldTestAttemptDurationMillis] = struct{}{}
 			}
-		case "targetsConfiguredNotIncludingAspects":
-			if _, ok := fieldSeen[testresultbes.FieldTargetsConfiguredNotIncludingAspects]; !ok {
-				selectedFields = append(selectedFields, testresultbes.FieldTargetsConfiguredNotIncludingAspects)
-				fieldSeen[testresultbes.FieldTargetsConfiguredNotIncludingAspects] = struct{}{}
-			}
-		case "run":
-			if _, ok := fieldSeen[testresultbes.FieldRun]; !ok {
-				selectedFields = append(selectedFields, testresultbes.FieldRun)
-				fieldSeen[testresultbes.FieldRun] = struct{}{}
-			}
-		case "shard":
-			if _, ok := fieldSeen[testresultbes.FieldShard]; !ok {
-				selectedFields = append(selectedFields, testresultbes.FieldShard)
-				fieldSeen[testresultbes.FieldShard] = struct{}{}
-			}
-		case "attempt":
-			if _, ok := fieldSeen[testresultbes.FieldAttempt]; !ok {
-				selectedFields = append(selectedFields, testresultbes.FieldAttempt)
-				fieldSeen[testresultbes.FieldAttempt] = struct{}{}
+		case "testAttemptDuration":
+			if _, ok := fieldSeen[testresultbes.FieldTestAttemptDuration]; !ok {
+				selectedFields = append(selectedFields, testresultbes.FieldTestAttemptDuration)
+				fieldSeen[testresultbes.FieldTestAttemptDuration] = struct{}{}
 			}
 		case "id":
 		case "__typename":

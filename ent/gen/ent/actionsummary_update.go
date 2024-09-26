@@ -139,6 +139,25 @@ func (asu *ActionSummaryUpdate) ClearRemoteCacheHits() *ActionSummaryUpdate {
 	return asu
 }
 
+// SetMetricsID sets the "metrics" edge to the Metrics entity by ID.
+func (asu *ActionSummaryUpdate) SetMetricsID(id int) *ActionSummaryUpdate {
+	asu.mutation.SetMetricsID(id)
+	return asu
+}
+
+// SetNillableMetricsID sets the "metrics" edge to the Metrics entity by ID if the given value is not nil.
+func (asu *ActionSummaryUpdate) SetNillableMetricsID(id *int) *ActionSummaryUpdate {
+	if id != nil {
+		asu = asu.SetMetricsID(*id)
+	}
+	return asu
+}
+
+// SetMetrics sets the "metrics" edge to the Metrics entity.
+func (asu *ActionSummaryUpdate) SetMetrics(m *Metrics) *ActionSummaryUpdate {
+	return asu.SetMetricsID(m.ID)
+}
+
 // AddActionDatumIDs adds the "action_data" edge to the ActionData entity by IDs.
 func (asu *ActionSummaryUpdate) AddActionDatumIDs(ids ...int) *ActionSummaryUpdate {
 	asu.mutation.AddActionDatumIDs(ids...)
@@ -184,28 +203,15 @@ func (asu *ActionSummaryUpdate) AddActionCacheStatistics(a ...*ActionCacheStatis
 	return asu.AddActionCacheStatisticIDs(ids...)
 }
 
-// SetMetricsID sets the "metrics" edge to the Metrics entity by ID.
-func (asu *ActionSummaryUpdate) SetMetricsID(id int) *ActionSummaryUpdate {
-	asu.mutation.SetMetricsID(id)
-	return asu
-}
-
-// SetNillableMetricsID sets the "metrics" edge to the Metrics entity by ID if the given value is not nil.
-func (asu *ActionSummaryUpdate) SetNillableMetricsID(id *int) *ActionSummaryUpdate {
-	if id != nil {
-		asu = asu.SetMetricsID(*id)
-	}
-	return asu
-}
-
-// SetMetrics sets the "metrics" edge to the Metrics entity.
-func (asu *ActionSummaryUpdate) SetMetrics(m *Metrics) *ActionSummaryUpdate {
-	return asu.SetMetricsID(m.ID)
-}
-
 // Mutation returns the ActionSummaryMutation object of the builder.
 func (asu *ActionSummaryUpdate) Mutation() *ActionSummaryMutation {
 	return asu.mutation
+}
+
+// ClearMetrics clears the "metrics" edge to the Metrics entity.
+func (asu *ActionSummaryUpdate) ClearMetrics() *ActionSummaryUpdate {
+	asu.mutation.ClearMetrics()
+	return asu
 }
 
 // ClearActionData clears all "action_data" edges to the ActionData entity.
@@ -269,12 +275,6 @@ func (asu *ActionSummaryUpdate) RemoveActionCacheStatistics(a ...*ActionCacheSta
 		ids[i] = a[i].ID
 	}
 	return asu.RemoveActionCacheStatisticIDs(ids...)
-}
-
-// ClearMetrics clears the "metrics" edge to the Metrics entity.
-func (asu *ActionSummaryUpdate) ClearMetrics() *ActionSummaryUpdate {
-	asu.mutation.ClearMetrics()
-	return asu
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -348,6 +348,35 @@ func (asu *ActionSummaryUpdate) sqlSave(ctx context.Context) (n int, err error) 
 	}
 	if asu.mutation.RemoteCacheHitsCleared() {
 		_spec.ClearField(actionsummary.FieldRemoteCacheHits, field.TypeInt64)
+	}
+	if asu.mutation.MetricsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   actionsummary.MetricsTable,
+			Columns: []string{actionsummary.MetricsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(metrics.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := asu.mutation.MetricsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   actionsummary.MetricsTable,
+			Columns: []string{actionsummary.MetricsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(metrics.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if asu.mutation.ActionDataCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -484,35 +513,6 @@ func (asu *ActionSummaryUpdate) sqlSave(ctx context.Context) (n int, err error) 
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if asu.mutation.MetricsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   actionsummary.MetricsTable,
-			Columns: []string{actionsummary.MetricsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(metrics.FieldID, field.TypeInt),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := asu.mutation.MetricsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   actionsummary.MetricsTable,
-			Columns: []string{actionsummary.MetricsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(metrics.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
 	if n, err = sqlgraph.UpdateNodes(ctx, asu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{actionsummary.Label}
@@ -641,6 +641,25 @@ func (asuo *ActionSummaryUpdateOne) ClearRemoteCacheHits() *ActionSummaryUpdateO
 	return asuo
 }
 
+// SetMetricsID sets the "metrics" edge to the Metrics entity by ID.
+func (asuo *ActionSummaryUpdateOne) SetMetricsID(id int) *ActionSummaryUpdateOne {
+	asuo.mutation.SetMetricsID(id)
+	return asuo
+}
+
+// SetNillableMetricsID sets the "metrics" edge to the Metrics entity by ID if the given value is not nil.
+func (asuo *ActionSummaryUpdateOne) SetNillableMetricsID(id *int) *ActionSummaryUpdateOne {
+	if id != nil {
+		asuo = asuo.SetMetricsID(*id)
+	}
+	return asuo
+}
+
+// SetMetrics sets the "metrics" edge to the Metrics entity.
+func (asuo *ActionSummaryUpdateOne) SetMetrics(m *Metrics) *ActionSummaryUpdateOne {
+	return asuo.SetMetricsID(m.ID)
+}
+
 // AddActionDatumIDs adds the "action_data" edge to the ActionData entity by IDs.
 func (asuo *ActionSummaryUpdateOne) AddActionDatumIDs(ids ...int) *ActionSummaryUpdateOne {
 	asuo.mutation.AddActionDatumIDs(ids...)
@@ -686,28 +705,15 @@ func (asuo *ActionSummaryUpdateOne) AddActionCacheStatistics(a ...*ActionCacheSt
 	return asuo.AddActionCacheStatisticIDs(ids...)
 }
 
-// SetMetricsID sets the "metrics" edge to the Metrics entity by ID.
-func (asuo *ActionSummaryUpdateOne) SetMetricsID(id int) *ActionSummaryUpdateOne {
-	asuo.mutation.SetMetricsID(id)
-	return asuo
-}
-
-// SetNillableMetricsID sets the "metrics" edge to the Metrics entity by ID if the given value is not nil.
-func (asuo *ActionSummaryUpdateOne) SetNillableMetricsID(id *int) *ActionSummaryUpdateOne {
-	if id != nil {
-		asuo = asuo.SetMetricsID(*id)
-	}
-	return asuo
-}
-
-// SetMetrics sets the "metrics" edge to the Metrics entity.
-func (asuo *ActionSummaryUpdateOne) SetMetrics(m *Metrics) *ActionSummaryUpdateOne {
-	return asuo.SetMetricsID(m.ID)
-}
-
 // Mutation returns the ActionSummaryMutation object of the builder.
 func (asuo *ActionSummaryUpdateOne) Mutation() *ActionSummaryMutation {
 	return asuo.mutation
+}
+
+// ClearMetrics clears the "metrics" edge to the Metrics entity.
+func (asuo *ActionSummaryUpdateOne) ClearMetrics() *ActionSummaryUpdateOne {
+	asuo.mutation.ClearMetrics()
+	return asuo
 }
 
 // ClearActionData clears all "action_data" edges to the ActionData entity.
@@ -771,12 +777,6 @@ func (asuo *ActionSummaryUpdateOne) RemoveActionCacheStatistics(a ...*ActionCach
 		ids[i] = a[i].ID
 	}
 	return asuo.RemoveActionCacheStatisticIDs(ids...)
-}
-
-// ClearMetrics clears the "metrics" edge to the Metrics entity.
-func (asuo *ActionSummaryUpdateOne) ClearMetrics() *ActionSummaryUpdateOne {
-	asuo.mutation.ClearMetrics()
-	return asuo
 }
 
 // Where appends a list predicates to the ActionSummaryUpdate builder.
@@ -880,6 +880,35 @@ func (asuo *ActionSummaryUpdateOne) sqlSave(ctx context.Context) (_node *ActionS
 	}
 	if asuo.mutation.RemoteCacheHitsCleared() {
 		_spec.ClearField(actionsummary.FieldRemoteCacheHits, field.TypeInt64)
+	}
+	if asuo.mutation.MetricsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   actionsummary.MetricsTable,
+			Columns: []string{actionsummary.MetricsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(metrics.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := asuo.mutation.MetricsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   actionsummary.MetricsTable,
+			Columns: []string{actionsummary.MetricsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(metrics.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if asuo.mutation.ActionDataCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -1009,35 +1038,6 @@ func (asuo *ActionSummaryUpdateOne) sqlSave(ctx context.Context) (_node *ActionS
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(actioncachestatistics.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if asuo.mutation.MetricsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   actionsummary.MetricsTable,
-			Columns: []string{actionsummary.MetricsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(metrics.FieldID, field.TypeInt),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := asuo.mutation.MetricsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   actionsummary.MetricsTable,
-			Columns: []string{actionsummary.MetricsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(metrics.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

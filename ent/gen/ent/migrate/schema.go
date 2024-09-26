@@ -185,6 +185,7 @@ var (
 		{Name: "action_lookup_value_count", Type: field.TypeInt32, Nullable: true},
 		{Name: "action_lookup_value_count_not_including_aspects", Type: field.TypeInt32, Nullable: true},
 		{Name: "action_count", Type: field.TypeInt32, Nullable: true},
+		{Name: "action_count_not_including_aspects", Type: field.TypeInt32, Nullable: true},
 		{Name: "input_file_configured_target_count", Type: field.TypeInt32, Nullable: true},
 		{Name: "output_file_configured_target_count", Type: field.TypeInt32, Nullable: true},
 		{Name: "other_configured_target_count", Type: field.TypeInt32, Nullable: true},
@@ -287,6 +288,7 @@ var (
 	// ExectionInfosColumns holds the columns for the "exection_infos" table.
 	ExectionInfosColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "timeout_seconds", Type: field.TypeInt32, Nullable: true},
 		{Name: "strategy", Type: field.TypeString, Nullable: true},
 		{Name: "cached_remotely", Type: field.TypeBool, Nullable: true},
 		{Name: "exit_code", Type: field.TypeInt32, Nullable: true},
@@ -301,7 +303,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "exection_infos_timing_breakdowns_timing_breakdown",
-				Columns:    []*schema.Column{ExectionInfosColumns[5]},
+				Columns:    []*schema.Column{ExectionInfosColumns[6]},
 				RefColumns: []*schema.Column{TimingBreakdownsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
@@ -551,7 +553,7 @@ var (
 		{Name: "end_time_in_ms", Type: field.TypeInt64, Nullable: true},
 		{Name: "test_timeout_seconds", Type: field.TypeInt64, Nullable: true},
 		{Name: "test_timeout", Type: field.TypeInt64, Nullable: true},
-		{Name: "test_size", Type: field.TypeEnum, Nullable: true, Enums: []string{"UNKNOWN", "SMALL", "MEDIUM", "LARGE", "ENORMOUS"}, Default: "UNKNOWN"},
+		{Name: "test_size", Type: field.TypeEnum, Nullable: true, Enums: []string{"UNKNOWN", "SMALL", "MEDIUM", "LARGE", "ENORMOUS"}},
 		{Name: "target_complete_output_group", Type: field.TypeInt, Nullable: true},
 	}
 	// TargetCompletesTable holds the schema information for the "target_completes" table.
@@ -574,7 +576,7 @@ var (
 		{Name: "tag", Type: field.TypeJSON, Nullable: true},
 		{Name: "target_kind", Type: field.TypeString, Nullable: true},
 		{Name: "start_time_in_ms", Type: field.TypeInt64, Nullable: true},
-		{Name: "test_size", Type: field.TypeEnum, Nullable: true, Enums: []string{"UNKNOWN", "SMALL", "MEDIUM", "LARGE", "ENORMOUS"}, Default: "UNKNOWN"},
+		{Name: "test_size", Type: field.TypeEnum, Nullable: true, Enums: []string{"UNKNOWN", "SMALL", "MEDIUM", "LARGE", "ENORMOUS"}},
 	}
 	// TargetConfiguredsTable holds the schema information for the "target_configureds" table.
 	TargetConfiguredsTable = &schema.Table{
@@ -720,12 +722,9 @@ var (
 		{Name: "warning", Type: field.TypeJSON, Nullable: true},
 		{Name: "cached_locally", Type: field.TypeBool, Nullable: true},
 		{Name: "test_attempt_start_millis_epoch", Type: field.TypeInt64, Nullable: true},
+		{Name: "test_attempt_start", Type: field.TypeString, Nullable: true},
 		{Name: "test_attempt_duration_millis", Type: field.TypeInt64, Nullable: true},
-		{Name: "targets_configured_not_including_aspects", Type: field.TypeInt64, Nullable: true},
-		{Name: "run", Type: field.TypeInt, Nullable: true},
-		{Name: "shard", Type: field.TypeInt, Nullable: true},
-		{Name: "attempt", Type: field.TypeInt, Nullable: true},
-		{Name: "metrics_test_results", Type: field.TypeInt, Nullable: true},
+		{Name: "test_attempt_duration", Type: field.TypeInt64, Nullable: true},
 		{Name: "test_collection_test_results", Type: field.TypeInt, Nullable: true},
 		{Name: "test_result_bes_execution_info", Type: field.TypeInt, Nullable: true},
 	}
@@ -736,20 +735,14 @@ var (
 		PrimaryKey: []*schema.Column{TestResultBeSsColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "test_result_be_ss_metrics_test_results",
-				Columns:    []*schema.Column{TestResultBeSsColumns[12]},
-				RefColumns: []*schema.Column{MetricsColumns[0]},
-				OnDelete:   schema.SetNull,
-			},
-			{
 				Symbol:     "test_result_be_ss_test_collections_test_results",
-				Columns:    []*schema.Column{TestResultBeSsColumns[13]},
+				Columns:    []*schema.Column{TestResultBeSsColumns[10]},
 				RefColumns: []*schema.Column{TestCollectionsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "test_result_be_ss_exection_infos_execution_info",
-				Columns:    []*schema.Column{TestResultBeSsColumns[14]},
+				Columns:    []*schema.Column{TestResultBeSsColumns[11]},
 				RefColumns: []*schema.Column{ExectionInfosColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
@@ -768,27 +761,18 @@ var (
 		{Name: "last_stop_time", Type: field.TypeInt64, Nullable: true},
 		{Name: "total_run_duration", Type: field.TypeInt64, Nullable: true},
 		{Name: "label", Type: field.TypeString, Nullable: true},
-		{Name: "metrics_test_summary", Type: field.TypeInt, Nullable: true},
 	}
 	// TestSummariesTable holds the schema information for the "test_summaries" table.
 	TestSummariesTable = &schema.Table{
 		Name:       "test_summaries",
 		Columns:    TestSummariesColumns,
 		PrimaryKey: []*schema.Column{TestSummariesColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "test_summaries_metrics_test_summary",
-				Columns:    []*schema.Column{TestSummariesColumns[11]},
-				RefColumns: []*schema.Column{MetricsColumns[0]},
-				OnDelete:   schema.SetNull,
-			},
-		},
 	}
 	// TimingBreakdownsColumns holds the columns for the "timing_breakdowns" table.
 	TimingBreakdownsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "name", Type: field.TypeString, Nullable: true},
-		{Name: "time", Type: field.TypeString, Nullable: true},
+		{Name: "time", Type: field.TypeInt64, Nullable: true},
 	}
 	// TimingBreakdownsTable holds the schema information for the "timing_breakdowns" table.
 	TimingBreakdownsTable = &schema.Table{
@@ -800,7 +784,7 @@ var (
 	TimingChildsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "name", Type: field.TypeString, Nullable: true},
-		{Name: "time", Type: field.TypeString, Nullable: true},
+		{Name: "time", Type: field.TypeInt64, Nullable: true},
 	}
 	// TimingChildsTable holds the schema information for the "timing_childs" table.
 	TimingChildsTable = &schema.Table{
@@ -1492,10 +1476,8 @@ func init() {
 	TestFilesTable.ForeignKeys[3].RefTable = TargetCompletesTable
 	TestFilesTable.ForeignKeys[4].RefTable = TestSummariesTable
 	TestFilesTable.ForeignKeys[5].RefTable = TestSummariesTable
-	TestResultBeSsTable.ForeignKeys[0].RefTable = MetricsTable
-	TestResultBeSsTable.ForeignKeys[1].RefTable = TestCollectionsTable
-	TestResultBeSsTable.ForeignKeys[2].RefTable = ExectionInfosTable
-	TestSummariesTable.ForeignKeys[0].RefTable = MetricsTable
+	TestResultBeSsTable.ForeignKeys[0].RefTable = TestCollectionsTable
+	TestResultBeSsTable.ForeignKeys[1].RefTable = ExectionInfosTable
 	ActionCacheStatisticsMissDetailsTable.ForeignKeys[0].RefTable = ActionCacheStatisticsTable
 	ActionCacheStatisticsMissDetailsTable.ForeignKeys[1].RefTable = MissDetailsTable
 	ActionSummaryActionDataTable.ForeignKeys[0].RefTable = ActionSummariesTable

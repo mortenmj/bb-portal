@@ -17,6 +17,8 @@ type ExectionInfo struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
+	// TimeoutSeconds holds the value of the "timeout_seconds" field.
+	TimeoutSeconds int32 `json:"timeout_seconds,omitempty"`
 	// Strategy holds the value of the "strategy" field.
 	Strategy string `json:"strategy,omitempty"`
 	// CachedRemotely holds the value of the "cached_remotely" field.
@@ -86,7 +88,7 @@ func (*ExectionInfo) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case exectioninfo.FieldCachedRemotely:
 			values[i] = new(sql.NullBool)
-		case exectioninfo.FieldID, exectioninfo.FieldExitCode:
+		case exectioninfo.FieldID, exectioninfo.FieldTimeoutSeconds, exectioninfo.FieldExitCode:
 			values[i] = new(sql.NullInt64)
 		case exectioninfo.FieldStrategy, exectioninfo.FieldHostname:
 			values[i] = new(sql.NullString)
@@ -113,6 +115,12 @@ func (ei *ExectionInfo) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
 			ei.ID = int(value.Int64)
+		case exectioninfo.FieldTimeoutSeconds:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field timeout_seconds", values[i])
+			} else if value.Valid {
+				ei.TimeoutSeconds = int32(value.Int64)
+			}
 		case exectioninfo.FieldStrategy:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field strategy", values[i])
@@ -195,6 +203,9 @@ func (ei *ExectionInfo) String() string {
 	var builder strings.Builder
 	builder.WriteString("ExectionInfo(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", ei.ID))
+	builder.WriteString("timeout_seconds=")
+	builder.WriteString(fmt.Sprintf("%v", ei.TimeoutSeconds))
+	builder.WriteString(", ")
 	builder.WriteString("strategy=")
 	builder.WriteString(ei.Strategy)
 	builder.WriteString(", ")

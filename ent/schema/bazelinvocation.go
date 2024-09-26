@@ -30,12 +30,26 @@ func (BazelInvocation) Fields() []ent.Field {
 		field.Bool("bep_completed").Optional(),
 		field.String("step_label"),
 		field.JSON("related_files", map[string]string{}).Annotations(entgql.Skip()), // NOTE: Uses custom resolver.
+
+		//email address of the user who launched the invocation if provided
 		field.String("user_email").Optional(),
+
+		//ldap (username) of the user who launched the invocation if provided//The user who
 		field.String("user_ldap").Optional(),
+
+		//the full logs from the build
 		field.String("build_logs").Optional(),
+
+		//the cpu type from the configuration event(s)
 		field.String("cpu").Optional(),
+
+		//the platform name from the configuration event(s)
 		field.String("platform_name").Optional(),
+
+		//the name from the configuration event(s)
 		field.String("configuration_mnemonic").Optional(),
+
+		//the number of successful fetch events seen
 		field.Int64("num_fetches").Optional(),
 	}
 }
@@ -50,11 +64,17 @@ func (BazelInvocation) Edges() []ent.Edge {
 		edge.From("build", Build.Type).
 			Ref("invocations").
 			Unique(),
-		edge.To("metrics", Metrics.Type).
-			Unique(),
+
 		edge.To("problems", BazelInvocationProblem.Type).
 			Annotations(entgql.Skip(entgql.SkipType)), // NOTE: Uses custom resolver / types.
+
+		//Build Metrics for the Completed Invocation
+		edge.To("metrics", Metrics.Type).
+			Unique(),
+		//Test Data for the completed Invocation
 		edge.To("test_collection", TestCollection.Type),
+
+		//Target Data for the completed Invocation
 		edge.To("targets", TargetPair.Type),
 	}
 }

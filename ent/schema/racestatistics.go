@@ -6,26 +6,39 @@ import (
 	"entgo.io/ent/schema/field"
 )
 
-// Blob holds the schema definition for the Blob entity.
+// RaceStatistics holds the schema definition for the RaceStatistics entity.
 type RaceStatistics struct {
 	ent.Schema
 }
 
-// Fields of the Blob.
+// Fields of the RaceStatistics.
 func (RaceStatistics) Fields() []ent.Field {
 	return []ent.Field{
 
+		//NOTE: Not currently included on the proto, but included here now for completeness
+
+		// Mnemonic of the action.
 		field.String("mnemonic").Optional(),
+
+		// Name of runner of local branch.
 		field.String("local_runner").Optional(),
+
+		// Name of runner of remote branch.
 		field.String("remote_runner").Optional(),
+
+		// Number of wins of local branch in race.
 		field.Int64("local_wins").Optional(),
+
+		// Number of wins of remote branch in race.
 		field.Int64("renote_wins").Optional(),
 	}
 }
 
-// Edges of the Blob.
+// Edges of the RaceStatistics.
 func (RaceStatistics) Edges() []ent.Edge {
 	return []ent.Edge{
+
+		//edge back to the dynamic execution metrics object
 		edge.From("dynamic_execution_metrics", DynamicExecutionMetrics.Type).Ref("race_statistics"),
 	}
 }

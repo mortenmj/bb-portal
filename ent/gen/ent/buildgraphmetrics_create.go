@@ -62,6 +62,20 @@ func (bgmc *BuildGraphMetricsCreate) SetNillableActionCount(i *int32) *BuildGrap
 	return bgmc
 }
 
+// SetActionCountNotIncludingAspects sets the "action_count_not_including_aspects" field.
+func (bgmc *BuildGraphMetricsCreate) SetActionCountNotIncludingAspects(i int32) *BuildGraphMetricsCreate {
+	bgmc.mutation.SetActionCountNotIncludingAspects(i)
+	return bgmc
+}
+
+// SetNillableActionCountNotIncludingAspects sets the "action_count_not_including_aspects" field if the given value is not nil.
+func (bgmc *BuildGraphMetricsCreate) SetNillableActionCountNotIncludingAspects(i *int32) *BuildGraphMetricsCreate {
+	if i != nil {
+		bgmc.SetActionCountNotIncludingAspects(*i)
+	}
+	return bgmc
+}
+
 // SetInputFileConfiguredTargetCount sets the "input_file_configured_target_count" field.
 func (bgmc *BuildGraphMetricsCreate) SetInputFileConfiguredTargetCount(i int32) *BuildGraphMetricsCreate {
 	bgmc.mutation.SetInputFileConfiguredTargetCount(i)
@@ -293,6 +307,10 @@ func (bgmc *BuildGraphMetricsCreate) createSpec() (*BuildGraphMetrics, *sqlgraph
 	if value, ok := bgmc.mutation.ActionCount(); ok {
 		_spec.SetField(buildgraphmetrics.FieldActionCount, field.TypeInt32, value)
 		_node.ActionCount = value
+	}
+	if value, ok := bgmc.mutation.ActionCountNotIncludingAspects(); ok {
+		_spec.SetField(buildgraphmetrics.FieldActionCountNotIncludingAspects, field.TypeInt32, value)
+		_node.ActionCountNotIncludingAspects = value
 	}
 	if value, ok := bgmc.mutation.InputFileConfiguredTargetCount(); ok {
 		_spec.SetField(buildgraphmetrics.FieldInputFileConfiguredTargetCount, field.TypeInt32, value)

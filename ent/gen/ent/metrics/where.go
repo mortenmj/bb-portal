@@ -306,52 +306,6 @@ func HasBuildGraphMetricsWith(preds ...predicate.BuildGraphMetrics) predicate.Me
 	})
 }
 
-// HasTestResults applies the HasEdge predicate on the "test_results" edge.
-func HasTestResults() predicate.Metrics {
-	return predicate.Metrics(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, TestResultsTable, TestResultsColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasTestResultsWith applies the HasEdge predicate on the "test_results" edge with a given conditions (other predicates).
-func HasTestResultsWith(preds ...predicate.TestResultBES) predicate.Metrics {
-	return predicate.Metrics(func(s *sql.Selector) {
-		step := newTestResultsStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
-// HasTestSummary applies the HasEdge predicate on the "test_summary" edge.
-func HasTestSummary() predicate.Metrics {
-	return predicate.Metrics(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, TestSummaryTable, TestSummaryColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasTestSummaryWith applies the HasEdge predicate on the "test_summary" edge with a given conditions (other predicates).
-func HasTestSummaryWith(preds ...predicate.TestSummary) predicate.Metrics {
-	return predicate.Metrics(func(s *sql.Selector) {
-		step := newTestSummaryStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.Metrics) predicate.Metrics {
 	return predicate.Metrics(sql.AndPredicates(predicates...))

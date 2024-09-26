@@ -24,12 +24,12 @@ type ActionCacheStatisticsQuery struct {
 	order                  []actioncachestatistics.OrderOption
 	inters                 []Interceptor
 	predicates             []predicate.ActionCacheStatistics
-	withMissDetails        *MissDetailQuery
 	withActionSummary      *ActionSummaryQuery
+	withMissDetails        *MissDetailQuery
 	modifiers              []func(*sql.Selector)
 	loadTotal              []func(context.Context, []*ActionCacheStatistics) error
-	withNamedMissDetails   map[string]*MissDetailQuery
 	withNamedActionSummary map[string]*ActionSummaryQuery
+	withNamedMissDetails   map[string]*MissDetailQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -66,28 +66,6 @@ func (acsq *ActionCacheStatisticsQuery) Order(o ...actioncachestatistics.OrderOp
 	return acsq
 }
 
-// QueryMissDetails chains the current query on the "miss_details" edge.
-func (acsq *ActionCacheStatisticsQuery) QueryMissDetails() *MissDetailQuery {
-	query := (&MissDetailClient{config: acsq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := acsq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := acsq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(actioncachestatistics.Table, actioncachestatistics.FieldID, selector),
-			sqlgraph.To(missdetail.Table, missdetail.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, actioncachestatistics.MissDetailsTable, actioncachestatistics.MissDetailsPrimaryKey...),
-		)
-		fromU = sqlgraph.SetNeighbors(acsq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
 // QueryActionSummary chains the current query on the "action_summary" edge.
 func (acsq *ActionCacheStatisticsQuery) QueryActionSummary() *ActionSummaryQuery {
 	query := (&ActionSummaryClient{config: acsq.config}).Query()
@@ -103,6 +81,28 @@ func (acsq *ActionCacheStatisticsQuery) QueryActionSummary() *ActionSummaryQuery
 			sqlgraph.From(actioncachestatistics.Table, actioncachestatistics.FieldID, selector),
 			sqlgraph.To(actionsummary.Table, actionsummary.FieldID),
 			sqlgraph.Edge(sqlgraph.M2M, true, actioncachestatistics.ActionSummaryTable, actioncachestatistics.ActionSummaryPrimaryKey...),
+		)
+		fromU = sqlgraph.SetNeighbors(acsq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryMissDetails chains the current query on the "miss_details" edge.
+func (acsq *ActionCacheStatisticsQuery) QueryMissDetails() *MissDetailQuery {
+	query := (&MissDetailClient{config: acsq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := acsq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := acsq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(actioncachestatistics.Table, actioncachestatistics.FieldID, selector),
+			sqlgraph.To(missdetail.Table, missdetail.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, actioncachestatistics.MissDetailsTable, actioncachestatistics.MissDetailsPrimaryKey...),
 		)
 		fromU = sqlgraph.SetNeighbors(acsq.driver.Dialect(), step)
 		return fromU, nil
@@ -302,23 +302,12 @@ func (acsq *ActionCacheStatisticsQuery) Clone() *ActionCacheStatisticsQuery {
 		order:             append([]actioncachestatistics.OrderOption{}, acsq.order...),
 		inters:            append([]Interceptor{}, acsq.inters...),
 		predicates:        append([]predicate.ActionCacheStatistics{}, acsq.predicates...),
-		withMissDetails:   acsq.withMissDetails.Clone(),
 		withActionSummary: acsq.withActionSummary.Clone(),
+		withMissDetails:   acsq.withMissDetails.Clone(),
 		// clone intermediate query.
 		sql:  acsq.sql.Clone(),
 		path: acsq.path,
 	}
-}
-
-// WithMissDetails tells the query-builder to eager-load the nodes that are connected to
-// the "miss_details" edge. The optional arguments are used to configure the query builder of the edge.
-func (acsq *ActionCacheStatisticsQuery) WithMissDetails(opts ...func(*MissDetailQuery)) *ActionCacheStatisticsQuery {
-	query := (&MissDetailClient{config: acsq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	acsq.withMissDetails = query
-	return acsq
 }
 
 // WithActionSummary tells the query-builder to eager-load the nodes that are connected to
@@ -329,6 +318,17 @@ func (acsq *ActionCacheStatisticsQuery) WithActionSummary(opts ...func(*ActionSu
 		opt(query)
 	}
 	acsq.withActionSummary = query
+	return acsq
+}
+
+// WithMissDetails tells the query-builder to eager-load the nodes that are connected to
+// the "miss_details" edge. The optional arguments are used to configure the query builder of the edge.
+func (acsq *ActionCacheStatisticsQuery) WithMissDetails(opts ...func(*MissDetailQuery)) *ActionCacheStatisticsQuery {
+	query := (&MissDetailClient{config: acsq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	acsq.withMissDetails = query
 	return acsq
 }
 
@@ -411,8 +411,8 @@ func (acsq *ActionCacheStatisticsQuery) sqlAll(ctx context.Context, hooks ...que
 		nodes       = []*ActionCacheStatistics{}
 		_spec       = acsq.querySpec()
 		loadedTypes = [2]bool{
-			acsq.withMissDetails != nil,
 			acsq.withActionSummary != nil,
+			acsq.withMissDetails != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -436,13 +436,6 @@ func (acsq *ActionCacheStatisticsQuery) sqlAll(ctx context.Context, hooks ...que
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := acsq.withMissDetails; query != nil {
-		if err := acsq.loadMissDetails(ctx, query, nodes,
-			func(n *ActionCacheStatistics) { n.Edges.MissDetails = []*MissDetail{} },
-			func(n *ActionCacheStatistics, e *MissDetail) { n.Edges.MissDetails = append(n.Edges.MissDetails, e) }); err != nil {
-			return nil, err
-		}
-	}
 	if query := acsq.withActionSummary; query != nil {
 		if err := acsq.loadActionSummary(ctx, query, nodes,
 			func(n *ActionCacheStatistics) { n.Edges.ActionSummary = []*ActionSummary{} },
@@ -452,10 +445,10 @@ func (acsq *ActionCacheStatisticsQuery) sqlAll(ctx context.Context, hooks ...que
 			return nil, err
 		}
 	}
-	for name, query := range acsq.withNamedMissDetails {
+	if query := acsq.withMissDetails; query != nil {
 		if err := acsq.loadMissDetails(ctx, query, nodes,
-			func(n *ActionCacheStatistics) { n.appendNamedMissDetails(name) },
-			func(n *ActionCacheStatistics, e *MissDetail) { n.appendNamedMissDetails(name, e) }); err != nil {
+			func(n *ActionCacheStatistics) { n.Edges.MissDetails = []*MissDetail{} },
+			func(n *ActionCacheStatistics, e *MissDetail) { n.Edges.MissDetails = append(n.Edges.MissDetails, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -463,6 +456,13 @@ func (acsq *ActionCacheStatisticsQuery) sqlAll(ctx context.Context, hooks ...que
 		if err := acsq.loadActionSummary(ctx, query, nodes,
 			func(n *ActionCacheStatistics) { n.appendNamedActionSummary(name) },
 			func(n *ActionCacheStatistics, e *ActionSummary) { n.appendNamedActionSummary(name, e) }); err != nil {
+			return nil, err
+		}
+	}
+	for name, query := range acsq.withNamedMissDetails {
+		if err := acsq.loadMissDetails(ctx, query, nodes,
+			func(n *ActionCacheStatistics) { n.appendNamedMissDetails(name) },
+			func(n *ActionCacheStatistics, e *MissDetail) { n.appendNamedMissDetails(name, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -474,67 +474,6 @@ func (acsq *ActionCacheStatisticsQuery) sqlAll(ctx context.Context, hooks ...que
 	return nodes, nil
 }
 
-func (acsq *ActionCacheStatisticsQuery) loadMissDetails(ctx context.Context, query *MissDetailQuery, nodes []*ActionCacheStatistics, init func(*ActionCacheStatistics), assign func(*ActionCacheStatistics, *MissDetail)) error {
-	edgeIDs := make([]driver.Value, len(nodes))
-	byID := make(map[int]*ActionCacheStatistics)
-	nids := make(map[int]map[*ActionCacheStatistics]struct{})
-	for i, node := range nodes {
-		edgeIDs[i] = node.ID
-		byID[node.ID] = node
-		if init != nil {
-			init(node)
-		}
-	}
-	query.Where(func(s *sql.Selector) {
-		joinT := sql.Table(actioncachestatistics.MissDetailsTable)
-		s.Join(joinT).On(s.C(missdetail.FieldID), joinT.C(actioncachestatistics.MissDetailsPrimaryKey[1]))
-		s.Where(sql.InValues(joinT.C(actioncachestatistics.MissDetailsPrimaryKey[0]), edgeIDs...))
-		columns := s.SelectedColumns()
-		s.Select(joinT.C(actioncachestatistics.MissDetailsPrimaryKey[0]))
-		s.AppendSelect(columns...)
-		s.SetDistinct(false)
-	})
-	if err := query.prepareQuery(ctx); err != nil {
-		return err
-	}
-	qr := QuerierFunc(func(ctx context.Context, q Query) (Value, error) {
-		return query.sqlAll(ctx, func(_ context.Context, spec *sqlgraph.QuerySpec) {
-			assign := spec.Assign
-			values := spec.ScanValues
-			spec.ScanValues = func(columns []string) ([]any, error) {
-				values, err := values(columns[1:])
-				if err != nil {
-					return nil, err
-				}
-				return append([]any{new(sql.NullInt64)}, values...), nil
-			}
-			spec.Assign = func(columns []string, values []any) error {
-				outValue := int(values[0].(*sql.NullInt64).Int64)
-				inValue := int(values[1].(*sql.NullInt64).Int64)
-				if nids[inValue] == nil {
-					nids[inValue] = map[*ActionCacheStatistics]struct{}{byID[outValue]: {}}
-					return assign(columns[1:], values[1:])
-				}
-				nids[inValue][byID[outValue]] = struct{}{}
-				return nil
-			}
-		})
-	})
-	neighbors, err := withInterceptors[[]*MissDetail](ctx, query, qr, query.inters)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		nodes, ok := nids[n.ID]
-		if !ok {
-			return fmt.Errorf(`unexpected "miss_details" node returned %v`, n.ID)
-		}
-		for kn := range nodes {
-			assign(kn, n)
-		}
-	}
-	return nil
-}
 func (acsq *ActionCacheStatisticsQuery) loadActionSummary(ctx context.Context, query *ActionSummaryQuery, nodes []*ActionCacheStatistics, init func(*ActionCacheStatistics), assign func(*ActionCacheStatistics, *ActionSummary)) error {
 	edgeIDs := make([]driver.Value, len(nodes))
 	byID := make(map[int]*ActionCacheStatistics)
@@ -589,6 +528,67 @@ func (acsq *ActionCacheStatisticsQuery) loadActionSummary(ctx context.Context, q
 		nodes, ok := nids[n.ID]
 		if !ok {
 			return fmt.Errorf(`unexpected "action_summary" node returned %v`, n.ID)
+		}
+		for kn := range nodes {
+			assign(kn, n)
+		}
+	}
+	return nil
+}
+func (acsq *ActionCacheStatisticsQuery) loadMissDetails(ctx context.Context, query *MissDetailQuery, nodes []*ActionCacheStatistics, init func(*ActionCacheStatistics), assign func(*ActionCacheStatistics, *MissDetail)) error {
+	edgeIDs := make([]driver.Value, len(nodes))
+	byID := make(map[int]*ActionCacheStatistics)
+	nids := make(map[int]map[*ActionCacheStatistics]struct{})
+	for i, node := range nodes {
+		edgeIDs[i] = node.ID
+		byID[node.ID] = node
+		if init != nil {
+			init(node)
+		}
+	}
+	query.Where(func(s *sql.Selector) {
+		joinT := sql.Table(actioncachestatistics.MissDetailsTable)
+		s.Join(joinT).On(s.C(missdetail.FieldID), joinT.C(actioncachestatistics.MissDetailsPrimaryKey[1]))
+		s.Where(sql.InValues(joinT.C(actioncachestatistics.MissDetailsPrimaryKey[0]), edgeIDs...))
+		columns := s.SelectedColumns()
+		s.Select(joinT.C(actioncachestatistics.MissDetailsPrimaryKey[0]))
+		s.AppendSelect(columns...)
+		s.SetDistinct(false)
+	})
+	if err := query.prepareQuery(ctx); err != nil {
+		return err
+	}
+	qr := QuerierFunc(func(ctx context.Context, q Query) (Value, error) {
+		return query.sqlAll(ctx, func(_ context.Context, spec *sqlgraph.QuerySpec) {
+			assign := spec.Assign
+			values := spec.ScanValues
+			spec.ScanValues = func(columns []string) ([]any, error) {
+				values, err := values(columns[1:])
+				if err != nil {
+					return nil, err
+				}
+				return append([]any{new(sql.NullInt64)}, values...), nil
+			}
+			spec.Assign = func(columns []string, values []any) error {
+				outValue := int(values[0].(*sql.NullInt64).Int64)
+				inValue := int(values[1].(*sql.NullInt64).Int64)
+				if nids[inValue] == nil {
+					nids[inValue] = map[*ActionCacheStatistics]struct{}{byID[outValue]: {}}
+					return assign(columns[1:], values[1:])
+				}
+				nids[inValue][byID[outValue]] = struct{}{}
+				return nil
+			}
+		})
+	})
+	neighbors, err := withInterceptors[[]*MissDetail](ctx, query, qr, query.inters)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected "miss_details" node returned %v`, n.ID)
 		}
 		for kn := range nodes {
 			assign(kn, n)
@@ -681,20 +681,6 @@ func (acsq *ActionCacheStatisticsQuery) sqlQuery(ctx context.Context) *sql.Selec
 	return selector
 }
 
-// WithNamedMissDetails tells the query-builder to eager-load the nodes that are connected to the "miss_details"
-// edge with the given name. The optional arguments are used to configure the query builder of the edge.
-func (acsq *ActionCacheStatisticsQuery) WithNamedMissDetails(name string, opts ...func(*MissDetailQuery)) *ActionCacheStatisticsQuery {
-	query := (&MissDetailClient{config: acsq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	if acsq.withNamedMissDetails == nil {
-		acsq.withNamedMissDetails = make(map[string]*MissDetailQuery)
-	}
-	acsq.withNamedMissDetails[name] = query
-	return acsq
-}
-
 // WithNamedActionSummary tells the query-builder to eager-load the nodes that are connected to the "action_summary"
 // edge with the given name. The optional arguments are used to configure the query builder of the edge.
 func (acsq *ActionCacheStatisticsQuery) WithNamedActionSummary(name string, opts ...func(*ActionSummaryQuery)) *ActionCacheStatisticsQuery {
@@ -706,6 +692,20 @@ func (acsq *ActionCacheStatisticsQuery) WithNamedActionSummary(name string, opts
 		acsq.withNamedActionSummary = make(map[string]*ActionSummaryQuery)
 	}
 	acsq.withNamedActionSummary[name] = query
+	return acsq
+}
+
+// WithNamedMissDetails tells the query-builder to eager-load the nodes that are connected to the "miss_details"
+// edge with the given name. The optional arguments are used to configure the query builder of the edge.
+func (acsq *ActionCacheStatisticsQuery) WithNamedMissDetails(name string, opts ...func(*MissDetailQuery)) *ActionCacheStatisticsQuery {
+	query := (&MissDetailClient{config: acsq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	if acsq.withNamedMissDetails == nil {
+		acsq.withNamedMissDetails = make(map[string]*MissDetailQuery)
+	}
+	acsq.withNamedMissDetails[name] = query
 	return acsq
 }
 

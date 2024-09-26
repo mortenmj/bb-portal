@@ -110,6 +110,33 @@ func (bgmu *BuildGraphMetricsUpdate) ClearActionCount() *BuildGraphMetricsUpdate
 	return bgmu
 }
 
+// SetActionCountNotIncludingAspects sets the "action_count_not_including_aspects" field.
+func (bgmu *BuildGraphMetricsUpdate) SetActionCountNotIncludingAspects(i int32) *BuildGraphMetricsUpdate {
+	bgmu.mutation.ResetActionCountNotIncludingAspects()
+	bgmu.mutation.SetActionCountNotIncludingAspects(i)
+	return bgmu
+}
+
+// SetNillableActionCountNotIncludingAspects sets the "action_count_not_including_aspects" field if the given value is not nil.
+func (bgmu *BuildGraphMetricsUpdate) SetNillableActionCountNotIncludingAspects(i *int32) *BuildGraphMetricsUpdate {
+	if i != nil {
+		bgmu.SetActionCountNotIncludingAspects(*i)
+	}
+	return bgmu
+}
+
+// AddActionCountNotIncludingAspects adds i to the "action_count_not_including_aspects" field.
+func (bgmu *BuildGraphMetricsUpdate) AddActionCountNotIncludingAspects(i int32) *BuildGraphMetricsUpdate {
+	bgmu.mutation.AddActionCountNotIncludingAspects(i)
+	return bgmu
+}
+
+// ClearActionCountNotIncludingAspects clears the value of the "action_count_not_including_aspects" field.
+func (bgmu *BuildGraphMetricsUpdate) ClearActionCountNotIncludingAspects() *BuildGraphMetricsUpdate {
+	bgmu.mutation.ClearActionCountNotIncludingAspects()
+	return bgmu
+}
+
 // SetInputFileConfiguredTargetCount sets the "input_file_configured_target_count" field.
 func (bgmu *BuildGraphMetricsUpdate) SetInputFileConfiguredTargetCount(i int32) *BuildGraphMetricsUpdate {
 	bgmu.mutation.ResetInputFileConfiguredTargetCount()
@@ -529,6 +556,15 @@ func (bgmu *BuildGraphMetricsUpdate) sqlSave(ctx context.Context) (n int, err er
 	if bgmu.mutation.ActionCountCleared() {
 		_spec.ClearField(buildgraphmetrics.FieldActionCount, field.TypeInt32)
 	}
+	if value, ok := bgmu.mutation.ActionCountNotIncludingAspects(); ok {
+		_spec.SetField(buildgraphmetrics.FieldActionCountNotIncludingAspects, field.TypeInt32, value)
+	}
+	if value, ok := bgmu.mutation.AddedActionCountNotIncludingAspects(); ok {
+		_spec.AddField(buildgraphmetrics.FieldActionCountNotIncludingAspects, field.TypeInt32, value)
+	}
+	if bgmu.mutation.ActionCountNotIncludingAspectsCleared() {
+		_spec.ClearField(buildgraphmetrics.FieldActionCountNotIncludingAspects, field.TypeInt32)
+	}
 	if value, ok := bgmu.mutation.InputFileConfiguredTargetCount(); ok {
 		_spec.SetField(buildgraphmetrics.FieldInputFileConfiguredTargetCount, field.TypeInt32, value)
 	}
@@ -942,6 +978,33 @@ func (bgmuo *BuildGraphMetricsUpdateOne) AddActionCount(i int32) *BuildGraphMetr
 // ClearActionCount clears the value of the "action_count" field.
 func (bgmuo *BuildGraphMetricsUpdateOne) ClearActionCount() *BuildGraphMetricsUpdateOne {
 	bgmuo.mutation.ClearActionCount()
+	return bgmuo
+}
+
+// SetActionCountNotIncludingAspects sets the "action_count_not_including_aspects" field.
+func (bgmuo *BuildGraphMetricsUpdateOne) SetActionCountNotIncludingAspects(i int32) *BuildGraphMetricsUpdateOne {
+	bgmuo.mutation.ResetActionCountNotIncludingAspects()
+	bgmuo.mutation.SetActionCountNotIncludingAspects(i)
+	return bgmuo
+}
+
+// SetNillableActionCountNotIncludingAspects sets the "action_count_not_including_aspects" field if the given value is not nil.
+func (bgmuo *BuildGraphMetricsUpdateOne) SetNillableActionCountNotIncludingAspects(i *int32) *BuildGraphMetricsUpdateOne {
+	if i != nil {
+		bgmuo.SetActionCountNotIncludingAspects(*i)
+	}
+	return bgmuo
+}
+
+// AddActionCountNotIncludingAspects adds i to the "action_count_not_including_aspects" field.
+func (bgmuo *BuildGraphMetricsUpdateOne) AddActionCountNotIncludingAspects(i int32) *BuildGraphMetricsUpdateOne {
+	bgmuo.mutation.AddActionCountNotIncludingAspects(i)
+	return bgmuo
+}
+
+// ClearActionCountNotIncludingAspects clears the value of the "action_count_not_including_aspects" field.
+func (bgmuo *BuildGraphMetricsUpdateOne) ClearActionCountNotIncludingAspects() *BuildGraphMetricsUpdateOne {
+	bgmuo.mutation.ClearActionCountNotIncludingAspects()
 	return bgmuo
 }
 
@@ -1393,6 +1456,15 @@ func (bgmuo *BuildGraphMetricsUpdateOne) sqlSave(ctx context.Context) (_node *Bu
 	}
 	if bgmuo.mutation.ActionCountCleared() {
 		_spec.ClearField(buildgraphmetrics.FieldActionCount, field.TypeInt32)
+	}
+	if value, ok := bgmuo.mutation.ActionCountNotIncludingAspects(); ok {
+		_spec.SetField(buildgraphmetrics.FieldActionCountNotIncludingAspects, field.TypeInt32, value)
+	}
+	if value, ok := bgmuo.mutation.AddedActionCountNotIncludingAspects(); ok {
+		_spec.AddField(buildgraphmetrics.FieldActionCountNotIncludingAspects, field.TypeInt32, value)
+	}
+	if bgmuo.mutation.ActionCountNotIncludingAspectsCleared() {
+		_spec.ClearField(buildgraphmetrics.FieldActionCountNotIncludingAspects, field.TypeInt32)
 	}
 	if value, ok := bgmuo.mutation.InputFileConfiguredTargetCount(); ok {
 		_spec.SetField(buildgraphmetrics.FieldInputFileConfiguredTargetCount, field.TypeInt32, value)

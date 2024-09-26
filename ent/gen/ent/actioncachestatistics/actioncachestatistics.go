@@ -22,22 +22,22 @@ const (
 	FieldHits = "hits"
 	// FieldMisses holds the string denoting the misses field in the database.
 	FieldMisses = "misses"
-	// EdgeMissDetails holds the string denoting the miss_details edge name in mutations.
-	EdgeMissDetails = "miss_details"
 	// EdgeActionSummary holds the string denoting the action_summary edge name in mutations.
 	EdgeActionSummary = "action_summary"
+	// EdgeMissDetails holds the string denoting the miss_details edge name in mutations.
+	EdgeMissDetails = "miss_details"
 	// Table holds the table name of the actioncachestatistics in the database.
 	Table = "action_cache_statistics"
-	// MissDetailsTable is the table that holds the miss_details relation/edge. The primary key declared below.
-	MissDetailsTable = "action_cache_statistics_miss_details"
-	// MissDetailsInverseTable is the table name for the MissDetail entity.
-	// It exists in this package in order to avoid circular dependency with the "missdetail" package.
-	MissDetailsInverseTable = "miss_details"
 	// ActionSummaryTable is the table that holds the action_summary relation/edge. The primary key declared below.
 	ActionSummaryTable = "action_summary_action_cache_statistics"
 	// ActionSummaryInverseTable is the table name for the ActionSummary entity.
 	// It exists in this package in order to avoid circular dependency with the "actionsummary" package.
 	ActionSummaryInverseTable = "action_summaries"
+	// MissDetailsTable is the table that holds the miss_details relation/edge. The primary key declared below.
+	MissDetailsTable = "action_cache_statistics_miss_details"
+	// MissDetailsInverseTable is the table name for the MissDetail entity.
+	// It exists in this package in order to avoid circular dependency with the "missdetail" package.
+	MissDetailsInverseTable = "miss_details"
 )
 
 // Columns holds all SQL columns for actioncachestatistics fields.
@@ -51,12 +51,12 @@ var Columns = []string{
 }
 
 var (
-	// MissDetailsPrimaryKey and MissDetailsColumn2 are the table columns denoting the
-	// primary key for the miss_details relation (M2M).
-	MissDetailsPrimaryKey = []string{"action_cache_statistics_id", "miss_detail_id"}
 	// ActionSummaryPrimaryKey and ActionSummaryColumn2 are the table columns denoting the
 	// primary key for the action_summary relation (M2M).
 	ActionSummaryPrimaryKey = []string{"action_summary_id", "action_cache_statistics_id"}
+	// MissDetailsPrimaryKey and MissDetailsColumn2 are the table columns denoting the
+	// primary key for the miss_details relation (M2M).
+	MissDetailsPrimaryKey = []string{"action_cache_statistics_id", "miss_detail_id"}
 )
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -102,20 +102,6 @@ func ByMisses(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldMisses, opts...).ToFunc()
 }
 
-// ByMissDetailsCount orders the results by miss_details count.
-func ByMissDetailsCount(opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newMissDetailsStep(), opts...)
-	}
-}
-
-// ByMissDetails orders the results by miss_details terms.
-func ByMissDetails(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newMissDetailsStep(), append([]sql.OrderTerm{term}, terms...)...)
-	}
-}
-
 // ByActionSummaryCount orders the results by action_summary count.
 func ByActionSummaryCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -129,17 +115,31 @@ func ByActionSummary(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newActionSummaryStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
-func newMissDetailsStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(MissDetailsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2M, false, MissDetailsTable, MissDetailsPrimaryKey...),
-	)
+
+// ByMissDetailsCount orders the results by miss_details count.
+func ByMissDetailsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newMissDetailsStep(), opts...)
+	}
+}
+
+// ByMissDetails orders the results by miss_details terms.
+func ByMissDetails(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newMissDetailsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
 }
 func newActionSummaryStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(ActionSummaryInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2M, true, ActionSummaryTable, ActionSummaryPrimaryKey...),
+	)
+}
+func newMissDetailsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(MissDetailsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2M, false, MissDetailsTable, MissDetailsPrimaryKey...),
 	)
 }

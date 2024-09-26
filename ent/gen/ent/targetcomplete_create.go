@@ -182,7 +182,6 @@ func (tcc *TargetCompleteCreate) Mutation() *TargetCompleteMutation {
 
 // Save creates the TargetComplete in the database.
 func (tcc *TargetCompleteCreate) Save(ctx context.Context) (*TargetComplete, error) {
-	tcc.defaults()
 	return withHooks(ctx, tcc.sqlSave, tcc.mutation, tcc.hooks)
 }
 
@@ -205,14 +204,6 @@ func (tcc *TargetCompleteCreate) Exec(ctx context.Context) error {
 func (tcc *TargetCompleteCreate) ExecX(ctx context.Context) {
 	if err := tcc.Exec(ctx); err != nil {
 		panic(err)
-	}
-}
-
-// defaults sets the default values of the builder before save.
-func (tcc *TargetCompleteCreate) defaults() {
-	if _, ok := tcc.mutation.TestSize(); !ok {
-		v := targetcomplete.DefaultTestSize
-		tcc.mutation.SetTestSize(v)
 	}
 }
 
@@ -363,7 +354,6 @@ func (tccb *TargetCompleteCreateBulk) Save(ctx context.Context) ([]*TargetComple
 	for i := range tccb.builders {
 		func(i int, root context.Context) {
 			builder := tccb.builders[i]
-			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*TargetCompleteMutation)
 				if !ok {

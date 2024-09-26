@@ -18,6 +18,8 @@ const (
 	FieldActionLookupValueCountNotIncludingAspects = "action_lookup_value_count_not_including_aspects"
 	// FieldActionCount holds the string denoting the action_count field in the database.
 	FieldActionCount = "action_count"
+	// FieldActionCountNotIncludingAspects holds the string denoting the action_count_not_including_aspects field in the database.
+	FieldActionCountNotIncludingAspects = "action_count_not_including_aspects"
 	// FieldInputFileConfiguredTargetCount holds the string denoting the input_file_configured_target_count field in the database.
 	FieldInputFileConfiguredTargetCount = "input_file_configured_target_count"
 	// FieldOutputFileConfiguredTargetCount holds the string denoting the output_file_configured_target_count field in the database.
@@ -88,6 +90,7 @@ var Columns = []string{
 	FieldActionLookupValueCount,
 	FieldActionLookupValueCountNotIncludingAspects,
 	FieldActionCount,
+	FieldActionCountNotIncludingAspects,
 	FieldInputFileConfiguredTargetCount,
 	FieldOutputFileConfiguredTargetCount,
 	FieldOtherConfiguredTargetCount,
@@ -135,6 +138,11 @@ func ByActionLookupValueCountNotIncludingAspects(opts ...sql.OrderTermOption) Or
 // ByActionCount orders the results by the action_count field.
 func ByActionCount(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldActionCount, opts...).ToFunc()
+}
+
+// ByActionCountNotIncludingAspects orders the results by the action_count_not_including_aspects field.
+func ByActionCountNotIncludingAspects(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldActionCountNotIncludingAspects, opts...).ToFunc()
 }
 
 // ByInputFileConfiguredTargetCount orders the results by the input_file_configured_target_count field.

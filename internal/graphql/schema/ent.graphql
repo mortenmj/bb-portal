@@ -7,8 +7,8 @@ type ActionCacheStatistics implements Node {
   loadTimeInMs: Int
   hits: Int
   misses: Int
-  missDetails: [MissDetail!]
   actionSummary: [ActionSummary!]
+  missDetails: [MissDetail!]
 }
 """
 ActionCacheStatisticsWhereInput is used for filtering ActionCacheStatistics objects.
@@ -95,15 +95,15 @@ input ActionCacheStatisticsWhereInput {
   missesIsNil: Boolean
   missesNotNil: Boolean
   """
-  miss_details edge predicates
-  """
-  hasMissDetails: Boolean
-  hasMissDetailsWith: [MissDetailWhereInput!]
-  """
   action_summary edge predicates
   """
   hasActionSummary: Boolean
   hasActionSummaryWith: [ActionSummaryWhereInput!]
+  """
+  miss_details edge predicates
+  """
+  hasMissDetails: Boolean
+  hasMissDetailsWith: [MissDetailWhereInput!]
 }
 type ActionData implements Node {
   id: ID!
@@ -243,10 +243,10 @@ type ActionSummary implements Node {
   actionsCreatedNotIncludingAspects: Int
   actionsExecuted: Int
   remoteCacheHits: Int
+  metrics: Metrics
   actionData: [ActionData!]
   runnerCount: [RunnerCount!]
   actionCacheStatistics: [ActionCacheStatistics!]
-  metrics: Metrics
 }
 """
 ActionSummaryWhereInput is used for filtering ActionSummary objects.
@@ -320,6 +320,11 @@ input ActionSummaryWhereInput {
   remoteCacheHitsIsNil: Boolean
   remoteCacheHitsNotNil: Boolean
   """
+  metrics edge predicates
+  """
+  hasMetrics: Boolean
+  hasMetricsWith: [MetricsWhereInput!]
+  """
   action_data edge predicates
   """
   hasActionData: Boolean
@@ -334,11 +339,6 @@ input ActionSummaryWhereInput {
   """
   hasActionCacheStatistics: Boolean
   hasActionCacheStatisticsWith: [ActionCacheStatisticsWhereInput!]
-  """
-  metrics edge predicates
-  """
-  hasMetrics: Boolean
-  hasMetricsWith: [MetricsWhereInput!]
 }
 type ArtifactMetrics implements Node {
   id: ID!
@@ -743,15 +743,15 @@ input BazelInvocationWhereInput {
   hasBuild: Boolean
   hasBuildWith: [BuildWhereInput!]
   """
-  metrics edge predicates
-  """
-  hasMetrics: Boolean
-  hasMetricsWith: [MetricsWhereInput!]
-  """
   problems edge predicates
   """
   hasProblems: Boolean
   hasProblemsWith: [BazelInvocationProblemWhereInput!]
+  """
+  metrics edge predicates
+  """
+  hasMetrics: Boolean
+  hasMetricsWith: [MetricsWhereInput!]
   """
   test_collection edge predicates
   """
@@ -913,6 +913,7 @@ type BuildGraphMetrics implements Node {
   actionLookupValueCount: Int
   actionLookupValueCountNotIncludingAspects: Int
   actionCount: Int
+  actionCountNotIncludingAspects: Int
   inputFileConfiguredTargetCount: Int
   outputFileConfiguredTargetCount: Int
   otherConfiguredTargetCount: Int
@@ -983,6 +984,19 @@ input BuildGraphMetricsWhereInput {
   actionCountLTE: Int
   actionCountIsNil: Boolean
   actionCountNotNil: Boolean
+  """
+  action_count_not_including_aspects field predicates
+  """
+  actionCountNotIncludingAspects: Int
+  actionCountNotIncludingAspectsNEQ: Int
+  actionCountNotIncludingAspectsIn: [Int!]
+  actionCountNotIncludingAspectsNotIn: [Int!]
+  actionCountNotIncludingAspectsGT: Int
+  actionCountNotIncludingAspectsGTE: Int
+  actionCountNotIncludingAspectsLT: Int
+  actionCountNotIncludingAspectsLTE: Int
+  actionCountNotIncludingAspectsIsNil: Boolean
+  actionCountNotIncludingAspectsNotNil: Boolean
   """
   input_file_configured_target_count field predicates
   """
@@ -1420,6 +1434,7 @@ input EventFileWhereInput {
 }
 type ExectionInfo implements Node {
   id: ID!
+  timeoutSeconds: Int
   strategy: String
   cachedRemotely: Boolean
   exitCode: Int
@@ -1447,6 +1462,19 @@ input ExectionInfoWhereInput {
   idGTE: ID
   idLT: ID
   idLTE: ID
+  """
+  timeout_seconds field predicates
+  """
+  timeoutSeconds: Int
+  timeoutSecondsNEQ: Int
+  timeoutSecondsIn: [Int!]
+  timeoutSecondsNotIn: [Int!]
+  timeoutSecondsGT: Int
+  timeoutSecondsGTE: Int
+  timeoutSecondsLT: Int
+  timeoutSecondsLTE: Int
+  timeoutSecondsIsNil: Boolean
+  timeoutSecondsNotNil: Boolean
   """
   strategy field predicates
   """
@@ -1643,8 +1671,8 @@ type MemoryMetrics implements Node {
   peakPostGcHeapSize: Int
   usedHeapSizePostBuild: Int
   peakPostGcTenuredSpaceHeapSize: Int
-  garbageMetrics: [GarbageMetrics!]
   metrics: [Metrics!]
+  garbageMetrics: [GarbageMetrics!]
 }
 """
 MemoryMetricsWhereInput is used for filtering MemoryMetrics objects.
@@ -1705,15 +1733,15 @@ input MemoryMetricsWhereInput {
   peakPostGcTenuredSpaceHeapSizeIsNil: Boolean
   peakPostGcTenuredSpaceHeapSizeNotNil: Boolean
   """
-  garbage_metrics edge predicates
-  """
-  hasGarbageMetrics: Boolean
-  hasGarbageMetricsWith: [GarbageMetricsWhereInput!]
-  """
   metrics edge predicates
   """
   hasMetrics: Boolean
   hasMetricsWith: [MetricsWhereInput!]
+  """
+  garbage_metrics edge predicates
+  """
+  hasGarbageMetrics: Boolean
+  hasGarbageMetricsWith: [GarbageMetricsWhereInput!]
 }
 type Metrics implements Node {
   id: ID!
@@ -1728,8 +1756,6 @@ type Metrics implements Node {
   networkMetrics: [NetworkMetrics!]
   dynamicExecutionMetrics: [DynamicExecutionMetrics!]
   buildGraphMetrics: [BuildGraphMetrics!]
-  testResults: [TestResultBES!]
-  testSummary: [TestSummary!]
 }
 """
 A connection to a list of items.
@@ -1835,16 +1861,6 @@ input MetricsWhereInput {
   """
   hasBuildGraphMetrics: Boolean
   hasBuildGraphMetricsWith: [BuildGraphMetricsWhereInput!]
-  """
-  test_results edge predicates
-  """
-  hasTestResults: Boolean
-  hasTestResultsWith: [TestResultBESWhereInput!]
-  """
-  test_summary edge predicates
-  """
-  hasTestSummary: Boolean
-  hasTestSummaryWith: [TestSummaryWhereInput!]
 }
 type MissDetail implements Node {
   id: ID!
@@ -2200,8 +2216,8 @@ input PackageLoadMetricsWhereInput {
 type PackageMetrics implements Node {
   id: ID!
   packagesLoaded: Int
-  packageLoadMetrics: [PackageLoadMetrics!]
   metrics: [Metrics!]
+  packageLoadMetrics: [PackageLoadMetrics!]
 }
 """
 PackageMetricsWhereInput is used for filtering PackageMetrics objects.
@@ -2236,15 +2252,15 @@ input PackageMetricsWhereInput {
   packagesLoadedIsNil: Boolean
   packagesLoadedNotNil: Boolean
   """
-  package_load_metrics edge predicates
-  """
-  hasPackageLoadMetrics: Boolean
-  hasPackageLoadMetricsWith: [PackageLoadMetricsWhereInput!]
-  """
   metrics edge predicates
   """
   hasMetrics: Boolean
   hasMetricsWith: [MetricsWhereInput!]
+  """
+  package_load_metrics edge predicates
+  """
+  hasPackageLoadMetrics: Boolean
+  hasPackageLoadMetricsWith: [PackageLoadMetricsWhereInput!]
 }
 """
 Information about pagination in a connection.
@@ -3506,11 +3522,9 @@ type TestResultBES implements Node {
   warning: [String!]
   cachedLocally: Boolean
   testAttemptStartMillisEpoch: Int
+  testAttemptStart: String
   testAttemptDurationMillis: Int
-  targetsConfiguredNotIncludingAspects: Int
-  run: Int
-  shard: Int
-  attempt: Int
+  testAttemptDuration: Int
   testCollection: TestCollection
   testActionOutput: [TestFile!]
   executionInfo: ExectionInfo
@@ -3614,6 +3628,24 @@ input TestResultBESWhereInput {
   testAttemptStartMillisEpochIsNil: Boolean
   testAttemptStartMillisEpochNotNil: Boolean
   """
+  test_attempt_start field predicates
+  """
+  testAttemptStart: String
+  testAttemptStartNEQ: String
+  testAttemptStartIn: [String!]
+  testAttemptStartNotIn: [String!]
+  testAttemptStartGT: String
+  testAttemptStartGTE: String
+  testAttemptStartLT: String
+  testAttemptStartLTE: String
+  testAttemptStartContains: String
+  testAttemptStartHasPrefix: String
+  testAttemptStartHasSuffix: String
+  testAttemptStartIsNil: Boolean
+  testAttemptStartNotNil: Boolean
+  testAttemptStartEqualFold: String
+  testAttemptStartContainsFold: String
+  """
   test_attempt_duration_millis field predicates
   """
   testAttemptDurationMillis: Int
@@ -3627,57 +3659,18 @@ input TestResultBESWhereInput {
   testAttemptDurationMillisIsNil: Boolean
   testAttemptDurationMillisNotNil: Boolean
   """
-  targets_configured_not_including_aspects field predicates
+  test_attempt_duration field predicates
   """
-  targetsConfiguredNotIncludingAspects: Int
-  targetsConfiguredNotIncludingAspectsNEQ: Int
-  targetsConfiguredNotIncludingAspectsIn: [Int!]
-  targetsConfiguredNotIncludingAspectsNotIn: [Int!]
-  targetsConfiguredNotIncludingAspectsGT: Int
-  targetsConfiguredNotIncludingAspectsGTE: Int
-  targetsConfiguredNotIncludingAspectsLT: Int
-  targetsConfiguredNotIncludingAspectsLTE: Int
-  targetsConfiguredNotIncludingAspectsIsNil: Boolean
-  targetsConfiguredNotIncludingAspectsNotNil: Boolean
-  """
-  run field predicates
-  """
-  run: Int
-  runNEQ: Int
-  runIn: [Int!]
-  runNotIn: [Int!]
-  runGT: Int
-  runGTE: Int
-  runLT: Int
-  runLTE: Int
-  runIsNil: Boolean
-  runNotNil: Boolean
-  """
-  shard field predicates
-  """
-  shard: Int
-  shardNEQ: Int
-  shardIn: [Int!]
-  shardNotIn: [Int!]
-  shardGT: Int
-  shardGTE: Int
-  shardLT: Int
-  shardLTE: Int
-  shardIsNil: Boolean
-  shardNotNil: Boolean
-  """
-  attempt field predicates
-  """
-  attempt: Int
-  attemptNEQ: Int
-  attemptIn: [Int!]
-  attemptNotIn: [Int!]
-  attemptGT: Int
-  attemptGTE: Int
-  attemptLT: Int
-  attemptLTE: Int
-  attemptIsNil: Boolean
-  attemptNotNil: Boolean
+  testAttemptDuration: Int
+  testAttemptDurationNEQ: Int
+  testAttemptDurationIn: [Int!]
+  testAttemptDurationNotIn: [Int!]
+  testAttemptDurationGT: Int
+  testAttemptDurationGTE: Int
+  testAttemptDurationLT: Int
+  testAttemptDurationLTE: Int
+  testAttemptDurationIsNil: Boolean
+  testAttemptDurationNotNil: Boolean
   """
   test_collection edge predicates
   """
@@ -3897,7 +3890,7 @@ scalar Time
 type TimingBreakdown implements Node {
   id: ID!
   name: String
-  time: String
+  time: Int
   exectionInfo: [ExectionInfo!]
   child: [TimingChild!]
 }
@@ -3941,21 +3934,16 @@ input TimingBreakdownWhereInput {
   """
   time field predicates
   """
-  time: String
-  timeNEQ: String
-  timeIn: [String!]
-  timeNotIn: [String!]
-  timeGT: String
-  timeGTE: String
-  timeLT: String
-  timeLTE: String
-  timeContains: String
-  timeHasPrefix: String
-  timeHasSuffix: String
+  time: Int
+  timeNEQ: Int
+  timeIn: [Int!]
+  timeNotIn: [Int!]
+  timeGT: Int
+  timeGTE: Int
+  timeLT: Int
+  timeLTE: Int
   timeIsNil: Boolean
   timeNotNil: Boolean
-  timeEqualFold: String
-  timeContainsFold: String
   """
   exection_info edge predicates
   """
@@ -3970,7 +3958,7 @@ input TimingBreakdownWhereInput {
 type TimingChild implements Node {
   id: ID!
   name: String
-  time: String
+  time: Int
   timingBreakdown: [TimingBreakdown!]
 }
 """
@@ -4013,21 +4001,16 @@ input TimingChildWhereInput {
   """
   time field predicates
   """
-  time: String
-  timeNEQ: String
-  timeIn: [String!]
-  timeNotIn: [String!]
-  timeGT: String
-  timeGTE: String
-  timeLT: String
-  timeLTE: String
-  timeContains: String
-  timeHasPrefix: String
-  timeHasSuffix: String
+  time: Int
+  timeNEQ: Int
+  timeIn: [Int!]
+  timeNotIn: [Int!]
+  timeGT: Int
+  timeGTE: Int
+  timeLT: Int
+  timeLTE: Int
   timeIsNil: Boolean
   timeNotNil: Boolean
-  timeEqualFold: String
-  timeContainsFold: String
   """
   timing_breakdown edge predicates
   """

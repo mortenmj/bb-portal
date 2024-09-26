@@ -375,12 +375,12 @@ func (eiq *ExectionInfoQuery) WithResourceUsage(opts ...func(*ResourceUsageQuery
 // Example:
 //
 //	var v []struct {
-//		Strategy string `json:"strategy,omitempty"`
+//		TimeoutSeconds int32 `json:"timeout_seconds,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.ExectionInfo.Query().
-//		GroupBy(exectioninfo.FieldStrategy).
+//		GroupBy(exectioninfo.FieldTimeoutSeconds).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (eiq *ExectionInfoQuery) GroupBy(field string, fields ...string) *ExectionInfoGroupBy {
@@ -398,11 +398,11 @@ func (eiq *ExectionInfoQuery) GroupBy(field string, fields ...string) *ExectionI
 // Example:
 //
 //	var v []struct {
-//		Strategy string `json:"strategy,omitempty"`
+//		TimeoutSeconds int32 `json:"timeout_seconds,omitempty"`
 //	}
 //
 //	client.ExectionInfo.Query().
-//		Select(exectioninfo.FieldStrategy).
+//		Select(exectioninfo.FieldTimeoutSeconds).
 //		Scan(ctx, &v)
 func (eiq *ExectionInfoQuery) Select(fields ...string) *ExectionInfoSelect {
 	eiq.ctx.Fields = append(eiq.ctx.Fields, fields...)

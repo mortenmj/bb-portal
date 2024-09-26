@@ -12,6 +12,8 @@ const (
 	Label = "exection_info"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldTimeoutSeconds holds the string denoting the timeout_seconds field in the database.
+	FieldTimeoutSeconds = "timeout_seconds"
 	// FieldStrategy holds the string denoting the strategy field in the database.
 	FieldStrategy = "strategy"
 	// FieldCachedRemotely holds the string denoting the cached_remotely field in the database.
@@ -52,6 +54,7 @@ const (
 // Columns holds all SQL columns for exectioninfo fields.
 var Columns = []string{
 	FieldID,
+	FieldTimeoutSeconds,
 	FieldStrategy,
 	FieldCachedRemotely,
 	FieldExitCode,
@@ -91,6 +94,11 @@ type OrderOption func(*sql.Selector)
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
+}
+
+// ByTimeoutSeconds orders the results by the timeout_seconds field.
+func ByTimeoutSeconds(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTimeoutSeconds, opts...).ToFunc()
 }
 
 // ByStrategy orders the results by the strategy field.

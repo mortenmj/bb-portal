@@ -14,7 +14,15 @@ type CumulativeMetrics struct {
 // Fields of the CumulativeMetrics.
 func (CumulativeMetrics) Fields() []ent.Field {
 	return []ent.Field{
+
+		// One-indexed number of "analyses" the server has run, including the
+		// current one. Will be incremented for every build/test/cquery/etc. command
+		// that reaches the analysis phase.
 		field.Int32("num_analyses").Optional(),
+
+		// One-indexed number of "builds" the server has run, including the current
+		// one. Will be incremented for every build/test/run/etc. command that
+		// reaches the execution phase.
 		field.Int32("num_builds").Optional(),
 	}
 }
@@ -22,6 +30,8 @@ func (CumulativeMetrics) Fields() []ent.Field {
 // Edges of the TimingMetrics.
 func (CumulativeMetrics) Edges() []ent.Edge {
 	return []ent.Edge{
+
+		//edge back to the metircs object
 		edge.From("metrics", Metrics.Type).Ref("cumulative_metrics"),
 	}
 }

@@ -69,10 +69,10 @@ type BazelInvocationEdges struct {
 	EventFile *EventFile `json:"event_file,omitempty"`
 	// Build holds the value of the build edge.
 	Build *Build `json:"build,omitempty"`
-	// Metrics holds the value of the metrics edge.
-	Metrics *Metrics `json:"metrics,omitempty"`
 	// Problems holds the value of the problems edge.
 	Problems []*BazelInvocationProblem `json:"problems,omitempty"`
+	// Metrics holds the value of the metrics edge.
+	Metrics *Metrics `json:"metrics,omitempty"`
 	// TestCollection holds the value of the test_collection edge.
 	TestCollection []*TestCollection `json:"test_collection,omitempty"`
 	// Targets holds the value of the targets edge.
@@ -110,24 +110,24 @@ func (e BazelInvocationEdges) BuildOrErr() (*Build, error) {
 	return nil, &NotLoadedError{edge: "build"}
 }
 
+// ProblemsOrErr returns the Problems value or an error if the edge
+// was not loaded in eager-loading.
+func (e BazelInvocationEdges) ProblemsOrErr() ([]*BazelInvocationProblem, error) {
+	if e.loadedTypes[2] {
+		return e.Problems, nil
+	}
+	return nil, &NotLoadedError{edge: "problems"}
+}
+
 // MetricsOrErr returns the Metrics value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e BazelInvocationEdges) MetricsOrErr() (*Metrics, error) {
 	if e.Metrics != nil {
 		return e.Metrics, nil
-	} else if e.loadedTypes[2] {
+	} else if e.loadedTypes[3] {
 		return nil, &NotFoundError{label: metrics.Label}
 	}
 	return nil, &NotLoadedError{edge: "metrics"}
-}
-
-// ProblemsOrErr returns the Problems value or an error if the edge
-// was not loaded in eager-loading.
-func (e BazelInvocationEdges) ProblemsOrErr() ([]*BazelInvocationProblem, error) {
-	if e.loadedTypes[3] {
-		return e.Problems, nil
-	}
-	return nil, &NotLoadedError{edge: "problems"}
 }
 
 // TestCollectionOrErr returns the TestCollection value or an error if the edge
@@ -327,14 +327,14 @@ func (bi *BazelInvocation) QueryBuild() *BuildQuery {
 	return NewBazelInvocationClient(bi.config).QueryBuild(bi)
 }
 
-// QueryMetrics queries the "metrics" edge of the BazelInvocation entity.
-func (bi *BazelInvocation) QueryMetrics() *MetricsQuery {
-	return NewBazelInvocationClient(bi.config).QueryMetrics(bi)
-}
-
 // QueryProblems queries the "problems" edge of the BazelInvocation entity.
 func (bi *BazelInvocation) QueryProblems() *BazelInvocationProblemQuery {
 	return NewBazelInvocationClient(bi.config).QueryProblems(bi)
+}
+
+// QueryMetrics queries the "metrics" edge of the BazelInvocation entity.
+func (bi *BazelInvocation) QueryMetrics() *MetricsQuery {
+	return NewBazelInvocationClient(bi.config).QueryMetrics(bi)
 }
 
 // QueryTestCollection queries the "test_collection" edge of the BazelInvocation entity.

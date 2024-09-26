@@ -6,17 +6,16 @@ import (
 	"entgo.io/ent/schema/field"
 )
 
-// Blob holds the schema definition for the Blob entity.
+// ActionCacheStatistics holds the schema definition for the ActionCacheStatistics entity.
 type ActionCacheStatistics struct {
 	ent.Schema
 }
 
-// Fields of the Blob.
+// Fields of the ActionCacheStatistics.
 func (ActionCacheStatistics) Fields() []ent.Field {
 	return []ent.Field{
 
 		// Size of the action cache in bytes.
-		//
 		// This is computed by the code that persists the action cache to disk and
 		// represents the size of the written files, which has no direct relation to
 		// the number of entries in the cache.
@@ -35,11 +34,14 @@ func (ActionCacheStatistics) Fields() []ent.Field {
 	}
 }
 
-// Edges of the Blob.
+// Edges of the ActionCacheStatistics.
 func (ActionCacheStatistics) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.To("miss_details", MissDetail.Type),
+		//edge back to the associated action summary
 		edge.From("action_summary", ActionSummary.Type).
 			Ref("action_cache_statistics"),
+
+		// Breakdown of the cache misses based on the reasons behind them.
+		edge.To("miss_details", MissDetail.Type),
 	}
 }

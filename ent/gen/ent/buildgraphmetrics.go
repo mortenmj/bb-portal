@@ -22,6 +22,8 @@ type BuildGraphMetrics struct {
 	ActionLookupValueCountNotIncludingAspects int32 `json:"action_lookup_value_count_not_including_aspects,omitempty"`
 	// ActionCount holds the value of the "action_count" field.
 	ActionCount int32 `json:"action_count,omitempty"`
+	// ActionCountNotIncludingAspects holds the value of the "action_count_not_including_aspects" field.
+	ActionCountNotIncludingAspects int32 `json:"action_count_not_including_aspects,omitempty"`
 	// InputFileConfiguredTargetCount holds the value of the "input_file_configured_target_count" field.
 	InputFileConfiguredTargetCount int32 `json:"input_file_configured_target_count,omitempty"`
 	// OutputFileConfiguredTargetCount holds the value of the "output_file_configured_target_count" field.
@@ -125,7 +127,7 @@ func (*BuildGraphMetrics) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case buildgraphmetrics.FieldID, buildgraphmetrics.FieldActionLookupValueCount, buildgraphmetrics.FieldActionLookupValueCountNotIncludingAspects, buildgraphmetrics.FieldActionCount, buildgraphmetrics.FieldInputFileConfiguredTargetCount, buildgraphmetrics.FieldOutputFileConfiguredTargetCount, buildgraphmetrics.FieldOtherConfiguredTargetCount, buildgraphmetrics.FieldOutputArtifactCount, buildgraphmetrics.FieldPostInvocationSkyframeNodeCount:
+		case buildgraphmetrics.FieldID, buildgraphmetrics.FieldActionLookupValueCount, buildgraphmetrics.FieldActionLookupValueCountNotIncludingAspects, buildgraphmetrics.FieldActionCount, buildgraphmetrics.FieldActionCountNotIncludingAspects, buildgraphmetrics.FieldInputFileConfiguredTargetCount, buildgraphmetrics.FieldOutputFileConfiguredTargetCount, buildgraphmetrics.FieldOtherConfiguredTargetCount, buildgraphmetrics.FieldOutputArtifactCount, buildgraphmetrics.FieldPostInvocationSkyframeNodeCount:
 			values[i] = new(sql.NullInt64)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -165,6 +167,12 @@ func (bgm *BuildGraphMetrics) assignValues(columns []string, values []any) error
 				return fmt.Errorf("unexpected type %T for field action_count", values[i])
 			} else if value.Valid {
 				bgm.ActionCount = int32(value.Int64)
+			}
+		case buildgraphmetrics.FieldActionCountNotIncludingAspects:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field action_count_not_including_aspects", values[i])
+			} else if value.Valid {
+				bgm.ActionCountNotIncludingAspects = int32(value.Int64)
 			}
 		case buildgraphmetrics.FieldInputFileConfiguredTargetCount:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -270,6 +278,9 @@ func (bgm *BuildGraphMetrics) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("action_count=")
 	builder.WriteString(fmt.Sprintf("%v", bgm.ActionCount))
+	builder.WriteString(", ")
+	builder.WriteString("action_count_not_including_aspects=")
+	builder.WriteString(fmt.Sprintf("%v", bgm.ActionCountNotIncludingAspects))
 	builder.WriteString(", ")
 	builder.WriteString("input_file_configured_target_count=")
 	builder.WriteString(fmt.Sprintf("%v", bgm.InputFileConfiguredTargetCount))

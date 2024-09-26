@@ -48,10 +48,10 @@ const (
 	EdgeEventFile = "event_file"
 	// EdgeBuild holds the string denoting the build edge name in mutations.
 	EdgeBuild = "build"
-	// EdgeMetrics holds the string denoting the metrics edge name in mutations.
-	EdgeMetrics = "metrics"
 	// EdgeProblems holds the string denoting the problems edge name in mutations.
 	EdgeProblems = "problems"
+	// EdgeMetrics holds the string denoting the metrics edge name in mutations.
+	EdgeMetrics = "metrics"
 	// EdgeTestCollection holds the string denoting the test_collection edge name in mutations.
 	EdgeTestCollection = "test_collection"
 	// EdgeTargets holds the string denoting the targets edge name in mutations.
@@ -72,13 +72,6 @@ const (
 	BuildInverseTable = "builds"
 	// BuildColumn is the table column denoting the build relation/edge.
 	BuildColumn = "build_invocations"
-	// MetricsTable is the table that holds the metrics relation/edge.
-	MetricsTable = "metrics"
-	// MetricsInverseTable is the table name for the Metrics entity.
-	// It exists in this package in order to avoid circular dependency with the "metrics" package.
-	MetricsInverseTable = "metrics"
-	// MetricsColumn is the table column denoting the metrics relation/edge.
-	MetricsColumn = "bazel_invocation_metrics"
 	// ProblemsTable is the table that holds the problems relation/edge.
 	ProblemsTable = "bazel_invocation_problems"
 	// ProblemsInverseTable is the table name for the BazelInvocationProblem entity.
@@ -86,6 +79,13 @@ const (
 	ProblemsInverseTable = "bazel_invocation_problems"
 	// ProblemsColumn is the table column denoting the problems relation/edge.
 	ProblemsColumn = "bazel_invocation_problems"
+	// MetricsTable is the table that holds the metrics relation/edge.
+	MetricsTable = "metrics"
+	// MetricsInverseTable is the table name for the Metrics entity.
+	// It exists in this package in order to avoid circular dependency with the "metrics" package.
+	MetricsInverseTable = "metrics"
+	// MetricsColumn is the table column denoting the metrics relation/edge.
+	MetricsColumn = "bazel_invocation_metrics"
 	// TestCollectionTable is the table that holds the test_collection relation/edge. The primary key declared below.
 	TestCollectionTable = "bazel_invocation_test_collection"
 	// TestCollectionInverseTable is the table name for the TestCollection entity.
@@ -242,13 +242,6 @@ func ByBuildField(field string, opts ...sql.OrderTermOption) OrderOption {
 	}
 }
 
-// ByMetricsField orders the results by metrics field.
-func ByMetricsField(field string, opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newMetricsStep(), sql.OrderByField(field, opts...))
-	}
-}
-
 // ByProblemsCount orders the results by problems count.
 func ByProblemsCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -260,6 +253,13 @@ func ByProblemsCount(opts ...sql.OrderTermOption) OrderOption {
 func ByProblems(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	return func(s *sql.Selector) {
 		sqlgraph.OrderByNeighborTerms(s, newProblemsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByMetricsField orders the results by metrics field.
+func ByMetricsField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newMetricsStep(), sql.OrderByField(field, opts...))
 	}
 }
 
@@ -304,18 +304,18 @@ func newBuildStep() *sqlgraph.Step {
 		sqlgraph.Edge(sqlgraph.M2O, true, BuildTable, BuildColumn),
 	)
 }
-func newMetricsStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(MetricsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2O, false, MetricsTable, MetricsColumn),
-	)
-}
 func newProblemsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(ProblemsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, ProblemsTable, ProblemsColumn),
+	)
+}
+func newMetricsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(MetricsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2O, false, MetricsTable, MetricsColumn),
 	)
 }
 func newTestCollectionStep() *sqlgraph.Step {

@@ -6,21 +6,24 @@ import (
 	"entgo.io/ent/schema/field"
 )
 
-// TestResult holds the schema definition for the TestResult entity.
+// TimingChild holds the schema definition for the TimingChild entity.
 type TimingChild struct {
 	ent.Schema
 }
 
-// Fields of the TestResult.
+// Fields of the TimingChild.
 func (TimingChild) Fields() []ent.Field {
 	return []ent.Field{
 
+		//name of the activity
 		field.String("name").Optional(),
-		field.String("time").Optional(),
+
+		//time spent performing the activity (duration)
+		field.Int64("time").Optional(),
 	}
 }
 
-// Edges of TestResult
+// Edges of TimingChild
 func (TimingChild) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.From("timing_breakdown", TimingBreakdown.Type).Ref("child"),

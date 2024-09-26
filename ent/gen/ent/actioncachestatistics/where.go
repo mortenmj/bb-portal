@@ -328,29 +328,6 @@ func MissesNotNil() predicate.ActionCacheStatistics {
 	return predicate.ActionCacheStatistics(sql.FieldNotNull(FieldMisses))
 }
 
-// HasMissDetails applies the HasEdge predicate on the "miss_details" edge.
-func HasMissDetails() predicate.ActionCacheStatistics {
-	return predicate.ActionCacheStatistics(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, MissDetailsTable, MissDetailsPrimaryKey...),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasMissDetailsWith applies the HasEdge predicate on the "miss_details" edge with a given conditions (other predicates).
-func HasMissDetailsWith(preds ...predicate.MissDetail) predicate.ActionCacheStatistics {
-	return predicate.ActionCacheStatistics(func(s *sql.Selector) {
-		step := newMissDetailsStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
 // HasActionSummary applies the HasEdge predicate on the "action_summary" edge.
 func HasActionSummary() predicate.ActionCacheStatistics {
 	return predicate.ActionCacheStatistics(func(s *sql.Selector) {
@@ -366,6 +343,29 @@ func HasActionSummary() predicate.ActionCacheStatistics {
 func HasActionSummaryWith(preds ...predicate.ActionSummary) predicate.ActionCacheStatistics {
 	return predicate.ActionCacheStatistics(func(s *sql.Selector) {
 		step := newActionSummaryStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasMissDetails applies the HasEdge predicate on the "miss_details" edge.
+func HasMissDetails() predicate.ActionCacheStatistics {
+	return predicate.ActionCacheStatistics(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, MissDetailsTable, MissDetailsPrimaryKey...),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasMissDetailsWith applies the HasEdge predicate on the "miss_details" edge with a given conditions (other predicates).
+func HasMissDetailsWith(preds ...predicate.MissDetail) predicate.ActionCacheStatistics {
+	return predicate.ActionCacheStatistics(func(s *sql.Selector) {
+		step := newMissDetailsStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

@@ -218,29 +218,6 @@ func PeakPostGcTenuredSpaceHeapSizeNotNil() predicate.MemoryMetrics {
 	return predicate.MemoryMetrics(sql.FieldNotNull(FieldPeakPostGcTenuredSpaceHeapSize))
 }
 
-// HasGarbageMetrics applies the HasEdge predicate on the "garbage_metrics" edge.
-func HasGarbageMetrics() predicate.MemoryMetrics {
-	return predicate.MemoryMetrics(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, GarbageMetricsTable, GarbageMetricsPrimaryKey...),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasGarbageMetricsWith applies the HasEdge predicate on the "garbage_metrics" edge with a given conditions (other predicates).
-func HasGarbageMetricsWith(preds ...predicate.GarbageMetrics) predicate.MemoryMetrics {
-	return predicate.MemoryMetrics(func(s *sql.Selector) {
-		step := newGarbageMetricsStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
 // HasMetrics applies the HasEdge predicate on the "metrics" edge.
 func HasMetrics() predicate.MemoryMetrics {
 	return predicate.MemoryMetrics(func(s *sql.Selector) {
@@ -256,6 +233,29 @@ func HasMetrics() predicate.MemoryMetrics {
 func HasMetricsWith(preds ...predicate.Metrics) predicate.MemoryMetrics {
 	return predicate.MemoryMetrics(func(s *sql.Selector) {
 		step := newMetricsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasGarbageMetrics applies the HasEdge predicate on the "garbage_metrics" edge.
+func HasGarbageMetrics() predicate.MemoryMetrics {
+	return predicate.MemoryMetrics(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, GarbageMetricsTable, GarbageMetricsPrimaryKey...),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasGarbageMetricsWith applies the HasEdge predicate on the "garbage_metrics" edge with a given conditions (other predicates).
+func HasGarbageMetricsWith(preds ...predicate.GarbageMetrics) predicate.MemoryMetrics {
+	return predicate.MemoryMetrics(func(s *sql.Selector) {
+		step := newGarbageMetricsStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

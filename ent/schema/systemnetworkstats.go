@@ -6,29 +6,45 @@ import (
 	"entgo.io/ent/schema/field"
 )
 
-// Blob holds the schema definition for the Blob entity.
+// SystemNetworkStats holds the schema definition for the SystemNetworkStats entity.
 type SystemNetworkStats struct {
 	ent.Schema
 }
 
-// Fields of the Blob.
+// Fields of the SystemNetworkStats.
 func (SystemNetworkStats) Fields() []ent.Field {
 	return []ent.Field{
-
+		// Total bytes sent during the invocation.
 		field.Int64("bytes_sent").Optional(),
+
+		// Total bytes received during the invocation.
 		field.Int64("bytes_recv").Optional(),
+
+		// Total packets sent during the invocation.
 		field.Int64("packets_sent").Optional(),
+
+		// Total packets received during the invocation
 		field.Int64("packets_recv").Optional(),
+
+		// Peak bytes/sec sent during the invocation.
 		field.Int64("peak_bytes_sent_per_sec").Optional(),
+
+		// Peak bytes/sec received during the invocation.
 		field.Int64("peak_bytes_recv_per_sec").Optional(),
+
+		// Peak packets/sec sent during the invocation.
 		field.Int64("peak_packets_sent_per_sec").Optional(),
+
+		// Peak packets/sec received during the invocation.
 		field.Int64("peak_packets_recv_per_sec").Optional(),
 	}
 }
 
-// Edges of the Blob.
+// Edges of the SystemNetworkStats.
 func (SystemNetworkStats) Edges() []ent.Edge {
 	return []ent.Edge{
+
+		//edge back to the network metrics object
 		edge.From("network_metrics", NetworkMetrics.Type).Ref("system_network_stats").Unique(),
 	}
 }

@@ -19,8 +19,6 @@ import (
 	"github.com/buildbarn/bb-portal/ent/gen/ent/networkmetrics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/packagemetrics"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/targetmetrics"
-	"github.com/buildbarn/bb-portal/ent/gen/ent/testresultbes"
-	"github.com/buildbarn/bb-portal/ent/gen/ent/testsummary"
 	"github.com/buildbarn/bb-portal/ent/gen/ent/timingmetrics"
 )
 
@@ -198,36 +196,6 @@ func (mc *MetricsCreate) AddBuildGraphMetrics(b ...*BuildGraphMetrics) *MetricsC
 		ids[i] = b[i].ID
 	}
 	return mc.AddBuildGraphMetricIDs(ids...)
-}
-
-// AddTestResultIDs adds the "test_results" edge to the TestResultBES entity by IDs.
-func (mc *MetricsCreate) AddTestResultIDs(ids ...int) *MetricsCreate {
-	mc.mutation.AddTestResultIDs(ids...)
-	return mc
-}
-
-// AddTestResults adds the "test_results" edges to the TestResultBES entity.
-func (mc *MetricsCreate) AddTestResults(t ...*TestResultBES) *MetricsCreate {
-	ids := make([]int, len(t))
-	for i := range t {
-		ids[i] = t[i].ID
-	}
-	return mc.AddTestResultIDs(ids...)
-}
-
-// AddTestSummaryIDs adds the "test_summary" edge to the TestSummary entity by IDs.
-func (mc *MetricsCreate) AddTestSummaryIDs(ids ...int) *MetricsCreate {
-	mc.mutation.AddTestSummaryIDs(ids...)
-	return mc
-}
-
-// AddTestSummary adds the "test_summary" edges to the TestSummary entity.
-func (mc *MetricsCreate) AddTestSummary(t ...*TestSummary) *MetricsCreate {
-	ids := make([]int, len(t))
-	for i := range t {
-		ids[i] = t[i].ID
-	}
-	return mc.AddTestSummaryIDs(ids...)
 }
 
 // Mutation returns the MetricsMutation object of the builder.
@@ -460,38 +428,6 @@ func (mc *MetricsCreate) createSpec() (*Metrics, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(buildgraphmetrics.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := mc.mutation.TestResultsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   metrics.TestResultsTable,
-			Columns: []string{metrics.TestResultsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(testresultbes.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := mc.mutation.TestSummaryIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   metrics.TestSummaryTable,
-			Columns: []string{metrics.TestSummaryColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(testsummary.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

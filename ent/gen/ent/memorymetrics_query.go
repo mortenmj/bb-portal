@@ -24,12 +24,12 @@ type MemoryMetricsQuery struct {
 	order                   []memorymetrics.OrderOption
 	inters                  []Interceptor
 	predicates              []predicate.MemoryMetrics
-	withGarbageMetrics      *GarbageMetricsQuery
 	withMetrics             *MetricsQuery
+	withGarbageMetrics      *GarbageMetricsQuery
 	modifiers               []func(*sql.Selector)
 	loadTotal               []func(context.Context, []*MemoryMetrics) error
-	withNamedGarbageMetrics map[string]*GarbageMetricsQuery
 	withNamedMetrics        map[string]*MetricsQuery
+	withNamedGarbageMetrics map[string]*GarbageMetricsQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -66,28 +66,6 @@ func (mmq *MemoryMetricsQuery) Order(o ...memorymetrics.OrderOption) *MemoryMetr
 	return mmq
 }
 
-// QueryGarbageMetrics chains the current query on the "garbage_metrics" edge.
-func (mmq *MemoryMetricsQuery) QueryGarbageMetrics() *GarbageMetricsQuery {
-	query := (&GarbageMetricsClient{config: mmq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := mmq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := mmq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(memorymetrics.Table, memorymetrics.FieldID, selector),
-			sqlgraph.To(garbagemetrics.Table, garbagemetrics.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, memorymetrics.GarbageMetricsTable, memorymetrics.GarbageMetricsPrimaryKey...),
-		)
-		fromU = sqlgraph.SetNeighbors(mmq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
 // QueryMetrics chains the current query on the "metrics" edge.
 func (mmq *MemoryMetricsQuery) QueryMetrics() *MetricsQuery {
 	query := (&MetricsClient{config: mmq.config}).Query()
@@ -103,6 +81,28 @@ func (mmq *MemoryMetricsQuery) QueryMetrics() *MetricsQuery {
 			sqlgraph.From(memorymetrics.Table, memorymetrics.FieldID, selector),
 			sqlgraph.To(metrics.Table, metrics.FieldID),
 			sqlgraph.Edge(sqlgraph.M2M, true, memorymetrics.MetricsTable, memorymetrics.MetricsPrimaryKey...),
+		)
+		fromU = sqlgraph.SetNeighbors(mmq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryGarbageMetrics chains the current query on the "garbage_metrics" edge.
+func (mmq *MemoryMetricsQuery) QueryGarbageMetrics() *GarbageMetricsQuery {
+	query := (&GarbageMetricsClient{config: mmq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := mmq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := mmq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(memorymetrics.Table, memorymetrics.FieldID, selector),
+			sqlgraph.To(garbagemetrics.Table, garbagemetrics.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, memorymetrics.GarbageMetricsTable, memorymetrics.GarbageMetricsPrimaryKey...),
 		)
 		fromU = sqlgraph.SetNeighbors(mmq.driver.Dialect(), step)
 		return fromU, nil
@@ -302,23 +302,12 @@ func (mmq *MemoryMetricsQuery) Clone() *MemoryMetricsQuery {
 		order:              append([]memorymetrics.OrderOption{}, mmq.order...),
 		inters:             append([]Interceptor{}, mmq.inters...),
 		predicates:         append([]predicate.MemoryMetrics{}, mmq.predicates...),
-		withGarbageMetrics: mmq.withGarbageMetrics.Clone(),
 		withMetrics:        mmq.withMetrics.Clone(),
+		withGarbageMetrics: mmq.withGarbageMetrics.Clone(),
 		// clone intermediate query.
 		sql:  mmq.sql.Clone(),
 		path: mmq.path,
 	}
-}
-
-// WithGarbageMetrics tells the query-builder to eager-load the nodes that are connected to
-// the "garbage_metrics" edge. The optional arguments are used to configure the query builder of the edge.
-func (mmq *MemoryMetricsQuery) WithGarbageMetrics(opts ...func(*GarbageMetricsQuery)) *MemoryMetricsQuery {
-	query := (&GarbageMetricsClient{config: mmq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	mmq.withGarbageMetrics = query
-	return mmq
 }
 
 // WithMetrics tells the query-builder to eager-load the nodes that are connected to
@@ -329,6 +318,17 @@ func (mmq *MemoryMetricsQuery) WithMetrics(opts ...func(*MetricsQuery)) *MemoryM
 		opt(query)
 	}
 	mmq.withMetrics = query
+	return mmq
+}
+
+// WithGarbageMetrics tells the query-builder to eager-load the nodes that are connected to
+// the "garbage_metrics" edge. The optional arguments are used to configure the query builder of the edge.
+func (mmq *MemoryMetricsQuery) WithGarbageMetrics(opts ...func(*GarbageMetricsQuery)) *MemoryMetricsQuery {
+	query := (&GarbageMetricsClient{config: mmq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	mmq.withGarbageMetrics = query
 	return mmq
 }
 
@@ -411,8 +411,8 @@ func (mmq *MemoryMetricsQuery) sqlAll(ctx context.Context, hooks ...queryHook) (
 		nodes       = []*MemoryMetrics{}
 		_spec       = mmq.querySpec()
 		loadedTypes = [2]bool{
-			mmq.withGarbageMetrics != nil,
 			mmq.withMetrics != nil,
+			mmq.withGarbageMetrics != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -436,13 +436,6 @@ func (mmq *MemoryMetricsQuery) sqlAll(ctx context.Context, hooks ...queryHook) (
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := mmq.withGarbageMetrics; query != nil {
-		if err := mmq.loadGarbageMetrics(ctx, query, nodes,
-			func(n *MemoryMetrics) { n.Edges.GarbageMetrics = []*GarbageMetrics{} },
-			func(n *MemoryMetrics, e *GarbageMetrics) { n.Edges.GarbageMetrics = append(n.Edges.GarbageMetrics, e) }); err != nil {
-			return nil, err
-		}
-	}
 	if query := mmq.withMetrics; query != nil {
 		if err := mmq.loadMetrics(ctx, query, nodes,
 			func(n *MemoryMetrics) { n.Edges.Metrics = []*Metrics{} },
@@ -450,10 +443,10 @@ func (mmq *MemoryMetricsQuery) sqlAll(ctx context.Context, hooks ...queryHook) (
 			return nil, err
 		}
 	}
-	for name, query := range mmq.withNamedGarbageMetrics {
+	if query := mmq.withGarbageMetrics; query != nil {
 		if err := mmq.loadGarbageMetrics(ctx, query, nodes,
-			func(n *MemoryMetrics) { n.appendNamedGarbageMetrics(name) },
-			func(n *MemoryMetrics, e *GarbageMetrics) { n.appendNamedGarbageMetrics(name, e) }); err != nil {
+			func(n *MemoryMetrics) { n.Edges.GarbageMetrics = []*GarbageMetrics{} },
+			func(n *MemoryMetrics, e *GarbageMetrics) { n.Edges.GarbageMetrics = append(n.Edges.GarbageMetrics, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -461,6 +454,13 @@ func (mmq *MemoryMetricsQuery) sqlAll(ctx context.Context, hooks ...queryHook) (
 		if err := mmq.loadMetrics(ctx, query, nodes,
 			func(n *MemoryMetrics) { n.appendNamedMetrics(name) },
 			func(n *MemoryMetrics, e *Metrics) { n.appendNamedMetrics(name, e) }); err != nil {
+			return nil, err
+		}
+	}
+	for name, query := range mmq.withNamedGarbageMetrics {
+		if err := mmq.loadGarbageMetrics(ctx, query, nodes,
+			func(n *MemoryMetrics) { n.appendNamedGarbageMetrics(name) },
+			func(n *MemoryMetrics, e *GarbageMetrics) { n.appendNamedGarbageMetrics(name, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -472,67 +472,6 @@ func (mmq *MemoryMetricsQuery) sqlAll(ctx context.Context, hooks ...queryHook) (
 	return nodes, nil
 }
 
-func (mmq *MemoryMetricsQuery) loadGarbageMetrics(ctx context.Context, query *GarbageMetricsQuery, nodes []*MemoryMetrics, init func(*MemoryMetrics), assign func(*MemoryMetrics, *GarbageMetrics)) error {
-	edgeIDs := make([]driver.Value, len(nodes))
-	byID := make(map[int]*MemoryMetrics)
-	nids := make(map[int]map[*MemoryMetrics]struct{})
-	for i, node := range nodes {
-		edgeIDs[i] = node.ID
-		byID[node.ID] = node
-		if init != nil {
-			init(node)
-		}
-	}
-	query.Where(func(s *sql.Selector) {
-		joinT := sql.Table(memorymetrics.GarbageMetricsTable)
-		s.Join(joinT).On(s.C(garbagemetrics.FieldID), joinT.C(memorymetrics.GarbageMetricsPrimaryKey[1]))
-		s.Where(sql.InValues(joinT.C(memorymetrics.GarbageMetricsPrimaryKey[0]), edgeIDs...))
-		columns := s.SelectedColumns()
-		s.Select(joinT.C(memorymetrics.GarbageMetricsPrimaryKey[0]))
-		s.AppendSelect(columns...)
-		s.SetDistinct(false)
-	})
-	if err := query.prepareQuery(ctx); err != nil {
-		return err
-	}
-	qr := QuerierFunc(func(ctx context.Context, q Query) (Value, error) {
-		return query.sqlAll(ctx, func(_ context.Context, spec *sqlgraph.QuerySpec) {
-			assign := spec.Assign
-			values := spec.ScanValues
-			spec.ScanValues = func(columns []string) ([]any, error) {
-				values, err := values(columns[1:])
-				if err != nil {
-					return nil, err
-				}
-				return append([]any{new(sql.NullInt64)}, values...), nil
-			}
-			spec.Assign = func(columns []string, values []any) error {
-				outValue := int(values[0].(*sql.NullInt64).Int64)
-				inValue := int(values[1].(*sql.NullInt64).Int64)
-				if nids[inValue] == nil {
-					nids[inValue] = map[*MemoryMetrics]struct{}{byID[outValue]: {}}
-					return assign(columns[1:], values[1:])
-				}
-				nids[inValue][byID[outValue]] = struct{}{}
-				return nil
-			}
-		})
-	})
-	neighbors, err := withInterceptors[[]*GarbageMetrics](ctx, query, qr, query.inters)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		nodes, ok := nids[n.ID]
-		if !ok {
-			return fmt.Errorf(`unexpected "garbage_metrics" node returned %v`, n.ID)
-		}
-		for kn := range nodes {
-			assign(kn, n)
-		}
-	}
-	return nil
-}
 func (mmq *MemoryMetricsQuery) loadMetrics(ctx context.Context, query *MetricsQuery, nodes []*MemoryMetrics, init func(*MemoryMetrics), assign func(*MemoryMetrics, *Metrics)) error {
 	edgeIDs := make([]driver.Value, len(nodes))
 	byID := make(map[int]*MemoryMetrics)
@@ -587,6 +526,67 @@ func (mmq *MemoryMetricsQuery) loadMetrics(ctx context.Context, query *MetricsQu
 		nodes, ok := nids[n.ID]
 		if !ok {
 			return fmt.Errorf(`unexpected "metrics" node returned %v`, n.ID)
+		}
+		for kn := range nodes {
+			assign(kn, n)
+		}
+	}
+	return nil
+}
+func (mmq *MemoryMetricsQuery) loadGarbageMetrics(ctx context.Context, query *GarbageMetricsQuery, nodes []*MemoryMetrics, init func(*MemoryMetrics), assign func(*MemoryMetrics, *GarbageMetrics)) error {
+	edgeIDs := make([]driver.Value, len(nodes))
+	byID := make(map[int]*MemoryMetrics)
+	nids := make(map[int]map[*MemoryMetrics]struct{})
+	for i, node := range nodes {
+		edgeIDs[i] = node.ID
+		byID[node.ID] = node
+		if init != nil {
+			init(node)
+		}
+	}
+	query.Where(func(s *sql.Selector) {
+		joinT := sql.Table(memorymetrics.GarbageMetricsTable)
+		s.Join(joinT).On(s.C(garbagemetrics.FieldID), joinT.C(memorymetrics.GarbageMetricsPrimaryKey[1]))
+		s.Where(sql.InValues(joinT.C(memorymetrics.GarbageMetricsPrimaryKey[0]), edgeIDs...))
+		columns := s.SelectedColumns()
+		s.Select(joinT.C(memorymetrics.GarbageMetricsPrimaryKey[0]))
+		s.AppendSelect(columns...)
+		s.SetDistinct(false)
+	})
+	if err := query.prepareQuery(ctx); err != nil {
+		return err
+	}
+	qr := QuerierFunc(func(ctx context.Context, q Query) (Value, error) {
+		return query.sqlAll(ctx, func(_ context.Context, spec *sqlgraph.QuerySpec) {
+			assign := spec.Assign
+			values := spec.ScanValues
+			spec.ScanValues = func(columns []string) ([]any, error) {
+				values, err := values(columns[1:])
+				if err != nil {
+					return nil, err
+				}
+				return append([]any{new(sql.NullInt64)}, values...), nil
+			}
+			spec.Assign = func(columns []string, values []any) error {
+				outValue := int(values[0].(*sql.NullInt64).Int64)
+				inValue := int(values[1].(*sql.NullInt64).Int64)
+				if nids[inValue] == nil {
+					nids[inValue] = map[*MemoryMetrics]struct{}{byID[outValue]: {}}
+					return assign(columns[1:], values[1:])
+				}
+				nids[inValue][byID[outValue]] = struct{}{}
+				return nil
+			}
+		})
+	})
+	neighbors, err := withInterceptors[[]*GarbageMetrics](ctx, query, qr, query.inters)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected "garbage_metrics" node returned %v`, n.ID)
 		}
 		for kn := range nodes {
 			assign(kn, n)
@@ -679,20 +679,6 @@ func (mmq *MemoryMetricsQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	return selector
 }
 
-// WithNamedGarbageMetrics tells the query-builder to eager-load the nodes that are connected to the "garbage_metrics"
-// edge with the given name. The optional arguments are used to configure the query builder of the edge.
-func (mmq *MemoryMetricsQuery) WithNamedGarbageMetrics(name string, opts ...func(*GarbageMetricsQuery)) *MemoryMetricsQuery {
-	query := (&GarbageMetricsClient{config: mmq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	if mmq.withNamedGarbageMetrics == nil {
-		mmq.withNamedGarbageMetrics = make(map[string]*GarbageMetricsQuery)
-	}
-	mmq.withNamedGarbageMetrics[name] = query
-	return mmq
-}
-
 // WithNamedMetrics tells the query-builder to eager-load the nodes that are connected to the "metrics"
 // edge with the given name. The optional arguments are used to configure the query builder of the edge.
 func (mmq *MemoryMetricsQuery) WithNamedMetrics(name string, opts ...func(*MetricsQuery)) *MemoryMetricsQuery {
@@ -704,6 +690,20 @@ func (mmq *MemoryMetricsQuery) WithNamedMetrics(name string, opts ...func(*Metri
 		mmq.withNamedMetrics = make(map[string]*MetricsQuery)
 	}
 	mmq.withNamedMetrics[name] = query
+	return mmq
+}
+
+// WithNamedGarbageMetrics tells the query-builder to eager-load the nodes that are connected to the "garbage_metrics"
+// edge with the given name. The optional arguments are used to configure the query builder of the edge.
+func (mmq *MemoryMetricsQuery) WithNamedGarbageMetrics(name string, opts ...func(*GarbageMetricsQuery)) *MemoryMetricsQuery {
+	query := (&GarbageMetricsClient{config: mmq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	if mmq.withNamedGarbageMetrics == nil {
+		mmq.withNamedGarbageMetrics = make(map[string]*GarbageMetricsQuery)
+	}
+	mmq.withNamedGarbageMetrics[name] = query
 	return mmq
 }
 

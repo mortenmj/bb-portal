@@ -38,9 +38,8 @@ type TestSummary struct {
 	Label string `json:"label,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the TestSummaryQuery when eager-loading is set.
-	Edges                TestSummaryEdges `json:"edges"`
-	metrics_test_summary *int
-	selectValues         sql.SelectValues
+	Edges        TestSummaryEdges `json:"edges"`
+	selectValues sql.SelectValues
 }
 
 // TestSummaryEdges holds the relations/edges for other nodes in the graph.
@@ -98,8 +97,6 @@ func (*TestSummary) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullInt64)
 		case testsummary.FieldOverallStatus, testsummary.FieldLabel:
 			values[i] = new(sql.NullString)
-		case testsummary.ForeignKeys[0]: // metrics_test_summary
-			values[i] = new(sql.NullInt64)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -180,13 +177,6 @@ func (ts *TestSummary) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field label", values[i])
 			} else if value.Valid {
 				ts.Label = value.String
-			}
-		case testsummary.ForeignKeys[0]:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for edge-field metrics_test_summary", value)
-			} else if value.Valid {
-				ts.metrics_test_summary = new(int)
-				*ts.metrics_test_summary = int(value.Int64)
 			}
 		default:
 			ts.selectValues.Set(columns[i], values[i])

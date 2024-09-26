@@ -34,14 +34,14 @@ type ActionSummary struct {
 
 // ActionSummaryEdges holds the relations/edges for other nodes in the graph.
 type ActionSummaryEdges struct {
+	// Metrics holds the value of the metrics edge.
+	Metrics *Metrics `json:"metrics,omitempty"`
 	// ActionData holds the value of the action_data edge.
 	ActionData []*ActionData `json:"action_data,omitempty"`
 	// RunnerCount holds the value of the runner_count edge.
 	RunnerCount []*RunnerCount `json:"runner_count,omitempty"`
 	// ActionCacheStatistics holds the value of the action_cache_statistics edge.
 	ActionCacheStatistics []*ActionCacheStatistics `json:"action_cache_statistics,omitempty"`
-	// Metrics holds the value of the metrics edge.
-	Metrics *Metrics `json:"metrics,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [4]bool
@@ -53,10 +53,21 @@ type ActionSummaryEdges struct {
 	namedActionCacheStatistics map[string][]*ActionCacheStatistics
 }
 
+// MetricsOrErr returns the Metrics value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e ActionSummaryEdges) MetricsOrErr() (*Metrics, error) {
+	if e.Metrics != nil {
+		return e.Metrics, nil
+	} else if e.loadedTypes[0] {
+		return nil, &NotFoundError{label: metrics.Label}
+	}
+	return nil, &NotLoadedError{edge: "metrics"}
+}
+
 // ActionDataOrErr returns the ActionData value or an error if the edge
 // was not loaded in eager-loading.
 func (e ActionSummaryEdges) ActionDataOrErr() ([]*ActionData, error) {
-	if e.loadedTypes[0] {
+	if e.loadedTypes[1] {
 		return e.ActionData, nil
 	}
 	return nil, &NotLoadedError{edge: "action_data"}
@@ -65,7 +76,7 @@ func (e ActionSummaryEdges) ActionDataOrErr() ([]*ActionData, error) {
 // RunnerCountOrErr returns the RunnerCount value or an error if the edge
 // was not loaded in eager-loading.
 func (e ActionSummaryEdges) RunnerCountOrErr() ([]*RunnerCount, error) {
-	if e.loadedTypes[1] {
+	if e.loadedTypes[2] {
 		return e.RunnerCount, nil
 	}
 	return nil, &NotLoadedError{edge: "runner_count"}
@@ -74,21 +85,10 @@ func (e ActionSummaryEdges) RunnerCountOrErr() ([]*RunnerCount, error) {
 // ActionCacheStatisticsOrErr returns the ActionCacheStatistics value or an error if the edge
 // was not loaded in eager-loading.
 func (e ActionSummaryEdges) ActionCacheStatisticsOrErr() ([]*ActionCacheStatistics, error) {
-	if e.loadedTypes[2] {
+	if e.loadedTypes[3] {
 		return e.ActionCacheStatistics, nil
 	}
 	return nil, &NotLoadedError{edge: "action_cache_statistics"}
-}
-
-// MetricsOrErr returns the Metrics value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e ActionSummaryEdges) MetricsOrErr() (*Metrics, error) {
-	if e.Metrics != nil {
-		return e.Metrics, nil
-	} else if e.loadedTypes[3] {
-		return nil, &NotFoundError{label: metrics.Label}
-	}
-	return nil, &NotLoadedError{edge: "metrics"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -165,6 +165,11 @@ func (as *ActionSummary) Value(name string) (ent.Value, error) {
 	return as.selectValues.Get(name)
 }
 
+// QueryMetrics queries the "metrics" edge of the ActionSummary entity.
+func (as *ActionSummary) QueryMetrics() *MetricsQuery {
+	return NewActionSummaryClient(as.config).QueryMetrics(as)
+}
+
 // QueryActionData queries the "action_data" edge of the ActionSummary entity.
 func (as *ActionSummary) QueryActionData() *ActionDataQuery {
 	return NewActionSummaryClient(as.config).QueryActionData(as)
@@ -178,11 +183,6 @@ func (as *ActionSummary) QueryRunnerCount() *RunnerCountQuery {
 // QueryActionCacheStatistics queries the "action_cache_statistics" edge of the ActionSummary entity.
 func (as *ActionSummary) QueryActionCacheStatistics() *ActionCacheStatisticsQuery {
 	return NewActionSummaryClient(as.config).QueryActionCacheStatistics(as)
-}
-
-// QueryMetrics queries the "metrics" edge of the ActionSummary entity.
-func (as *ActionSummary) QueryMetrics() *MetricsQuery {
-	return NewActionSummaryClient(as.config).QueryMetrics(as)
 }
 
 // Update returns a builder for updating this ActionSummary.

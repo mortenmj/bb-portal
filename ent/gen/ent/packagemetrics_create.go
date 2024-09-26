@@ -34,21 +34,6 @@ func (pmc *PackageMetricsCreate) SetNillablePackagesLoaded(i *int64) *PackageMet
 	return pmc
 }
 
-// AddPackageLoadMetricIDs adds the "package_load_metrics" edge to the PackageLoadMetrics entity by IDs.
-func (pmc *PackageMetricsCreate) AddPackageLoadMetricIDs(ids ...int) *PackageMetricsCreate {
-	pmc.mutation.AddPackageLoadMetricIDs(ids...)
-	return pmc
-}
-
-// AddPackageLoadMetrics adds the "package_load_metrics" edges to the PackageLoadMetrics entity.
-func (pmc *PackageMetricsCreate) AddPackageLoadMetrics(p ...*PackageLoadMetrics) *PackageMetricsCreate {
-	ids := make([]int, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
-	}
-	return pmc.AddPackageLoadMetricIDs(ids...)
-}
-
 // AddMetricIDs adds the "metrics" edge to the Metrics entity by IDs.
 func (pmc *PackageMetricsCreate) AddMetricIDs(ids ...int) *PackageMetricsCreate {
 	pmc.mutation.AddMetricIDs(ids...)
@@ -62,6 +47,21 @@ func (pmc *PackageMetricsCreate) AddMetrics(m ...*Metrics) *PackageMetricsCreate
 		ids[i] = m[i].ID
 	}
 	return pmc.AddMetricIDs(ids...)
+}
+
+// AddPackageLoadMetricIDs adds the "package_load_metrics" edge to the PackageLoadMetrics entity by IDs.
+func (pmc *PackageMetricsCreate) AddPackageLoadMetricIDs(ids ...int) *PackageMetricsCreate {
+	pmc.mutation.AddPackageLoadMetricIDs(ids...)
+	return pmc
+}
+
+// AddPackageLoadMetrics adds the "package_load_metrics" edges to the PackageLoadMetrics entity.
+func (pmc *PackageMetricsCreate) AddPackageLoadMetrics(p ...*PackageLoadMetrics) *PackageMetricsCreate {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return pmc.AddPackageLoadMetricIDs(ids...)
 }
 
 // Mutation returns the PackageMetricsMutation object of the builder.
@@ -128,22 +128,6 @@ func (pmc *PackageMetricsCreate) createSpec() (*PackageMetrics, *sqlgraph.Create
 		_spec.SetField(packagemetrics.FieldPackagesLoaded, field.TypeInt64, value)
 		_node.PackagesLoaded = value
 	}
-	if nodes := pmc.mutation.PackageLoadMetricsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   packagemetrics.PackageLoadMetricsTable,
-			Columns: packagemetrics.PackageLoadMetricsPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(packageloadmetrics.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges = append(_spec.Edges, edge)
-	}
 	if nodes := pmc.mutation.MetricsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
@@ -153,6 +137,22 @@ func (pmc *PackageMetricsCreate) createSpec() (*PackageMetrics, *sqlgraph.Create
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(metrics.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := pmc.mutation.PackageLoadMetricsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   packagemetrics.PackageLoadMetricsTable,
+			Columns: packagemetrics.PackageLoadMetricsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(packageloadmetrics.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

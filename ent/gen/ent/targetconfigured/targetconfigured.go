@@ -59,9 +59,6 @@ func ValidColumn(column string) bool {
 // TestSize defines the type for the "test_size" enum field.
 type TestSize string
 
-// TestSizeUNKNOWN is the default value of the TestSize enum.
-const DefaultTestSize = TestSizeUNKNOWN
-
 // TestSize values.
 const (
 	TestSizeUNKNOWN  TestSize = "UNKNOWN"

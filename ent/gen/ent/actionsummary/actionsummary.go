@@ -20,16 +20,23 @@ const (
 	FieldActionsExecuted = "actions_executed"
 	// FieldRemoteCacheHits holds the string denoting the remote_cache_hits field in the database.
 	FieldRemoteCacheHits = "remote_cache_hits"
+	// EdgeMetrics holds the string denoting the metrics edge name in mutations.
+	EdgeMetrics = "metrics"
 	// EdgeActionData holds the string denoting the action_data edge name in mutations.
 	EdgeActionData = "action_data"
 	// EdgeRunnerCount holds the string denoting the runner_count edge name in mutations.
 	EdgeRunnerCount = "runner_count"
 	// EdgeActionCacheStatistics holds the string denoting the action_cache_statistics edge name in mutations.
 	EdgeActionCacheStatistics = "action_cache_statistics"
-	// EdgeMetrics holds the string denoting the metrics edge name in mutations.
-	EdgeMetrics = "metrics"
 	// Table holds the table name of the actionsummary in the database.
 	Table = "action_summaries"
+	// MetricsTable is the table that holds the metrics relation/edge.
+	MetricsTable = "action_summaries"
+	// MetricsInverseTable is the table name for the Metrics entity.
+	// It exists in this package in order to avoid circular dependency with the "metrics" package.
+	MetricsInverseTable = "metrics"
+	// MetricsColumn is the table column denoting the metrics relation/edge.
+	MetricsColumn = "metrics_action_summary"
 	// ActionDataTable is the table that holds the action_data relation/edge. The primary key declared below.
 	ActionDataTable = "action_summary_action_data"
 	// ActionDataInverseTable is the table name for the ActionData entity.
@@ -45,13 +52,6 @@ const (
 	// ActionCacheStatisticsInverseTable is the table name for the ActionCacheStatistics entity.
 	// It exists in this package in order to avoid circular dependency with the "actioncachestatistics" package.
 	ActionCacheStatisticsInverseTable = "action_cache_statistics"
-	// MetricsTable is the table that holds the metrics relation/edge.
-	MetricsTable = "action_summaries"
-	// MetricsInverseTable is the table name for the Metrics entity.
-	// It exists in this package in order to avoid circular dependency with the "metrics" package.
-	MetricsInverseTable = "metrics"
-	// MetricsColumn is the table column denoting the metrics relation/edge.
-	MetricsColumn = "metrics_action_summary"
 )
 
 // Columns holds all SQL columns for actionsummary fields.
@@ -124,6 +124,13 @@ func ByRemoteCacheHits(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldRemoteCacheHits, opts...).ToFunc()
 }
 
+// ByMetricsField orders the results by metrics field.
+func ByMetricsField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newMetricsStep(), sql.OrderByField(field, opts...))
+	}
+}
+
 // ByActionDataCount orders the results by action_data count.
 func ByActionDataCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -165,12 +172,12 @@ func ByActionCacheStatistics(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOp
 		sqlgraph.OrderByNeighborTerms(s, newActionCacheStatisticsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
-
-// ByMetricsField orders the results by metrics field.
-func ByMetricsField(field string, opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newMetricsStep(), sql.OrderByField(field, opts...))
-	}
+func newMetricsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(MetricsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, MetricsTable, MetricsColumn),
+	)
 }
 func newActionDataStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
@@ -191,12 +198,5 @@ func newActionCacheStatisticsStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(ActionCacheStatisticsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2M, false, ActionCacheStatisticsTable, ActionCacheStatisticsPrimaryKey...),
-	)
-}
-func newMetricsStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(MetricsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, true, MetricsTable, MetricsColumn),
 	)
 }

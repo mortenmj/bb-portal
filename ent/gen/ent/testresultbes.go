@@ -31,20 +31,15 @@ type TestResultBES struct {
 	CachedLocally bool `json:"cached_locally,omitempty"`
 	// TestAttemptStartMillisEpoch holds the value of the "test_attempt_start_millis_epoch" field.
 	TestAttemptStartMillisEpoch int64 `json:"test_attempt_start_millis_epoch,omitempty"`
+	// TestAttemptStart holds the value of the "test_attempt_start" field.
+	TestAttemptStart string `json:"test_attempt_start,omitempty"`
 	// TestAttemptDurationMillis holds the value of the "test_attempt_duration_millis" field.
 	TestAttemptDurationMillis int64 `json:"test_attempt_duration_millis,omitempty"`
-	// TargetsConfiguredNotIncludingAspects holds the value of the "targets_configured_not_including_aspects" field.
-	TargetsConfiguredNotIncludingAspects int64 `json:"targets_configured_not_including_aspects,omitempty"`
-	// Run holds the value of the "run" field.
-	Run int `json:"run,omitempty"`
-	// Shard holds the value of the "shard" field.
-	Shard int `json:"shard,omitempty"`
-	// Attempt holds the value of the "attempt" field.
-	Attempt int `json:"attempt,omitempty"`
+	// TestAttemptDuration holds the value of the "test_attempt_duration" field.
+	TestAttemptDuration int64 `json:"test_attempt_duration,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the TestResultBESQuery when eager-loading is set.
 	Edges                          TestResultBESEdges `json:"edges"`
-	metrics_test_results           *int
 	test_collection_test_results   *int
 	test_result_bes_execution_info *int
 	selectValues                   sql.SelectValues
@@ -107,15 +102,13 @@ func (*TestResultBES) scanValues(columns []string) ([]any, error) {
 			values[i] = new([]byte)
 		case testresultbes.FieldCachedLocally:
 			values[i] = new(sql.NullBool)
-		case testresultbes.FieldID, testresultbes.FieldTestAttemptStartMillisEpoch, testresultbes.FieldTestAttemptDurationMillis, testresultbes.FieldTargetsConfiguredNotIncludingAspects, testresultbes.FieldRun, testresultbes.FieldShard, testresultbes.FieldAttempt:
+		case testresultbes.FieldID, testresultbes.FieldTestAttemptStartMillisEpoch, testresultbes.FieldTestAttemptDurationMillis, testresultbes.FieldTestAttemptDuration:
 			values[i] = new(sql.NullInt64)
-		case testresultbes.FieldTestStatus, testresultbes.FieldStatusDetails, testresultbes.FieldLabel:
+		case testresultbes.FieldTestStatus, testresultbes.FieldStatusDetails, testresultbes.FieldLabel, testresultbes.FieldTestAttemptStart:
 			values[i] = new(sql.NullString)
-		case testresultbes.ForeignKeys[0]: // metrics_test_results
+		case testresultbes.ForeignKeys[0]: // test_collection_test_results
 			values[i] = new(sql.NullInt64)
-		case testresultbes.ForeignKeys[1]: // test_collection_test_results
-			values[i] = new(sql.NullInt64)
-		case testresultbes.ForeignKeys[2]: // test_result_bes_execution_info
+		case testresultbes.ForeignKeys[1]: // test_result_bes_execution_info
 			values[i] = new(sql.NullInt64)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -176,51 +169,32 @@ func (trb *TestResultBES) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				trb.TestAttemptStartMillisEpoch = value.Int64
 			}
+		case testresultbes.FieldTestAttemptStart:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field test_attempt_start", values[i])
+			} else if value.Valid {
+				trb.TestAttemptStart = value.String
+			}
 		case testresultbes.FieldTestAttemptDurationMillis:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field test_attempt_duration_millis", values[i])
 			} else if value.Valid {
 				trb.TestAttemptDurationMillis = value.Int64
 			}
-		case testresultbes.FieldTargetsConfiguredNotIncludingAspects:
+		case testresultbes.FieldTestAttemptDuration:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field targets_configured_not_including_aspects", values[i])
+				return fmt.Errorf("unexpected type %T for field test_attempt_duration", values[i])
 			} else if value.Valid {
-				trb.TargetsConfiguredNotIncludingAspects = value.Int64
-			}
-		case testresultbes.FieldRun:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field run", values[i])
-			} else if value.Valid {
-				trb.Run = int(value.Int64)
-			}
-		case testresultbes.FieldShard:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field shard", values[i])
-			} else if value.Valid {
-				trb.Shard = int(value.Int64)
-			}
-		case testresultbes.FieldAttempt:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field attempt", values[i])
-			} else if value.Valid {
-				trb.Attempt = int(value.Int64)
+				trb.TestAttemptDuration = value.Int64
 			}
 		case testresultbes.ForeignKeys[0]:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for edge-field metrics_test_results", value)
-			} else if value.Valid {
-				trb.metrics_test_results = new(int)
-				*trb.metrics_test_results = int(value.Int64)
-			}
-		case testresultbes.ForeignKeys[1]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for edge-field test_collection_test_results", value)
 			} else if value.Valid {
 				trb.test_collection_test_results = new(int)
 				*trb.test_collection_test_results = int(value.Int64)
 			}
-		case testresultbes.ForeignKeys[2]:
+		case testresultbes.ForeignKeys[1]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for edge-field test_result_bes_execution_info", value)
 			} else if value.Valid {
@@ -296,20 +270,14 @@ func (trb *TestResultBES) String() string {
 	builder.WriteString("test_attempt_start_millis_epoch=")
 	builder.WriteString(fmt.Sprintf("%v", trb.TestAttemptStartMillisEpoch))
 	builder.WriteString(", ")
+	builder.WriteString("test_attempt_start=")
+	builder.WriteString(trb.TestAttemptStart)
+	builder.WriteString(", ")
 	builder.WriteString("test_attempt_duration_millis=")
 	builder.WriteString(fmt.Sprintf("%v", trb.TestAttemptDurationMillis))
 	builder.WriteString(", ")
-	builder.WriteString("targets_configured_not_including_aspects=")
-	builder.WriteString(fmt.Sprintf("%v", trb.TargetsConfiguredNotIncludingAspects))
-	builder.WriteString(", ")
-	builder.WriteString("run=")
-	builder.WriteString(fmt.Sprintf("%v", trb.Run))
-	builder.WriteString(", ")
-	builder.WriteString("shard=")
-	builder.WriteString(fmt.Sprintf("%v", trb.Shard))
-	builder.WriteString(", ")
-	builder.WriteString("attempt=")
-	builder.WriteString(fmt.Sprintf("%v", trb.Attempt))
+	builder.WriteString("test_attempt_duration=")
+	builder.WriteString(fmt.Sprintf("%v", trb.TestAttemptDuration))
 	builder.WriteByte(')')
 	return builder.String()
 }

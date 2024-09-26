@@ -164,21 +164,6 @@ func (acsu *ActionCacheStatisticsUpdate) ClearMisses() *ActionCacheStatisticsUpd
 	return acsu
 }
 
-// AddMissDetailIDs adds the "miss_details" edge to the MissDetail entity by IDs.
-func (acsu *ActionCacheStatisticsUpdate) AddMissDetailIDs(ids ...int) *ActionCacheStatisticsUpdate {
-	acsu.mutation.AddMissDetailIDs(ids...)
-	return acsu
-}
-
-// AddMissDetails adds the "miss_details" edges to the MissDetail entity.
-func (acsu *ActionCacheStatisticsUpdate) AddMissDetails(m ...*MissDetail) *ActionCacheStatisticsUpdate {
-	ids := make([]int, len(m))
-	for i := range m {
-		ids[i] = m[i].ID
-	}
-	return acsu.AddMissDetailIDs(ids...)
-}
-
 // AddActionSummaryIDs adds the "action_summary" edge to the ActionSummary entity by IDs.
 func (acsu *ActionCacheStatisticsUpdate) AddActionSummaryIDs(ids ...int) *ActionCacheStatisticsUpdate {
 	acsu.mutation.AddActionSummaryIDs(ids...)
@@ -194,30 +179,24 @@ func (acsu *ActionCacheStatisticsUpdate) AddActionSummary(a ...*ActionSummary) *
 	return acsu.AddActionSummaryIDs(ids...)
 }
 
-// Mutation returns the ActionCacheStatisticsMutation object of the builder.
-func (acsu *ActionCacheStatisticsUpdate) Mutation() *ActionCacheStatisticsMutation {
-	return acsu.mutation
-}
-
-// ClearMissDetails clears all "miss_details" edges to the MissDetail entity.
-func (acsu *ActionCacheStatisticsUpdate) ClearMissDetails() *ActionCacheStatisticsUpdate {
-	acsu.mutation.ClearMissDetails()
+// AddMissDetailIDs adds the "miss_details" edge to the MissDetail entity by IDs.
+func (acsu *ActionCacheStatisticsUpdate) AddMissDetailIDs(ids ...int) *ActionCacheStatisticsUpdate {
+	acsu.mutation.AddMissDetailIDs(ids...)
 	return acsu
 }
 
-// RemoveMissDetailIDs removes the "miss_details" edge to MissDetail entities by IDs.
-func (acsu *ActionCacheStatisticsUpdate) RemoveMissDetailIDs(ids ...int) *ActionCacheStatisticsUpdate {
-	acsu.mutation.RemoveMissDetailIDs(ids...)
-	return acsu
-}
-
-// RemoveMissDetails removes "miss_details" edges to MissDetail entities.
-func (acsu *ActionCacheStatisticsUpdate) RemoveMissDetails(m ...*MissDetail) *ActionCacheStatisticsUpdate {
+// AddMissDetails adds the "miss_details" edges to the MissDetail entity.
+func (acsu *ActionCacheStatisticsUpdate) AddMissDetails(m ...*MissDetail) *ActionCacheStatisticsUpdate {
 	ids := make([]int, len(m))
 	for i := range m {
 		ids[i] = m[i].ID
 	}
-	return acsu.RemoveMissDetailIDs(ids...)
+	return acsu.AddMissDetailIDs(ids...)
+}
+
+// Mutation returns the ActionCacheStatisticsMutation object of the builder.
+func (acsu *ActionCacheStatisticsUpdate) Mutation() *ActionCacheStatisticsMutation {
+	return acsu.mutation
 }
 
 // ClearActionSummary clears all "action_summary" edges to the ActionSummary entity.
@@ -239,6 +218,27 @@ func (acsu *ActionCacheStatisticsUpdate) RemoveActionSummary(a ...*ActionSummary
 		ids[i] = a[i].ID
 	}
 	return acsu.RemoveActionSummaryIDs(ids...)
+}
+
+// ClearMissDetails clears all "miss_details" edges to the MissDetail entity.
+func (acsu *ActionCacheStatisticsUpdate) ClearMissDetails() *ActionCacheStatisticsUpdate {
+	acsu.mutation.ClearMissDetails()
+	return acsu
+}
+
+// RemoveMissDetailIDs removes the "miss_details" edge to MissDetail entities by IDs.
+func (acsu *ActionCacheStatisticsUpdate) RemoveMissDetailIDs(ids ...int) *ActionCacheStatisticsUpdate {
+	acsu.mutation.RemoveMissDetailIDs(ids...)
+	return acsu
+}
+
+// RemoveMissDetails removes "miss_details" edges to MissDetail entities.
+func (acsu *ActionCacheStatisticsUpdate) RemoveMissDetails(m ...*MissDetail) *ActionCacheStatisticsUpdate {
+	ids := make([]int, len(m))
+	for i := range m {
+		ids[i] = m[i].ID
+	}
+	return acsu.RemoveMissDetailIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -322,51 +322,6 @@ func (acsu *ActionCacheStatisticsUpdate) sqlSave(ctx context.Context) (n int, er
 	if acsu.mutation.MissesCleared() {
 		_spec.ClearField(actioncachestatistics.FieldMisses, field.TypeInt32)
 	}
-	if acsu.mutation.MissDetailsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   actioncachestatistics.MissDetailsTable,
-			Columns: actioncachestatistics.MissDetailsPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(missdetail.FieldID, field.TypeInt),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := acsu.mutation.RemovedMissDetailsIDs(); len(nodes) > 0 && !acsu.mutation.MissDetailsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   actioncachestatistics.MissDetailsTable,
-			Columns: actioncachestatistics.MissDetailsPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(missdetail.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := acsu.mutation.MissDetailsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   actioncachestatistics.MissDetailsTable,
-			Columns: actioncachestatistics.MissDetailsPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(missdetail.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
 	if acsu.mutation.ActionSummaryCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
@@ -405,6 +360,51 @@ func (acsu *ActionCacheStatisticsUpdate) sqlSave(ctx context.Context) (n int, er
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(actionsummary.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if acsu.mutation.MissDetailsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   actioncachestatistics.MissDetailsTable,
+			Columns: actioncachestatistics.MissDetailsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(missdetail.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := acsu.mutation.RemovedMissDetailsIDs(); len(nodes) > 0 && !acsu.mutation.MissDetailsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   actioncachestatistics.MissDetailsTable,
+			Columns: actioncachestatistics.MissDetailsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(missdetail.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := acsu.mutation.MissDetailsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   actioncachestatistics.MissDetailsTable,
+			Columns: actioncachestatistics.MissDetailsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(missdetail.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -567,21 +567,6 @@ func (acsuo *ActionCacheStatisticsUpdateOne) ClearMisses() *ActionCacheStatistic
 	return acsuo
 }
 
-// AddMissDetailIDs adds the "miss_details" edge to the MissDetail entity by IDs.
-func (acsuo *ActionCacheStatisticsUpdateOne) AddMissDetailIDs(ids ...int) *ActionCacheStatisticsUpdateOne {
-	acsuo.mutation.AddMissDetailIDs(ids...)
-	return acsuo
-}
-
-// AddMissDetails adds the "miss_details" edges to the MissDetail entity.
-func (acsuo *ActionCacheStatisticsUpdateOne) AddMissDetails(m ...*MissDetail) *ActionCacheStatisticsUpdateOne {
-	ids := make([]int, len(m))
-	for i := range m {
-		ids[i] = m[i].ID
-	}
-	return acsuo.AddMissDetailIDs(ids...)
-}
-
 // AddActionSummaryIDs adds the "action_summary" edge to the ActionSummary entity by IDs.
 func (acsuo *ActionCacheStatisticsUpdateOne) AddActionSummaryIDs(ids ...int) *ActionCacheStatisticsUpdateOne {
 	acsuo.mutation.AddActionSummaryIDs(ids...)
@@ -597,30 +582,24 @@ func (acsuo *ActionCacheStatisticsUpdateOne) AddActionSummary(a ...*ActionSummar
 	return acsuo.AddActionSummaryIDs(ids...)
 }
 
-// Mutation returns the ActionCacheStatisticsMutation object of the builder.
-func (acsuo *ActionCacheStatisticsUpdateOne) Mutation() *ActionCacheStatisticsMutation {
-	return acsuo.mutation
-}
-
-// ClearMissDetails clears all "miss_details" edges to the MissDetail entity.
-func (acsuo *ActionCacheStatisticsUpdateOne) ClearMissDetails() *ActionCacheStatisticsUpdateOne {
-	acsuo.mutation.ClearMissDetails()
+// AddMissDetailIDs adds the "miss_details" edge to the MissDetail entity by IDs.
+func (acsuo *ActionCacheStatisticsUpdateOne) AddMissDetailIDs(ids ...int) *ActionCacheStatisticsUpdateOne {
+	acsuo.mutation.AddMissDetailIDs(ids...)
 	return acsuo
 }
 
-// RemoveMissDetailIDs removes the "miss_details" edge to MissDetail entities by IDs.
-func (acsuo *ActionCacheStatisticsUpdateOne) RemoveMissDetailIDs(ids ...int) *ActionCacheStatisticsUpdateOne {
-	acsuo.mutation.RemoveMissDetailIDs(ids...)
-	return acsuo
-}
-
-// RemoveMissDetails removes "miss_details" edges to MissDetail entities.
-func (acsuo *ActionCacheStatisticsUpdateOne) RemoveMissDetails(m ...*MissDetail) *ActionCacheStatisticsUpdateOne {
+// AddMissDetails adds the "miss_details" edges to the MissDetail entity.
+func (acsuo *ActionCacheStatisticsUpdateOne) AddMissDetails(m ...*MissDetail) *ActionCacheStatisticsUpdateOne {
 	ids := make([]int, len(m))
 	for i := range m {
 		ids[i] = m[i].ID
 	}
-	return acsuo.RemoveMissDetailIDs(ids...)
+	return acsuo.AddMissDetailIDs(ids...)
+}
+
+// Mutation returns the ActionCacheStatisticsMutation object of the builder.
+func (acsuo *ActionCacheStatisticsUpdateOne) Mutation() *ActionCacheStatisticsMutation {
+	return acsuo.mutation
 }
 
 // ClearActionSummary clears all "action_summary" edges to the ActionSummary entity.
@@ -642,6 +621,27 @@ func (acsuo *ActionCacheStatisticsUpdateOne) RemoveActionSummary(a ...*ActionSum
 		ids[i] = a[i].ID
 	}
 	return acsuo.RemoveActionSummaryIDs(ids...)
+}
+
+// ClearMissDetails clears all "miss_details" edges to the MissDetail entity.
+func (acsuo *ActionCacheStatisticsUpdateOne) ClearMissDetails() *ActionCacheStatisticsUpdateOne {
+	acsuo.mutation.ClearMissDetails()
+	return acsuo
+}
+
+// RemoveMissDetailIDs removes the "miss_details" edge to MissDetail entities by IDs.
+func (acsuo *ActionCacheStatisticsUpdateOne) RemoveMissDetailIDs(ids ...int) *ActionCacheStatisticsUpdateOne {
+	acsuo.mutation.RemoveMissDetailIDs(ids...)
+	return acsuo
+}
+
+// RemoveMissDetails removes "miss_details" edges to MissDetail entities.
+func (acsuo *ActionCacheStatisticsUpdateOne) RemoveMissDetails(m ...*MissDetail) *ActionCacheStatisticsUpdateOne {
+	ids := make([]int, len(m))
+	for i := range m {
+		ids[i] = m[i].ID
+	}
+	return acsuo.RemoveMissDetailIDs(ids...)
 }
 
 // Where appends a list predicates to the ActionCacheStatisticsUpdate builder.
@@ -755,51 +755,6 @@ func (acsuo *ActionCacheStatisticsUpdateOne) sqlSave(ctx context.Context) (_node
 	if acsuo.mutation.MissesCleared() {
 		_spec.ClearField(actioncachestatistics.FieldMisses, field.TypeInt32)
 	}
-	if acsuo.mutation.MissDetailsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   actioncachestatistics.MissDetailsTable,
-			Columns: actioncachestatistics.MissDetailsPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(missdetail.FieldID, field.TypeInt),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := acsuo.mutation.RemovedMissDetailsIDs(); len(nodes) > 0 && !acsuo.mutation.MissDetailsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   actioncachestatistics.MissDetailsTable,
-			Columns: actioncachestatistics.MissDetailsPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(missdetail.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := acsuo.mutation.MissDetailsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   actioncachestatistics.MissDetailsTable,
-			Columns: actioncachestatistics.MissDetailsPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(missdetail.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
 	if acsuo.mutation.ActionSummaryCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
@@ -838,6 +793,51 @@ func (acsuo *ActionCacheStatisticsUpdateOne) sqlSave(ctx context.Context) (_node
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(actionsummary.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if acsuo.mutation.MissDetailsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   actioncachestatistics.MissDetailsTable,
+			Columns: actioncachestatistics.MissDetailsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(missdetail.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := acsuo.mutation.RemovedMissDetailsIDs(); len(nodes) > 0 && !acsuo.mutation.MissDetailsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   actioncachestatistics.MissDetailsTable,
+			Columns: actioncachestatistics.MissDetailsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(missdetail.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := acsuo.mutation.MissDetailsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   actioncachestatistics.MissDetailsTable,
+			Columns: actioncachestatistics.MissDetailsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(missdetail.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

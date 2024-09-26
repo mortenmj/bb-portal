@@ -27,7 +27,6 @@ type TestSummaryQuery struct {
 	withTestCollection      *TestCollectionQuery
 	withPassed              *TestFileQuery
 	withFailed              *TestFileQuery
-	withFKs                 bool
 	modifiers               []func(*sql.Selector)
 	loadTotal               []func(context.Context, []*TestSummary) error
 	withNamedTestCollection map[string]*TestCollectionQuery
@@ -446,7 +445,6 @@ func (tsq *TestSummaryQuery) prepareQuery(ctx context.Context) error {
 func (tsq *TestSummaryQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*TestSummary, error) {
 	var (
 		nodes       = []*TestSummary{}
-		withFKs     = tsq.withFKs
 		_spec       = tsq.querySpec()
 		loadedTypes = [3]bool{
 			tsq.withTestCollection != nil,
@@ -454,9 +452,6 @@ func (tsq *TestSummaryQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 			tsq.withFailed != nil,
 		}
 	)
-	if withFKs {
-		_spec.Node.Columns = append(_spec.Node.Columns, testsummary.ForeignKeys...)
-	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*TestSummary).scanValues(nil, columns)
 	}
