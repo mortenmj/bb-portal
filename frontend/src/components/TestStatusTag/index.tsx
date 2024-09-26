@@ -3,7 +3,6 @@ import {
     CheckCircleFilled,
     CloseCircleFilled,
     InfoCircleFilled,
-    LoadingOutlined,
     MinusCircleFilled,
     QuestionCircleFilled,
     StopOutlined,
@@ -22,6 +21,7 @@ export const ALL_STATUS_VALUES = [
     'FAILED_TO_BUILD',
     'TOOL_HALTED_BEFORE_TESTING'
 ] as const;
+
 export type StatusTuple = typeof ALL_STATUS_VALUES;
 export type TestStatusEnum = StatusTuple[number];
 

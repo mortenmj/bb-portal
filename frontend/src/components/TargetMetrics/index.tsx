@@ -1,5 +1,5 @@
 import React from "react";
-import { Space, Table, Row, Col, Statistic, Tag } from 'antd';
+import { Space, Table, Row, Col, Statistic } from 'antd';
 import { DeploymentUnitOutlined, SearchOutlined } from '@ant-design/icons';
 import type { StatisticProps, TableColumnsType } from "antd/lib";
 import CountUp from 'react-countup';
@@ -11,11 +11,11 @@ import TargetAbortReasonTag, { AbortReasonsEnum } from "./targetAbortReasonTag";
 
 interface TargetDataType {
     key: React.Key;
-    name: string;   //label
-    success: boolean;
-    value: number;  //duration
-    target_kind: string;
-    failure_reason: string
+    name: string;           //label
+    success: boolean;       //overall sucess/fail
+    value: number;          //duration
+    target_kind: string;    //target kind if available
+    failure_reason: string  //failure reason if any
 }
 
 const formatter: StatisticProps['formatter'] = (value) => (
@@ -67,10 +67,9 @@ const TargetMetricsDisplay: React.FC<{
 
         const target_columns: TableColumnsType<TargetDataType> = [
             {
-                //TODO: make this a link to the test in the github repo so you can jump straight to the code and look at it
+
                 title: "Mnemonic",
                 dataIndex: "name",
-                //TODO working search w/autocomplete
                 filterSearch: true,
                 filterDropdown: filterProps => (
                     <SearchWidget placeholder="Target Pattern..." {...filterProps} />
@@ -179,7 +178,6 @@ const TargetMetricsDisplay: React.FC<{
                             <Statistic title="Targets Skipped" value={targets_skipped} formatter={formatter} valueStyle={{ color: "purple" }} />
                             <Statistic title="Targets Configured" value={targetMetrics?.targetsConfigured ?? 0} formatter={formatter} />
                             <Statistic title="Targets Configured Not Including Aspects" value={targetMetrics?.targetsConfiguredNotIncludingAspects ?? 0} formatter={formatter} />
-                            {/* <Statistic title="Targets Loaded" value={targetMetrics?.targetsLoaded ?? 0} formatter={formatter} /> */}
 
                         </Space>
                     </Row>

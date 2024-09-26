@@ -1,15 +1,8 @@
 import React from "react";
-
-
-import { Statistic, Space, Row, Col } from 'antd';
-
-import {
-    FieldTimeOutlined,
-    BuildOutlined,
-} from "@ant-design/icons";
+import { Statistic, Space, Row } from 'antd';
+import { FieldTimeOutlined, BuildOutlined, } from "@ant-design/icons";
 import type { StatisticProps } from "antd/lib";
 import CountUp from 'react-countup';
-
 import { BuildGraphMetrics, TimingMetrics } from "@/graphql/__generated__/graphql";
 import PortalCard from "../PortalCard";
 

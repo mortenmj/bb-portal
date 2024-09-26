@@ -8,24 +8,6 @@ export const LOAD_FULL_BAZEL_INVOCATION_DETAILS = gql(/* GraphQL */ `
   }
 `);
 
-export const RUNNER_FRAGMENT = gql(/* GraphQL */ `
-  fragment RunnerMetricsInfo on BazelInvocation {
-    id
-    metrics {
-      id
-      actionSummary {
-        id
-        runnerCount{
-            id
-            actionsExecuted
-            name
-            execKind
-        }
-      }
-    }
-  }
-`);
-
 export const BAZEL_INVOCATION_FRAGMENT = gql(/* GraphQL */ `
 fragment BazelInvocationInfo on BazelInvocation {
   metrics {

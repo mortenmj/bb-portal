@@ -33,7 +33,6 @@ import {
   AreaChartOutlined,
   FieldTimeOutlined,
   WifiOutlined,
-  ThunderboltOutlined,
   HddOutlined,
 } from "@ant-design/icons";
 import themeStyles from '@/theme/theme.module.css';

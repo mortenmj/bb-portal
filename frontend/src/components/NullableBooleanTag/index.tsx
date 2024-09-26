@@ -1,10 +1,5 @@
 import React from 'react';
-import {
-    CheckCircleFilled,
-    CloseCircleFilled,
-    QuestionCircleFilled,
-
-} from '@ant-design/icons';
+import { CheckCircleFilled, CloseCircleFilled, QuestionCircleFilled, } from '@ant-design/icons';
 import { Tag } from 'antd';
 import themeStyles from '@/theme/theme.module.css';
 

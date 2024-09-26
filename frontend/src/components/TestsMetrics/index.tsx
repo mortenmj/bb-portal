@@ -1,5 +1,5 @@
 import React from "react";
-import { Table, Row, Col, Statistic, Tag, Space } from 'antd';
+import { Table, Row, Col, Statistic, Space } from 'antd';
 import type { StatisticProps, TableColumnsType } from "antd/lib";
 import CountUp from 'react-countup';
 import TestStatusTag from "../TestStatusTag";
@@ -69,17 +69,13 @@ const test_columns: TableColumnsType<TestDataType> = [
                 value: "TOOL_HALTED_BEFORE_TESTING"
             },
         ],
-        // specify the condition of filtering result
-        // here is that finding the name started with `value`
         onFilter: (value, record) => record.status == value,
 
     },
     {
-        //TODO: make this a link to the test in the github repo so you can jump straight to the code and look at it
         title: "Mnemonic",
         dataIndex: "name",
 
-        //TODO working search w/autocomplete
         filterSearch: true,
         filterDropdown: filterProps => (
             <SearchWidget placeholder="Target Pattern..." {...filterProps} />
@@ -169,8 +165,8 @@ const TestMetricsDisplay: React.FC<{
     targetTimes,
 }) => {
         const totalTests: number = testMetrics?.length ?? 0
-
         const test_data: TestDataType[] = []
+
         testMetrics?.map((item: TestCollection, index) => {
             var label = item.label ?? "NO_TARGET_LABEL"
 
@@ -193,9 +189,6 @@ const TestMetricsDisplay: React.FC<{
         var numExecutedRemotely = test_data.filter(x => x.strategy == "remote").length
         var localCacheHit = test_data.filter(x => x.strategy in ["disk cache hit", ""] || x.cached_local == true).length
         var remoteCacheHit = test_data.filter(x => x.strategy == "remote cache hit" || x.cached_remote == true).length
-        //var localCacheHit = test_data.filter(x => x.strategy in ["disk cache hit", ""]).length
-        //var remoteCacheHit = test_data.filter(x => x.strategy == "remote cache hit").length
-
 
         return (
             <Space direction="vertical" size="middle" style={{ display: 'flex' }} >

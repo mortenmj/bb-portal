@@ -8,7 +8,7 @@ import { renderActiveShape } from "../Utilities/renderShape";
 import { nullPercent } from "../Utilities/nullPercent";
 import PortalCard from "../PortalCard";
 import { BaseType } from "antd/es/typography/Base";
-import { styleText } from "util";
+
 interface RunnerDataType {
     key: React.Key;
     name: string;
@@ -54,8 +54,7 @@ const runner_columns: TableColumnsType<RunnerDataType> = [
     },
 ];
 
-
-function colorSwitchOnExwc(exec: string) {
+function colorSwitchOnExecStrat(exec: string) {
     switch (exec) {
         case "Remote": return "#49AA19"
         case "Local": return "#DC4446"
@@ -84,7 +83,7 @@ const RunnerMetrics: React.FC<{ runnerMetrics: RunnerCount[]; }> = ({ runnerMetr
             value: item.actionsExecuted ?? 0,
             exec: item.execKind ?? "",
             rate: nullPercent(item.actionsExecuted, totalCount),
-            color: colorSwitchOnExwc(item.execKind ?? ""),
+            color: colorSwitchOnExecStrat(item.execKind ?? ""),
             text_type: getTextType(item.execKind ?? ""),
         }
         count++;

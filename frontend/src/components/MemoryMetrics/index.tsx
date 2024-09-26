@@ -1,20 +1,11 @@
 import React, { useCallback, useState } from "react";
-import { PieChart, Pie, Sector, Cell, Legend, BarChart, Bar, LabelList } from 'recharts';
-import { Table, Row, Col, Statistic, Tooltip, Space } from 'antd';
+import { PieChart, Pie, Cell, Legend } from 'recharts';
+import { Table, Row, Col, Statistic, Space } from 'antd';
 import type { StatisticProps, TableColumnsType } from "antd/lib";
 import CountUp from 'react-countup';
-import { ActionCacheStatistics, ActionSummary, MissDetail, ActionData, MemoryMetrics, GarbageMetrics } from "@/graphql/__generated__/graphql";
+import { MemoryMetrics, GarbageMetrics } from "@/graphql/__generated__/graphql";
 import PortalCard from "../PortalCard";
-import {
-    BuildOutlined,
-    FileSearchOutlined,
-    PieChartOutlined,
-    ExclamationCircleOutlined,
-    NodeCollapseOutlined,
-    DeploymentUnitOutlined,
-    ExperimentOutlined,
-    HddOutlined
-} from "@ant-design/icons";
+import { PieChartOutlined, HddOutlined } from "@ant-design/icons";
 import { renderActiveShape, newColorFind } from "../Utilities/renderShape";
 
 interface GarbageMetricDetailDisplayType {
@@ -25,12 +16,9 @@ interface GarbageMetricDetailDisplayType {
     //    rate: string;
 }
 
-
 const formatter: StatisticProps['formatter'] = (value) => (
     <CountUp end={value as number} separator="," />
 );
-
-
 
 const garbage_columns: TableColumnsType<GarbageMetricDetailDisplayType> = [
     {
@@ -43,7 +31,6 @@ const garbage_columns: TableColumnsType<GarbageMetricDetailDisplayType> = [
         sorter: (a, b) => a.value - b.value,
     },
 ]
-
 
 const MemoryMetricsDisplay: React.FC<{ memoryMetrics: MemoryMetrics | undefined; }> = ({ memoryMetrics }) => {
 
@@ -101,8 +88,6 @@ const MemoryMetricsDisplay: React.FC<{ memoryMetrics: MemoryMetrics | undefined;
                                 <Legend layout="vertical" />
                             </PieChart>
                         </PortalCard>
-
-
                     </Col>
                     <Col span="12">
                         <PortalCard icon={<HddOutlined />} titleBits={["Gargage Collection Data"]}>
@@ -116,9 +101,6 @@ const MemoryMetricsDisplay: React.FC<{ memoryMetrics: MemoryMetrics | undefined;
                 </Row >
             </PortalCard>
         </Space>
-
-
-
     )
 }
 
