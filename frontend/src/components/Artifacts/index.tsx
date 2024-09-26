@@ -71,11 +71,10 @@ const ArtifactsDataMetrics: React.FC<{ artifactMetrics: ArtifactMetrics | undefi
                             columns={artifacts_columns}
                             dataSource={artifacts_data}
                             showSorterTooltip={{ target: 'sorter-icon' }}
+                            pagination={false}
                         />
                     </Col>
-                    <Col span="6">
-
-                    </Col>
+                    <Col span="6" />
                 </Row>
             </PortalCard>
         </Space>
